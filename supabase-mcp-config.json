@@ -4,10 +4,10 @@
     "command": "npx",
     "args": [
       "@supabase/mcp-server-supabase@latest",
-      "--project-ref=guqjihzgnnzdsyxntnvd"
+      "--project-ref=cadczfmshtseuejkfpiz"
     ],
     "env": {
-      "SUPABASE_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1cWppaHpnbm56ZHN5eG50bnZkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjQ0MDQzMSwiZXhwIjoyMDY4MDE2NDMxfQ.AkkerUY1tU4sv3hmKpvEtCY0rwrq8vnX-G61hzXKd-8"
+      "SUPABASE_ACCESS_TOKEN": "sbp_e4e00c804f70f8bf4f08225ec68d5b83fb8309ec"
     }
   }
 }

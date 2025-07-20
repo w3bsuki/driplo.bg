@@ -109,7 +109,7 @@
 							/>
 						</div>
 						
-						{#if seller.verification_badges && Array.isArray(seller.verification_badges) && seller.verification_badges.includes('verified')}
+						{#if seller.is_verified}
 							<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200">
 								<Award class="h-4 w-4 text-blue-500" />
 							</div>
@@ -142,7 +142,7 @@
 							{/if}
 							<div class="flex items-center gap-1">
 								<Calendar class="h-3 w-3" />
-								<span>{formatMemberSince(seller.member_since)}</span>
+								<span>{formatMemberSince(seller.created_at)}</span>
 							</div>
 						</div>
 					</div>
@@ -165,7 +165,7 @@
 						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full mb-2 mx-auto">
 							<Users class="h-5 w-5 text-blue-600" />
 						</div>
-						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.followers_count)}</div>
+						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.followers_count || 0)}</div>
 						<div class="text-xs text-gray-500">Followers</div>
 					</div>
 					
@@ -173,7 +173,7 @@
 						<div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mb-2 mx-auto">
 							<TrendingUp class="h-5 w-5 text-green-600" />
 						</div>
-						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.profile_views)}</div>
+						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.profile_views || 0)}</div>
 						<div class="text-xs text-gray-500">Views</div>
 					</div>
 				</div>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Cookies</title>
+</head>
+<body>
+    <h1>Clearing all cookies...</h1>
+    <script>
+        // Clear all cookies
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        
+        // Clear localStorage and sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        alert("All cookies and storage cleared! Please go back to http://localhost:5190 and try logging in again.");
+    </script>
+</body>
+</html>

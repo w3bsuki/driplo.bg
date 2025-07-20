@@ -5,8 +5,8 @@ export interface BrowseFilters {
 	category?: string
 	subcategory?: string
 	search?: string
-	minPrice?: number
-	maxPrice?: number
+	minPrice?: number | null
+	maxPrice?: number | null
 	sizes?: string[]
 	brands?: string[]
 	conditions?: string[]
@@ -283,9 +283,9 @@ export async function getBrowseFilters(
 	}
 
 	// Extract unique values
-	const brands = [...new Set(data.map(item => item.brand).filter(Boolean))].sort()
-	const sizes = [...new Set(data.map(item => item.size).filter(Boolean))].sort()
-	const conditions = [...new Set(data.map(item => item.condition).filter(Boolean))].sort()
+	const brands = [...new Set(data.map(item => item.brand).filter(Boolean) as string[])].sort()
+	const sizes = [...new Set(data.map(item => item.size).filter(Boolean) as string[])].sort()
+	const conditions = [...new Set(data.map(item => item.condition).filter(Boolean) as string[])].sort()
 	
 	const prices = data.map(item => item.price).filter(Boolean)
 	const priceRange = prices.length > 0 ? {

@@ -29,7 +29,7 @@
 			class="fixed inset-0 bg-black/50 backdrop-blur-sm"
 			onclick={handleBackdropClick}
 			aria-label="Close dialog"
-		/>
+		></button>
 		
 		<!-- Dialog content -->
 		<div class={cn("fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]", className)}>

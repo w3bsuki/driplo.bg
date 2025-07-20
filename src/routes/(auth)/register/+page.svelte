@@ -1,21 +1,25 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
+	import { page } from '$app/stores'
 	import { auth } from '$lib/stores/auth'
-	import { Eye, EyeOff, Github } from 'lucide-svelte'
+	import { Eye, EyeOff, Github, CheckCircle } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import { z } from 'zod'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 
-	let email = ''
-	let password = ''
-	let confirmPassword = ''
-	let username = ''
-	let fullName = ''
-	let showPassword = false
-	let showConfirmPassword = false
-	let loading = false
-	let agreedToTerms = false
+	let email = $state('')
+	let password = $state('')
+	let confirmPassword = $state('')
+	let username = $state('')
+	let fullName = $state('')
+	let showPassword = $state(false)
+	let showConfirmPassword = $state(false)
+	let loading = $state(false)
+	let agreedToTerms = $state(false)
+	
+	// Check if showing success message
+	let showSuccess = $derived($page.url.searchParams.get('success') === 'true')
 
 	const registerSchema = z.object({
 		email: z.string().email('Please enter a valid email address'),
@@ -33,6 +37,7 @@
 	})
 
 	async function handleRegister() {
+		console.log('handleRegister called!', { email, password, username, agreedToTerms })
 		try {
 			const validatedData = registerSchema.parse({
 				email,
@@ -45,8 +50,10 @@
 
 			loading = true
 			await auth.signUp(email, password, username, fullName || undefined)
+			// Show success message and redirect to a confirmation page
 			toast.success('Account created! Please check your email to verify your account.')
-			goto('/login')
+			// Stay on the page or redirect to a confirmation page
+			goto('/register?success=true')
 		} catch (error: any) {
 			if (error.issues) {
 				// Zod validation errors
@@ -79,6 +86,27 @@
 
 <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-4">
 	<div class="w-full max-w-md">
+		{#if showSuccess}
+			<!-- Success message after signup -->
+			<div class="bg-white rounded-xl shadow-lg p-8 text-center">
+				<div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+					<CheckCircle class="w-8 h-8 text-green-600" />
+				</div>
+				<h2 class="text-2xl font-bold text-gray-900 mb-2">Check your email!</h2>
+				<p class="text-gray-600 mb-6">
+					We've sent a verification link to your email address. 
+					Click the link to activate your account and get started.
+				</p>
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+					<p class="text-sm text-blue-700">
+						<strong>Tip:</strong> If you don't see the email, check your spam folder or wait a few minutes.
+					</p>
+				</div>
+				<a href="/login" class="text-blue-400 hover:text-blue-500 font-medium">
+					Return to login
+				</a>
+			</div>
+		{:else}
 		<div class="bg-white rounded-xl shadow-lg p-6">
 			<!-- Logo -->
 			<div class="text-center mb-4">
@@ -252,6 +280,7 @@
 					{/if}
 				</button>
 			</form>
+			
 
 			<!-- Sign in link -->
 			<p class="text-center text-sm text-gray-600 mt-4">
@@ -261,5 +290,6 @@
 				</a>
 			</p>
 		</div>
+		{/if}
 	</div>
 </div>

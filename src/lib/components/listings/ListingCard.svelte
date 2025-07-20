@@ -2,6 +2,7 @@
 	import { Heart } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
+	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 	
 	interface Props {
 		id: string;
@@ -9,7 +10,8 @@
 		price: number;
 		size?: string;
 		brand?: string;
-		image: string;
+		image: string | Record<string, string>;
+		imageUrls?: Record<string, string>;
 		seller: {
 			username: string;
 			avatar?: string;
@@ -20,7 +22,7 @@
 		eagerLoading?: boolean; // For first 8 cards in viewport
 	}
 	
-	let { id, title, price, size, brand, image, seller, likes = 0, isLiked = false, condition, eagerLoading = false }: Props = $props();
+	let { id, title, price, size, brand, image, imageUrls, seller, likes = 0, isLiked = false, condition, eagerLoading = false }: Props = $props();
 	
 	let liked = $state(isLiked);
 	let likeCount = $state(likes);
@@ -95,12 +97,15 @@
 	<a href="/listings/{id}" class="block focus:outline-none rounded-lg">
 		<div class="relative aspect-[3/4] overflow-hidden rounded-t-lg bg-neutral-100">
 			{#if !imageError}
-				<img
-					src={image}
+				<ResponsiveImage
+					src={imageUrls || image}
 					alt={title}
-					class="h-full w-full object-cover"
+					class="h-full w-full"
+					objectFit="cover"
+					preferredSize="small"
 					loading={eagerLoading ? 'eager' : 'lazy'}
 					onerror={handleImageError}
+					sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
 				/>
 			{:else}
 				<div class="h-full w-full flex items-center justify-center bg-gray-100">

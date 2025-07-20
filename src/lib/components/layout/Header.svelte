@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Search, Heart, MessageCircle, User, Menu, Camera, Home, LogOut, ShoppingBag } from 'lucide-svelte';
+	import { Heart, MessageCircle, User, Menu, Camera, Home, LogOut, ShoppingBag, ChevronDown } from 'lucide-svelte';
 	import { Button, DropdownMenu } from '$lib/components/ui';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
@@ -8,6 +8,7 @@
 	import type { Category } from '$lib/types';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
+	import DriploLogo from '$lib/components/ui/DriploLogo.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	
 	interface Props {
@@ -83,185 +84,201 @@
 	}
 </script>
 
-<header class="sticky top-0 z-50 w-full border-b bg-white">
+<header class="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-sm shadow-sm">
 	<!-- Main Header -->
-	<div class="container flex h-16 items-center px-4">
-		<!-- Mobile Menu Dropdown -->
-		<div class="flex md:hidden items-center mr-2">
+	<div class="container flex h-14 md:h-16 items-center px-3 md:px-4">
+		<!-- Logo -->
+		<a href="/" class="flex items-center mr-auto focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded-md px-1">
+			<DriploLogo size="sm" className="md:hidden" />
+			<DriploLogo size="md" className="hidden md:flex" />
+		</a>
+		
+		<!-- Mobile Actions -->
+		<div class="flex md:hidden items-center ml-auto gap-1">
+			<!-- Mobile Messages -->
+			{#if authContext?.user}
+				<a 
+					href="/messages" 
+					class="relative h-10 w-10 flex items-center justify-center rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors"
+					aria-label="Messages"
+				>
+					<MessageCircle class="h-5 w-5 text-gray-600" />
+					{#if $unreadCount > 0}
+						<span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
+							{$unreadCount > 9 ? '9+' : $unreadCount}
+						</span>
+					{/if}
+				</a>
+			{/if}
+			
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
-					class="relative h-10 w-10 flex items-center justify-center rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-					aria-label="Toggle menu"
+					class="relative h-10 w-10 flex items-center justify-center rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 group"
+					aria-label="Account menu"
 				>
-					<Menu class="h-5 w-5 text-gray-600" />
+					{#if authContext?.user}
+						{#if authContext.profile?.avatar_url}
+							<img src={authContext.profile.avatar_url} alt="Profile" class="h-8 w-8 rounded-xl border-2 border-gray-200 object-cover" />
+						{:else}
+							<div class="h-8 w-8 rounded-xl bg-gray-100 flex items-center justify-center">
+								<span class="text-gray-700 font-semibold text-xs">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
+							</div>
+						{/if}
+					{:else}
+						<div class="h-8 w-8 rounded-xl border-2 border-gray-200 bg-white flex items-center justify-center">
+							<User class="h-4 w-4 text-gray-600" />
+						</div>
+					{/if}
+					<!-- Dropdown Indicator -->
+					<div class="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 shadow-sm border border-gray-100">
+						<ChevronDown class="h-2.5 w-2.5 text-gray-400 group-hover:text-gray-600" />
+					</div>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content 
-					align="start" 
+					align="end" 
 					sideOffset={8}
-					class="w-72 max-h-[calc(100vh-5rem)] overflow-y-auto rounded-xl border border-gray-200 bg-white p-1 shadow-md z-50"
+					class="w-64 rounded-xl border border-gray-200 bg-white/95 backdrop-blur-sm p-2 shadow-2xl z-50"
 				>
-					<!-- Navigation Items -->
-					<DropdownMenu.Group>
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer focus:bg-gray-100 focus:outline-none"
-						>
-							<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-								<Home class="h-4 w-4 text-gray-600" />
-							</div>
-							{m.header_home()}
-						</DropdownMenu.Item>
-						
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/browse')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
-						>
-							<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-								<Search class="h-4 w-4 text-gray-600" />
-							</div>
-							{m.header_browse()}
-						</DropdownMenu.Item>
-						
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/sell')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-blue-300 to-blue-400 hover:from-blue-400 hover:to-blue-500 cursor-pointer"
-						>
-							<div class="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center">
-								<Camera class="h-4 w-4 text-white" />
-							</div>
-							{m.header_sell_item()}
-						</DropdownMenu.Item>
-						
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/orders')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
-						>
-							<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-								<ShoppingBag class="h-4 w-4 text-gray-600" />
-							</div>
-							Orders
-						</DropdownMenu.Item>
-						
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/messages')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
-						>
-							<div class="relative h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-								<MessageCircle class="h-4 w-4 text-gray-600" />
+					{#if authContext?.user}
+						<!-- Compact Profile Header -->
+						<div class="px-2 py-2 mb-2">
+							<button
+								onclick={() => navigateTo(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
+								class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+							>
+								{#if authContext.profile?.avatar_url}
+									<img src={authContext.profile.avatar_url} alt="Profile" class="h-12 w-12 rounded-xl object-cover" />
+								{:else}
+									<div class="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center">
+										<span class="text-gray-700 font-bold text-lg">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
+									</div>
+								{/if}
+								<div class="flex-1 text-left">
+									<p class="font-semibold text-gray-900">{authContext.profile?.full_name || authContext.profile?.username || 'My Profile'}</p>
+									<p class="text-xs text-gray-500">@{authContext.profile?.username || 'user'}</p>
+								</div>
+							</button>
+						</div>
+
+						<!-- Quick Actions Grid -->
+						<div class="grid grid-cols-2 gap-2 mb-3">
+							<button
+								onclick={() => navigateTo('/orders')}
+								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+							>
+								<ShoppingBag class="h-5 w-5 text-gray-600" />
+								<span class="text-xs text-gray-700">Orders</span>
+							</button>
+							
+							<button
+								onclick={() => navigateTo('/messages')}
+								class="relative flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+							>
+								<MessageCircle class="h-5 w-5 text-gray-600" />
 								{#if $unreadCount > 0}
-									<span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
+									<span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
 										{$unreadCount > 9 ? '9+' : $unreadCount}
 									</span>
 								{/if}
-							</div>
-							{m.header_messages()}
-						</DropdownMenu.Item>
-						
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/wishlist')}
-							class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
-						>
-							<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-								<Heart class="h-4 w-4 text-gray-600" />
-							</div>
-							{m.header_favorites()}
-						</DropdownMenu.Item>
-					</DropdownMenu.Group>
-					
-					<!-- Profile Section -->
-					{#if authContext?.user}
-						<DropdownMenu.Separator class="my-2 bg-gray-200" />
-						<DropdownMenu.Group>
-							<DropdownMenu.Label class="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-								Account
-							</DropdownMenu.Label>
-							<DropdownMenu.Item
-								onclick={() => navigateTo(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
-								class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-gray-100 cursor-pointer"
-							>
-								{#if authContext.profile?.avatar_url}
-									<img src={authContext.profile.avatar_url} alt="Profile" class="h-10 w-10 rounded-lg object-cover" />
-								{:else}
-									<div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
-										<span class="text-white font-semibold text-sm">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
-									</div>
-								{/if}
-								<div class="flex-1">
-									<p class="text-sm font-medium text-gray-900">{authContext.profile?.full_name || authContext.profile?.username || 'My Profile'}</p>
-									<p class="text-xs text-gray-500">View profile</p>
-								</div>
-							</DropdownMenu.Item>
+								<span class="text-xs text-gray-700">Messages</span>
+							</button>
 							
-							<DropdownMenu.Item
-								onclick={() => navigateTo('/profile/settings')}
-								class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
+							<button
+								onclick={() => navigateTo('/wishlist')}
+								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
 							>
-								<div class="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-									<User class="h-4 w-4 text-gray-600" />
-								</div>
-								{m.header_settings()}
-							</DropdownMenu.Item>
-						</DropdownMenu.Group>
-					{:else}
-						<DropdownMenu.Separator class="my-2 bg-gray-200" />
-						<DropdownMenu.Item
-							onclick={() => navigateTo('/login')}
-							class="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium cursor-pointer"
-						>
-							<User class="h-4 w-4" />
-							{m.header_sign_in()}
-						</DropdownMenu.Item>
-					{/if}
-					
-					<!-- Categories Section -->
-					{#if categories.length > 0}
-						<DropdownMenu.Separator class="my-2 bg-gray-200" />
-						<DropdownMenu.Group>
-							<DropdownMenu.Label class="px-3 py-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-								{m.header_categories()}
-							</DropdownMenu.Label>
-							{#each categories as category}
-								<DropdownMenu.Item
-									onclick={() => navigateTo(`/${category.slug}`)}
-									class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 cursor-pointer"
+								<Heart class="h-5 w-5 text-gray-600" />
+								<span class="text-xs text-gray-700">Wishlist</span>
+							</button>
+							
+							<button
+								onclick={() => navigateTo('/sell')}
+								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-900 hover:bg-gray-800 transition-all text-white"
+							>
+								<Camera class="h-5 w-5" />
+								<span class="text-xs font-medium">Sell</span>
+							</button>
+						</div>
+
+						<div class="border-t border-gray-100 pt-2 space-y-1">
+							<!-- Admin Dashboard -->
+							{#if authContext.profile?.is_admin}
+								<button
+									onclick={() => navigateTo('/admin')}
+									class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-colors text-left"
 								>
-									<span class="text-lg">{category.icon || '📦'}</span>
-									{category.name}
-								</DropdownMenu.Item>
-							{/each}
-						</DropdownMenu.Group>
-					{/if}
-					
-					<!-- Footer Actions -->
-					<DropdownMenu.Separator class="my-2" />
-					<div class="px-3 py-2 flex items-center justify-between">
-						<span class="text-xs text-gray-500 font-medium">Language</span>
-						<LanguageSwitcher />
-					</div>
-					
-					{#if authContext?.user}
-						<DropdownMenu.Separator class="my-2 bg-gray-200" />
-						<DropdownMenu.Item
-							onclick={handleSignOut}
-							class="flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 cursor-pointer"
-						>
-							<LogOut class="h-4 w-4" />
-							Sign out
-						</DropdownMenu.Item>
+									<span class="text-lg">👑</span>
+									<span class="text-sm font-medium text-purple-700">Admin Dashboard</span>
+								</button>
+							{/if}
+							
+							<!-- Settings -->
+							<button
+								onclick={() => navigateTo('/profile/settings')}
+								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+							>
+								<User class="h-4 w-4 text-gray-500" />
+								<span class="text-sm text-gray-700">{m.header_settings()}</span>
+							</button>
+							
+							<!-- Language -->
+							<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50">
+								<div class="flex items-center gap-3">
+									<span class="text-lg">🌐</span>
+									<span class="text-sm text-gray-700">Language</span>
+								</div>
+								<LanguageSwitcher />
+							</div>
+							
+							<!-- Sign Out -->
+							<button
+								onclick={handleSignOut}
+								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-left"
+							>
+								<LogOut class="h-4 w-4" />
+								<span class="text-sm">Sign out</span>
+							</button>
+						</div>
+					{:else}
+						<!-- Not logged in state -->
+						<div class="p-4 text-center">
+							<div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+								<User class="h-8 w-8 text-gray-400" />
+							</div>
+							<p class="text-sm text-gray-600 mb-4">Sign in to access your account</p>
+							<button
+								onclick={() => navigateTo('/login')}
+								class="w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
+							>
+								{m.header_sign_in()}
+							</button>
+							<button
+								onclick={() => navigateTo('/register')}
+								class="w-full mt-2 px-4 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors"
+							>
+								Create account
+							</button>
+						</div>
+						
+						<!-- Language at bottom when not logged in -->
+						<div class="border-t border-gray-100 pt-2 mt-4">
+							<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50">
+								<div class="flex items-center gap-3">
+									<span class="text-lg">🌐</span>
+									<span class="text-sm text-gray-700">Language</span>
+								</div>
+								<LanguageSwitcher />
+							</div>
+						</div>
 					{/if}
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>
-		
-		<!-- Logo -->
-		<a href="/" class="flex items-center space-x-2 mr-4 md:mr-6 md:ml-0 -ml-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 rounded">
-			<span class="text-xl md:text-2xl font-black tracking-tighter text-[oklch(13%_0_0)]">Driplo</span>
-		</a>
 
 		<!-- Desktop Search Bar -->
 		<div class="flex-1 max-w-2xl mx-2 md:mx-4 hidden md:block">
 			<div class="relative">
-				<Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg pointer-events-none">🔍</span>
 				<input
 					type="search"
 					placeholder={m.header_search_placeholder()}
@@ -297,8 +314,8 @@
 					{#if authContext.profile?.avatar_url}
 						<img src={authContext.profile.avatar_url} alt="Profile" class="h-9 w-9 rounded-full border-2 border-gray-200 object-cover" />
 					{:else}
-						<div class="h-9 w-9 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
-							<span class="text-white font-semibold text-sm">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
+						<div class="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center">
+							<span class="text-gray-700 font-semibold text-sm">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
 						</div>
 					{/if}
 				{:else}
@@ -310,25 +327,6 @@
 			</a>
 		</div>
 
-		<!-- Mobile Actions -->
-		<div class="flex md:hidden items-center ml-auto">
-			<a href={authContext?.user ? (authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile') : '/login'} class="relative p-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 hover:bg-gray-100">
-				{#if authContext?.user}
-					{#if authContext.profile?.avatar_url}
-						<img src={authContext.profile.avatar_url} alt="Profile" class="h-8 w-8 rounded-xl border-2 border-gray-200 object-cover" />
-					{:else}
-						<div class="h-8 w-8 rounded-xl bg-gradient-to-br from-blue-200 to-blue-400 flex items-center justify-center">
-							<span class="text-white font-semibold text-xs">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
-						</div>
-					{/if}
-				{:else}
-					<div class="h-8 w-8 rounded-xl border-2 border-gray-200 bg-white flex items-center justify-center">
-						<User class="h-4 w-4 text-gray-600" />
-					</div>
-				{/if}
-				<span class="sr-only">{authContext?.user ? m.header_my_profile() : m.header_sign_in()}</span>
-			</a>
-		</div>
 	</div>
 
 	<!-- Category Filter Chips (Desktop) -->

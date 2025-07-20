@@ -173,7 +173,7 @@
 	{#if isDropdownOpen}
 		<div
 			transition:fly={{ y: -10, duration: 200 }}
-			class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50"
+			class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-[200]"
 		>
 			<!-- Header -->
 			<div class="flex items-center justify-between mb-4">
@@ -262,7 +262,7 @@
 
 {#if isDropdownOpen}
 	<button
-		class="fixed inset-0 z-40"
+		class="fixed inset-0 z-[190]"
 		onclick={closeDropdown}
 		aria-label="Close dropdown"
 	/>

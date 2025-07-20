@@ -7,7 +7,9 @@ export function getCSPHeader(nonce: string): string {
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       'https:',
-      "'unsafe-inline'" // fallback for older browsers
+      "'unsafe-inline'", // fallback for older browsers
+      'https://js.stripe.com',
+      'https://checkout.stripe.com'
     ],
     'style-src': [
       "'self'",

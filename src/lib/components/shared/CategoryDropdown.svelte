@@ -5,6 +5,7 @@
 	import { clickOutside } from '$lib/actions';
 	import type { Category } from '$lib/types';
 	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	interface Props {
 		categories?: Category[];
@@ -148,22 +149,28 @@
 {#if isOpen}
 	<div 
 		class={cn(
-			"absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] md:w-[600px]",
-			"bg-white rounded-2xl shadow-xl border border-gray-200 z-[100] overflow-hidden",
+			"absolute top-full left-0 mt-1 w-[calc(100vw-2rem)] md:w-[600px]",
+			"bg-white rounded-2xl shadow-2xl border border-gray-200 z-[100] overflow-hidden",
+			"md:mt-2",
 			className
 		)}
 		use:clickOutside={onClose}
 	>
 		<!-- Mobile Layout -->
 		<div class="md:hidden max-h-[60vh] flex flex-col">
-			<!-- Quick Filters at Top -->
-			<div class="px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white relative">
+			<!-- Header with Close Button -->
+			<div class="flex items-center justify-between px-3 py-3 border-b border-gray-200">
+				<h3 class="text-sm font-semibold text-gray-900">{m.header_categories()}</h3>
 				<button
 					onclick={onClose}
-					class="absolute right-2 top-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+					class="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
 				>
-					<X class="w-4 h-4 text-gray-500" />
+					<X class="w-5 h-5 text-gray-500" />
 				</button>
+			</div>
+			
+			<!-- Quick Filters -->
+			<div class="px-3 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
 				<div class="grid grid-cols-2 gap-2">
 					<button
 						onclick={() => {
@@ -174,8 +181,8 @@
 					>
 						<span class="text-base">🏷️</span>
 						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">New Tags</div>
-							<div class="text-[10px] text-gray-500">Brand new</div>
+							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Нови с етикети' : 'New Tags'}</div>
+							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Чисто нови' : 'Brand new'}</div>
 						</div>
 					</button>
 					
@@ -188,8 +195,8 @@
 					>
 						<span class="text-base">💸</span>
 						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">On Sale</div>
-							<div class="text-[10px] text-gray-500">Deals</div>
+							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Намаление' : 'On Sale'}</div>
+							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Оферти' : 'Deals'}</div>
 						</div>
 					</button>
 					
@@ -202,8 +209,8 @@
 					>
 						<span class="text-base">❤️</span>
 						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">Most Liked</div>
-							<div class="text-[10px] text-gray-500">Popular</div>
+							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Най-харесвани' : 'Most Liked'}</div>
+							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Популярни' : 'Popular'}</div>
 						</div>
 					</button>
 					
@@ -216,8 +223,8 @@
 					>
 						<span class="text-base">✨</span>
 						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">Latest</div>
-							<div class="text-[10px] text-gray-500">Just in</div>
+							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Най-нови' : 'Latest'}</div>
+							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Току-що добавени' : 'Just in'}</div>
 						</div>
 					</button>
 				</div>
@@ -304,8 +311,8 @@
 						>
 							<span class="text-lg">🏷️</span>
 							<div class="text-left">
-								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">New with Tags</div>
-								<div class="text-xs text-gray-500">Brand new items</div>
+								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">{getLocale() === 'bg' ? 'Нови с етикети' : 'New with Tags'}</div>
+								<div class="text-xs text-gray-500">{getLocale() === 'bg' ? 'Чисто нови артикули' : 'Brand new items'}</div>
 							</div>
 						</button>
 						
@@ -318,8 +325,8 @@
 						>
 							<span class="text-lg">💸</span>
 							<div class="text-left">
-								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">On Sale</div>
-								<div class="text-xs text-gray-500">Discounted items</div>
+								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">{getLocale() === 'bg' ? 'Намаление' : 'On Sale'}</div>
+								<div class="text-xs text-gray-500">{getLocale() === 'bg' ? 'Намалени артикули' : 'Discounted items'}</div>
 							</div>
 						</button>
 						
@@ -332,8 +339,8 @@
 						>
 							<span class="text-lg">✨</span>
 							<div class="text-left">
-								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">Latest Arrivals</div>
-								<div class="text-xs text-gray-500">Just added</div>
+								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">{getLocale() === 'bg' ? 'Най-нови' : 'Latest Arrivals'}</div>
+								<div class="text-xs text-gray-500">{getLocale() === 'bg' ? 'Току-що добавени' : 'Just added'}</div>
 							</div>
 						</button>
 					</div>
@@ -342,7 +349,7 @@
 				<!-- Popular Filters -->
 				<div>
 					<h3 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-						<span class="text-base">⭐</span> Popular
+						<span class="text-base">⭐</span> {getLocale() === 'bg' ? 'Популярни' : 'Popular'}
 					</h3>
 					<div class="space-y-2">
 						<button
@@ -354,8 +361,8 @@
 						>
 							<span class="text-lg">❤️</span>
 							<div class="text-left">
-								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">Most Liked</div>
-								<div class="text-xs text-gray-500">Popular items</div>
+								<div class="text-sm font-medium text-gray-900 group-hover:text-blue-500">{getLocale() === 'bg' ? 'Най-харесвани' : 'Most Liked'}</div>
+								<div class="text-xs text-gray-500">{getLocale() === 'bg' ? 'Популярни артикули' : 'Popular items'}</div>
 							</div>
 						</button>
 						

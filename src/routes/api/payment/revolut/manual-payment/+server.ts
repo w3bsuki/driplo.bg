@@ -8,15 +8,21 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const { listing_id } = await request.json();
 		console.log('📦 Listing ID:', listing_id);
 
-		// Check if user is authenticated
-		const session = await locals.supabase.auth.getSession();
-		console.log('Session data:', session.data);
-		if (!session.data.session) {
+		// Check if user is authenticated with secure validation
+		const { data: { session } } = await locals.supabase.auth.getSession();
+		if (!session) {
 			console.log('No session found, user is not authenticated');
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const userId = session.data.session.user.id;
+		// Validate the JWT by calling getUser()
+		const { data: { user }, error: userError } = await locals.supabase.auth.getUser();
+		if (userError || !user) {
+			console.log('JWT validation failed:', userError);
+			return json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		const userId = user.id;
 
 		// Get listing details
 		const { data: listing, error: listingError } = await supabase
@@ -153,13 +159,19 @@ export const PATCH: RequestHandler = async ({ request, locals }) => {
 	try {
 		const { transaction_id } = await request.json();
 
-		// Check if user is authenticated
-		const session = await locals.supabase.auth.getSession();
-		if (!session.data.session) {
+		// Check if user is authenticated with secure validation
+		const { data: { session } } = await locals.supabase.auth.getSession();
+		if (!session) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const userId = session.data.session.user.id;
+		// Validate the JWT by calling getUser()
+		const { data: { user }, error: userError } = await locals.supabase.auth.getUser();
+		if (userError || !user) {
+			return json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		const userId = user.id;
 
 		// Update transaction with proof of payment
 		const { data: transaction, error: updateError } = await supabase

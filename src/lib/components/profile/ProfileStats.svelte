@@ -135,7 +135,7 @@
 				</div>
 			{/if}
 			
-			{#if profile.verification_badges?.includes('business')}
+			{#if Array.isArray(profile.verification_badges) && profile.verification_badges.includes('business')}
 				<div class="flex items-center gap-1.5 bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-xs font-medium w-fit">
 					<Shield class="w-3.5 h-3.5" />
 					{m.profile_stats_business_verified()}

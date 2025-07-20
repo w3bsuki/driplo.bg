@@ -14,7 +14,7 @@
 
 <div
 	class={cn(
-		"w-full max-w-lg bg-background rounded-lg shadow-lg border",
+		"w-full max-w-lg bg-white dark:bg-gray-900 rounded-lg shadow-lg border",
 		"p-6 animate-in fade-in-0 zoom-in-95",
 		className
 	)}

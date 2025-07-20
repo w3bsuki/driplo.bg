@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Signup</title>
+</head>
+<body>
+    <h1>Direct Supabase Signup Test</h1>
+    <button onclick="testSignup()">Test Signup</button>
+    <div id="result"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        const supabaseUrl = 'https://okmnkfblkdiymuavhyqm.supabase.co'
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9rbW5rZmJsa2RpeW11YXZoeXFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcyODczNTAsImV4cCI6MjA1Mjg2MzM1MH0.uI5oVHkNQuMDaqGmQLjz_r5B-mprDRg7hZxNjhXfvKg'
+        
+        const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+        window.testSignup = async function() {
+            const result = document.getElementById('result')
+            result.innerHTML = 'Testing signup...'
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: 'w3bsuki@gmail.com',
+                    password: '12345678',
+                    options: {
+                        data: {
+                            username: 'w3bsuki',
+                            full_name: 'Admin User'
+                        }
+                    }
+                })
+                
+                if (error) {
+                    result.innerHTML = `Error: ${error.message}`
+                } else {
+                    result.innerHTML = `Success! User created: ${JSON.stringify(data, null, 2)}`
+                }
+            } catch (err) {
+                result.innerHTML = `Exception: ${err.message}`
+            }
+        }
+    </script>
+</body>
+</html>

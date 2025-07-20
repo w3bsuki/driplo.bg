@@ -7,13 +7,19 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
 		const { transaction_id, tracking_number } = await request.json();
 
-		// Check if user is authenticated
-		const session = await locals.supabase.auth.getSession();
-		if (!session.data.session) {
+		// Check if user is authenticated with secure validation
+		const { data: { session } } = await locals.supabase.auth.getSession();
+		if (!session) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const userId = session.data.session.user.id;
+		// Validate the JWT by calling getUser()
+		const { data: { user }, error: userError } = await locals.supabase.auth.getUser();
+		if (userError || !user) {
+			return json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		const userId = user.id;
 
 		// Get transaction details and verify seller
 		const { data: transaction, error: transactionError } = await supabase

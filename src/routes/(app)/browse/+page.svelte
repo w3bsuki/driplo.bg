@@ -5,7 +5,7 @@
 	import { Button } from '$lib/components/ui';
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
 	import SearchInput from '$lib/components/search/SearchInput.svelte';
-	import SearchBarWithFilters from '$lib/components/search/SearchBarWithFilters.svelte';
+	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
 	import { cn } from '$lib/utils';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
@@ -18,6 +18,7 @@
 	let searchFocused = $state(false);
 	let showQuickSearch = $state(false);
 	let searchDebounceTimer: NodeJS.Timeout;
+	let showStickySearch = $state(false);
 
 	// Quick search suggestions
 	const quickSearchSuggestions = [
@@ -126,11 +127,9 @@
 			clearTimeout(searchDebounceTimer);
 		}
 		// Set new timer for debounced search
-		if (query.trim()) {
-			searchDebounceTimer = setTimeout(() => {
-				handleSearch(query);
-			}, 500); // 500ms debounce
-		}
+		searchDebounceTimer = setTimeout(() => {
+			handleSearch(query);
+		}, 500); // 500ms debounce
 	}
 
 	function handleQuickSearch(suggestion: string) {
@@ -145,6 +144,24 @@
 			if (searchDebounceTimer) {
 				clearTimeout(searchDebounceTimer);
 			}
+		};
+	});
+
+	// Scroll detection for sticky search bar
+	$effect(() => {
+		if (!browser) return;
+
+		function handleScroll() {
+			const scrollY = window.scrollY;
+			// Show sticky search when scrolled past hero section (approximately 400px)
+			showStickySearch = scrollY > 400;
+		}
+
+		window.addEventListener('scroll', handleScroll);
+		handleScroll(); // Check initial position
+
+		return () => {
+			window.removeEventListener('scroll', handleScroll);
 		};
 	});
 
@@ -194,49 +211,6 @@
 		goto('/browse');
 	}
 
-	function handleQuickFilterChange(filters: any) {
-		// Convert quick filter format to URL params
-		const updates: Record<string, any> = {};
-		
-		// Handle conditions
-		if (filters.condition) {
-			updates.conditions = filters.condition.length > 0 ? filters.condition.join(',') : null;
-			selectedConditions = new Set(filters.condition);
-		}
-		
-		// Handle sizes
-		if (filters.size) {
-			updates.sizes = filters.size.length > 0 ? filters.size.join(',') : null;
-			selectedSizes = new Set(filters.size);
-		}
-		
-		// Handle price range
-		if (filters.priceRange) {
-			if (filters.priceRange === '0-20') {
-				updates.minPrice = 0;
-				updates.maxPrice = 20;
-				priceRange = { min: 0, max: 20 };
-			} else if (filters.priceRange === '20-50') {
-				updates.minPrice = 20;
-				updates.maxPrice = 50;
-				priceRange = { min: 20, max: 50 };
-			} else if (filters.priceRange === '50-100') {
-				updates.minPrice = 50;
-				updates.maxPrice = 100;
-				priceRange = { min: 50, max: 100 };
-			} else if (filters.priceRange === '100+') {
-				updates.minPrice = 100;
-				updates.maxPrice = null;
-				priceRange = { min: 100, max: 10000 };
-			} else {
-				updates.minPrice = null;
-				updates.maxPrice = null;
-				priceRange = { min: 0, max: 10000 };
-			}
-		}
-		
-		goto(buildFilterUrl(updates));
-	}
 
 	// Size options
 	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '8', '10', '12', '14', '16'];
@@ -382,10 +356,9 @@
 								type="search"
 								placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
 								bind:value={searchInput}
-								oninput={(e) => handleSearchInput(e.currentTarget.value)}
 								onfocus={() => { searchFocused = true; showQuickSearch = true; }}
 								onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}
-								onkeydown={(e) => { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); handleSearch(searchInput); } }}
+								onkeydown={(e) => { if (e.key === 'Enter') { handleSearch(searchInput); } }}
 								class="flex-1 py-3 md:py-4 pr-4 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 							/>
 							
@@ -421,51 +394,16 @@
 		</div>
 	</section>
 
-	<!-- Mobile Search & Filters -->
-	<div class="sticky top-[64px] z-40 bg-white border-b block md:hidden">
-		<div class="p-4 space-y-3">
-			<!-- Mobile Search Bar with Quick Filters -->
-			<SearchBarWithFilters
-				bind:value={searchInput}
-				placeholder="Search items... 👗 👔 👟"
-				onSearch={handleSearch}
-				onFilterChange={handleQuickFilterChange}
-				activeFilterCount={data.filters.conditions.length + data.filters.sizes.length + (data.filters.minPrice || data.filters.maxPrice ? 1 : 0)}
-			/>
-
-			<!-- Category Pills -->
-			<div class="overflow-x-auto -mx-4 px-4">
-				<div class="flex gap-2 pb-2">
-					{#each categoriesWithAll as category}
-						<button
-							onclick={() => updateCategory(category.slug)}
-							class={cn(
-								"whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-all flex-shrink-0",
-								data.filters.category === category.slug
-									? "bg-blue-300 text-white shadow-sm"
-									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-							)}
-						>
-							{category.name}
-						</button>
-					{/each}
-				</div>
-			</div>
-
-			<!-- Active Filters Bar -->
-			{#if data.filters.search || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || (priceRange.min > 0 || priceRange.max < 10000)}
-				<div class="flex items-center justify-between bg-blue-50 rounded-lg px-3 py-2">
-					<span class="text-sm text-blue-800 font-medium">Active filters</span>
-					<button
-						onclick={clearAllFilters}
-						class="text-sm text-blue-600 hover:text-blue-800 font-medium"
-					>
-						{m.filter_clear_all()}
-					</button>
-				</div>
-			{/if}
-		</div>
-	</div>
+	<!-- Sticky Search Bar (Desktop & Mobile) -->
+	<StickySearchBar
+		bind:value={searchInput}
+		placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
+		onSearch={handleSearch}
+		onCategorySelect={updateCategory}
+		categories={data.categories}
+		activeCategory={data.filters.category}
+		visible={showStickySearch}
+	/>
 
 	<div class="container mx-auto px-4 py-6">
 		<div class="flex gap-6">
@@ -713,3 +651,13 @@
 	</div>
 
 </div>
+
+<style>
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
+		display: none;
+	}
+</style>

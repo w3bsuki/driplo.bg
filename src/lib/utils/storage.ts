@@ -1,10 +1,13 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database'
+import { ImageOptimizer } from '$lib/server/image-optimizer'
 
 export type UploadResult = {
 	url: string
-	path: string
+	path?: string
+	urls?: Record<string, string>
+	srcSet?: string
 	error?: string
 }
 
@@ -27,60 +30,97 @@ export function validateImageFile(file: File): string | null {
 }
 
 /**
- * Uploads a single image to Supabase storage
+ * Uploads a single image to Supabase storage with optimization
+ * Note: This function should only be used on the server side when ImageOptimizer is available
  */
 export async function uploadImage(
 	file: File,
 	bucket: 'avatars' | 'covers' | 'listings',
 	supabase: SupabaseClient<Database>,
-	userId?: string
+	userId?: string,
+	optimize: boolean = false
 ): Promise<UploadResult> {
 	try {
 		// Validate file
 		const validationError = validateImageFile(file)
 		if (validationError) {
-			return { url: '', path: '', error: validationError }
+			return { url: '', error: validationError }
 		}
 
-		// Generate unique filename
-		const fileExt = file.name.split('.').pop()
-		const fileName = `${uuidv4()}.${fileExt}`
+		// For client-side uploads or when optimization is disabled
+		if (!optimize || typeof window !== 'undefined') {
+			// Generate unique filename
+			const fileExt = file.name.split('.').pop()
+			const fileName = `${uuidv4()}.${fileExt}`
+			
+			// Create folder structure based on bucket type
+			let filePath = fileName
+			if (bucket === 'listings' && userId) {
+				filePath = `${userId}/${fileName}`
+			} else if ((bucket === 'avatars' || bucket === 'covers') && userId) {
+				filePath = `${userId}/${fileName}`
+			}
+
+			// Upload to Supabase storage
+			const { data, error } = await supabase.storage
+				.from(bucket)
+				.upload(filePath, file, {
+					cacheControl: 'public, max-age=2592000', // 30 days cache
+					upsert: false
+				})
+
+			if (error) {
+				console.error('Upload error:', error)
+				return { url: '', error: error.message }
+			}
+
+			// Get public URL
+			const { data: { publicUrl } } = supabase.storage
+				.from(bucket)
+				.getPublicUrl(data.path)
+
+			return {
+				url: publicUrl,
+				path: data.path
+			}
+		}
+
+		// Server-side optimized upload
+		const optimizer = new ImageOptimizer(supabase)
+		const type = bucket === 'avatars' ? 'avatar' : bucket === 'covers' ? 'cover' : 'listing'
 		
-		// Create folder structure based on bucket type
-		let filePath = fileName
-		if (bucket === 'listings' && userId) {
-			filePath = `${userId}/${fileName}`
-		} else if ((bucket === 'avatars' || bucket === 'covers') && userId) {
-			filePath = `${userId}/${fileName}`
+		// Optimize images
+		const optimizedImages = await optimizer.optimizeImage(file, type)
+		
+		if (optimizedImages.length === 0) {
+			return { url: '', error: 'Failed to optimize image' }
 		}
-
-		// Upload to Supabase storage
-		const { data, error } = await supabase.storage
-			.from(bucket)
-			.upload(filePath, file, {
-				cacheControl: '3600',
-				upsert: false
-			})
-
-		if (error) {
-			console.error('Upload error:', error)
-			return { url: '', path: '', error: error.message }
+		
+		// Determine storage path
+		const basePath = userId ? `${bucket}/${userId}` : bucket
+		
+		// Upload optimized images
+		const { urls, mainUrl } = await optimizer.uploadOptimizedImages(
+			optimizedImages,
+			'images', // Using single bucket
+			basePath
+		)
+		
+		if (!mainUrl) {
+			return { url: '', error: 'Failed to upload images' }
 		}
-
-		// Get public URL
-		const { data: { publicUrl } } = supabase.storage
-			.from(bucket)
-			.getPublicUrl(data.path)
-
+		
+		const srcSet = optimizer.generateSrcSet(urls)
+		
 		return {
-			url: publicUrl,
-			path: data.path
+			url: mainUrl,
+			urls,
+			srcSet
 		}
 	} catch (error) {
 		console.error('Upload error:', error)
 		return { 
 			url: '', 
-			path: '', 
 			error: error instanceof Error ? error.message : 'Failed to upload image' 
 		}
 	}
@@ -94,12 +134,13 @@ export async function uploadMultipleImages(
 	bucket: 'listings',
 	supabase: SupabaseClient<Database>,
 	userId: string,
-	onProgress?: (progress: number) => void
+	onProgress?: (progress: number) => void,
+	optimize: boolean = false
 ): Promise<UploadResult[]> {
 	const results: UploadResult[] = []
 	
 	for (let i = 0; i < files.length; i++) {
-		const result = await uploadImage(files[i], bucket, supabase, userId)
+		const result = await uploadImage(files[i], bucket, supabase, userId, optimize)
 		results.push(result)
 		
 		if (onProgress) {

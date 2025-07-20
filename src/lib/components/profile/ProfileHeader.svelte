@@ -55,8 +55,12 @@
 		})
 	}
 	
-	function getVerificationBadges(badges: string[]): string[] {
-		return badges?.filter(badge => ['email', 'phone', 'id', 'business'].includes(badge)) || []
+	function getVerificationBadges(badges: any): string[] {
+		if (!badges) return []
+		if (Array.isArray(badges)) {
+			return badges.filter(badge => ['email', 'phone', 'id', 'business', 'verified', 'admin'].includes(badge))
+		}
+		return []
 	}
 </script>
 

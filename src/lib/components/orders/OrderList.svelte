@@ -3,6 +3,7 @@
     import { formatDistanceToNow } from 'date-fns';
     import type { Database } from '$lib/types/database';
     import { Package, ShoppingBag, Clock, ChevronRight, Check, X, Truck, AlertCircle, MoreVertical } from 'lucide-svelte';
+    import Spinner from '$lib/components/ui/Spinner.svelte';
     
     type Transaction = {
         id: string;
@@ -146,10 +147,7 @@
 <div class="order-list">
     {#if loading && transactions.length === 0}
         <div class="flex justify-center py-12">
-            <div class="inline-flex items-center gap-3 text-gray-500">
-                <div class="w-5 h-5 border-2 border-gray-300 border-t-[#87CEEB] rounded-full animate-spin"></div>
-                <span class="text-sm">Loading orders...</span>
-            </div>
+            <Spinner size="lg" text="Loading orders..." />
         </div>
     {:else if transactions.length === 0}
         <div class="bg-white rounded-xl border border-gray-200 p-12 text-center">
@@ -329,8 +327,7 @@
                     disabled={loading}
                 >
                     {#if loading}
-                        <div class="w-4 h-4 border-2 border-gray-300 border-t-[#87CEEB] rounded-full animate-spin"></div>
-                        Loading...
+                        <Spinner size="sm" />
                     {:else}
                         Load More Orders
                     {/if}

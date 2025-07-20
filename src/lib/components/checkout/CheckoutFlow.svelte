@@ -6,6 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { getStripe } from '$lib/stores/stripe';
 	import * as m from '$lib/paraglide/messages.js';
+	import Spinner from '$lib/components/ui/Spinner.svelte';
 
 	interface Props {
 		listing: any;
@@ -310,7 +311,11 @@
 			</div>
 
 			<!-- Content -->
-			<div class="overflow-y-auto" style="max-height: calc(90vh - 200px);">
+			<div class="overflow-y-auto relative" style="max-height: calc(90vh - 200px);">
+				{#if isProcessing}
+					<Spinner overlay text="Processing payment..." />
+				{/if}
+				
 				{#if currentStep === 1}
 					<!-- Step 1: Order Summary & Shipping -->
 					<div class="p-6" transition:slide>
@@ -534,8 +539,7 @@
 							class="px-6 py-3 bg-blue-400 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 						>
 							{#if isProcessing}
-								<span class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-								Processing...
+								<Spinner size="sm" color="white" />
 							{:else if currentStep === 1}
 								Continue to Payment
 								<ChevronRight class="w-4 h-4" />

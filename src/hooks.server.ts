@@ -4,6 +4,7 @@ import type { Handle } from '@sveltejs/kit'
 import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
 import { getLocale, setLocale, isLocale } from '$lib/paraglide/runtime.js'
+import { dev } from '$app/environment'
 
 const handleI18n: Handle = async ({ event, resolve }) => {
 	// Get language from cookie or Accept-Language header
@@ -35,7 +36,13 @@ const handleI18n: Handle = async ({ event, resolve }) => {
 	
 	// Set cookie if it's not already set or if locale changed
 	if (!cookieLocale || cookieLocale !== locale) {
-		response.headers.set('set-cookie', `locale=${locale}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`)
+		response.headers.append('set-cookie', event.cookies.serialize('locale', locale, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24 * 365, // 1 year
+			secure: !dev
+		}))
 	}
 	
 	return response
@@ -52,13 +59,15 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		{
 			cookies: {
 				get: (key) => event.cookies.get(key),
-				/**
-				 * SvelteKit's cookies API requires `path` to be explicitly set in
-				 * the cookie options. Setting `path` to `/` replicates previous/
-				 * standard behavior.
-				 */
 				set: (key, value, options) => {
-					event.cookies.set(key, value, { ...options, path: '/' })
+					event.cookies.set(key, value, { 
+						...options, 
+						path: '/',
+						httpOnly: true,
+						secure: !dev,
+						sameSite: 'lax',
+						maxAge: options?.maxAge ?? 60 * 60 * 24 * 7 // 7 days default
+					})
 				},
 				remove: (key, options) => {
 					event.cookies.delete(key, { ...options, path: '/' })
@@ -76,6 +85,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		const {
 			data: { session }
 		} = await event.locals.supabase.auth.getSession()
+		
 		if (!session) {
 			return { session: null, user: null }
 		}
@@ -84,30 +94,41 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			data: { user },
 			error
 		} = await event.locals.supabase.auth.getUser()
+		
 		if (error) {
 			// JWT validation has failed
 			return { session: null, user: null }
 		}
 
-		// Validate extended session if it exists
-		if (user && session.refresh_token) {
-			try {
-				const { data: sessionValid } = await event.locals.supabase.rpc('validate_auth_session', {
-					p_user_id: user.id,
-					p_refresh_token: session.refresh_token
-				})
+		return { session, user }
+	}
 
-				// If extended session is valid, it was automatically extended
-				if (!sessionValid?.valid) {
-					console.warn('Extended session validation failed')
-				}
-			} catch (err) {
-				// Extended session validation is optional, don't fail if it doesn't work
-				console.error('Extended session check failed:', err)
+	// Check if user needs to complete profile setup
+	const { user } = await event.locals.safeGetSession()
+	if (user && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
+		// Check if profile setup is complete
+		const { data: profile } = await event.locals.supabase
+			.from('profiles')
+			.select('setup_completed')
+			.eq('id', user.id)
+			.single()
+		
+		if (profile && !profile.setup_completed) {
+			// Redirect to onboarding if profile setup is not complete
+			// Skip redirect for auth pages and static assets
+			if (!event.url.pathname.startsWith('/login') && 
+				!event.url.pathname.startsWith('/register') &&
+				!event.url.pathname.startsWith('/callback') &&
+				!event.url.pathname.startsWith('/_app') &&
+				!event.url.pathname.includes('.')) {
+				return new Response(null, {
+					status: 302,
+					headers: {
+						location: '/onboarding'
+					}
+				})
 			}
 		}
-
-		return { session, user }
 	}
 
 	const response = await resolve(event, {

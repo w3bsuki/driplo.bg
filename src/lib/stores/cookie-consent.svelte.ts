@@ -28,12 +28,16 @@ class CookieConsentStore {
 		}
 	});
 
-	private _showBanner = $state<boolean>(true);
+	private _showBanner = $state<boolean>(false);
 	private _showPreferences = $state<boolean>(false);
 
 	constructor() {
 		if (browser) {
 			this.loadConsent();
+			// Only show banner if no consent has been given
+			if (!this._consent.consentGiven) {
+				this._showBanner = true;
+			}
 		}
 	}
 

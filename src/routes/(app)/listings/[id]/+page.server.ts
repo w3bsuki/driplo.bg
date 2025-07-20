@@ -14,8 +14,6 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				avatar_url,
 				bio,
 				location,
-				followers_count,
-				listings_count,
 				created_at
 			),
 			category:categories!category_id(
@@ -31,6 +29,24 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 
 	if (listingError || !listing) {
 		throw error(404, 'Listing not found')
+	}
+
+	// Calculate followers_count and listings_count for the seller
+	if (listing.seller) {
+		const [followersResult, listingsResult] = await Promise.all([
+			supabase
+				.from('user_follows')
+				.select('id', { count: 'exact', head: true })
+				.eq('following_id', listing.seller.id),
+			supabase
+				.from('listings')
+				.select('id', { count: 'exact', head: true })
+				.eq('seller_id', listing.seller.id)
+				.eq('status', 'active')
+		])
+
+		listing.seller.followers_count = followersResult.count || 0
+		listing.seller.listings_count = listingsResult.count || 0
 	}
 
 	// Increment view count

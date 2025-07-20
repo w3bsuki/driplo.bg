@@ -9,29 +9,34 @@
 		onboarding.progress.completed < onboarding.progress.total
 	);
 	
-	const steps = [
+	// Derive completion states separately
+	let hasCompletedProfile = $derived(onboarding.hasCompletedProfile);
+	let hasCreatedFirstListing = $derived(onboarding.hasCreatedFirstListing);
+	let hasMadeFirstPurchase = $derived(onboarding.hasMadeFirstPurchase);
+	
+	let steps = $derived([
 		{
 			key: 'hasCompletedProfile',
 			icon: UserCircle,
 			label: 'Complete Profile',
 			href: '/profile/edit',
-			completed: $derived(onboarding.hasCompletedProfile)
+			completed: hasCompletedProfile
 		},
 		{
 			key: 'hasCreatedFirstListing',
 			icon: Plus,
 			label: 'Create Listing',
 			href: '/sell',
-			completed: $derived(onboarding.hasCreatedFirstListing)
+			completed: hasCreatedFirstListing
 		},
 		{
 			key: 'hasMadeFirstPurchase',
 			icon: ShoppingBag,
 			label: 'Make Purchase',
 			href: '/browse',
-			completed: $derived(onboarding.hasMadeFirstPurchase)
+			completed: hasMadeFirstPurchase
 		}
-	];
+	]);
 </script>
 
 {#if showProgress}

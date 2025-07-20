@@ -38,6 +38,12 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		isFollowing = !!followData
 	}
 	
+	// Load social media accounts
+	const { data: socialAccounts } = await locals.supabase
+		.from('social_media_accounts')
+		.select('*')
+		.eq('user_id', profileData.id)
+	
 	// Calculate stats
 	const { count: totalListings } = await locals.supabase
 		.from('listings')
@@ -62,6 +68,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		},
 		listings: listings || [],
 		reviews: [],
+		socialAccounts: socialAccounts || [],
 		isFollowing,
 		stats: {
 			totalListings: totalListings || 0,

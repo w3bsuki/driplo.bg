@@ -10,11 +10,12 @@
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { navigating } from '$app/stores';
+	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import { QueryClientProvider } from '@tanstack/svelte-query'
 	import { createQueryClient } from '$lib/stores/query-client';
-	import { onboarding } from '$lib/stores/onboarding.svelte';
 	import NotificationPopup from '$lib/components/NotificationPopup.svelte';
-	import WelcomeModal from '$lib/components/onboarding/WelcomeModal.svelte';
+	import { onboarding } from '$lib/stores/onboarding.svelte';
 
 	export let data;
 
@@ -23,11 +24,6 @@
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
-	
-	// Initialize onboarding for current user
-	if (data.user) {
-		onboarding.initialize(data.user.id);
-	}
 	
 	// Track scroll position for landing page
 	let showMobileNavOnLanding = false;
@@ -102,11 +98,23 @@
 <QueryClientProvider client={queryClient}>
 	<div class="min-h-screen bg-background">
 		{#if !isAuthPage}
-			<PromotionalBanner 
-				message="🎉 Free shipping on orders over £50!" 
-				ctaText="Shop Now" 
-				ctaHref="/browse"
-			/>
+			{#if !data.user}
+				<PromotionalBanner 
+					message="🚀 Driplo V1 Launch Week!" 
+					secondaryMessage="First 100 sellers get verified badge ✅"
+					ctaText="Start Selling Now" 
+					ctaHref="/register"
+					variant="launch"
+					countdown={true}
+				/>
+			{:else}
+				<PromotionalBanner 
+					message="🎉 Welcome to Driplo V1!" 
+					ctaText="List Your First Item" 
+					ctaHref="/sell"
+					variant="gradient"
+				/>
+			{/if}
 			<Header categories={data.categories} />
 		{/if}
 		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
@@ -120,8 +128,31 @@
 	<CookieConsent />
 	<Toaster richColors position="top-center" />
 	<NotificationPopup position="top-right" />
-	{#if data.user}
-		<WelcomeModal user={data.user} />
+	
+	<!-- Page transition loading indicator -->
+	{#if $navigating}
+		<div class="fixed top-0 left-0 right-0 z-[100]">
+			<div class="h-1 bg-blue-200">
+				<div class="h-full bg-blue-400 animate-pulse" style="animation: loading-bar 1s ease-in-out infinite"></div>
+			</div>
+		</div>
 	{/if}
 </QueryClientProvider>
+
+<style>
+	@keyframes loading-bar {
+		0% {
+			width: 0%;
+			margin-left: 0%;
+		}
+		50% {
+			width: 70%;
+			margin-left: 15%;
+		}
+		100% {
+			width: 0%;
+			margin-left: 100%;
+		}
+	}
+</style>
 

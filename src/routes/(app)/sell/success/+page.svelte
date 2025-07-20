@@ -22,9 +22,9 @@
 			origin: { y: 0.6 }
 		})
 		
-		if (listingId) {
+		if (listingId && !listing) {  // Only load if not already loaded
 			await loadListing()
-		} else {
+		} else if (!listingId) {
 			console.warn('No listing ID provided in URL')
 			loading = false
 		}

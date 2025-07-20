@@ -95,8 +95,9 @@ class OnboardingStore {
 				console.error('Failed to parse onboarding state:', e);
 			}
 		} else {
-			// New user - show welcome modal
-			this.state.showWelcomeModal = true;
+			// New user - don't show modal immediately
+			// It will be triggered after signup
+			this.state.showWelcomeModal = false;
 		}
 	}
 	
@@ -154,6 +155,13 @@ class OnboardingStore {
 		
 		if (this.userId !== user.id) {
 			this.initialize(user.id);
+		}
+	}
+	
+	triggerWelcomeForNewSignup() {
+		// Only show welcome modal if user hasn't seen it before
+		if (!this.state.hasSeenWelcome) {
+			this.state.showWelcomeModal = true;
 		}
 	}
 }

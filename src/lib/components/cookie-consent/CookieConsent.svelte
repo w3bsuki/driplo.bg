@@ -3,8 +3,12 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import Switch from '$lib/components/ui/switch.svelte';
 	import { slide, fly } from 'svelte/transition';
-	import { X, Cookie, Shield, BarChart, Heart, Settings } from 'lucide-svelte';
+	import { X, Cookie, Shield, BarChart, Heart, Settings, Globe } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
+	import { goto } from '$app/navigation';
+	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
+	import * as m from '$lib/paraglide/messages.js';
+	import { setCookie } from '$lib/utils/cookies';
 
 	// Local state for preferences editing
 	let localPreferences = $state({
@@ -12,6 +16,9 @@
 		marketing: cookieConsent.consent.preferences.marketing,
 		preferences: cookieConsent.consent.preferences.preferences
 	});
+
+	// Language selection state
+	let selectedLanguage = $state(getLocale());
 
 	// Update local preferences when store changes
 	$effect(() => {
@@ -48,23 +55,62 @@
 		}
 	];
 
-	function handleAcceptAll() {
+	function handleLanguageChange(lang: string) {
+		selectedLanguage = lang;
+		// Save language preference in locale cookie (same as LanguageSwitcher)
+		setCookie('locale', lang);
+		// Reload page with new language
+		const url = new URL(window.location.href);
+		if (lang === 'bg') {
+			// For Bulgarian, add language prefix
+			url.pathname = `/bg${url.pathname.replace(/^\/(en|bg)/, '')}`;
+		} else {
+			// For English (default), remove language prefix
+			url.pathname = url.pathname.replace(/^\/(en|bg)/, '');
+		}
+		window.location.href = url.toString();
+	}
+
+	function handleAcceptAll(event?: MouseEvent) {
+		event?.stopPropagation();
+		// Save language preference before accepting
+		setCookie('locale', selectedLanguage);
 		cookieConsent.acceptAll();
+		// Apply language if different from current
+		if (selectedLanguage !== getLocale()) {
+			handleLanguageChange(selectedLanguage);
+		}
 	}
 
-	function handleRejectAll() {
+	function handleRejectAll(event?: MouseEvent) {
+		event?.stopPropagation();
+		// Save language preference even when rejecting
+		setCookie('locale', selectedLanguage);
 		cookieConsent.rejectAll();
+		// Apply language if different from current
+		if (selectedLanguage !== getLocale()) {
+			handleLanguageChange(selectedLanguage);
+		}
 	}
 
-	function handleSavePreferences() {
+	function handleSavePreferences(event?: MouseEvent) {
+		event?.stopPropagation();
+		// Save language preference
+		setCookie('locale', selectedLanguage);
 		cookieConsent.savePreferences(localPreferences);
+		// Apply language if different from current
+		if (selectedLanguage !== getLocale()) {
+			handleLanguageChange(selectedLanguage);
+		}
 	}
 
-	function handleOpenPreferences() {
+	function handleOpenPreferences(event?: MouseEvent) {
+		event?.stopPropagation();
 		cookieConsent.openPreferences();
 	}
 
-	function handleClosePreferences() {
+	function handleClosePreferences(event?: MouseEvent) {
+		event?.stopPropagation();
 		cookieConsent.closePreferences();
 	}
 </script>
@@ -73,18 +119,48 @@
 {#if cookieConsent.showBanner && !cookieConsent.showPreferences}
 	<div
 		transition:fly={{ y: 100, duration: 400 }}
-		class="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 bg-white border-t-2 border-blue-100 shadow-2xl"
+		class="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6 bg-white border-t-2 border-blue-100 shadow-2xl pointer-events-auto"
+		onclick={(e) => e.stopPropagation()}
 	>
 		<div class="max-w-7xl mx-auto">
 			<div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
 				<div class="flex items-start gap-3">
 					<Cookie class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
-					<div class="space-y-1">
+					<div class="space-y-2">
 						<h3 class="font-semibold text-base text-gray-900">Cookie Consent</h3>
 						<p class="text-sm text-gray-600">
 							We use cookies to enhance your browsing experience, personalize content, and analyze our traffic. 
 							By clicking "Accept All", you consent to our use of cookies.
 						</p>
+						<!-- Language Selection -->
+						<div class="flex items-center gap-2 mt-3">
+							<Globe class="w-4 h-4 text-gray-500" />
+							<span class="text-sm text-gray-600">Choose language:</span>
+							<div class="flex gap-2">
+								<button
+									onclick={() => selectedLanguage = 'en'}
+									class={cn(
+										"px-3 py-1 text-sm rounded-md transition-colors",
+										selectedLanguage === 'en' 
+											? "bg-blue-600 text-white" 
+											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									)}
+								>
+									English
+								</button>
+								<button
+									onclick={() => selectedLanguage = 'bg'}
+									class={cn(
+										"px-3 py-1 text-sm rounded-md transition-colors",
+										selectedLanguage === 'bg' 
+											? "bg-blue-600 text-white" 
+											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									)}
+								>
+									Български
+								</button>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="flex flex-col sm:flex-row gap-2">
@@ -105,7 +181,7 @@
 
 <!-- Preferences Modal -->
 {#if cookieConsent.showPreferences}
-	<div class="fixed inset-0 z-50 overflow-y-auto">
+	<div class="fixed inset-0 z-[10000] overflow-y-auto">
 		<!-- Backdrop -->
 		<button
 			onclick={handleClosePreferences}
@@ -138,6 +214,43 @@
 						mostly in the form of cookies. This information might be about you, your preferences, 
 						or your device and is mostly used to make the site work as you expect it to.
 					</p>
+
+					<!-- Language Selection -->
+					<div class="mb-6 p-4 bg-blue-50 rounded-lg">
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<Globe class="w-5 h-5 text-blue-600" />
+								<div>
+									<h3 class="font-medium text-gray-900">Language Preference</h3>
+									<p class="text-sm text-gray-600">Choose your preferred language</p>
+								</div>
+							</div>
+							<div class="flex gap-2">
+								<button
+									onclick={() => selectedLanguage = 'en'}
+									class={cn(
+										"px-4 py-2 text-sm rounded-md transition-colors font-medium",
+										selectedLanguage === 'en' 
+											? "bg-blue-600 text-white" 
+											: "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+									)}
+								>
+									English
+								</button>
+								<button
+									onclick={() => selectedLanguage = 'bg'}
+									class={cn(
+										"px-4 py-2 text-sm rounded-md transition-colors font-medium",
+										selectedLanguage === 'bg' 
+											? "bg-blue-600 text-white" 
+											: "bg-white text-gray-700 hover:bg-gray-50 border border-gray-300"
+									)}
+								>
+									Български
+								</button>
+							</div>
+						</div>
+					</div>
 
 					<div class="space-y-6">
 						{#each cookieCategories as category}

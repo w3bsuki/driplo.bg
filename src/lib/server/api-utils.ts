@@ -51,14 +51,23 @@ export function apiSuccess<T>(data: T, status: number = 200) {
 export async function requireAuth(
   locals: RequestEvent['locals']
 ): Promise<{ userId: string; session: any } | null> {
-  const { data: { session }, error: authError } = await locals.supabase.auth.getSession();
+  // First get the session (without validation)
+  const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession();
   
-  if (authError || !session?.user) {
+  if (sessionError || !session) {
+    return null;
+  }
+  
+  // Now validate the JWT by calling getUser()
+  const { data: { user }, error: userError } = await locals.supabase.auth.getUser();
+  
+  if (userError || !user) {
+    // JWT validation failed
     return null;
   }
   
   return {
-    userId: session.user.id,
+    userId: user.id,
     session
   };
 }

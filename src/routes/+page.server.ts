@@ -52,12 +52,9 @@ export const load: PageServerLoad = async ({ locals }) => {
             seller_rating,
             seller_rating_count,
             total_sales,
-            followers_count,
-            profile_views,
-            verification_badges,
             bio,
             location,
-            member_since
+            created_at
           `)
           .not('total_sales', 'is', null)
           .gte('total_sales', 1)

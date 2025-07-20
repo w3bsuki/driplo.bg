@@ -7,7 +7,7 @@
 	import { Badge } from '$lib/components/ui/badge'
 	import { toast } from 'svelte-sonner'
 	import { AlertCircle, X, MapPin } from 'lucide-svelte'
-	import { uploadMultipleImages, fileToBase64, validateImageFile } from '$lib/utils/storage'
+	import { uploadMultipleImages, validateImageFile, fileToBase64 } from '$lib/utils/storage-client'
 	import PaymentAccountSetup from '$lib/components/payment/PaymentAccountSetup.svelte'
 	import type { Database } from '$lib/types/database'
 	import * as m from '$lib/paraglide/messages.js'
@@ -154,14 +154,11 @@
 		}
 	}
 
-	function handlePaymentAccountSetup(account: any) {
-		paymentAccount = account
+	function handlePaymentAccountSetup(event: CustomEvent) {
+		paymentAccount = event.detail
 		showPaymentSetup = false
 		toast.success('Payment account set up successfully!')
-		// Small delay to show the success message before continuing
-		setTimeout(() => {
-			// Continue with the listing creation form
-		}, 1000)
+		// Continue with the listing creation form
 	}
 	
 	async function handleImageSelect(event: Event) {
@@ -458,7 +455,7 @@
 				</p>
 			</div>
 			
-			<PaymentAccountSetup onSuccess={handlePaymentAccountSetup} />
+			<PaymentAccountSetup on:success={handlePaymentAccountSetup} />
 		</div>
 	{:else}
 		<!-- Form Content -->

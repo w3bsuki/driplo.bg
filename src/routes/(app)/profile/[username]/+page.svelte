@@ -5,6 +5,7 @@
 	import ProfileHeader from '$lib/components/profile/ProfileHeader.svelte'
 	import ProfileStats from '$lib/components/profile/ProfileStats.svelte'
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte'
+	import SocialMediaLinks from '$lib/components/profile/SocialMediaLinks.svelte'
 	import { RatingStars, Button } from '$lib/components/ui'
 	import { Badge } from '$lib/components/ui/badge'
 	import { MessageCircle, Calendar, Package, Star, LogOut } from 'lucide-svelte'
@@ -288,7 +289,10 @@
 								<p class="text-sm text-gray-500 mb-6 italic">{m.profile_bio_empty()}</p>
 							{/if}
 							
-							<div class="space-y-3">
+							<!-- Social Media Links -->
+							<SocialMediaLinks {profile} socialAccounts={data.socialAccounts} />
+							
+							<div class="space-y-3 mt-6">
 								<div class="flex justify-between items-center py-3 border-b border-gray-100">
 									<span class="text-sm text-gray-600">{m.profile_member_since()}</span>
 									<span class="text-sm font-medium">{formatDate(profile.member_since)}</span>

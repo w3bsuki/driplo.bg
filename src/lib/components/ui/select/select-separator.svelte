@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Select as SelectPrimitive } from 'bits-ui';
 	import { cn } from '$lib/utils';
 
 	interface Props {
@@ -13,7 +12,7 @@
 	}: Props = $props();
 </script>
 
-<SelectPrimitive.Separator
-	class={cn('-mx-1 my-1 h-px bg-muted', className)}
+<div
+	class={cn('-mx-1 my-1 h-px bg-gray-200', className)}
 	{...restProps}
-/>
+></div>

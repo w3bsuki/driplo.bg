@@ -15,6 +15,8 @@
 	import CheckoutFlow from '$lib/components/checkout/CheckoutFlow.svelte';
 	import Badge from '$lib/components/ui/badge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
+	import Spinner from '$lib/components/ui/Spinner.svelte';
+	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -28,6 +30,7 @@
 	let isLiked = $state(false);
 	let showCheckout = $state(false);
 	let activeTab = $state('description');
+	let isFollowLoading = $state(false);
 
 	let isOwner = $derived(currentUser?.id === listing?.seller_id);
 	let images = $derived(listing?.images?.map(img => typeof img === 'string' ? img : img.url) || []);
@@ -96,6 +99,7 @@
 			return;
 		}
 		
+		isFollowLoading = true;
 		try {
 			if (isFollowing) {
 				await supabase
@@ -118,6 +122,8 @@
 		} catch (error) {
 			console.error('Follow error:', error);
 			toast.error(m.profile_follow_update_error());
+		} finally {
+			isFollowLoading = false;
 		}
 	}
 </script>
@@ -135,10 +141,12 @@
 				<div class="space-y-4">
 					<div class="relative bg-white rounded-2xl shadow-sm border border-blue-100 p-4">
 						<div class="relative aspect-square overflow-hidden rounded-xl bg-gray-50">
-							<img
-								src={images[currentImageIndex]}
-								alt="Product"
-								class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+							<ResponsiveImage
+								src={listing.image_urls?.[currentImageIndex] || images[currentImageIndex]}
+								alt={listing.title}
+								class="w-full h-full transition-transform duration-300 hover:scale-105"
+								preferredSize="large"
+								loading="eager"
 							/>
 							
 							<!-- Sold Badge Overlay -->
@@ -187,7 +195,14 @@
 										index === currentImageIndex ? "border-[#87CEEB] shadow-sm" : "border-transparent opacity-70 hover:opacity-100"
 									)}
 								>
-									<img src={image} alt="Product {index + 1}" class="w-full h-full object-cover" />
+									<ResponsiveImage 
+										src={image} 
+										alt="Product {index + 1}" 
+										class="w-full h-full" 
+										objectFit="cover"
+										preferredSize="thumb"
+										loading="eager"
+									/>
 								</button>
 							{/each}
 						</div>
@@ -248,10 +263,12 @@
 							<a href="/profile/{listing.seller.username}" class="flex items-center gap-3 group">
 								<div class="relative">
 									{#if listing.seller.avatar_url}
-										<img
-											src={listing.seller.avatar_url}
+										<ResponsiveImage
+											src={listing.seller.avatar_urls || listing.seller.avatar_url}
 											alt={listing.seller.username}
-											class="w-12 h-12 rounded-full object-cover border-2 border-[#87CEEB]"
+											class="w-12 h-12 rounded-full border-2 border-[#87CEEB]"
+											objectFit="cover"
+											preferredSize="thumb"
 										/>
 									{:else}
 										<div class={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-[#87CEEB]", getAvatarColor(listing.seller.username))}>
@@ -263,7 +280,7 @@
 								<div>
 									<h3 class="font-semibold group-hover:text-[#87CEEB] transition-colors">
 										{listing.seller.username}
-										{#if listing.seller.verification_badges?.includes('verified')}
+										{#if listing.seller.is_verified || (Array.isArray(listing.seller.verification_badges) && listing.seller.verification_badges.includes('verified'))}
 											<Shield class="w-4 h-4 text-[#87CEEB] inline ml-1" />
 										{/if}
 									</h3>
@@ -278,13 +295,19 @@
 							{#if !isOwner}
 								<button
 									onclick={handleFollow}
-									class={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+									disabled={isFollowLoading}
+									class={cn("px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2",
 										isFollowing 
 											? "bg-secondary text-secondary-foreground hover:bg-secondary/80" 
-											: "bg-[#87CEEB] text-white hover:bg-[#87CEEB]/90"
+											: "bg-[#87CEEB] text-white hover:bg-[#87CEEB]/90",
+										isFollowLoading && "opacity-50 cursor-not-allowed"
 									)}
 								>
-									{isFollowing ? "Following" : "Follow"}
+									{#if isFollowLoading}
+										<Spinner size="sm" color={isFollowing ? "current" : "white"} />
+									{:else}
+										{isFollowing ? "Following" : "Follow"}
+									{/if}
 								</button>
 							{/if}
 						</div>
@@ -458,8 +481,42 @@
 	</div>
 	</div>
 {:else}
-	<div class="min-h-screen flex items-center justify-center">
-		<p class="text-muted-foreground">Listing not found</p>
+	<div class="min-h-screen bg-background">
+		<div class="container mx-auto px-4 py-6 pb-24 max-w-6xl">
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+				<!-- Image skeleton -->
+				<div class="space-y-4">
+					<div class="relative bg-white rounded-2xl shadow-sm border border-blue-100 p-4">
+						<div class="aspect-square bg-gray-100 rounded-xl animate-pulse"></div>
+					</div>
+					<div class="flex gap-2">
+						{#each Array(4) as _}
+							<div class="w-20 h-20 bg-gray-100 rounded-lg animate-pulse"></div>
+						{/each}
+					</div>
+				</div>
+				
+				<!-- Details skeleton -->
+				<div class="space-y-6">
+					<div class="space-y-4">
+						<div class="h-6 w-24 bg-gray-100 rounded animate-pulse"></div>
+						<div class="h-8 w-3/4 bg-gray-100 rounded animate-pulse"></div>
+						<div class="h-4 w-full bg-gray-100 rounded animate-pulse"></div>
+						<div class="h-10 w-32 bg-gray-100 rounded animate-pulse"></div>
+					</div>
+					
+					<div class="bg-card border-2 border-border/50 rounded-lg p-4">
+						<div class="flex items-center gap-3">
+							<div class="w-12 h-12 bg-gray-100 rounded-full animate-pulse"></div>
+							<div class="space-y-2">
+								<div class="h-4 w-24 bg-gray-100 rounded animate-pulse"></div>
+								<div class="h-3 w-20 bg-gray-100 rounded animate-pulse"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 {/if}
 

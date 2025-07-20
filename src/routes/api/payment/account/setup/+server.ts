@@ -15,12 +15,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		} = await request.json();
 
 		// Check if user is authenticated
-		const { session } = await locals.safeGetSession();
-		if (!session) {
+		const { user } = await locals.safeGetSession();
+		if (!user) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const userId = session.user.id;
+		const userId = user.id;
 
 		// Validate based on payout method
 		if (!payout_method || !['revolut', 'bank_transfer', 'paypal'].includes(payout_method)) {
@@ -143,9 +143,13 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			});
 		}
 
-	} catch (error) {
+	} catch (error: any) {
 		console.error('Payment account setup error:', error);
-		return json({ error: 'Internal server error' }, { status: 500 });
+		return json({ 
+			error: 'Internal server error', 
+			details: error.message,
+			stack: error.stack 
+		}, { status: 500 });
 	}
 };
 
@@ -153,12 +157,12 @@ export const GET: RequestHandler = async ({ locals }) => {
 	const supabase = locals.supabase;
 	try {
 		// Check if user is authenticated
-		const { session } = await locals.safeGetSession();
-		if (!session) {
+		const { user } = await locals.safeGetSession();
+		if (!user) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const userId = session.user.id;
+		const userId = user.id;
 
 		// Get user's payment account
 		const { data: paymentAccount, error } = await supabase

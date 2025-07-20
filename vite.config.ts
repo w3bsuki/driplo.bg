@@ -12,6 +12,9 @@ export default defineConfig({
 	],
 	server: {
 		port: 5190,
-		strictPort: true
+		strictPort: true,
+		hmr: {
+			overlay: false
+		}
 	}
 });

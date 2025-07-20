@@ -79,7 +79,7 @@ class AuthContext {
 						username,
 						full_name: fullName
 					},
-					emailRedirectTo: `${window.location.origin}/auth/confirm`
+					emailRedirectTo: `${window.location.origin}/onboarding?new=true`
 				}
 			})
 			

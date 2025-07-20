@@ -2,27 +2,35 @@
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
 	import { i18n } from '$lib/i18n.js'
-	import { getLocale } from '$lib/paraglide/runtime.js'
+	import { getLocale, setLocale } from '$lib/paraglide/runtime.js'
+	import { setCookie } from '$lib/utils/cookies'
+	import { debugLog } from '$lib/utils/debug'
 	
 	$: currentLanguage = getLocale()
 	
 	function switchToLanguage(newLang) {
 		if (newLang === currentLanguage) return;
 		
-		// Get the canonical path (without language prefix)
-		const canonicalPath = i18n.route($page.url.pathname);
+		debugLog('LanguageSwitcher', 'Switching language', {
+			from: currentLanguage,
+			to: newLang,
+			currentPath: $page.url.pathname
+		});
 		
 		// Set locale cookie for persistence
-		document.cookie = `locale=${newLang}; path=/; max-age=31536000; samesite=lax`;
+		setCookie('locale', newLang);
 		
-		// Navigate to the new language
-		if (newLang === 'en') {
-			// For English (source language), use the canonical path
-			goto(canonicalPath, { replaceState: true });
-		} else {
-			// For other languages, prefix with language code
-			goto(`/${newLang}${canonicalPath}`, { replaceState: true });
-		}
+		// Set the locale in Paraglide runtime
+		setLocale(newLang, { reload: false });
+		
+		debugLog('LanguageSwitcher', 'Cookie set and reloading page', {
+			cookieName: 'locale',
+			cookieValue: newLang
+		});
+		
+		// Reload the page to apply the new language
+		// This ensures all server-side translations are loaded
+		window.location.reload();
 	}
 </script>
 

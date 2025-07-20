@@ -4,6 +4,7 @@
     import { goto } from '$app/navigation';
     import { formatDistanceToNow } from 'date-fns';
     import type { Database } from '$lib/types/database';
+    import Spinner from '$lib/components/ui/Spinner.svelte';
     
     type Conversation = Database['public']['Tables']['conversations']['Row'] & {
         listing: {
@@ -117,7 +118,7 @@
     
     {#if loading && conversations.length === 0}
         <div class="flex justify-center py-8">
-            <div class="loading loading-spinner loading-lg"></div>
+            <Spinner size="lg" text="Loading conversations..." />
         </div>
     {:else if conversations.length === 0}
         <div class="text-center py-12">
@@ -224,11 +225,15 @@
         
         {#if hasMore}
             <button
-                class="btn btn-outline btn-sm w-full mt-4"
+                class="btn btn-outline btn-sm w-full mt-4 flex items-center justify-center"
                 onclick={loadConversations}
                 disabled={loading}
             >
-                {loading ? 'Loading...' : 'Load More'}
+                {#if loading}
+                    <Spinner size="sm" />
+                {:else}
+                    Load More
+                {/if}
             </button>
         {/if}
     {/if}

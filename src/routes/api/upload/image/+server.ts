@@ -1,5 +1,7 @@
 import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { ImageOptimizer } from '$lib/server/image-optimizer'
+import { v4 as uuidv4 } from 'uuid'
 
 export const POST: RequestHandler = async ({ request, locals: { supabase, safeGetSession } }) => {
 	const { session } = await safeGetSession()
@@ -18,78 +20,101 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 		}
 
 		// Validate file type
-		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 		if (!allowedTypes.includes(file.type)) {
 			throw error(400, 'Invalid file type')
 		}
 
-		// Validate file size (5MB max)
-		const maxSize = 5 * 1024 * 1024
+		// Validate file size (10MB max for original, will be compressed)
+		const maxSize = 10 * 1024 * 1024
 		if (file.size > maxSize) {
-			throw error(400, 'File too large')
+			throw error(400, 'File too large (max 10MB)')
+		}
+
+		// Convert File to Buffer
+		const arrayBuffer = await file.arrayBuffer()
+		const buffer = Buffer.from(arrayBuffer)
+
+		// Initialize image optimizer
+		const optimizer = new ImageOptimizer(supabase)
+		
+		// Determine bucket based on type
+		let bucket: 'avatars' | 'covers' | 'listings' | 'brand-logos' = 'listings'
+		switch (type) {
+			case 'avatar':
+				bucket = 'avatars'
+				break
+			case 'cover':
+				bucket = 'covers'
+				break
+			case 'listing':
+				bucket = 'listings'
+				break
+			case 'brand-logo':
+				bucket = 'brand-logos'
+				break
 		}
 
 		// Generate unique filename
-		const fileExt = file.name.split('.').pop()
-		const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
+		const fileName = `${uuidv4()}_${Date.now()}`
 		
-		// Determine storage path based on type
-		let storagePath = ''
-		switch (type) {
-			case 'avatar':
-				storagePath = `avatars/${session.user.id}/${fileName}`
-				break
-			case 'cover':
-				storagePath = `covers/${session.user.id}/${fileName}`
-				break
-			case 'listing':
-				storagePath = `listings/${session.user.id}/${fileName}`
-				break
-			default:
-				storagePath = `general/${session.user.id}/${fileName}`
-		}
-
-		// Upload to Supabase Storage
-		const { data: uploadData, error: uploadError } = await supabase.storage
-			.from('images')
-			.upload(storagePath, file, {
-				cacheControl: '3600',
-				upsert: false
-			})
-
-		if (uploadError) {
-			console.error('Upload error:', uploadError)
-			throw error(500, 'Failed to upload image')
-		}
-
-		// Get public URL
-		const { data: urlData } = supabase.storage
-			.from('images')
-			.getPublicUrl(uploadData.path)
-
-		if (!urlData?.publicUrl) {
-			throw error(500, 'Failed to get image URL')
-		}
+		// Optimize and upload images
+		const result = await optimizer.optimizeAndUpload(
+			buffer,
+			fileName,
+			bucket,
+			session.user.id
+		)
 
 		// If this is an avatar or cover update, update the user's profile
 		if (type === 'avatar' || type === 'cover') {
 			const updateField = type === 'avatar' ? 'avatar_url' : 'cover_url'
+			const responsiveField = type === 'avatar' ? 'avatar_urls' : 'cover_urls'
+			
+			// Get current profile to check for old image
+			const { data: profile } = await supabase
+				.from('profiles')
+				.select(`${updateField}, ${responsiveField}`)
+				.eq('id', session.user.id)
+				.single()
+			
+			// Delete old images if they exist
+			if (profile && profile[updateField]) {
+				const oldPath = profile[updateField].split('/').slice(-2).join('/')
+				await optimizer.deleteAllVersions(oldPath, bucket)
+			}
 			
 			const { error: profileError } = await supabase
 				.from('profiles')
-				.update({ [updateField]: urlData.publicUrl })
+				.update({ 
+					[updateField]: result.original.url,
+					[responsiveField]: {
+						thumb: result.responsive.thumb.url,
+						small: result.responsive.small.url,
+						medium: result.responsive.medium.url,
+						large: result.responsive.large.url
+					}
+				})
 				.eq('id', session.user.id)
 
 			if (profileError) {
 				console.error('Profile update error:', profileError)
-				// Don't throw error here, just log it
 			}
 		}
-
+		
 		return json({
-			url: urlData.publicUrl,
-			path: uploadData.path,
-			type
+			url: result.original.url,
+			urls: {
+				original: result.original.url,
+				thumb: result.responsive.thumb.url,
+				small: result.responsive.small.url,
+				medium: result.responsive.medium.url,
+				large: result.responsive.large.url
+			},
+			srcSet: result.srcSet,
+			type,
+			width: result.original.width,
+			height: result.original.height
 		})
 	} catch (err) {
 		console.error('Image upload error:', err)

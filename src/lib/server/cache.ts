@@ -112,3 +112,8 @@ export async function getCachedData<T>(
 setInterval(() => {
 	serverCache.cleanup()
 }, 10 * 60 * 1000)
+
+// Export cache clearing function
+export function clearCache() {
+	serverCache.clear()
+}
