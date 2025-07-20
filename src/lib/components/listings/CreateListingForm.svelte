@@ -323,8 +323,17 @@
 				.select()
 				.single()
 			
-			if (error) throw error
+			if (error) {
+				console.error('Database error:', error)
+				throw error
+			}
 			
+			if (!data || !data.id) {
+				console.error('No data returned from insert')
+				throw new Error('Failed to create listing - no data returned')
+			}
+			
+			console.log('Listing created successfully:', data.id)
 			toast.success(m.listing_success())
 			
 			// Track activity - commented out until user_activities table exists
@@ -339,17 +348,22 @@
 			// 	}
 			// })
 			
+			// Always redirect to success page
+			console.log('Redirecting to success page with ID:', data.id)
 			if (onSuccess) {
 				onSuccess(data.id)
 			} else {
-				// Redirect to success page
-				goto(`/sell/success?id=${data.id}`)
+				// Small delay to ensure toast is visible
+				setTimeout(async () => {
+					// Redirect to success page
+					await goto(`/sell/success?id=${data.id}`)
+				}, 500)
 			}
 			
 		} catch (error) {
 			console.error('Error creating listing:', error)
 			toast.error(error instanceof Error ? error.message : m.listing_error_creation())
-		} finally {
+			// Reset form state on error
 			isSubmitting = false
 			uploadProgress = 0
 		}

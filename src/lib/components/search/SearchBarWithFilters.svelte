@@ -67,10 +67,11 @@
 	];
 
 	// Calculate active filter count
-	$: activeQuickFilterCount = 
+	const activeQuickFilterCount = $derived(
 		quickFilters.condition.length + 
 		quickFilters.size.length + 
-		(quickFilters.priceRange ? 1 : 0);
+		(quickFilters.priceRange ? 1 : 0)
+	);
 
 	function handleSearch() {
 		onSearch?.(value);

@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation'
 	import { Button } from '$lib/components/ui'
 	import confetti from 'canvas-confetti'
+	import * as m from '$lib/paraglide/messages.js'
 	
 	let listing = $state<any>(null)
 	let loading = $state(true)
@@ -24,6 +25,7 @@
 		if (listingId) {
 			await loadListing()
 		} else {
+			console.warn('No listing ID provided in URL')
 			loading = false
 		}
 	})
@@ -150,6 +152,18 @@
 					</div>
 				</div>
 			</div>
+		{:else}
+			<!-- No listing ID provided -->
+			<div class="bg-white rounded-xl shadow-sm p-6 mb-4 text-center">
+				<div class="text-5xl mb-3">🎉</div>
+				<p class="text-gray-600 mb-4">Your listing has been created successfully!</p>
+				<Button 
+					class="bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+					onclick={() => goto('/profile')}
+				>
+					View Your Listings
+				</Button>
+			</div>
 		{/if}
 		
 		<!-- What's Next Section -->
@@ -220,7 +234,7 @@
 					class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
 					onclick={() => goto('/profile')}
 				>
-					{m.sell_success_view_profile()}
+					View My Profile
 					<span class="ml-1">→</span>
 				</Button>
 				
@@ -229,7 +243,7 @@
 					class="flex-1 text-sm py-2"
 					onclick={() => goto('/')}
 				>
-					{m.sell_success_browse()}
+					Browse Marketplace
 				</Button>
 			</div>
 		</div>
