@@ -11,6 +11,7 @@
 	import { toast } from 'svelte-sonner'
 	import type { PageData } from './$types'
 	import * as m from '$lib/paraglide/messages.js'
+	import ProgressIndicator from '$lib/components/onboarding/ProgressIndicator.svelte'
 	
 	// Get page data from server
 	let { data }: { data: PageData } = $props()
@@ -146,6 +147,13 @@
 			onMessage={handleMessage}
 			onEditProfile={handleEditProfile}
 		/>
+		
+		<!-- Onboarding Progress (for own profile) -->
+		{#if isOwnProfile}
+			<div class="max-w-4xl mx-auto px-4 pt-4">
+				<ProgressIndicator />
+			</div>
+		{/if}
 		
 		<!-- Navigation Tabs - Sticky and Mobile Optimized -->
 		<div class="sticky top-0 z-20 bg-white border-b border-gray-100 shadow-sm">

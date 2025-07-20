@@ -5,6 +5,7 @@
 	import { toast } from 'svelte-sonner'
 	import { z } from 'zod'
 	import * as m from '$lib/paraglide/messages.js'
+	import Spinner from '$lib/components/ui/Spinner.svelte'
 
 	let email = ''
 	let password = ''
@@ -241,10 +242,14 @@
 
 				<button 
 					type="submit" 
-					class="w-full py-2.5 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					class="w-full py-2.5 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 					disabled={loading || !agreedToTerms}
 				>
-					{loading ? 'Creating account...' : 'Sign up'}
+					{#if loading}
+						<Spinner size="sm" color="white" />
+					{:else}
+						Sign up
+					{/if}
 				</button>
 			</form>
 

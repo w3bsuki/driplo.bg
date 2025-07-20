@@ -72,12 +72,16 @@
 			if (event === 'SIGNED_IN' && session?.user) {
 				authContext.user = session.user;
 				authContext.session = session;
+				// Initialize onboarding for new user
+				onboarding.initialize(session.user.id);
 				// Notify compatibility layer
 				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
 			} else if (event === 'SIGNED_OUT') {
 				authContext.user = null;
 				authContext.session = null;
 				authContext.profile = null;
+				// Reset onboarding
+				onboarding.reset();
 				// Notify compatibility layer
 				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
 			}
@@ -115,5 +119,9 @@
 
 	<CookieConsent />
 	<Toaster richColors position="top-center" />
+	<NotificationPopup position="top-right" />
+	{#if data.user}
+		<WelcomeModal user={data.user} />
+	{/if}
 </QueryClientProvider>
 

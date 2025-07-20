@@ -1,0 +1,110 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { onboarding } from '$lib/stores/onboarding.svelte';
+	import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '$lib/components/ui/dialog';
+	import { Button } from '$lib/components/ui/button';
+	import * as m from '$lib/paraglide/messages';
+	import type { User } from '@supabase/supabase-js';
+	
+	export let user: User;
+	
+	let currentSlide = 0;
+	
+	const slides = [
+		{
+			title: "Welcome to Driplo! 👋",
+			description: "Your sustainable fashion marketplace",
+			emoji: "🎉"
+		},
+		{
+			title: "Buy & Sell with Confidence",
+			description: "Secure payments, buyer protection, and verified sellers",
+			emoji: "🔒"
+		},
+		{
+			title: "Join Our Community",
+			description: "Connect with fashion lovers and build your sustainable wardrobe",
+			emoji: "💚"
+		}
+	];
+	
+	function nextSlide() {
+		if (currentSlide < slides.length - 1) {
+			currentSlide++;
+		} else {
+			completeOnboarding();
+		}
+	}
+	
+	function previousSlide() {
+		if (currentSlide > 0) {
+			currentSlide--;
+		}
+	}
+	
+	async function completeOnboarding() {
+		await onboarding.completeStep('hasSeenWelcome');
+		onboarding.showWelcomeModal = false;
+		
+		// Check if profile is complete
+		const { supabase } = await import('$lib/supabase');
+		const { data: profile } = await supabase
+			.from('profiles')
+			.select('full_name, bio')
+			.eq('id', user.id)
+			.single();
+		
+		if (!profile?.full_name || !profile?.bio) {
+			goto('/profile/edit?onboarding=true');
+		}
+	}
+	
+	function skip() {
+		onboarding.completeStep('hasSeenWelcome');
+		onboarding.showWelcomeModal = false;
+	}
+</script>
+
+<Dialog bind:open={onboarding.showWelcomeModal}>
+	<DialogContent class="max-w-md" onClose={() => onboarding.showWelcomeModal = false}>
+		<div class="text-center">
+			<!-- Progress Dots -->
+			<div class="flex justify-center gap-2 mb-6">
+				{#each slides as _, index}
+					<div 
+						class="w-2 h-2 rounded-full transition-colors duration-300"
+						class:bg-primary={index === currentSlide}
+						class:bg-muted={index !== currentSlide}
+					/>
+				{/each}
+			</div>
+			
+			<!-- Slide Content -->
+			<div class="mb-6 min-h-[200px] flex flex-col items-center justify-center">
+				<div class="text-6xl mb-4">{slides[currentSlide].emoji}</div>
+				<h2 class="text-2xl font-bold mb-2">{slides[currentSlide].title}</h2>
+				<p class="text-muted-foreground">{slides[currentSlide].description}</p>
+			</div>
+			
+			<!-- Actions -->
+			<div class="flex gap-2">
+				{#if currentSlide === 0}
+					<Button variant="ghost" class="flex-1" onclick={skip}>
+						Skip
+					</Button>
+				{:else}
+					<Button variant="ghost" class="flex-1" onclick={previousSlide}>
+						Back
+					</Button>
+				{/if}
+				<Button 
+					class="flex-1" 
+					onclick={nextSlide}
+				>
+					{currentSlide === slides.length - 1 ? "Get Started" : "Next"}
+				</Button>
+			</div>
+		</div>
+	</DialogContent>
+</Dialog>
