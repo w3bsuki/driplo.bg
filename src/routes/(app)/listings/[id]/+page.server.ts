@@ -7,7 +7,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		.from('listings')
 		.select(`
 			*,
-			seller:profiles(
+			seller:profiles!seller_id(
 				id,
 				username,
 				full_name,
@@ -18,11 +18,11 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				listings_count,
 				created_at
 			),
-			category:categories(
+			category:categories!category_id(
 				id,
 				name,
 				slug,
-				icon
+				icon_url
 			)
 		`)
 		.eq('id', params.id)
@@ -65,7 +65,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			size,
 			brand,
 			condition,
-			seller:profiles(username, avatar_url)
+			seller:profiles!seller_id(username, avatar_url)
 		`)
 		.eq('category_id', listing.category_id)
 		.eq('status', 'active')

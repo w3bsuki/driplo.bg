@@ -12,6 +12,9 @@
 	import { page } from '$app/stores';
 	import { QueryClientProvider } from '@tanstack/svelte-query'
 	import { createQueryClient } from '$lib/stores/query-client';
+	import { onboarding } from '$lib/stores/onboarding.svelte';
+	import NotificationPopup from '$lib/components/NotificationPopup.svelte';
+	import WelcomeModal from '$lib/components/onboarding/WelcomeModal.svelte';
 
 	export let data;
 
@@ -20,6 +23,11 @@
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
+	
+	// Initialize onboarding for current user
+	if (data.user) {
+		onboarding.initialize(data.user.id);
+	}
 	
 	// Track scroll position for landing page
 	let showMobileNavOnLanding = false;
