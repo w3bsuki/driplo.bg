@@ -12,6 +12,7 @@
 	import { page } from '$app/stores';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
 	import { createQueryClient } from '$lib/stores/query-client';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	export let data;
 

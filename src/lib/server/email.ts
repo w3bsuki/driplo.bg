@@ -29,7 +29,7 @@ class EmailService {
     this.baseUrl = 'https://api.resend.com';
   }
 
-  private async send(options: EmailOptions): Promise<boolean> {
+  async send(options: EmailOptions): Promise<boolean> {
     if (!this.apiKey) {
       console.error('Email service not configured: Missing RESEND_API_KEY');
       return false;

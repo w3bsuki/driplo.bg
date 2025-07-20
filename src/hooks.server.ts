@@ -3,6 +3,43 @@ import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
+import { getLocale, setLocale, isLocale } from '$lib/paraglide/runtime.js'
+
+const handleI18n: Handle = async ({ event, resolve }) => {
+	// Get language from cookie or Accept-Language header
+	const cookieLocale = event.cookies.get('locale')
+	const acceptLanguage = event.request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
+	
+	// Determine which language to use
+	let locale = 'en' // default
+	
+	if (cookieLocale && isLocale(cookieLocale)) {
+		locale = cookieLocale
+	} else if (acceptLanguage && isLocale(acceptLanguage)) {
+		locale = acceptLanguage
+	}
+	
+	// Set the language for this request
+	setLocale(locale, { reload: false })
+	
+	// Store locale for use in components
+	event.locals.locale = locale
+	
+	// Resolve the request
+	const response = await resolve(event, {
+		transformPageChunk: ({ html }) => {
+			// Replace html lang attribute
+			return html.replace('<html lang="en">', `<html lang="${locale}">`)
+		}
+	})
+	
+	// Set cookie if it's not already set or if locale changed
+	if (!cookieLocale || cookieLocale !== locale) {
+		response.headers.set('set-cookie', `locale=${locale}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000`)
+	}
+	
+	return response
+}
 
 const handleSupabase: Handle = async ({ event, resolve }) => {
 	/**
@@ -98,4 +135,4 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	return response
 }
 
-export const handle = handleSupabase
+export const handle = sequence(handleI18n, handleSupabase)

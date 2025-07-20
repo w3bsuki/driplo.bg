@@ -78,7 +78,8 @@ class AuthContext {
 					data: {
 						username,
 						full_name: fullName
-					}
+					},
+					emailRedirectTo: `${window.location.origin}/auth/confirm`
 				}
 			})
 			
@@ -88,6 +89,26 @@ class AuthContext {
 			if (data.user) {
 				this.user = data.user
 				this.session = data.session
+				
+				// Send custom confirmation email via Resend
+				if (browser && !data.session) { // No session means email confirmation is required
+					try {
+						const response = await fetch('/api/auth/send-confirmation', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({ 
+								email: data.user.email,
+								userId: data.user.id 
+							})
+						})
+						
+						if (!response.ok) {
+							console.error('Failed to send confirmation email via Resend');
+						}
+					} catch (err) {
+						console.error('Error sending confirmation email:', err);
+					}
+				}
 			}
 			
 			return data

@@ -12,6 +12,9 @@
 		// Get the canonical path (without language prefix)
 		const canonicalPath = i18n.route($page.url.pathname);
 		
+		// Set locale cookie for persistence
+		document.cookie = `locale=${newLang}; path=/; max-age=31536000; samesite=lax`;
+		
 		// Navigate to the new language
 		if (newLang === 'en') {
 			// For English (source language), use the canonical path
