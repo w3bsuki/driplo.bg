@@ -30,7 +30,7 @@
 	let activeTab = $state('description');
 
 	let isOwner = $derived(currentUser?.id === listing?.seller_id);
-	let images = $derived(listing?.images || []);
+	let images = $derived(listing?.images?.map(img => typeof img === 'string' ? img : img.url) || []);
 	let hasMultipleImages = $derived(images.length > 1);
 
 	function nextImage() {
@@ -298,7 +298,7 @@
 
 
 					<!-- Product Details Tabs -->
-					<Tabs value={activeTab} onValueChange={(value) => activeTab = value} class="w-full">
+					<Tabs bind:value={activeTab} class="w-full">
 						<TabsList class="grid w-full grid-cols-3 h-auto p-1">
 							<TabsTrigger value="description" class="flex items-center gap-2">
 								<FileText class="w-4 h-4" />
