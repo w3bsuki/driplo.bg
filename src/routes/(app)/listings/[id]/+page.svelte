@@ -5,7 +5,8 @@
 	import { 
 		Heart, Share2, MapPin, Shield, Eye, Star,
 		ShoppingBag, ChevronLeft, ChevronRight, MessageCircle, 
-		UserPlus, UserMinus, Truck, RotateCcw
+		UserPlus, UserMinus, Truck, RotateCcw, Info, FileText,
+		Ruler, Palette, Tag, Package
 	} from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import { cn } from '$lib/utils';
@@ -13,6 +14,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import CheckoutFlow from '$lib/components/checkout/CheckoutFlow.svelte';
 	import Badge from '$lib/components/ui/badge.svelte';
+	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
 
 	let { data }: { data: PageData } = $props();
 
@@ -25,7 +27,7 @@
 	let currentImageIndex = $state(0);
 	let isLiked = $state(false);
 	let showCheckout = $state(false);
-	let activeTab = $state('details');
+	let activeTab = $state('description');
 
 	let isOwner = $derived(currentUser?.id === listing?.seller_id);
 	let images = $derived(listing?.images || []);
@@ -139,10 +141,10 @@
 								class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
 							/>
 							
-							<!-- Condition Badge Overlay -->
-							{#if listing.condition}
-								<div class="absolute top-3 left-3 bg-[#87CEEB] text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm">
-									{getConditionBadge(listing.condition).label}
+							<!-- Sold Badge Overlay -->
+							{#if listing.status === 'sold'}
+								<div class="absolute top-3 left-3 bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-medium shadow-sm">
+									Sold
 								</div>
 							{/if}
 						
@@ -288,7 +290,7 @@
 						</div>
 						<div class="flex items-center gap-2 text-sm text-muted-foreground">
 							<MapPin class="w-4 h-4" />
-							<span>{listing.location || 'Location not specified'}</span>
+							<span>{listing.location_city || listing.location_country || 'Location not specified'}</span>
 							<span>•</span>
 							<span>Usually ships in 1-2 days</span>
 						</div>
@@ -296,56 +298,93 @@
 
 
 					<!-- Product Details Tabs -->
-					<div class="w-full">
-						<div class="grid w-full grid-cols-3 bg-muted rounded-lg p-1">
-							<button 
-								onclick={() => activeTab = 'details'}
-								class={cn("py-2 px-4 rounded-md text-sm font-medium transition-colors",
-									activeTab === 'details' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-								)}
-							>
+					<Tabs value={activeTab} onValueChange={(value) => activeTab = value} class="w-full">
+						<TabsList class="grid w-full grid-cols-3 h-auto p-1">
+							<TabsTrigger value="description" class="flex items-center gap-2">
+								<FileText class="w-4 h-4" />
+								Description
+							</TabsTrigger>
+							<TabsTrigger value="details" class="flex items-center gap-2">
+								<Info class="w-4 h-4" />
 								Details
-							</button>
-							<button 
-								onclick={() => activeTab = 'shipping'}
-								class={cn("py-2 px-4 rounded-md text-sm font-medium transition-colors",
-									activeTab === 'shipping' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-								)}
-							>
+							</TabsTrigger>
+							<TabsTrigger value="shipping" class="flex items-center gap-2">
+								<Package class="w-4 h-4" />
 								Shipping
-							</button>
-							<button 
-								onclick={() => activeTab = 'returns'}
-								class={cn("py-2 px-4 rounded-md text-sm font-medium transition-colors",
-									activeTab === 'returns' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-								)}
-							>
-								Returns
-							</button>
-						</div>
+							</TabsTrigger>
+						</TabsList>
 						
-						<div class="space-y-4 mt-6">
-							{#if activeTab === 'details'}
-								<div class="grid grid-cols-2 gap-4 text-sm">
-									{#if listing.brand}
-										<div><span class="font-medium">Brand:</span> <span class="ml-2 text-muted-foreground">{listing.brand}</span></div>
-									{/if}
+						<TabsContent value="description" class="mt-6">
+							<div class="space-y-4">
+								<p class="text-sm text-muted-foreground leading-relaxed">
+									{listing.description}
+								</p>
+								
+								<!-- Product Attributes as Badges -->
+								<div class="flex flex-wrap gap-2 pt-4">
 									{#if listing.size}
-										<div><span class="font-medium">Size:</span> <span class="ml-2 text-muted-foreground">{listing.size}</span></div>
+										<Badge variant="secondary" class="flex items-center gap-1.5">
+											<Ruler class="w-3.5 h-3.5" />
+											Size {listing.size}
+										</Badge>
 									{/if}
-									<div><span class="font-medium">Color:</span> <span class="ml-2 text-muted-foreground">Blue</span></div>
-									<div><span class="font-medium">Material:</span> <span class="ml-2 text-muted-foreground">100% Cotton</span></div>
-									<div><span class="font-medium">Year:</span> <span class="ml-2 text-muted-foreground">2019</span></div>
-									{#if listing.category}
-										<div><span class="font-medium">Category:</span> <span class="ml-2 text-muted-foreground">{listing.category.name}</span></div>
+									{#if listing.color}
+										<Badge variant="secondary" class="flex items-center gap-1.5">
+											<Palette class="w-3.5 h-3.5" />
+											{listing.color}
+										</Badge>
+									{/if}
+									{#if listing.tags && listing.tags.length > 0}
+										{#each listing.tags.slice(0, 3) as tag}
+											<Badge variant="outline" class="flex items-center gap-1.5">
+												<Tag class="w-3.5 h-3.5" />
+												{tag}
+											</Badge>
+										{/each}
 									{/if}
 								</div>
-								<div class="border-t border-border pt-4">
-									<p class="text-sm text-muted-foreground leading-relaxed">
-										{listing.description}
-									</p>
+							</div>
+						</TabsContent>
+						
+						<TabsContent value="details" class="mt-6">
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								{#if listing.brand}
+									<div class="flex justify-between">
+										<span class="font-medium text-sm">Brand</span>
+										<span class="text-sm text-muted-foreground">{listing.brand}</span>
+									</div>
+								{/if}
+								{#if listing.category}
+									<div class="flex justify-between">
+										<span class="font-medium text-sm">Category</span>
+										<span class="text-sm text-muted-foreground">{listing.category.name}</span>
+									</div>
+								{/if}
+								{#if listing.material}
+									<div class="flex justify-between">
+										<span class="font-medium text-sm">Material</span>
+										<span class="text-sm text-muted-foreground">{listing.material}</span>
+									</div>
+								{/if}
+								{#if listing.condition}
+									<div class="flex justify-between">
+										<span class="font-medium text-sm">Condition</span>
+										<span class="text-sm text-muted-foreground">{getConditionBadge(listing.condition).label}</span>
+									</div>
+								{/if}
+								<div class="flex justify-between">
+									<span class="font-medium text-sm">Item ID</span>
+									<span class="text-sm text-muted-foreground">#{listing.id.slice(0, 8)}</span>
 								</div>
-							{:else if activeTab === 'shipping'}
+								<div class="flex justify-between">
+									<span class="font-medium text-sm">Listed</span>
+									<span class="text-sm text-muted-foreground">{new Date(listing.created_at).toLocaleDateString()}</span>
+								</div>
+							</div>
+						</TabsContent>
+						
+						<TabsContent value="shipping" class="mt-6">
+							<div class="space-y-4">
 								<div class="space-y-3">
 									<div class="flex items-center gap-3">
 										<Truck class="w-5 h-5 text-[#87CEEB]" />
@@ -367,25 +406,19 @@
 										Free shipping on orders over $75. All items are carefully packaged and shipped with tracking.
 									</p>
 								</div>
-							{:else if activeTab === 'returns'}
-								<div class="flex items-start gap-3">
+								<div class="flex items-start gap-3 pt-4">
 									<RotateCcw class="w-5 h-5 text-[#87CEEB] mt-0.5" />
 									<div>
-										<p class="font-medium">30-Day Returns</p>
+										<p class="font-medium">Easy Returns</p>
 										<p class="text-sm text-muted-foreground mt-1">
 											Items can be returned within 30 days of purchase in original condition. 
-											Return shipping costs $3.99 unless the item was damaged or not as described.
+											Return shipping costs $3.99.
 										</p>
 									</div>
 								</div>
-								<div class="border-t border-border pt-4">
-									<p class="text-sm text-muted-foreground">
-										Questions? Contact the seller directly through the message button or reach out to Driplo support.
-									</p>
-								</div>
-							{/if}
-						</div>
-					</div>
+							</div>
+						</TabsContent>
+					</Tabs>
 				</div>
 			</div>
 		</div>

@@ -8,8 +8,39 @@
 	import { cn } from '$lib/utils';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
+	import { createQuery } from '@tanstack/svelte-query';
+	import { browser } from '$app/environment';
 
 	let { data }: { data: PageData } = $props();
+
+	// Search state
+	let searchFocused = $state(false);
+	let showQuickSearch = $state(false);
+	let searchDebounceTimer: NodeJS.Timeout;
+
+	// Quick search suggestions
+	const quickSearchSuggestions = [
+		{ text: 'Vintage', emoji: '🕰️' },
+		{ text: 'Designer', emoji: '💎' },
+		{ text: 'Streetwear', emoji: '🛹' },
+		{ text: 'Formal', emoji: '👔' },
+		{ text: 'Shoes', emoji: '👟' },
+		{ text: 'Bags', emoji: '👜' },
+		{ text: 'Jewelry', emoji: '💍' },
+		{ text: 'Watches', emoji: '⌚' }
+	];
+
+	// Top sellers query
+	const topSellersQuery = createQuery({
+		queryKey: ['topSellers', 'month'],
+		queryFn: async () => {
+			const response = await fetch('/api/sellers/top?period=month&limit=12');
+			if (!response.ok) throw new Error('Failed to fetch top sellers');
+			return response.json();
+		},
+		enabled: browser,
+		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
 
 	// Reactive filter states from server data
 	let searchInput = $state(data.filters.search);
@@ -89,7 +120,32 @@
 
 	function handleSearchInput(query: string) {
 		searchInput = query;
+		// Clear any existing timer
+		if (searchDebounceTimer) {
+			clearTimeout(searchDebounceTimer);
+		}
+		// Set new timer for debounced search
+		if (query.trim()) {
+			searchDebounceTimer = setTimeout(() => {
+				handleSearch(query);
+			}, 500); // 500ms debounce
+		}
 	}
+
+	function handleQuickSearch(suggestion: string) {
+		searchInput = suggestion;
+		handleSearch(suggestion);
+		showQuickSearch = false;
+	}
+
+	// Clean up timer on unmount
+	$effect(() => {
+		return () => {
+			if (searchDebounceTimer) {
+				clearTimeout(searchDebounceTimer);
+			}
+		};
+	});
 
 	function updateSort(newSort: string) {
 		sortBy = newSort;
@@ -201,26 +257,151 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
-	<!-- Page Header -->
-	<div class="bg-white border-b">
-		<div class="container mx-auto px-4 py-4">
-			<div class="flex items-center justify-between">
-				<h1 class="text-xl font-semibold text-gray-900">{m.header_browse()}</h1>
-				<span class="text-sm text-gray-500">{data.totalCount.toLocaleString()} {m.browse_items_count({ count: '' }).replace('{count}', '').trim()}</span>
+	<!-- Hero Section with Emoji Search -->
+	<section class="relative bg-gradient-to-b from-blue-50 to-white py-6 md:py-8">
+		<div class="container mx-auto px-4">
+			<div class="max-w-3xl mx-auto">
+				
+				<!-- Top Sellers Section -->
+				<div class="mb-6">
+					{#if $topSellersQuery.isLoading}
+						<!-- Loading skeleton -->
+						<div class="text-center">
+							<div class="h-7 w-48 bg-gray-200 rounded-lg mx-auto mb-4 animate-pulse"></div>
+							<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+								{#each Array(6) as _}
+									<div class="text-center">
+										<div class="relative">
+											<div class="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-full animate-pulse"></div>
+										</div>
+										<div class="mt-2 space-y-2">
+											<div class="h-4 bg-gray-200 rounded mx-auto w-20 animate-pulse"></div>
+											<div class="h-3 bg-gray-200 rounded mx-auto w-16 animate-pulse"></div>
+											<div class="h-3 bg-gray-200 rounded mx-auto w-14 animate-pulse"></div>
+										</div>
+									</div>
+								{/each}
+							</div>
+						</div>
+					{:else if $topSellersQuery.error}
+						<!-- Error state - silently fail, don't show section -->
+					{:else if $topSellersQuery.data?.sellers && $topSellersQuery.data.sellers.length > 0}
+						<h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+							<span>🏆</span>
+							<span>Top Sellers This Month</span>
+						</h2>
+						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index}
+								<a href="/profile/{seller.username}" class="text-center group">
+									<div class="relative">
+										{#if index === 0}
+											<div class="absolute -top-2 -right-2 text-lg z-10">👑</div>
+										{/if}
+										<div class="relative">
+											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white shadow-lg group-hover:ring-blue-200 transition-all duration-300">
+												{#if seller.avatar_url}
+													<img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
+												{:else}
+													<div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+														<span class="text-white font-bold text-lg md:text-xl">{seller.username[0].toUpperCase()}</span>
+													</div>
+												{/if}
+											</div>
+										</div>
+									</div>
+									<div class="mt-2">
+										<p class="text-sm md:text-base font-medium text-gray-800 truncate">{seller.username}</p>
+										<div class="flex items-center justify-center gap-1 text-xs md:text-sm text-gray-600">
+											<span>⭐</span>
+											<span>{seller.average_rating || '0.0'}</span>
+										</div>
+										<p class="text-xs text-gray-500 mt-1">{seller.total_sales} sales</p>
+									</div>
+								</a>
+							{/each}
+						</div>
+					{/if}
+				</div>
+				
+				<!-- Search Bar with Emoji -->
+				<div class="relative group">
+					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl blur-xl opacity-20 transition-all duration-300 group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
+					
+					<div class="relative bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
+						<div class="flex items-center">
+							<div class="pl-6 pr-3">
+								<span class="text-2xl">🔍</span>
+							</div>
+							
+							<input
+								type="search"
+								placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
+								bind:value={searchInput}
+								oninput={(e) => handleSearchInput(e.currentTarget.value)}
+								onfocus={() => { searchFocused = true; showQuickSearch = true; }}
+								onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}
+								onkeydown={(e) => { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); handleSearch(searchInput); } }}
+								class="flex-1 py-3 md:py-4 pr-4 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+							/>
+							
+							<button
+								onclick={() => handleSearch(searchInput)}
+								class="mr-2 px-4 md:px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg text-sm md:text-base hover:from-blue-600 hover:to-blue-700 transition-all duration-200 active:scale-95"
+							>
+								Search
+							</button>
+						</div>
+						
+						<!-- Quick Search Suggestions -->
+						{#if showQuickSearch}
+							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50">
+								<p class="text-sm font-medium text-gray-700 mb-3">Quick searches:</p>
+								<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+									{#each quickSearchSuggestions as suggestion}
+										<button
+											onmousedown={() => handleQuickSearch(suggestion.text)}
+											class="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm"
+										>
+											<span class="text-lg">{suggestion.emoji}</span>
+											<span class="text-gray-700">{suggestion.text}</span>
+										</button>
+									{/each}
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+				
 			</div>
 		</div>
-	</div>
+	</section>
 
 	<!-- Mobile Search & Filters -->
 	<div class="sticky top-[64px] z-40 bg-white border-b block md:hidden">
 		<div class="p-4 space-y-3">
-			<!-- Search Bar -->
-			<SearchInput
-				value={searchInput}
-				onSearch={handleSearch}
-				onInput={handleSearchInput}
-				class="w-full"
-			/>
+			<!-- Mobile Emoji Search Bar -->
+			<div class="relative">
+				<div class="flex items-center bg-gray-50 rounded-lg border border-gray-200">
+					<div class="pl-3 pr-2">
+						<span class="text-xl">🔍</span>
+					</div>
+					<input
+						type="search"
+						placeholder="Search items..."
+						bind:value={searchInput}
+						oninput={(e) => handleSearchInput(e.currentTarget.value)}
+						onkeydown={(e) => { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); handleSearch(searchInput); } }}
+						class="flex-1 py-2 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+					/>
+					<button
+						onclick={() => handleSearch(searchInput)}
+						class="mr-1 p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+					>
+						<Search class="h-4 w-4" />
+					</button>
+				</div>
+			</div>
 
 			<!-- Category Pills -->
 			<div class="overflow-x-auto -mx-4 px-4">
@@ -261,16 +442,7 @@
 			<!-- Desktop Sidebar -->
 			<aside class="hidden md:block w-72 flex-shrink-0">
 				<div class="sticky top-24 space-y-4">
-					<!-- Search Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">Search</h3>
-						<SearchInput
-							value={searchInput}
-							onSearch={handleSearch}
-							onInput={handleSearchInput}
-							class="w-full"
-						/>
-					</div>
+					<!-- Desktop filters are now shown after hero section -->
 
 					<!-- Categories Card -->
 					<div class="bg-white rounded-xl border border-gray-200 p-4">
@@ -393,8 +565,8 @@
 
 			<!-- Main Content -->
 			<main class="flex-1">
-				<!-- Desktop Sort Options -->
-				<div class="hidden md:block bg-white rounded-xl border border-gray-200 p-4 mb-4">
+				<!-- Results Header with Sort Options -->
+				<div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
 					<div class="flex items-center justify-between">
 						<div>
 							<h2 class="text-lg font-semibold text-gray-900">

@@ -220,7 +220,7 @@
 					class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
 					onclick={() => goto('/profile')}
 				>
-					View Profile
+					{m.sell_success_view_profile()}
 					<span class="ml-1">→</span>
 				</Button>
 				
@@ -229,7 +229,7 @@
 					class="flex-1 text-sm py-2"
 					onclick={() => goto('/')}
 				>
-					Browse
+					{m.sell_success_browse()}
 				</Button>
 			</div>
 		</div>

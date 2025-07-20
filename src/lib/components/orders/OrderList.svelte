@@ -175,15 +175,15 @@
         <!-- Bulk actions for sellers -->
         {#if role === 'seller' && transactions.length > 0}
             <div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="flex items-center gap-3">
                         <input 
                             type="checkbox" 
-                            class="w-4 h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2"
+                            class="w-5 h-5 sm:w-4 sm:h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2"
                             checked={selectedOrders.size === transactions.length}
                             onchange={toggleAllOrders}
                         />
-                        <label class="text-sm font-medium text-gray-700 cursor-pointer" onclick={toggleAllOrders}>
+                        <label class="text-sm font-medium text-gray-700 cursor-pointer select-none" onclick={toggleAllOrders}>
                             Select All
                             {#if selectedOrders.size > 0}
                                 <span class="text-gray-500 font-normal">({selectedOrders.size} selected)</span>
@@ -191,22 +191,24 @@
                         </label>
                     </div>
                     {#if selectedOrders.size > 0}
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 self-end sm:self-auto">
                             <button 
-                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors disabled:opacity-50"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors disabled:opacity-50 min-h-[44px]"
                                 onclick={() => bulkAction('mark_shipped')}
                                 disabled={bulkActionLoading}
                             >
                                 <Truck class="w-4 h-4" />
-                                {bulkActionLoading ? 'Processing...' : 'Mark as Shipped'}
+                                <span class="hidden sm:inline">{bulkActionLoading ? 'Processing...' : 'Mark as Shipped'}</span>
+                                <span class="sm:hidden">{bulkActionLoading ? '...' : 'Ship'}</span>
                             </button>
                             <button 
-                                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 min-h-[44px]"
                                 onclick={() => bulkAction('cancel')}
                                 disabled={bulkActionLoading}
                             >
                                 <X class="w-4 h-4" />
-                                {bulkActionLoading ? 'Processing...' : 'Cancel'}
+                                <span class="hidden sm:inline">{bulkActionLoading ? 'Processing...' : 'Cancel'}</span>
+                                <span class="sm:hidden">{bulkActionLoading ? '...' : 'Cancel'}</span>
                             </button>
                         </div>
                     {/if}
@@ -218,44 +220,55 @@
             {#each transactions as transaction}
                 {@const config = statusConfig[transaction.status] || statusConfig.pending}
                 <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
-                    <div class="p-6">
+                    <div class="p-4">
                         <!-- Order header -->
-                        <div class="flex items-start justify-between mb-4">
-                            <div class="flex items-start gap-4">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div class="flex items-start gap-3">
                                 {#if role === 'seller'}
                                     <input 
                                         type="checkbox" 
-                                        class="mt-1 w-4 h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2"
+                                        class="mt-1 w-5 h-5 sm:w-4 sm:h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2 flex-shrink-0"
                                         checked={selectedOrders.has(transaction.id)}
                                         onchange={() => toggleOrder(transaction.id)}
                                     />
                                 {/if}
-                                <div class="flex items-start gap-4">
+                                <div class="flex items-start gap-3 flex-1">
                                     {#if transaction.listing?.images?.[0]}
                                         <img 
                                             src={transaction.listing.images[0]} 
                                             alt={transaction.listing.title}
-                                            class="w-20 h-20 object-cover rounded-lg"
+                                            class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
                                         />
                                     {:else}
-                                        <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
-                                            <Package class="w-8 h-8 text-gray-400" />
+                                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <Package class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
                                         </div>
                                     {/if}
-                                    <div class="flex-1">
-                                        <h3 class="font-medium text-gray-900">
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="font-medium text-gray-900 line-clamp-1 sm:line-clamp-2 break-words">
                                             {transaction.listing?.title || 'Unknown Item'}
                                         </h3>
-                                        <p class="text-sm text-gray-500 mt-1">
+                                        <p class="text-sm text-gray-500 mt-1 truncate">
                                             Order #{transaction.id.slice(0, 13)}
                                         </p>
-                                        <p class="text-xs text-gray-400 mt-1">
+                                        <p class="text-xs text-gray-400 mt-1 truncate">
                                             {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
                                         </p>
+                                        <!-- Mobile price & status -->
+                                        <div class="flex items-center gap-3 mt-2 sm:hidden">
+                                            <span class="text-base font-semibold text-gray-900">
+                                                {formatPrice(transaction.amount)}
+                                            </span>
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full {config.color}">
+                                                <svelte:component this={config.icon} class="w-3 h-3" />
+                                                <span class="truncate">{transaction.status}</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex flex-col items-end gap-2">
+                            <!-- Desktop price & status -->
+                            <div class="hidden sm:flex flex-col items-end gap-2">
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full {config.color}">
                                     <svelte:component this={config.icon} class="w-3 h-3" />
                                     {transaction.status}
@@ -268,36 +281,37 @@
                         
                         
                         <!-- Order footer -->
-                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-                            <div class="flex items-center gap-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 mt-3 border-t border-gray-100">
+                            <div class="flex items-center gap-3 min-w-0">
                                 {#if role === 'buyer' && transaction.seller}
                                     <img 
                                         src={transaction.seller.avatar_url || `https://ui-avatars.com/api/?name=${transaction.seller.username}&background=87CEEB&color=fff`}
                                         alt={transaction.seller.username}
-                                        class="w-8 h-8 rounded-full"
+                                        class="w-8 h-8 rounded-full flex-shrink-0"
                                     />
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="text-xs text-gray-500">Seller</p>
-                                        <p class="text-sm font-medium text-gray-900">@{transaction.seller.username}</p>
+                                        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.seller.username}</p>
                                     </div>
                                 {:else if role === 'seller' && transaction.buyer}
                                     <img 
                                         src={transaction.buyer.avatar_url || `https://ui-avatars.com/api/?name=${transaction.buyer.username}&background=87CEEB&color=fff`}
                                         alt={transaction.buyer.username}
-                                        class="w-8 h-8 rounded-full"
+                                        class="w-8 h-8 rounded-full flex-shrink-0"
                                     />
-                                    <div>
+                                    <div class="min-w-0">
                                         <p class="text-xs text-gray-500">Buyer</p>
-                                        <p class="text-sm font-medium text-gray-900">@{transaction.buyer.username}</p>
+                                        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.buyer.username}</p>
                                     </div>
                                 {/if}
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="flex items-center gap-2 self-end sm:self-auto">
+                                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
                                     <MoreVertical class="w-4 h-4" />
                                 </button>
-                                <a href="/orders/{transaction.id}" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#87CEEB] bg-[#87CEEB]/10 rounded-lg hover:bg-[#87CEEB]/20 transition-colors">
-                                    View Details
+                                <a href="/orders/{transaction.id}" class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-[#87CEEB] bg-[#87CEEB]/10 rounded-lg hover:bg-[#87CEEB]/20 transition-colors min-h-[44px]">
+                                    <span class="hidden sm:inline">View Details</span>
+                                    <span class="sm:hidden">View</span>
                                     <ChevronRight class="w-4 h-4" />
                                 </a>
                             </div>

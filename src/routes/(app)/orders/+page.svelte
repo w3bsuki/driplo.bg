@@ -90,23 +90,24 @@
         </div>
         
         <!-- Tabs -->
-        <div class="flex space-x-1 bg-gray-100/80 p-1 rounded-xl mb-6">
+        <div class="flex space-x-1 bg-gray-100/80 p-1 rounded-xl mb-6 overflow-x-auto">
             {#each tabs as tab}
                 <a 
                     href="?tab={tab.id}{statusFilter ? `&status=${statusFilter}` : ''}"
-                    class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {activeTab === tab.id ? 'bg-white text-[#87CEEB] shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-fit {activeTab === tab.id ? 'bg-white text-[#87CEEB] shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
                 >
                     <svelte:component this={tab.icon} class="w-4 h-4" />
-                    {tab.label}
+                    <span class="hidden sm:inline">{tab.label}</span>
+                    <span class="sm:hidden">{tab.label.split(' ')[0]}</span>
                 </a>
             {/each}
         </div>
         
         <!-- Filters -->
         <div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <!-- Status filter -->
-                <div class="relative">
+                <div class="relative sm:col-span-2 md:col-span-1">
                     <label class="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
                     <div class="relative">
                         <Filter class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -179,9 +180,9 @@
                 </div>
                 
                 <!-- Actions -->
-                <div class="flex items-end gap-2">
+                <div class="col-span-full sm:col-span-2 md:col-span-1 flex flex-col sm:flex-row md:flex-col lg:flex-row items-stretch sm:items-end gap-2">
                     <button 
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                        class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors sm:flex-1 md:flex-initial min-h-[44px]"
                         onclick={() => {
                             const params = new URLSearchParams($page.url.searchParams);
                             params.delete('status');
@@ -193,14 +194,15 @@
                         Clear
                     </button>
                     <button 
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 sm:flex-1 md:flex-initial min-h-[44px]"
                         onclick={() => showStats ? showStats = false : loadStats()}
                     >
                         <BarChart3 class="w-4 h-4" />
-                        {showStats ? 'Hide' : 'Show'} Stats
+                        <span class="sm:hidden md:inline">{showStats ? 'Hide' : 'Show'} Stats</span>
+                        <span class="hidden sm:inline md:hidden">Stats</span>
                     </button>
-                    <div class="relative dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="px-4 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors flex items-center gap-2 cursor-pointer">
+                    <div class="relative dropdown dropdown-end sm:flex-1 md:flex-initial">
+                        <div tabindex="0" role="button" class="w-full px-3 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
                             <Download class="w-4 h-4" />
                             Export
                         </div>

@@ -3,9 +3,9 @@ import { emailService } from '$lib/server/email';
 import { createAdminClient } from '$lib/server/supabase-admin';
 import type { RequestHandler } from './$types';
 
-export const POST: RequestHandler = async ({ request, locals }) => {
+export const POST: RequestHandler = async ({ request }) => {
     try {
-        const { email, userId } = await request.json();
+        const { email } = await request.json();
         
         if (!email) {
             return json({ error: 'Email is required' }, { status: 400 });

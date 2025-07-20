@@ -3,16 +3,15 @@
 	import Header from '$lib/components/layout/Header.svelte';
 	import MobileNav from '$lib/components/layout/MobileNav.svelte';
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
+	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
 	import { setAuthContext } from '$lib/stores/auth-context.svelte';
 	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
-	import { i18n } from '$lib/i18n.js'
 	import { page } from '$app/stores';
-	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query'
+	import { QueryClientProvider } from '@tanstack/svelte-query'
 	import { createQueryClient } from '$lib/stores/query-client';
-	import { getLocale } from '$lib/paraglide/runtime.js';
 
 	export let data;
 
@@ -25,12 +24,22 @@
 	// Track scroll position for landing page
 	let showMobileNavOnLanding = false;
 	
+	// Define pages where bottom nav should be hidden
+	const hiddenPaths = [
+		'/orders',
+		'/wishlist',
+		'/checkout',
+		'/messages',
+		'/settings',
+		'/profile/edit'
+	];
+	
 	// Hide mobile nav on specific pages
 	$: shouldHideMobileNav = 
+		hiddenPaths.some(path => $page.url.pathname.startsWith(path)) || // Hidden paths
 		$page.url.pathname.includes('/listings/') || // Product detail pages
 		$page.url.pathname.includes('/sell') || // Sell product form
 		($page.url.pathname === '/' && !showMobileNavOnLanding) || // Landing page (show when scrolled)
-		$page.url.pathname.includes('/checkout') || // Checkout/payment forms
 		$page.url.pathname.includes('/payment') || // Payment forms
 		$page.url.pathname.includes('/login') || // Login page
 		$page.url.pathname.includes('/register'); // Register page
@@ -88,7 +97,7 @@
 			/>
 			<Header categories={data.categories} />
 		{/if}
-		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-12 md:pb-0"}>
+		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
 			<slot />
 		</main>
 		{#if !shouldHideMobileNav}
@@ -96,6 +105,7 @@
 		{/if}
 	</div>
 
+	<CookieConsent />
 	<Toaster richColors position="top-center" />
 </QueryClientProvider>
 

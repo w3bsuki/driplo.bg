@@ -5,6 +5,18 @@
 	
 	let showFilters = $state(false);
 	
+	// Define pages where bottom nav should be hidden
+	const hiddenPaths = [
+		'/orders',
+		'/wishlist',
+		'/checkout',
+		'/messages',
+		'/settings',
+		'/profile/edit'
+	];
+	
+	const isVisible = $derived(!hiddenPaths.some(path => $page.url.pathname.startsWith(path)));
+	
 	interface NavItem {
 		href: string;
 		emoji: string;
@@ -33,7 +45,8 @@
 	}
 </script>
 
-<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_16px_rgba(0,0,0,0.08)] md:hidden">
+{#if isVisible}
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-b border-gray-200 shadow-[0_-1px_3px_0_rgba(0,0,0,0.05)] md:hidden">
 	<div class="grid grid-cols-5 items-center h-[72px] px-2" style="padding-bottom: env(safe-area-inset-bottom)">
 		{#each navItems as item}
 			{#if item.isPrimary}
@@ -75,5 +88,6 @@
 		{/each}
 	</div>
 </nav>
+{/if}
 
 <MobileFiltersDrawer isOpen={showFilters} onClose={() => showFilters = false} />
