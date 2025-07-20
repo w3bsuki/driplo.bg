@@ -1,0 +1,56 @@
+import adapter from '@sveltejs/adapter-vercel';
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+
+/** @type {import('@sveltejs/kit').Config} */
+const config = {
+	// Consult https://svelte.dev/docs/kit/integrations
+	// for more information about preprocessors
+	preprocess: vitePreprocess(),
+
+	kit: {
+		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
+		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
+		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
+		adapter: adapter({
+			// Use Node.js 20.x runtime
+			runtime: 'nodejs20.x',
+			// Split functions for better performance
+			split: false,
+			// Include files needed for server-side rendering
+			include: ['/*'],
+			// Exclude static assets from functions
+			exclude: ['<all>']
+		}),
+		
+		// Prerender static pages for better performance
+		prerender: {
+			entries: [
+				'/',
+				'/browse',
+				'/bags',
+				'/designer', 
+				'/kids',
+				'/men',
+				'/shoes',
+				'/women'
+			],
+			handleHttpError: 'warn'
+		},
+		
+		// Security headers configuration
+		csp: {
+			directives: {
+				'script-src': ["'self'", "'unsafe-inline'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
+				'frame-src': ["'self'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
+				'img-src': ["'self'", 'data:', 'https:', 'blob:'],
+				'connect-src': ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://api.stripe.com'],
+				'font-src': ["'self'", 'https:', 'data:'],
+				'style-src': ["'self'", "'unsafe-inline'", 'https:'],
+				'base-uri': ["'self'"],
+				'form-action': ["'self'"]
+			}
+		}
+	}
+};
+
+export default config;

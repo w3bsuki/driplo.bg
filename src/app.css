@@ -1,0 +1,240 @@
+@import 'tailwindcss';
+
+/* TitanThreads Design System Tokens */
+@theme {
+  /* Primary Colors - Baby Blue */
+  --color-primary-500: #87CEEB;
+  --color-primary-600: #6BB6D8;
+  --color-primary-700: #4F9FC5;
+  
+  /* Surface Colors */
+  --color-surface-50: #FFFFFF;
+  --color-surface-100: #FAFAFA;
+  --color-surface-200: #F5F5F5;
+  --color-surface-900: #0D0D0D;
+  
+  /* Mocha Colors */
+  --color-mocha-400: #B89380;
+  --color-mocha-500: #A47764;
+  --color-mocha-600: #8F6554;
+  
+  /* Semantic Colors */
+  --color-success-500: #21B572;
+  --color-success-600: #15925B;
+  --color-warning-500: #F1F955;
+  --color-warning-600: #D9DB44;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  
+  /* Neutrals */
+  --color-neutral-50: #FAFAFA;
+  --color-neutral-100: #F5F5F5;
+  --color-neutral-200: #E5E5E5;
+  --color-neutral-300: #D4D4D4;
+  --color-neutral-400: #A3A3A3;
+  --color-neutral-500: #737373;
+  --color-neutral-600: #525252;
+  --color-neutral-700: #404040;
+  --color-neutral-800: #262626;
+  --color-neutral-900: #171717;
+  
+  /* Spacing & Typography */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Motion */
+  --ease-snappy: cubic-bezier(.2,0,0,1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+}
+
+/* Light mode (default) */
+@layer base {
+  :root {
+    /* Map to shadcn conventions */
+    --background: 0 0% 100%; /* white */
+    --foreground: 0 0% 6%; /* near black */
+    
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 6%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 6%;
+    
+    /* Baby Blue primary */
+    --primary: 197 71% 73%; /* #87CEEB */
+    --primary-foreground: 0 0% 0%;
+    
+    /* Mocha secondary */
+    --secondary: 22 22% 55%; /* #A47764 */
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    
+    /* Baby Blue accent */
+    --accent: 197 71% 73%;
+    --accent-foreground: 0 0% 0%;
+    
+    /* Semantic colors */
+    --destructive: 0 84% 60%; /* red */
+    --destructive-foreground: 0 0% 100%;
+    
+    /* Additional semantic tokens for badges */
+    --success: 152 69% 42%; /* green */
+    --success-foreground: 0 0% 100%;
+    --warning: 61 95% 66%; /* yellow */
+    --warning-foreground: 0 0% 6%;
+    
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 197 71% 73%; /* baby blue */
+    
+    --radius: 0.5rem;
+  }
+  
+  /* Dark mode */
+  .dark {
+    --background: 0 0% 5%; /* #0D0D0D */
+    --foreground: 0 0% 98%;
+    
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 98%;
+    
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 98%;
+    
+    /* Adjusted baby blue for dark mode */
+    --primary: 197 71% 65%; /* #6BB6D8 */
+    --primary-foreground: 0 0% 100%;
+    
+    /* Adjusted mocha for dark mode */
+    --secondary: 22 18% 40%; /* #7A5D4E */
+    --secondary-foreground: 0 0% 98%;
+    
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
+    
+    --accent: 197 71% 65%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    
+    --success: 152 69% 35%;
+    --warning: 61 95% 55%;
+    
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 197 71% 65%;
+  }
+}
+
+/* Base styles */
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* Focus styles for accessibility */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  
+  /* Motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  /* Smooth animations */
+  .animate-snappy {
+    transition-timing-function: var(--ease-snappy);
+  }
+  
+  /* Product card shadows */
+  .shadow-product {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05),
+                0 1px 2px -1px rgb(0 0 0 / 0.05);
+  }
+  
+  .shadow-product-hover {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+                0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  
+  /* Semantic color utilities */
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+  
+  .text-success-foreground {
+    color: hsl(var(--success-foreground));
+  }
+  
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+  
+  .text-warning-foreground {
+    color: hsl(var(--warning-foreground));
+  }
+  
+  /* Scrollbar hide utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* iOS form fixes */
+  @supports (-webkit-touch-callout: none) {
+    /* iOS specific styles */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="search"],
+    textarea,
+    select {
+      font-size: 16px !important; /* Prevents zoom on iOS */
+      -webkit-appearance: none;
+      -webkit-text-size-adjust: 100%;
+    }
+    
+    /* Prevent iOS bounce/elastic scrolling */
+    body {
+      width: 100%;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Fix for position fixed */
+    .min-h-screen {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+    }
+  }
+}

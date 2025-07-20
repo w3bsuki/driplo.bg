@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(python:*)",
+      "Bash(where npx)",
+      "Bash(npx:*)",
+      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_15b9ee36e979ecd0bdc33c598dd85303e66797e9)"
+    ],
+    "deny": []
+  }
+}
