@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui';
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
 	import SearchInput from '$lib/components/search/SearchInput.svelte';
+	import SearchBarWithFilters from '$lib/components/search/SearchBarWithFilters.svelte';
 	import { cn } from '$lib/utils';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
@@ -193,6 +194,49 @@
 		goto('/browse');
 	}
 
+	function handleQuickFilterChange(filters: any) {
+		// Convert quick filter format to URL params
+		const updates: Record<string, any> = {};
+		
+		// Handle conditions
+		if (filters.condition) {
+			updates.conditions = filters.condition.length > 0 ? filters.condition.join(',') : null;
+			selectedConditions = new Set(filters.condition);
+		}
+		
+		// Handle sizes
+		if (filters.size) {
+			updates.sizes = filters.size.length > 0 ? filters.size.join(',') : null;
+			selectedSizes = new Set(filters.size);
+		}
+		
+		// Handle price range
+		if (filters.priceRange) {
+			if (filters.priceRange === '0-20') {
+				updates.minPrice = 0;
+				updates.maxPrice = 20;
+				priceRange = { min: 0, max: 20 };
+			} else if (filters.priceRange === '20-50') {
+				updates.minPrice = 20;
+				updates.maxPrice = 50;
+				priceRange = { min: 20, max: 50 };
+			} else if (filters.priceRange === '50-100') {
+				updates.minPrice = 50;
+				updates.maxPrice = 100;
+				priceRange = { min: 50, max: 100 };
+			} else if (filters.priceRange === '100+') {
+				updates.minPrice = 100;
+				updates.maxPrice = null;
+				priceRange = { min: 100, max: 10000 };
+			} else {
+				updates.minPrice = null;
+				updates.maxPrice = null;
+				priceRange = { min: 0, max: 10000 };
+			}
+		}
+		
+		goto(buildFilterUrl(updates));
+	}
 
 	// Size options
 	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '8', '10', '12', '14', '16'];
@@ -380,28 +424,14 @@
 	<!-- Mobile Search & Filters -->
 	<div class="sticky top-[64px] z-40 bg-white border-b block md:hidden">
 		<div class="p-4 space-y-3">
-			<!-- Mobile Emoji Search Bar -->
-			<div class="relative">
-				<div class="flex items-center bg-gray-50 rounded-lg border border-gray-200">
-					<div class="pl-3 pr-2">
-						<span class="text-xl">🔍</span>
-					</div>
-					<input
-						type="search"
-						placeholder="Search items..."
-						bind:value={searchInput}
-						oninput={(e) => handleSearchInput(e.currentTarget.value)}
-						onkeydown={(e) => { if (e.key === 'Enter') { clearTimeout(searchDebounceTimer); handleSearch(searchInput); } }}
-						class="flex-1 py-2 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
-					/>
-					<button
-						onclick={() => handleSearch(searchInput)}
-						class="mr-1 p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
-					>
-						<Search class="h-4 w-4" />
-					</button>
-				</div>
-			</div>
+			<!-- Mobile Search Bar with Quick Filters -->
+			<SearchBarWithFilters
+				bind:value={searchInput}
+				placeholder="Search items... 👗 👔 👟"
+				onSearch={handleSearch}
+				onFilterChange={handleQuickFilterChange}
+				activeFilterCount={data.filters.conditions.length + data.filters.sizes.length + (data.filters.minPrice || data.filters.maxPrice ? 1 : 0)}
+			/>
 
 			<!-- Category Pills -->
 			<div class="overflow-x-auto -mx-4 px-4">
