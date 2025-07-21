@@ -613,10 +613,17 @@
 <style>
 	/* Custom styles for better image upload integration */
 	:global(.image-upload-wrapper) {
-		@apply !border-0 !bg-transparent !p-0;
+		border: 0;
+		background-color: transparent;
+		padding: 0;
 	}
 	
 	:global(.image-upload-button) {
-		@apply !bg-[#87CEEB] hover:!bg-[#87CEEB]/90 !border-0;
+		background-color: #87CEEB;
+		border: 0;
+	}
+	
+	:global(.image-upload-button:hover) {
+		background-color: rgb(135 206 235 / 0.9);
 	}
 </style>

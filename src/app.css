@@ -1,5 +1,18 @@
 @import 'tailwindcss';
 
+/* Custom utility classes for shadcn/ui components */
+@layer utilities {
+  .bg-background {
+    background-color: rgb(255 255 255);
+  }
+  .bg-muted {
+    background-color: rgb(249 250 251);
+  }
+  .bg-muted\/50 {
+    background-color: rgb(249 250 251 / 0.5);
+  }
+}
+
 /* TitanThreads Design System Tokens */
 @theme {
   /* Primary Colors - Baby Blue */

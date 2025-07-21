@@ -10,4 +10,6 @@ export * as Sheet from './sheet/index.js';
 export * as DropdownMenu from './dropdown-menu/index.js';
 export { Label } from './label/index.js';
 export { Textarea } from './textarea/index.js';
+export { default as LoadingSpinner } from './LoadingSpinner.svelte';
+export { default as LazyModal } from './LazyModal.svelte';
 
