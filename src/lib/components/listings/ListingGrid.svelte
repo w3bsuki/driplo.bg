@@ -3,6 +3,7 @@
 	import ListingCard from './ListingCard.svelte';
 	import InfiniteScroll from '$lib/components/ui/InfiniteScroll.svelte';
 	import VirtualGrid from '$lib/components/ui/VirtualGrid.svelte';
+	import { getLoadingStrategy, calculateEagerLoadCount } from '$lib/utils/lazy-loading';
 	import type { Database } from '$lib/types/database'
 	import type { SupabaseClient } from '@supabase/supabase-js'
 	
@@ -69,6 +70,22 @@
 	// Virtual scrolling configuration
 	const shouldUseVirtualScrolling = $derived(useVirtualScrolling && listings.length > 50)
 	const columns = $derived(getResponsiveColumns())
+	
+	// Adaptive loading strategy
+	let loadingStrategy = $state(getLoadingStrategy())
+	const eagerLoadCount = $derived(loadingStrategy.eagerCount)
+	
+	// Update loading strategy on mount and resize
+	onMount(() => {
+		loadingStrategy = getLoadingStrategy()
+		
+		const handleResize = () => {
+			loadingStrategy = getLoadingStrategy()
+		}
+		
+		window.addEventListener('resize', handleResize)
+		return () => window.removeEventListener('resize', handleResize)
+	})
 	
 	function getResponsiveColumns() {
 		if (typeof window === 'undefined') return 4
@@ -166,13 +183,13 @@
 					let:item
 					let:index
 				>
-					<ListingCard {...item} eagerLoading={index < 16} />
+					<ListingCard {...item} eagerLoading={index < eagerLoadCount} />
 				</VirtualGrid>
 			{:else}
 				<!-- Regular grid for smaller lists -->
 				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-4">
 					{#each listings as listing, index (listing.id)}
-						<ListingCard {...listing} eagerLoading={index < 8} />
+						<ListingCard {...listing} eagerLoading={index < eagerLoadCount} />
 					{/each}
 				</div>
 			{/if}

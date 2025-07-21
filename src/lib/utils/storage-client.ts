@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database'
-import { compressImage } from './image-compression'
+import { compressImages } from './image-compression'
 
 export type UploadResult = {
 	url: string
@@ -60,13 +60,14 @@ export async function uploadImage(
 			
 		if (needsCompression) {
 			try {
-				processedFile = await compressImage(file, {
+				const compressed = await compressImages([file], {
 					maxWidth: 1920,
 					maxHeight: 1920,
 					quality: 0.85,
 					maxSizeMB: 4.5, // Leave some buffer under 5MB limit
 					handleHEIC: true
 				})
+				processedFile = compressed[0]
 				console.log(`Processed image: ${file.name} (${file.type || 'unknown'}) from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`)
 			} catch (compressionError) {
 				console.warn('Image compression failed, using original:', compressionError)

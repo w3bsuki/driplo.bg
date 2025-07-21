@@ -15,8 +15,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		} = await request.json();
 
 		// Check if user is authenticated
-		const { user } = await locals.safeGetSession();
-		if (!user) {
+		const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
+		if (authError || !user) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -157,8 +157,8 @@ export const GET: RequestHandler = async ({ locals }) => {
 	const supabase = locals.supabase;
 	try {
 		// Check if user is authenticated
-		const { user } = await locals.safeGetSession();
-		if (!user) {
+		const { data: { user }, error: authError } = await locals.supabase.auth.getUser();
+		if (authError || !user) {
 			return json({ error: 'Unauthorized' }, { status: 401 });
 		}
 

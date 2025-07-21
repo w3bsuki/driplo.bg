@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { getResponsiveImageUrl } from '$lib/utils/responsive-image';
+	import { getLoadingStrategy, generatePlaceholder } from '$lib/utils/lazy-loading';
 	import { onMount } from 'svelte';
 
 	interface Props {
@@ -15,6 +16,11 @@
 		fallbackSrc?: string;
 		onload?: () => void;
 		onerror?: (e: Event) => void;
+		fetchpriority?: 'high' | 'low' | 'auto';
+		decoding?: 'sync' | 'async' | 'auto';
+		width?: number;
+		height?: number;
+		usePlaceholder?: boolean;
 	}
 
 	let {
@@ -28,13 +34,20 @@
 		preferredSize = 'medium',
 		fallbackSrc = '/images/placeholder.jpg',
 		onload,
-		onerror
+		onerror,
+		fetchpriority = 'auto',
+		decoding = 'async',
+		width,
+		height,
+		usePlaceholder = true
 	}: Props = $props();
 
 	let isLoaded = $state(false);
 	let hasError = $state(false);
 	let imgElement: HTMLImageElement;
 	let observerSupported = $state(true);
+	let loadingStrategy = $state(getLoadingStrategy());
+	let placeholder = $derived(usePlaceholder ? generatePlaceholder(width || 40, height || 40) : '');
 
 	// Get the appropriate image URL
 	const imageUrl = $derived(
@@ -95,7 +108,8 @@
 					});
 				},
 				{
-					rootMargin: '50px'
+					rootMargin: loadingStrategy.rootMargin || '50px',
+					threshold: 0.01
 				}
 			);
 
@@ -118,11 +132,15 @@
 	
 	<img
 		bind:this={imgElement}
-		src={observerSupported || loading === 'eager' ? imageUrl : undefined}
+		src={observerSupported || loading === 'eager' ? imageUrl : placeholder}
 		srcset={observerSupported || loading === 'eager' ? srcSet() : undefined}
 		{alt}
 		{sizes}
 		{loading}
+		{width}
+		{height}
+		{fetchpriority}
+		{decoding}
 		class={cn(
 			'w-full h-full transition-opacity duration-300',
 			!isLoaded && 'opacity-0',
@@ -131,7 +149,6 @@
 		style:object-fit={objectFit}
 		onload={handleLoad}
 		onerror={handleError}
-		decoding="async"
 	/>
 </div>
 

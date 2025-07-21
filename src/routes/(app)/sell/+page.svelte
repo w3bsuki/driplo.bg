@@ -10,7 +10,7 @@
 	const authContext = getAuthContext()
 	
 	onMount(() => {
-		// Check auth on mount only
+		// Double-check auth on mount
 		if (!authContext?.user) {
 			goto('/login?redirect=/sell')
 		}

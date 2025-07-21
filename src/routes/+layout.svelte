@@ -16,6 +16,9 @@
 	import { createQueryClient } from '$lib/stores/query-client';
 	import NotificationPopup from '$lib/components/NotificationPopup.svelte';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
+	import { browser, dev } from '$app/environment';
+	import { initWebVitals } from '$lib/utils/web-vitals';
+	import WebVitalsDebug from '$lib/components/debug/WebVitalsDebug.svelte';
 
 	export let data;
 
@@ -52,6 +55,28 @@
 	$: isAuthPage = $page.url.pathname.includes('/login') || $page.url.pathname.includes('/register');
 
 	onMount(() => {
+		// Initialize Web Vitals monitoring
+		if (browser) {
+			initWebVitals({
+				sendToAnalytics: (metric) => {
+					// In production, send to your analytics service
+					if (!dev) {
+						// Example: Google Analytics
+						// gtag('event', metric.name, {
+						//   value: Math.round(metric.name === 'CLS' ? metric.value * 1000 : metric.value),
+						//   metric_rating: metric.rating,
+						//   non_interaction: true
+						// });
+					}
+				},
+				sampleRate: dev ? 1 : 0.1, // 100% in dev, 10% in production
+				metadata: {
+					version: '1.0.0',
+					environment: dev ? 'development' : 'production'
+				}
+			});
+		}
+		
 		// Handle scroll for showing mobile nav on landing page
 		const handleScroll = () => {
 			if ($page.url.pathname === '/') {
@@ -128,6 +153,11 @@
 	<CookieConsent />
 	<Toaster richColors position="top-center" />
 	<NotificationPopup position="top-right" />
+	
+	<!-- Web Vitals Debug Panel (dev only) -->
+	{#if dev}
+		<WebVitalsDebug />
+	{/if}
 	
 	<!-- Page transition loading indicator -->
 	{#if $navigating}

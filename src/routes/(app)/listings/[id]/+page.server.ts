@@ -1,9 +1,13 @@
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
+import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
-export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
+export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession }, setHeaders }) => {
 	// Get session first to check authentication
 	const { session } = await safeGetSession()
+	
+	// Set cache headers for product pages
+	setCacheHeaders({ setHeaders } as any, cachePresets.product)
 
 	// First, get the main listing
 	const { data: listing, error: listingError } = await supabase

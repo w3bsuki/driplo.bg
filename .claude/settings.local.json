@@ -7,7 +7,12 @@
       "Bash(curl:*)",
       "mcp__supabase__list_tables",
       "mcp__supabase__execute_sql",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   },

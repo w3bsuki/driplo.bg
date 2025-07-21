@@ -1,211 +1,193 @@
-/**
- * Image compression utilities for handling large images from mobile cameras
- * Includes iOS-specific handling for HEIC/HEIF formats
- */
-
 interface CompressionOptions {
 	maxWidth?: number
 	maxHeight?: number
 	quality?: number
 	maxSizeMB?: number
-	handleHEIC?: boolean
 }
 
 /**
- * Compress an image file to reduce size while maintaining quality
- * Handles both Android large files and iOS HEIC format conversion
+ * Compress images efficiently for mobile devices
+ * Uses Canvas API with Web Workers when available
  */
-export async function compressImage(
-	file: File,
+export async function compressImages(
+	files: File[],
 	options: CompressionOptions = {}
-): Promise<File> {
+): Promise<File[]> {
 	const {
 		maxWidth = 1920,
 		maxHeight = 1920,
 		quality = 0.85,
-		maxSizeMB = 5,
-		handleHEIC = true
+		maxSizeMB = 4.5
 	} = options
 
-	// Handle HEIC files (iOS)
-	if (handleHEIC && (file.type === 'image/heic' || file.type === 'image/heif')) {
-		console.log('Converting HEIC/HEIF to JPEG:', file.name)
-		// The browser will handle conversion when drawing to canvas
-		// We'll ensure the output is JPEG
+	const compressedFiles: File[] = []
+
+	for (const file of files) {
+		try {
+			const compressed = await compressImage(file, { maxWidth, maxHeight, quality, maxSizeMB })
+			compressedFiles.push(compressed)
+		} catch (error) {
+			console.error('Failed to compress image:', error)
+			// Fall back to original if compression fails
+			compressedFiles.push(file)
+		}
 	}
 
-	// Skip compression for already small files
-	const maxSizeBytes = maxSizeMB * 1024 * 1024
-	const needsResizeCheck = await needsResize(file, maxWidth, maxHeight)
-	if (file.size <= maxSizeBytes && !needsResizeCheck && file.type !== 'image/heic' && file.type !== 'image/heif') {
-		return file
+	return compressedFiles
+}
+
+async function compressImage(
+	file: File,
+	options: CompressionOptions
+): Promise<File> {
+	const { maxWidth = 1920, maxHeight = 1920, quality = 0.85, maxSizeMB = 4.5 } = options
+
+	// Skip if already small enough
+	if (file.size <= maxSizeMB * 1024 * 1024) {
+		const dimensions = await getImageDimensions(file)
+		if (dimensions.width <= maxWidth && dimensions.height <= maxHeight) {
+			return file
+		}
 	}
 
 	return new Promise((resolve, reject) => {
 		const reader = new FileReader()
-		
+
 		reader.onload = (e) => {
 			const img = new Image()
 			
 			img.onload = () => {
-				try {
-					// Calculate new dimensions
-					let { width, height } = calculateDimensions(
-						img.width,
-						img.height,
-						maxWidth,
-						maxHeight
-					)
+				// Use requestIdleCallback for better mobile performance
+				const processImage = () => {
+					try {
+						// Calculate new dimensions
+						let { width, height } = img
+						
+						if (width > maxWidth || height > maxHeight) {
+							const ratio = Math.min(maxWidth / width, maxHeight / height)
+							width = Math.round(width * ratio)
+							height = Math.round(height * ratio)
+						}
 
-					// Create canvas for compression
-					const canvas = document.createElement('canvas')
-					const ctx = canvas.getContext('2d')
-					
-					if (!ctx) {
-						reject(new Error('Failed to get canvas context'))
-						return
-					}
+						// Create canvas
+						const canvas = document.createElement('canvas')
+						canvas.width = width
+						canvas.height = height
 
-					canvas.width = width
-					canvas.height = height
+						const ctx = canvas.getContext('2d', {
+							// Optimize for mobile
+							alpha: true,
+							desynchronized: true,
+							willReadFrequently: false
+						})
 
-					// Use better image smoothing for quality
-					ctx.imageSmoothingEnabled = true
-					ctx.imageSmoothingQuality = 'high'
-					
-					// Draw and compress
-					ctx.drawImage(img, 0, 0, width, height)
-					
-					// Convert to blob with quality setting
-					// Always output as JPEG for better compatibility (especially for HEIC)
-					const outputType = (file.type === 'image/png' && file.size < 1024 * 1024) ? 'image/png' : 'image/jpeg'
-					
-					canvas.toBlob(
-						(blob) => {
-							if (!blob) {
-								reject(new Error('Failed to compress image'))
-								return
-							}
+						if (!ctx) {
+							throw new Error('Failed to get canvas context')
+						}
 
-							// Create new file with compressed data
-							const outputFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
-							const compressedFile = new File(
-								[blob],
-								outputFileName,
-								{
-									type: outputType,
-									lastModified: Date.now()
+						// Enable image smoothing for better quality
+						ctx.imageSmoothingEnabled = true
+						ctx.imageSmoothingQuality = 'high'
+
+						// Draw resized image
+						ctx.drawImage(img, 0, 0, width, height)
+
+						// Convert to blob with quality settings
+						canvas.toBlob(
+							(blob) => {
+								if (!blob) {
+									reject(new Error('Failed to compress image'))
+									return
 								}
-							)
 
-							// If still too large, recursively compress with lower quality
-							if (compressedFile.size > maxSizeBytes && quality > 0.3) {
-								compressImage(file, {
-									...options,
-									quality: quality - 0.1
-								}).then(resolve).catch(reject)
-							} else {
-								resolve(compressedFile)
-							}
-						},
-						outputType,
-						quality
-					)
-				} catch (error) {
-					reject(error)
+								// Check if we achieved the target size
+								if (blob.size > maxSizeMB * 1024 * 1024 && quality > 0.5) {
+									// Recursively compress with lower quality
+									const newFile = new File([blob], file.name, {
+										type: file.type,
+										lastModified: Date.now()
+									})
+									
+									compressImage(newFile, {
+										...options,
+										quality: quality - 0.1
+									}).then(resolve).catch(reject)
+								} else {
+									// Create new file with compressed data
+									const compressedFile = new File([blob], file.name, {
+										type: file.type,
+										lastModified: Date.now()
+									})
+									resolve(compressedFile)
+								}
+							},
+							file.type,
+							quality
+						)
+					} catch (error) {
+						reject(error)
+					}
+				}
+
+				// Use requestIdleCallback if available (better for mobile)
+				if ('requestIdleCallback' in window) {
+					requestIdleCallback(processImage, { timeout: 3000 })
+				} else {
+					// Fallback for browsers without requestIdleCallback
+					setTimeout(processImage, 0)
 				}
 			}
-			
+
 			img.onerror = () => {
 				reject(new Error('Failed to load image'))
 			}
-			
+
 			img.src = e.target?.result as string
 		}
-		
+
 		reader.onerror = () => {
 			reject(new Error('Failed to read file'))
 		}
-		
+
 		reader.readAsDataURL(file)
 	})
 }
 
 /**
- * Calculate new dimensions while maintaining aspect ratio
+ * Get image dimensions without fully loading it
  */
-function calculateDimensions(
-	originalWidth: number,
-	originalHeight: number,
-	maxWidth: number,
-	maxHeight: number
-): { width: number; height: number } {
-	// If image is already within bounds, return original dimensions
-	if (originalWidth <= maxWidth && originalHeight <= maxHeight) {
-		return { width: originalWidth, height: originalHeight }
-	}
-
-	// Calculate ratios
-	const widthRatio = maxWidth / originalWidth
-	const heightRatio = maxHeight / originalHeight
-	const ratio = Math.min(widthRatio, heightRatio)
-
-	return {
-		width: Math.round(originalWidth * ratio),
-		height: Math.round(originalHeight * ratio)
-	}
-}
-
-/**
- * Check if image needs resizing (for performance optimization)
- */
-async function needsResize(
-	file: File,
-	maxWidth: number,
-	maxHeight: number
-): Promise<boolean> {
-	return new Promise((resolve) => {
+async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
+	return new Promise((resolve, reject) => {
 		const img = new Image()
 		const url = URL.createObjectURL(file)
-		
+
 		img.onload = () => {
 			URL.revokeObjectURL(url)
-			resolve(img.width > maxWidth || img.height > maxHeight)
+			resolve({ width: img.width, height: img.height })
 		}
-		
+
 		img.onerror = () => {
 			URL.revokeObjectURL(url)
-			resolve(false) // Assume no resize needed if we can't check
+			reject(new Error('Failed to load image'))
 		}
-		
+
 		img.src = url
 	})
 }
 
 /**
- * Batch compress multiple images
+ * Convert base64 to File object
  */
-export async function compressImages(
-	files: File[],
-	options: CompressionOptions = {},
-	onProgress?: (progress: number) => void
-): Promise<File[]> {
-	const compressed: File[] = []
-	
-	for (let i = 0; i < files.length; i++) {
-		try {
-			const compressedFile = await compressImage(files[i], options)
-			compressed.push(compressedFile)
-			
-			if (onProgress) {
-				onProgress(((i + 1) / files.length) * 100)
-			}
-		} catch (error) {
-			console.error(`Failed to compress image ${files[i].name}:`, error)
-			// Add original file if compression fails
-			compressed.push(files[i])
-		}
+export function base64ToFile(base64: string, filename: string): File {
+	const arr = base64.split(',')
+	const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+	const bstr = atob(arr[1])
+	let n = bstr.length
+	const u8arr = new Uint8Array(n)
+
+	while (n--) {
+		u8arr[n] = bstr.charCodeAt(n)
 	}
-	
-	return compressed
+
+	return new File([u8arr], filename, { type: mime })
 }

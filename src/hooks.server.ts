@@ -5,6 +5,7 @@ import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
 import { getLocale, setLocale, isLocale } from '$lib/paraglide/runtime.js'
 import { dev } from '$app/environment'
+import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
 const handleI18n: Handle = async ({ event, resolve }) => {
 	// Get language from cookie or Accept-Language header
@@ -158,4 +159,54 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	return response
 }
 
-export const handle = sequence(handleI18n, handleSupabase)
+const handleCaching: Handle = async ({ event, resolve }) => {
+	const response = await resolve(event)
+	
+	// Skip caching for non-GET requests
+	if (event.request.method !== 'GET') {
+		return response
+	}
+	
+	// Skip if cache headers already set by route
+	if (response.headers.has('cache-control')) {
+		return response
+	}
+	
+	const path = event.url.pathname
+	
+	// Apply caching based on route patterns
+	if (path.startsWith('/_app/') || path.startsWith('/images/') || path.endsWith('.js') || path.endsWith('.css')) {
+		// Static assets - long cache
+		response.headers.set('cache-control', cachePresets.static.custom!)
+	} else if (path.startsWith('/api/')) {
+		// API routes - short cache
+		response.headers.set('cache-control', 'public, max-age=0, s-maxage=60, must-revalidate')
+	} else if (path.startsWith('/auth/') || path.startsWith('/account/') || path.startsWith('/dashboard/')) {
+		// Private routes - no cache
+		response.headers.set('cache-control', 'no-store')
+	} else if (path === '/' || path.startsWith('/browse')) {
+		// Browse pages - moderate cache
+		response.headers.set('cache-control', 'public, max-age=300, s-maxage=3600')
+	} else if (path.startsWith('/listings/')) {
+		// Product pages - longer cache
+		response.headers.set('cache-control', 'public, max-age=600, s-maxage=86400')
+	} else if (path.startsWith('/sellers/') || path.startsWith('/brands/')) {
+		// Profile pages - short cache
+		response.headers.set('cache-control', 'public, max-age=60, s-maxage=300')
+	} else {
+		// Default - short cache
+		response.headers.set('cache-control', 'public, max-age=60, s-maxage=300')
+	}
+	
+	// Add Vary header for proper caching with different representations
+	const vary = response.headers.get('vary')
+	const varyHeaders = ['Accept-Encoding', 'Accept-Language']
+	if (vary) {
+		varyHeaders.unshift(vary)
+	}
+	response.headers.set('vary', varyHeaders.join(', '))
+	
+	return response
+}
+
+export const handle = sequence(handleI18n, handleSupabase, handleCaching)

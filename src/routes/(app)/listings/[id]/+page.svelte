@@ -12,7 +12,7 @@
 	import { cn } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages.js';
-	import CheckoutFlow from '$lib/components/checkout/CheckoutFlow.svelte';
+	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
 	import Badge from '$lib/components/ui/badge.svelte';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
@@ -36,6 +36,7 @@
 	let isFollowLoading = $state(false);
 	let showFullscreenGallery = $state(false);
 	let isDescriptionExpanded = $state(false);
+	let checkoutFlowRef: any;
 
 	let isOwner = $derived(currentUser?.id === listing?.seller_id);
 	let images = $derived(() => {
@@ -475,6 +476,8 @@
 				</button>
 				<button
 					onclick={handleBuyNow}
+					onmouseenter={() => checkoutFlowRef?.preload()}
+					onfocus={() => checkoutFlowRef?.preload()}
 					class="bg-[#87CEEB] text-white rounded-lg px-6 py-2.5 font-medium hover:bg-[#87CEEB]/90 transition-all duration-200 transform active:scale-[0.98]"
 				>
 					Buy Now
@@ -601,10 +604,11 @@
 
 <!-- Checkout Flow -->
 {#if listing}
-	<CheckoutFlow 
+	<LazyCheckoutFlow 
 		{listing}
 		isOpen={showCheckout}
 		onClose={() => showCheckout = false}
+		bind:this={checkoutFlowRef}
 	/>
 {/if}
 

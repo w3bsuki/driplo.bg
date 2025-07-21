@@ -124,7 +124,7 @@
 					<div class="flex flex-col gap-2">
 						<Button 
 							class="w-full bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
-							onclick={() => goto(`/listings/${listing.id}`)}
+							on:click={() => goto(`/listings/${listing.id}`)}
 						>
 							<span class="mr-1">👁️</span>
 							View Listing
@@ -134,7 +134,7 @@
 							<Button 
 								variant="outline"
 								class="text-sm py-2 border-gray-200 hover:bg-gray-50"
-								onclick={handleShare}
+								on:click={handleShare}
 							>
 								<span class="mr-1">🔗</span>
 								Share
@@ -143,7 +143,7 @@
 							<Button 
 								variant="outline"
 								class="text-sm py-2 border-gray-200 hover:bg-gray-50"
-								onclick={() => goto('/sell')}
+								on:click={() => goto('/sell')}
 							>
 								<span class="mr-1">➕</span>
 								Sell More
@@ -159,7 +159,7 @@
 				<p class="text-gray-600 mb-4">Your listing has been created successfully!</p>
 				<Button 
 					class="bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
-					onclick={() => goto('/profile')}
+					on:click={() => goto('/profile')}
 				>
 					View Your Listings
 				</Button>
@@ -232,7 +232,7 @@
 			<div class="max-w-lg mx-auto flex gap-2">
 				<Button 
 					class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
-					onclick={() => goto('/profile')}
+					on:click={() => goto('/profile')}
 				>
 					View My Profile
 					<span class="ml-1">→</span>
@@ -241,7 +241,7 @@
 				<Button 
 					variant="outline"
 					class="flex-1 text-sm py-2"
-					onclick={() => goto('/')}
+					on:click={() => goto('/')}
 				>
 					Browse Marketplace
 				</Button>

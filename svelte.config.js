@@ -25,6 +25,7 @@ const config = {
 		// Prerender static pages for better performance
 		prerender: {
 			entries: [
+				// Home and category pages (with ISR potential)
 				'/',
 				'/browse',
 				'/bags',
@@ -32,9 +33,19 @@ const config = {
 				'/kids',
 				'/men',
 				'/shoes',
-				'/women'
+				'/women',
+				
+				// Static pages
+				'/privacy',
+				
+				// Auth pages (no server data)
+				'/login',
+				'/register',
+				'/auth-code-error'
 			],
-			handleHttpError: 'warn'
+			handleHttpError: 'warn',
+			handleMissingId: 'warn',
+			crawl: true
 		},
 		
 		// Security headers configuration

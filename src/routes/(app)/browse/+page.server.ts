@@ -2,10 +2,14 @@ import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 import { browseListings, getBrowseFilters } from '$lib/server/browse'
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache'
+import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
-export const load: PageServerLoad = async ({ url, locals }) => {
+export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 	const session = await locals.safeGetSession()
 	const { supabase } = locals
+	
+	// Set cache headers for browse page
+	setCacheHeaders({ setHeaders } as any, cachePresets.browse)
 	
 	// Extract filter parameters from URL
 	const searchParams = url.searchParams
