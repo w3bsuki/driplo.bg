@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL, PUBLIC_APP_URL } from '$env/static/public';
-import { sendEmail } from '$lib/server/email';
+import { emailService } from '$lib/server/email';
 
 const supabaseAdmin = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -47,7 +47,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Send confirmation email
-		const emailResult = await sendEmail({
+		const emailSent = await emailService.send({
 			to: email,
 			subject: 'Verify your email for Driplo',
 			html: `
@@ -95,8 +95,8 @@ export const POST: RequestHandler = async ({ request }) => {
 			`
 		});
 
-		if (!emailResult.success) {
-			console.error('Failed to send verification email:', emailResult.error);
+		if (!emailSent) {
+			console.error('Failed to send verification email');
 			return json({ error: 'Failed to send verification email' }, { status: 500 });
 		}
 
