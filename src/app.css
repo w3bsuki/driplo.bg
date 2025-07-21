@@ -1,15 +1,18 @@
 @import 'tailwindcss';
 
-/* Custom utility classes for shadcn/ui components */
+/* Tailwind v4 alpha compatibility utilities */
 @layer utilities {
+  /* Background utilities with opacity support */
   .bg-background {
-    background-color: rgb(255 255 255);
+    background-color: hsl(var(--background));
   }
+  
   .bg-muted {
-    background-color: rgb(249 250 251);
+    background-color: hsl(var(--muted));
   }
+  
   .bg-muted\/50 {
-    background-color: rgb(249 250 251 / 0.5);
+    background-color: hsl(var(--muted) / 0.5);
   }
 }
 
