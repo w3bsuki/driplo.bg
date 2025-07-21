@@ -551,21 +551,9 @@
 	}
 	
 	function nextStep() {
-		const validation = {
-			currentStep,
-			canProceed,
-			title: formData.title,
-			titleLength: formData.title.length,
-			description: formData.description,
-			descriptionLength: formData.description.length,
-			stepValidation: $state.snapshot(stepValidation)
-		}
-		console.log('Next step clicked. Current validation:', validation)
-		
 		if (canProceed && currentStep < totalSteps) {
 			showValidationErrors = false
 			currentStep++
-			console.log('Advanced to step:', currentStep)
 		} else {
 			showValidationErrors = true
 			// Show specific error messages
@@ -592,7 +580,6 @@
 			} else if (currentStep === 4) {
 				toast.error('Please enter your location')
 			}
-			console.log('Cannot proceed:', { canProceed, currentStep, totalSteps })
 		}
 	}
 	
