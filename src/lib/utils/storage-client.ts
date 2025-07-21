@@ -13,14 +13,17 @@ export type UploadResult = {
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024 // 5MB for actual upload
-export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
 
 /**
  * Validates an image file
  */
 export function validateImageFile(file: File): string | null {
-	if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-		return 'Please upload a valid image file (JPEG, PNG, WebP, or GIF)'
+	// iOS might report HEIC files with empty type
+	const fileType = file.type || (file.name.toLowerCase().endsWith('.heic') ? 'image/heic' : '')
+	
+	if (fileType && !ACCEPTED_IMAGE_TYPES.includes(fileType)) {
+		return 'Please upload a valid image file (JPEG, PNG, WebP, GIF, or HEIC)'
 	}
 	
 	if (file.size > MAX_FILE_SIZE) {
@@ -46,17 +49,25 @@ export async function uploadImage(
 			return { url: '', error: validationError }
 		}
 
-		// Compress image if needed (especially important for Android)
+		// Compress image if needed (important for mobile devices)
 		let processedFile = file
-		if (file.size > MAX_UPLOAD_SIZE || file.type === 'image/jpeg' || file.type === 'image/jpg') {
+		const needsCompression = file.size > MAX_UPLOAD_SIZE || 
+			file.type === 'image/jpeg' || 
+			file.type === 'image/jpg' ||
+			file.type === 'image/heic' ||
+			file.type === 'image/heif' ||
+			!file.type // iOS sometimes doesn't set type for HEIC
+			
+		if (needsCompression) {
 			try {
 				processedFile = await compressImage(file, {
 					maxWidth: 1920,
 					maxHeight: 1920,
 					quality: 0.85,
-					maxSizeMB: 4.5 // Leave some buffer under 5MB limit
+					maxSizeMB: 4.5, // Leave some buffer under 5MB limit
+					handleHEIC: true
 				})
-				console.log(`Compressed image from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`)
+				console.log(`Processed image: ${file.name} (${file.type || 'unknown'}) from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`)
 			} catch (compressionError) {
 				console.warn('Image compression failed, using original:', compressionError)
 			}

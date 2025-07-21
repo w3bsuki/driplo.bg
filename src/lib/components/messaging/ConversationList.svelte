@@ -144,7 +144,7 @@
                             <div class="avatar">
                                 <div class="w-12 h-12 rounded-full bg-gray-200">
                                     {#if otherUser.avatar_url}
-                                        <img src={otherUser.avatar_url} alt={otherUser.username} />
+                                        <img src={otherUser.avatar_url} alt={otherUser.username} width="48" height="48" class="w-full h-full rounded-full object-cover" />
                                     {:else}
                                         <div class="flex items-center justify-center h-full text-lg font-semibold">
                                             {otherUser.username[0].toUpperCase()}

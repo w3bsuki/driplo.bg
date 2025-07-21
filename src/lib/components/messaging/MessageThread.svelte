@@ -289,7 +289,7 @@
                                 <div class="avatar">
                                     <div class="w-6 h-6 rounded-full bg-gray-200">
                                         {#if message.sender.avatar_url}
-                                            <img src={message.sender.avatar_url} alt={message.sender.username} />
+                                            <img src={message.sender.avatar_url} alt={message.sender.username} width="24" height="24" class="w-full h-full rounded-full object-cover" />
                                         {:else}
                                             <div class="flex items-center justify-center h-full text-xs">
                                                 {message.sender.username[0].toUpperCase()}
@@ -395,7 +395,7 @@
                                 <div class="avatar">
                                     <div class="w-6 h-6 rounded-full bg-gray-200">
                                         {#if message.sender.avatar_url}
-                                            <img src={message.sender.avatar_url} alt={message.sender.username} />
+                                            <img src={message.sender.avatar_url} alt={message.sender.username} width="24" height="24" class="w-full h-full rounded-full object-cover" />
                                         {:else}
                                             <div class="flex items-center justify-center h-full text-xs">
                                                 {message.sender.username[0].toUpperCase()}

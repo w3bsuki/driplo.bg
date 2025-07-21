@@ -57,7 +57,7 @@
 		</div>
 		
 		<div class="divide-y divide-gray-100">
-			{#each sellers as seller}
+			{#each sellers as seller (seller.id)}
 				<a 
 					href="/shops/{seller.id}"
 					class="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
@@ -107,7 +107,7 @@
 	<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
 		<h2 class="text-xl font-bold text-gray-900 mb-4">Browse by Category</h2>
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-			{#each ['Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Beauty', 'Books', 'Toys', 'Food'] as category}
+			{#each ['Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Beauty', 'Books', 'Toys', 'Food'] as category (category)}
 				<a 
 					href="/browse?category={category.toLowerCase()}"
 					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-[#87CEEB]/10 hover:border-[#87CEEB] border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-[#4F9FC5]"

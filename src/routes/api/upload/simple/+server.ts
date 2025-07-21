@@ -18,10 +18,15 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 			throw error(400, 'No file provided')
 		}
 
-		// Validate file type
-		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
-		if (!allowedTypes.includes(file.type)) {
-			throw error(400, 'Invalid file type')
+		// Validate file type (including HEIC for iOS)
+		const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+		// iOS might send HEIC files as application/octet-stream or with no type
+		const fileExt = file.name.split('.').pop()?.toLowerCase()
+		const isHEIC = fileExt === 'heic' || fileExt === 'heif'
+		
+		if (!allowedTypes.includes(file.type) && !isHEIC) {
+			console.log(`Invalid file type: ${file.type} for file: ${file.name}`)
+			throw error(400, `Invalid file type: ${file.type || 'unknown'}`)
 		}
 
 		// Validate file size (5MB max)
@@ -31,9 +36,12 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 			throw error(400, `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max 5MB)`)
 		}
 
-		// Generate unique filename
-		const fileExt = file.name.split('.').pop()
-		const fileName = `${user.id}/${uuidv4()}.${fileExt}`
+		// Generate unique filename (convert HEIC to JPG extension for consistency)
+		let fileExtension = file.name.split('.').pop()?.toLowerCase()
+		if (fileExtension === 'heic' || fileExtension === 'heif') {
+			fileExtension = 'jpg' // Will be converted to JPEG by client
+		}
+		const fileName = `${user.id}/${uuidv4()}.${fileExtension}`
 
 		// Convert File to ArrayBuffer for Supabase
 		const arrayBuffer = await file.arrayBuffer()
@@ -47,10 +55,16 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 			try {
 				console.log(`Upload attempt ${attempt} for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
 				
+				// Set proper content type (HEIC files should be uploaded as JPEG after client conversion)
+				let contentType = file.type
+				if (!contentType || contentType === 'application/octet-stream' || isHEIC) {
+					contentType = 'image/jpeg'
+				}
+				
 				const result = await supabase.storage
 					.from(bucket)
 					.upload(fileName, buffer, {
-						contentType: file.type,
+						contentType,
 						upsert: false
 					})
 				

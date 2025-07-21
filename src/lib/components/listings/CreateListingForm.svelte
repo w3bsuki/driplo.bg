@@ -27,6 +27,11 @@
 	// Get auth context
 	const authContext = getAuthContext()
 	
+	// iOS detection
+	let isIOS = $state(false)
+	let isSafari = $state(false)
+	let supportsHEIC = $state(false)
+	
 	// Form state
 	let currentStep = $state(1)
 	let isSubmitting = $state(false)
@@ -119,6 +124,20 @@
 	})())
 	
 	onMount(async () => {
+		// Detect iOS and Safari
+		const userAgent = navigator.userAgent.toLowerCase()
+		isIOS = /iphone|ipad|ipod/.test(userAgent) || 
+			(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+		isSafari = /safari/.test(userAgent) && !/chrome/.test(userAgent)
+		
+		// Check HEIC support (iOS 11+)
+		if (isIOS) {
+			// iOS devices typically support HEIC natively
+			supportsHEIC = true
+		}
+		
+		console.log('iOS detection:', { isIOS, isSafari, supportsHEIC })
+		
 		await loadCategories()
 		await checkPaymentAccount()
 	})
@@ -185,55 +204,82 @@
 		const newFiles = Array.from(input.files)
 		const validFiles: File[] = []
 		
-		// Show loading state for Android users
+		// Show loading state for mobile users
 		const isAndroid = /android/i.test(navigator.userAgent)
-		if (isAndroid && newFiles.length > 0) {
-			toast.info('Processing images... This may take a moment on Android devices.')
+		if ((isAndroid || isIOS) && newFiles.length > 0) {
+			toast.info(`Processing images... ${isIOS ? 'Converting from HEIC if needed.' : 'This may take a moment.'}`)
 		}
 		
 		isProcessingImages = true
 		
-		for (const file of newFiles) {
-			const error = validateImageFile(file)
-			if (error) {
-				toast.error(error)
-			} else if (formData.images.length + validFiles.length < 10) {
-				validFiles.push(file)
-			}
-		}
-		
-		if (validFiles.length + formData.images.length > 10) {
-			toast.error(m.listing_error_image_max())
-			return
-		}
-		
 		try {
-			// Compress images if needed (especially for Android)
+			for (const file of newFiles) {
+				// Handle HEIC files on iOS
+				let processedFile = file
+				if (isIOS && file.type === 'image/heic') {
+					console.log('Detected HEIC file on iOS:', file.name)
+					// iOS Safari should handle HEIC natively, but we'll ensure proper type
+					processedFile = new File([file], file.name.replace('.heic', '.jpeg'), {
+						type: 'image/jpeg',
+						lastModified: Date.now()
+					})
+				}
+				
+				const error = validateImageFile(processedFile)
+				if (error) {
+					// iOS-specific error messages
+					if (isIOS && file.type === 'image/heic' && !supportsHEIC) {
+						toast.error('HEIC images are not supported. Please use JPEG or PNG.')
+					} else {
+						toast.error(error)
+					}
+				} else if (formData.images.length + validFiles.length < 10) {
+					validFiles.push(processedFile)
+				}
+			}
+			
+			if (validFiles.length + formData.images.length > 10) {
+				toast.error(m.listing_error_image_max())
+				return
+			}
+			
+			// Compress images if needed
 			const processedFiles = await compressImages(validFiles, {
 				maxWidth: 1920,
 				maxHeight: 1920,
-				quality: 0.85,
+				quality: isIOS ? 0.9 : 0.85, // Higher quality on iOS to compensate for any conversion
 				maxSizeMB: 4.5
 			})
 			
 			// Add files and generate previews
 			for (const file of processedFiles) {
-				const preview = await fileToBase64(file)
-				formData.images = [...formData.images, file]
-				formData.imagePreviews = [...formData.imagePreviews, preview]
+				try {
+					const preview = await fileToBase64(file)
+					formData.images = [...formData.images, file]
+					formData.imagePreviews = [...formData.imagePreviews, preview]
+				} catch (previewError) {
+					console.error('Error generating preview:', previewError)
+					// Still add the file even if preview fails
+					formData.images = [...formData.images, file]
+					formData.imagePreviews = [...formData.imagePreviews, '/placeholder-image.png']
+				}
 			}
 			
-			if (isAndroid) {
+			if (isAndroid || isIOS) {
 				toast.success('Images processed successfully!')
 			}
 		} catch (error) {
 			console.error('Error processing images:', error)
-			toast.error('Failed to process images. Please try again with smaller images.')
+			if (isIOS) {
+				toast.error('Failed to process images. Try using Photos app to convert to JPEG first.')
+			} else {
+				toast.error('Failed to process images. Please try again with smaller images.')
+			}
 		} finally {
 			isProcessingImages = false
 		}
 		
-		// Reset input
+		// Reset input - important for iOS
 		input.value = ''
 	}
 	
@@ -278,13 +324,23 @@
 		uploadProgress = 0
 		
 		try {
+			// iOS-specific logging
+			if (isIOS) {
+				console.log('iOS device detected - Starting upload process')
+				console.log('Images to upload:', formData.images.map(f => ({
+					name: f.name,
+					type: f.type || 'unknown',
+					size: `${(f.size / 1024 / 1024).toFixed(2)}MB`
+				})))
+			}
+			
 			// For now, use placeholder images until storage buckets are set up
 			let imageUrls: string[] = []
 			
 			if (formData.images.length > 0) {
 				// Try to upload images
 				try {
-					toast.info('Uploading images...')
+					toast.info(isIOS ? 'Uploading images from iOS device...' : 'Uploading images...')
 					const uploadResults = await uploadMultipleImages(
 						formData.images,
 						'listings',
@@ -323,11 +379,34 @@
 					}
 				} catch (uploadError: any) {
 					console.error('Image upload failed:', uploadError)
+					
+					// iOS-specific error handling
+					if (isIOS) {
+						console.error('iOS upload error details:', {
+							error: uploadError,
+							userAgent: navigator.userAgent,
+							images: formData.images.map(f => ({
+								name: f.name,
+								type: f.type,
+								size: f.size
+							}))
+						})
+						
+						if (uploadError.message?.includes('network') || uploadError.message?.includes('fetch')) {
+							toast.error('Network error on iOS. Please check your connection and try again.')
+						} else if (uploadError.message?.includes('timeout')) {
+							toast.error('Upload timed out. Try uploading fewer or smaller images.')
+						} else {
+							toast.error('iOS upload failed. Try using the Photos app to convert images to JPEG first.')
+						}
+					} else {
+						toast.error(uploadError.message || 'Image upload failed - please try again')
+					}
+					
 					// Use placeholder images for now
 					imageUrls = formData.images.map((_, index) => 
 						`https://picsum.photos/400/600?random=${Date.now()}-${index}`
 					)
-					toast.error(uploadError.message || 'Image upload failed - please try again')
 				}
 			} else {
 				// Use a default placeholder
@@ -380,6 +459,11 @@
 			
 			console.log('Listing data to insert:', listingData)
 			
+			// Add detailed logging before insert
+			console.log('=== LISTING CREATION DEBUG ===')
+			console.log('User ID:', authContext.user.id)
+			console.log('Listing data being inserted:', JSON.stringify(listingData, null, 2))
+			
 			const { data, error } = await supabase
 				.from('listings')
 				.insert(listingData)
@@ -387,12 +471,30 @@
 				.single()
 			
 			if (error) {
-				console.error('Database error:', error)
+				console.error('=== DATABASE ERROR ===')
+				console.error('Error code:', error.code)
+				console.error('Error message:', error.message)
+				console.error('Error details:', error.details)
+				console.error('Error hint:', error.hint)
+				console.error('Full error object:', error)
+				
+				// Show more specific error message to user
+				if (error.code === '23505') {
+					toast.error('A listing with this title already exists. Please use a different title.')
+				} else if (error.code === '23503') {
+					toast.error('Invalid category selected. Please refresh and try again.')
+				} else if (error.code === '42501') {
+					toast.error('Permission denied. Please ensure you are logged in.')
+				} else {
+					toast.error(`Database error: ${error.message}`)
+				}
+				
 				throw error
 			}
 			
 			if (!data || !data.id) {
-				console.error('No data returned from insert')
+				console.error('=== NO DATA RETURNED ===')
+				console.error('Insert response:', { data, error })
 				throw new Error('Failed to create listing - no data returned')
 			}
 			
@@ -423,9 +525,25 @@
 				}, 500)
 			}
 			
-		} catch (error) {
-			console.error('Error creating listing:', error)
-			toast.error(error instanceof Error ? error.message : m.listing_error_creation())
+		} catch (error: any) {
+			console.error('=== LISTING CREATION ERROR ===')
+			console.error('Error type:', error?.constructor?.name)
+			console.error('Error message:', error?.message)
+			console.error('Error stack:', error?.stack)
+			console.error('Full error:', error)
+			
+			// Show appropriate error message
+			if (error?.message?.includes('Failed to fetch')) {
+				toast.error('Network error. Please check your connection and try again.')
+			} else if (error?.message?.includes('payment account')) {
+				toast.error('Payment account setup required. Please complete setup first.')
+			} else if (error?.code) {
+				// Supabase error
+				toast.error(error.message || m.listing_error_creation())
+			} else {
+				toast.error(error instanceof Error ? error.message : m.listing_error_creation())
+			}
+			
 			// Reset form state on error
 			isSubmitting = false
 			uploadProgress = 0
@@ -499,7 +617,7 @@
 		<div class="w-full px-4">
 			<div class="flex items-center justify-between py-3">
 				<button 
-					onclick={() => goto('/sell')}
+					on:click={() => goto('/sell')}
 					class="p-2 -m-2 text-gray-600 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100 active:bg-gray-200 tap-target flex items-center justify-center"
 				>
 					<span class="text-lg">←</span>
@@ -552,7 +670,7 @@
 	{:else}
 		<!-- Form Content -->
 		<div class="flex-1 w-full px-4 py-6 overflow-y-auto pb-32 scroll-smooth">
-		<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+		<form on:submit|preventDefault={handleSubmit}>
 			<!-- Step 1: Basic Info -->
 			{#if currentStep === 1}
 				<div class="space-y-5">
@@ -632,6 +750,14 @@
 						<p class="text-sm text-gray-600 mb-3">
 							{m.listing_add_photos_description()}
 						</p>
+						{#if isIOS}
+							<div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3">
+								<p class="text-xs text-blue-800">
+									<strong>iOS Tip:</strong> HEIC photos from your camera will be automatically converted to JPEG. 
+									For best results, ensure you have a stable internet connection.
+								</p>
+							</div>
+						{/if}
 						
 						<!-- Image Upload Area -->
 						{#if formData.images.length === 0}
@@ -642,9 +768,9 @@
 								<input
 									id="image-upload"
 									type="file"
-									accept="image/*"
+									accept={isIOS ? "image/*,image/heic,image/heif" : "image/*"}
 									multiple
-									onchange={handleImageSelect}
+									on:change={handleImageSelect}
 									class="sr-only"
 									disabled={isProcessingImages}
 								/>
@@ -682,7 +808,7 @@
 											{#if index > 0}
 												<button
 													type="button"
-													onclick={() => moveImage(index, index - 1)}
+													on:click={() => moveImage(index, index - 1)}
 													class="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 flex items-center justify-center"
 												>
 													<span class="text-sm">←</span>
@@ -690,7 +816,7 @@
 											{/if}
 											<button
 												type="button"
-												onclick={() => removeImage(index)}
+												on:click={() => removeImage(index)}
 												class="p-2 bg-white rounded-full text-red-600 hover:bg-gray-100"
 											>
 												<X class="w-4 h-4" />
@@ -698,7 +824,7 @@
 											{#if index < formData.images.length - 1}
 												<button
 													type="button"
-													onclick={() => moveImage(index, index + 1)}
+													on:click={() => moveImage(index, index + 1)}
 													class="p-2 bg-white rounded-full text-gray-700 hover:bg-gray-100 flex items-center justify-center"
 												>
 													<span class="text-sm">→</span>
@@ -716,9 +842,9 @@
 										<input
 											id="image-upload-more"
 											type="file"
-											accept="image/*"
+											accept={isIOS ? "image/*,image/heic,image/heif" : "image/*"}
 											multiple
-											onchange={handleImageSelect}
+											on:change={handleImageSelect}
 											class="sr-only"
 											disabled={isProcessingImages}
 										/>
@@ -926,7 +1052,7 @@
 									#{tag}
 									<button
 										type="button"
-										onclick={() => removeTag(tag)}
+										on:click={() => removeTag(tag)}
 										class="ml-1 p-0.5 hover:bg-blue-100 rounded"
 									>
 										<X class="w-3 h-3" />
@@ -942,7 +1068,7 @@
 									{#each suggestedTags as tag}
 										<button
 											type="button"
-											onclick={() => addTag(tag)}
+											on:click={() => addTag(tag)}
 											class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-full transition-colors"
 										>
 											+ {tag}
@@ -955,7 +1081,7 @@
 						<input
 							type="text"
 							placeholder={m.listing_tag_placeholder()}
-							onkeydown={(e) => {
+							on:keydown={(e) => {
 								if (e.key === 'Enter') {
 									e.preventDefault()
 									const input = e.target as HTMLInputElement
@@ -976,7 +1102,7 @@
 					<Button
 						type="button"
 						variant="outline"
-						onclick={prevStep}
+						on:click={prevStep}
 						class="flex-1 text-sm py-2"
 					>
 						<span class="mr-1">←</span>
@@ -987,7 +1113,7 @@
 				{#if currentStep < totalSteps}
 					<Button
 						type="button"
-						onclick={nextStep}
+						on:click={nextStep}
 						disabled={!canProceed}
 						class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
 					>
@@ -1033,6 +1159,30 @@
 	
 	.animate-in {
 		animation: animate-in 0.2s ease-out;
+	}
+	
+	/* iOS-specific fixes */
+	@supports (-webkit-touch-callout: none) {
+		/* Fix for iOS Safari file input */
+		input[type="file"] {
+			-webkit-appearance: none;
+		}
+		
+		/* Prevent zoom on input focus */
+		input, select, textarea {
+			font-size: 16px !important;
+		}
+		
+		/* Fix sticky positioning on iOS */
+		.sticky {
+			position: -webkit-sticky;
+		}
+		
+		/* Improve tap targets */
+		.tap-target {
+			min-height: 44px;
+			min-width: 44px;
+		}
 	}
 	
 </style>

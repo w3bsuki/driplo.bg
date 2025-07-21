@@ -209,6 +209,8 @@
                                     <img 
                                         src={item.listing.images[0]} 
                                         alt={item.listing.title}
+                                        width="96"
+                                        height="96"
                                         class="w-full h-full object-cover"
                                     />
                                 {/if}

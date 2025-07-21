@@ -1,5 +1,6 @@
 /**
- * Image compression utilities for handling large images, especially from Android cameras
+ * Image compression utilities for handling large images from mobile cameras
+ * Includes iOS-specific handling for HEIC/HEIF formats
  */
 
 interface CompressionOptions {
@@ -7,11 +8,12 @@ interface CompressionOptions {
 	maxHeight?: number
 	quality?: number
 	maxSizeMB?: number
+	handleHEIC?: boolean
 }
 
 /**
  * Compress an image file to reduce size while maintaining quality
- * This is especially important for Android devices which often produce very large images
+ * Handles both Android large files and iOS HEIC format conversion
  */
 export async function compressImage(
 	file: File,
@@ -21,12 +23,21 @@ export async function compressImage(
 		maxWidth = 1920,
 		maxHeight = 1920,
 		quality = 0.85,
-		maxSizeMB = 5
+		maxSizeMB = 5,
+		handleHEIC = true
 	} = options
+
+	// Handle HEIC files (iOS)
+	if (handleHEIC && (file.type === 'image/heic' || file.type === 'image/heif')) {
+		console.log('Converting HEIC/HEIF to JPEG:', file.name)
+		// The browser will handle conversion when drawing to canvas
+		// We'll ensure the output is JPEG
+	}
 
 	// Skip compression for already small files
 	const maxSizeBytes = maxSizeMB * 1024 * 1024
-	if (file.size <= maxSizeBytes && !needsResize(file, maxWidth, maxHeight)) {
+	const needsResizeCheck = await needsResize(file, maxWidth, maxHeight)
+	if (file.size <= maxSizeBytes && !needsResizeCheck && file.type !== 'image/heic' && file.type !== 'image/heif') {
 		return file
 	}
 
@@ -66,6 +77,9 @@ export async function compressImage(
 					ctx.drawImage(img, 0, 0, width, height)
 					
 					// Convert to blob with quality setting
+					// Always output as JPEG for better compatibility (especially for HEIC)
+					const outputType = (file.type === 'image/png' && file.size < 1024 * 1024) ? 'image/png' : 'image/jpeg'
+					
 					canvas.toBlob(
 						(blob) => {
 							if (!blob) {
@@ -74,11 +88,12 @@ export async function compressImage(
 							}
 
 							// Create new file with compressed data
+							const outputFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg')
 							const compressedFile = new File(
 								[blob],
-								file.name,
+								outputFileName,
 								{
-									type: blob.type || file.type,
+									type: outputType,
 									lastModified: Date.now()
 								}
 							)
@@ -93,7 +108,7 @@ export async function compressImage(
 								resolve(compressedFile)
 							}
 						},
-						file.type || 'image/jpeg',
+						outputType,
 						quality
 					)
 				} catch (error) {

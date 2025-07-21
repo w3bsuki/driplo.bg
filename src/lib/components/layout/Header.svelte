@@ -120,6 +120,8 @@
 						<img 
 							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
 							alt="Profile" 
+							width="36"
+							height="36"
 							class="h-9 w-9 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-[#87CEEB]/30" 
 						/>
 					{:else}

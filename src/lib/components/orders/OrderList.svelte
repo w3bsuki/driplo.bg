@@ -235,6 +235,8 @@
                                         <img 
                                             src={transaction.listing.images[0]} 
                                             alt={transaction.listing.title}
+                                            width="80"
+                                            height="80"
                                             class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
                                         />
                                     {:else}
