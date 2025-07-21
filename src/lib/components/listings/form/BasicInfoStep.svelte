@@ -24,7 +24,6 @@
 		</Label>
 		<Input
 			id="title"
-			name="title"
 			bind:value={$formData.title}
 			placeholder={m.listing_title_placeholder()}
 			maxlength={80}
@@ -47,7 +46,6 @@
 		</Label>
 		<Textarea
 			id="description"
-			name="description"
 			bind:value={$formData.description}
 			placeholder={m.listing_description_placeholder()}
 			rows={4}
@@ -71,7 +69,6 @@
 		</Label>
 		<select
 			id="category"
-			name="category_id"
 			bind:value={$formData.category_id}
 			class="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 			aria-invalid={$errors.category_id ? 'true' : undefined}
@@ -95,7 +92,6 @@
 			</Label>
 			<Input
 				id="subcategory"
-				name="subcategory_id"
 				bind:value={$formData.subcategory_id}
 				placeholder={m.listing_subcategory_placeholder()}
 				class="mt-2"

@@ -42,7 +42,6 @@
 			<MapPin class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 			<Input
 				id="location"
-				name="location_city"
 				bind:value={$formData.location_city}
 				placeholder={m.listing_location_placeholder()}
 				class="pl-10"
@@ -65,7 +64,6 @@
 			<label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-blue-300 {$formData.shipping_type === 'standard' ? 'border-blue-300 bg-blue-50' : ''}">
 				<input
 					type="radio"
-					name="shipping_type"
 					bind:group={$formData.shipping_type}
 					value="standard"
 					class="mt-1"
@@ -80,7 +78,6 @@
 			<label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-blue-300 {$formData.shipping_type === 'express' ? 'border-blue-300 bg-blue-50' : ''}">
 				<input
 					type="radio"
-					name="shipping_type"
 					bind:group={$formData.shipping_type}
 					value="express"
 					class="mt-1"
@@ -95,7 +92,6 @@
 			<label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer hover:border-blue-300 {$formData.shipping_type === 'pickup' ? 'border-blue-300 bg-blue-50' : ''}">
 				<input
 					type="radio"
-					name="shipping_type"
 					bind:group={$formData.shipping_type}
 					value="pickup"
 					class="mt-1"
@@ -119,7 +115,6 @@
 				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
 				<Input
 					id="shipping_cost"
-					name="shipping_cost"
 					type="number"
 					bind:value={$formData.shipping_cost}
 					min="0"
@@ -178,10 +173,5 @@
 				}
 			}}
 		/>
-		
-		<!-- Hidden inputs for tags -->
-		{#each $formData.tags || [] as tag}
-			<input type="hidden" name="tags" value={tag} />
-		{/each}
 	</div>
 </div>

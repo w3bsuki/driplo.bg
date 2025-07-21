@@ -31,7 +31,6 @@
 			<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
 			<Input
 				id="price"
-				name="price"
 				type="number"
 				bind:value={$formData.price}
 				min="0"
@@ -54,7 +53,6 @@
 		</Label>
 		<select
 			id="condition"
-			name="condition"
 			bind:value={$formData.condition}
 			class="mt-2 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 			aria-invalid={$errors.condition ? 'true' : undefined}
@@ -78,7 +76,6 @@
 			</Label>
 			<Input
 				id="brand"
-				name="brand"
 				bind:value={$formData.brand}
 				placeholder={m.listing_brand_placeholder()}
 				class="mt-2"
@@ -93,7 +90,6 @@
 			</Label>
 			<Input
 				id="size"
-				name="size"
 				bind:value={$formData.size}
 				placeholder={m.listing_size_placeholder()}
 				class="mt-2"
@@ -114,7 +110,6 @@
 		</Label>
 		<Input
 			id="color"
-			name="color"
 			bind:value={$formData.color}
 			placeholder={m.listing_color_placeholder()}
 			class="mt-2"

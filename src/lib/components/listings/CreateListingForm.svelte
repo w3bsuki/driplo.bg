@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
-	import { enhance } from '$app/forms'
 	import { onMount } from 'svelte'
 	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { superForm } from 'sveltekit-superforms'
@@ -41,34 +40,18 @@
 	const form = superForm($page.data.form, {
 		dataType: 'json',
 		multipleSubmits: 'prevent',
-		onSubmit: ({ formElement, formData: submittedData }) => {
-			console.log('🚀 Form submission triggered')
-			// Use submittedData instead of $formData to avoid store subscription error
-			debugFormSubmission(formElement, submittedData)
-			
-			// Log the actual FormData being sent
-			const fd = new FormData(formElement)
-			console.log('FormData entries:')
-			fd.forEach((value, key) => {
-				console.log(`${key}: ${value}`)
-			})
-		},
 		onResult: ({ result }) => {
-			console.log('📦 Form result:', result)
 			if (result.type === 'redirect') {
 				// Clear saved form data on successful submission
 				clearFormData('create_listing')
-				// Let SvelteKit handle the redirect
-				return
 			}
 		},
-		onError: ({ result }) => {
-			console.error('❌ Form error:', result)
+		onError: () => {
 			toast.error(m.listing_error_create())
 		}
 	})
 	
-	const { form: formData, errors, submitting, message, enhance: formEnhance } = form
+	const { form: formData, errors, submitting, message, enhance } = form
 	
 	const totalSteps = 4
 	const stepProgress = $derived((currentStep / totalSteps) * 100)
@@ -306,7 +289,7 @@
 			<form 
 				method="POST" 
 				action="?/createListing"
-				use:formEnhance
+				use:enhance
 				aria-label={m.listing_create_title()}
 			>
 				<!-- Step 1: Basic Info -->
@@ -386,17 +369,6 @@
 								type="submit"
 								disabled={$submitting || !isStep4Valid}
 								class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white"
-								onclick={() => {
-									console.log('🔘 Publish button clicked')
-									console.log('Submitting:', $submitting)
-									console.log('Step4 Valid:', isStep4Valid)
-									console.log('Form data:', $formData)
-									if (!isStep4Valid) {
-										const validation = validateStep4($formData)
-										console.error('Validation failed:', validation.error)
-										toast.error('Please complete all required fields')
-									}
-								}}
 							>
 								{#if $submitting}
 									{m.listing_creating()}

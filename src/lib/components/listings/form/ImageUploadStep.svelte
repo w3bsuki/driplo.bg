@@ -221,9 +221,4 @@
 			<p class="text-sm text-red-500 mt-2">{$errors.images}</p>
 		{/if}
 	</div>
-	
-	<!-- Hidden inputs for form submission -->
-	{#each $formData.images || [] as imageUrl, i}
-		<input type="hidden" name="images" value={imageUrl} />
-	{/each}
 </div>
