@@ -88,40 +88,46 @@
 	})
 	
 	// Helper to check if category requires size
-	const isSizeRequired = $derived(() => {
+	function isSizeRequired() {
 		if (!formData.category_id) return false
 		const category = categories.find(c => c.id === formData.category_id)
 		if (!category) return false
 		// Size is required for clothing and shoes categories
 		return ['women', 'men', 'kids', 'shoes'].includes(category.slug || '')
-	})
+	}
 
-	// Validation
-	const stepValidation = $derived({
-		1: formData.title.length >= 3 && 
-		   formData.description.length >= 10 && 
-		   formData.category_id.length > 0,
-		2: formData.images.length > 0,
-		3: formData.price > 0 && 
-		   formData.condition !== '' &&
-		   formData.color.length > 0 && 
-		   (!isSizeRequired() || formData.size.length > 0),
-		4: formData.location.length > 0
+	// Validation - using getter for reactive computation
+	const canProceed = $derived.by(() => {
+		switch (currentStep) {
+			case 1:
+				return formData.title.length >= 3 && 
+					   formData.description.length >= 10 && 
+					   formData.category_id.length > 0
+			case 2:
+				return formData.images.length > 0
+			case 3:
+				return formData.price > 0 && 
+					   formData.condition !== '' &&
+					   formData.color.length > 0 && 
+					   (!isSizeRequired() || formData.size.length > 0)
+			case 4:
+				return formData.location.length > 0
+			default:
+				return false
+		}
 	})
-	
-	const canProceed = $derived(stepValidation[currentStep as keyof typeof stepValidation] || false)
 	const totalSteps = 4
 	const stepProgress = $derived((currentStep / totalSteps) * 100)
 	
 	// Computed properties
-	const suggestedTags = $derived((() => {
+	const suggestedTags = $derived.by(() => {
 		const tags: string[] = []
 		if (formData.brand) tags.push(formData.brand.toLowerCase())
 		if (formData.color) tags.push(formData.color.toLowerCase())
 		if (formData.condition === 'new') tags.push('new')
 		if (formData.shipping_type === 'express') tags.push('fast-shipping')
 		return tags.filter(tag => !formData.tags.includes(tag))
-	})())
+	})
 	
 	onMount(async () => {
 		// Detect iOS and Safari
@@ -150,7 +156,6 @@
 			.order('display_order')
 		
 		if (error) {
-			console.error('Error loading categories:', error)
 			toast.error(m.listing_error_categories())
 			// Add default categories with proper UUIDs
 			categories = [
@@ -161,7 +166,6 @@
 			] as any
 		} else {
 			categories = data || []
-			console.log('Loaded categories:', $state.snapshot(categories))
 		}
 	}
 
@@ -178,11 +182,9 @@
 					showPaymentSetup = true
 				}
 			} else {
-				console.error('Error checking payment account:', data.error)
 				toast.error('Failed to check payment account')
 			}
 		} catch (error) {
-			console.error('Payment account check error:', error)
 			toast.error('Failed to check payment account')
 		} finally {
 			isCheckingPayment = false
@@ -216,7 +218,6 @@
 				// Handle HEIC files on iOS
 				let processedFile = file
 				if (isIOS && file.type === 'image/heic') {
-					console.log('Detected HEIC file on iOS:', file.name)
 					// iOS Safari should handle HEIC natively, but we'll ensure proper type
 					processedFile = new File([file], file.name.replace('.heic', '.jpeg'), {
 						type: 'image/jpeg',
@@ -257,7 +258,6 @@
 					formData.images = [...formData.images, file]
 					formData.imagePreviews = [...formData.imagePreviews, preview]
 				} catch (previewError) {
-					console.error('Error generating preview:', previewError)
 					// Still add the file even if preview fails
 					formData.images = [...formData.images, file]
 					formData.imagePreviews = [...formData.imagePreviews, '/placeholder-image.png']
@@ -268,7 +268,6 @@
 				toast.success('Images processed successfully!')
 			}
 		} catch (error) {
-			console.error('Error processing images:', error)
 			if (isIOS) {
 				toast.error('Failed to process images. Try using Photos app to convert to JPEG first.')
 			} else {
@@ -323,15 +322,6 @@
 		uploadProgress = 0
 		
 		try {
-			// iOS-specific logging
-			if (isIOS) {
-				console.log('iOS device detected - Starting upload process')
-				console.log('Images to upload:', formData.images.map(f => ({
-					name: f.name,
-					type: f.type || 'unknown',
-					size: `${(f.size / 1024 / 1024).toFixed(2)}MB`
-				})))
-			}
 			
 			// For now, use placeholder images until storage buckets are set up
 			let imageUrls: string[] = []
@@ -377,19 +367,8 @@
 						toast.success('Images uploaded successfully!')
 					}
 				} catch (uploadError: any) {
-					console.error('Image upload failed:', uploadError)
-					
 					// iOS-specific error handling
 					if (isIOS) {
-						console.error('iOS upload error details:', {
-							error: uploadError,
-							userAgent: navigator.userAgent,
-							images: formData.images.map(f => ({
-								name: f.name,
-								type: f.type,
-								size: f.size
-							}))
-						})
 						
 						if (uploadError.message?.includes('network') || uploadError.message?.includes('fetch')) {
 							toast.error('Network error on iOS. Please check your connection and try again.')
@@ -430,9 +409,6 @@
 				return uuidRegex.test(str)
 			}
 
-			// Debug category_id
-			console.log('Form category_id:', formData.category_id)
-			console.log('Is valid UUID:', isValidUUID(formData.category_id))
 
 			// Create listing with all fields
 			const listingData: any = {
@@ -456,13 +432,6 @@
 				ships_worldwide: formData.shipping_type === 'worldwide'
 			}
 			
-			console.log('Listing data to insert:', listingData)
-			
-			// Add detailed logging before insert
-			console.log('=== LISTING CREATION DEBUG ===')
-			console.log('User ID:', authContext.user.id)
-			console.log('Listing data being inserted:', JSON.stringify(listingData, null, 2))
-			
 			const { data, error } = await supabase
 				.from('listings')
 				.insert(listingData)
@@ -470,12 +439,6 @@
 				.single()
 			
 			if (error) {
-				console.error('=== DATABASE ERROR ===')
-				console.error('Error code:', error.code)
-				console.error('Error message:', error.message)
-				console.error('Error details:', error.details)
-				console.error('Error hint:', error.hint)
-				console.error('Full error object:', error)
 				
 				// Show more specific error message to user
 				if (error.code === '23505') {
@@ -492,12 +455,9 @@
 			}
 			
 			if (!data || !data.id) {
-				console.error('=== NO DATA RETURNED ===')
-				console.error('Insert response:', { data, error })
 				throw new Error('Failed to create listing - no data returned')
 			}
 			
-			console.log('Listing created successfully:', data.id)
 			toast.success(m.listing_success())
 			
 			// Track activity - commented out until user_activities table exists
@@ -513,7 +473,6 @@
 			// })
 			
 			// Always redirect to success page
-			console.log('Redirecting to success page with ID:', data.id)
 			if (onSuccess) {
 				onSuccess(data.id)
 			} else {
@@ -525,11 +484,6 @@
 			}
 			
 		} catch (error: any) {
-			console.error('=== LISTING CREATION ERROR ===')
-			console.error('Error type:', error?.constructor?.name)
-			console.error('Error message:', error?.message)
-			console.error('Error stack:', error?.stack)
-			console.error('Full error:', error)
 			
 			// Show appropriate error message
 			if (error?.message?.includes('Failed to fetch')) {
@@ -563,12 +517,15 @@
 	}
 	
 	// Get step title
-	const stepTitle = $derived({
-		1: m.listing_step_basic_info(),
-		2: m.listing_step_add_photos(),
-		3: m.listing_step_pricing_details(),
-		4: m.listing_step_shipping_location()
-	}[currentStep] || '')
+	const stepTitle = $derived.by(() => {
+		switch (currentStep) {
+			case 1: return m.listing_step_basic_info()
+			case 2: return m.listing_step_add_photos()
+			case 3: return m.listing_step_pricing_details()
+			case 4: return m.listing_step_shipping_location()
+			default: return ''
+		}
+	})
 </script>
 
 <div class="min-h-[100dvh] bg-gradient-to-b from-blue-50/30 to-white flex flex-col">
