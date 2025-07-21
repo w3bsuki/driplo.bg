@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	// Mock data for top sellers
@@ -25,9 +24,12 @@
 	}
 </script>
 
-<PageHeader title={m.nav_sellers()} />
-
 <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+	<!-- Page Header -->
+	<div class="mb-6">
+		<h1 class="text-2xl font-bold text-gray-900">{m.nav_sellers()}</h1>
+		<p class="text-gray-600 mt-1">Discover top-rated sellers on our platform</p>
+	</div>
 	<!-- Stats Cards -->
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
