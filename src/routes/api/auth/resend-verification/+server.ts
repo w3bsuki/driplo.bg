@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
-import { PUBLIC_SUPABASE_URL } from '$env/static/public';
+import { PUBLIC_SUPABASE_URL, PUBLIC_APP_URL } from '$env/static/public';
 import { emailService } from '$lib/server/email';
 
 const supabaseAdmin = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -33,12 +33,11 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		// Generate new confirmation link
-		const appUrl = process.env.PUBLIC_APP_URL || 'https://driplo.bg';
 		const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
 			type: 'signup',
 			email: email,
 			options: {
-				redirectTo: `${appUrl}/auth/confirm`
+				redirectTo: `${PUBLIC_APP_URL}/auth/confirm`
 			}
 		});
 
