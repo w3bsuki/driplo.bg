@@ -170,49 +170,49 @@
   <div class="container px-4">
     <div class="max-w-3xl mx-auto">
       
-      <!-- Top Sellers Section -->
+      <!-- Top Sellers Section - Compact -->
       {#if topSellers.length > 0}
-        <div class="mb-6">
-          <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
-            <span>🏆</span>
-            <span>Top Sellers in {category.name}</span>
-          </h2>
-          <div class="flex justify-center gap-6 md:gap-8">
+        <div class="mb-4">
+          <p class="text-sm text-gray-600 mb-2 text-center">Top sellers in {category.name}</p>
+          <div class="flex justify-center gap-4 md:gap-6">
             {#each topSellers.slice(0, 3) as seller, index}
-              <a href="/profile/{seller.username}" class="text-center group">
+              <a href="/profile/{seller.username}" class="group relative">
                 <div class="relative">
                   {#if index === 0}
-                    <div class="absolute -top-2 -right-2 text-lg">👑</div>
+                    <div class="absolute -top-1 -right-1 text-sm z-10">👑</div>
                   {/if}
-                  <div class="relative">
-                    <div class={cn(
-                      "absolute inset-0 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-300",
-                      theme === 'pink' ? "bg-gradient-to-r from-pink-400 to-pink-600" : "bg-gradient-to-r from-blue-400 to-blue-600"
-                    )}></div>
-                    <div class={cn(
-                      "relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white shadow-lg transition-all duration-300",
-                      theme === 'pink' ? "group-hover:ring-pink-200" : "group-hover:ring-blue-200"
-                    )}>
-                      {#if seller.avatar_url}
-                        <img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
-                      {:else}
-                        <div class={cn(
-                          "w-full h-full flex items-center justify-center",
-                          theme === 'pink' ? "bg-gradient-to-br from-pink-400 to-pink-600" : "bg-gradient-to-br from-blue-400 to-blue-600"
-                        )}>
-                          <span class="text-white font-bold text-lg md:text-xl">{seller.username.split('_')[0][0].toUpperCase()}</span>
-                        </div>
-                      {/if}
+                  <div class={cn(
+                    "relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-white shadow-md transition-all duration-300",
+                    "group-hover:scale-105 group-hover:shadow-lg",
+                    theme === 'pink' ? "group-hover:ring-pink-300" : "group-hover:ring-blue-300"
+                  )}>
+                    <img 
+                      src={seller.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${seller.username}`} 
+                      alt={seller.username || seller.full_name}
+                      class="w-full h-full object-cover bg-gray-100"
+                    />
+                  </div>
+                  {#if seller.is_verified}
+                    <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white w-4 h-4 rounded-full flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                  {/if}
+                </div>
+                <!-- Tooltip on hover -->
+                <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
+                  <div class="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap">
+                    <p class="font-medium">{seller.full_name || seller.username}</p>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span class="flex items-center gap-0.5">
+                        ⭐ {seller.category_rating?.toFixed(1) || '4.5'}
+                      </span>
+                      <span class="text-gray-300">•</span>
+                      <span>{seller.category_sales || 0} sales</span>
                     </div>
                   </div>
-                </div>
-                <div class="mt-2">
-                  <p class="text-sm md:text-base font-medium text-gray-800">{seller.username.split('_')[0]}</p>
-                  <div class="flex items-center justify-center gap-1 text-xs md:text-sm text-gray-600">
-                    <span>⭐</span>
-                    <span>{seller.category_rating?.toFixed(1) || '4.8'}</span>
-                  </div>
-                  <p class="text-xs text-gray-500 mt-1">{seller.category_sales || 25} sales</p>
+                  <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
                 </div>
               </a>
             {/each}

@@ -2,7 +2,7 @@
 	import { Badge } from '$lib/components/ui/badge'
 	import { Button } from '$lib/components/ui'
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte'
-	import { Camera, MapPin, Calendar, ExternalLink, MessageCircle, UserPlus, UserMinus, Award, Star } from 'lucide-svelte'
+	import { Camera, MapPin, Calendar, ExternalLink, MessageCircle, UserPlus, UserMinus, Award, Star, Building2 } from 'lucide-svelte'
 	import type { Profile } from '$lib/types/unified'
 	import { getAchievementIcon, getAchievementColor } from '$lib/data/achievements'
 	import { auth } from '$lib/stores/auth'
@@ -122,6 +122,18 @@
 					>
 						{m.profile_header_edit()}
 					</Button>
+					{#if profile.account_type !== 'brand'}
+						<Button
+							variant="default"
+							size="sm"
+							class="text-xs sm:text-sm bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+							onclick={() => window.location.href = '/brands/settings'}
+						>
+							<Building2 class="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+							<span class="hidden sm:inline">Turn into Brand</span>
+							<span class="sm:hidden">Brand</span>
+						</Button>
+					{/if}
 				{:else}
 					<Button
 						size="sm"

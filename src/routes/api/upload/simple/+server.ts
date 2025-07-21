@@ -27,24 +27,57 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 		// Validate file size (5MB max)
 		const maxSize = 5 * 1024 * 1024
 		if (file.size > maxSize) {
-			throw error(400, 'File too large (max 5MB)')
+			console.log(`File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
+			throw error(400, `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max 5MB)`)
 		}
 
 		// Generate unique filename
 		const fileExt = file.name.split('.').pop()
 		const fileName = `${user.id}/${uuidv4()}.${fileExt}`
 
-		// Upload to Supabase Storage
-		const { data, error: uploadError } = await supabase.storage
-			.from(bucket)
-			.upload(fileName, file, {
-				contentType: file.type,
-				upsert: false
-			})
+		// Convert File to ArrayBuffer for Supabase
+		const arrayBuffer = await file.arrayBuffer()
+		const buffer = new Uint8Array(arrayBuffer)
+
+		// Upload to Supabase Storage with retry
+		let uploadError = null
+		let data = null
+		
+		for (let attempt = 1; attempt <= 3; attempt++) {
+			try {
+				console.log(`Upload attempt ${attempt} for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+				
+				const result = await supabase.storage
+					.from(bucket)
+					.upload(fileName, buffer, {
+						contentType: file.type,
+						upsert: false
+					})
+				
+				if (result.error) {
+					uploadError = result.error
+					console.error(`Upload attempt ${attempt} failed:`, result.error)
+					if (attempt < 3) {
+						// Wait before retry
+						await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+					}
+				} else {
+					data = result.data
+					uploadError = null
+					break
+				}
+			} catch (err) {
+				uploadError = err
+				console.error(`Upload attempt ${attempt} error:`, err)
+				if (attempt < 3) {
+					await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+				}
+			}
+		}
 
 		if (uploadError) {
-			console.error('Upload error:', uploadError)
-			throw error(500, uploadError.message || 'Upload failed')
+			console.error('All upload attempts failed:', uploadError)
+			throw error(500, uploadError.message || 'Upload failed after 3 attempts')
 		}
 
 		// Get public URL

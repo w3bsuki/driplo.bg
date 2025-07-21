@@ -37,7 +37,11 @@ export async function loadCategoryPage(categorySlug: string, supabase: SupabaseC
 
   // Get top sellers for this category
   const { data: topSellers } = await supabase
-    .rpc('get_top_category_sellers', { category_uuid: category.id });
+    .rpc('get_category_top_sellers', { 
+      category_slug: categorySlug,
+      time_period: 'month',
+      result_limit: 3
+    });
 
   return {
     category,

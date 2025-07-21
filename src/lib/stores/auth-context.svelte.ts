@@ -141,21 +141,8 @@ class AuthContext {
 				this.session = data.session
 				await this.loadProfile(data.user.id)
 				
-				// Create extended session if remember me is checked
-				if (rememberMe) {
-					try {
-						await this.supabase.rpc('create_auth_session', {
-							p_user_id: data.user.id,
-							p_refresh_token: data.session.refresh_token,
-							p_remember_me: true,
-							p_user_agent: navigator.userAgent,
-							p_ip_address: null
-						})
-					} catch (sessionError) {
-						console.error('Failed to create extended session:', sessionError)
-						// Don't fail the sign in if extended session creation fails
-					}
-				}
+				// The remember me functionality is handled by Supabase's session management
+				// No additional action needed here
 			}
 			
 			return data

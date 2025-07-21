@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Upload, X, Camera, Loader2 } from 'lucide-svelte'
+	import { Upload, X, Camera, Loader2, AlertCircle } from 'lucide-svelte'
 	import { Button } from '$lib/components/ui'
 	import { cn } from '$lib/utils'
 	import * as m from '$lib/paraglide/messages.js'
+	import { toast } from 'svelte-sonner'
 
 	interface Props {
 		currentImage?: string
@@ -15,6 +16,7 @@
 		onupload?: (data: { file: File; preview: string }) => void
 		onremove?: () => void
 		onerror?: (error: string) => void
+		loading?: boolean
 	}
 
 	let {
@@ -27,13 +29,15 @@
 		disabled = false,
 		onupload,
 		onremove,
-		onerror
+		onerror,
+		loading = false
 	}: Props = $props()
 
 	let fileInput: HTMLInputElement
 	let previewUrl = $state('')
 	let dragOver = $state(false)
 	let uploading = $state(false)
+	let processing = $state(false)
 	let error = $state('')
 
 	// Initialize preview with current image
@@ -47,6 +51,8 @@
 		if (file) {
 			processFile(file)
 		}
+		// Reset input to allow selecting same file again
+		target.value = ''
 	}
 
 	function handleDrop(event: DragEvent) {
@@ -61,19 +67,29 @@
 
 	function processFile(file: File) {
 		error = ''
+		processing = true
 
 		// Validate file type
 		if (!allowedTypes.includes(file.type)) {
 			error = m.upload_error_type({ types: allowedTypes.map(t => t.split('/')[1]).join(', ') })
+			toast.error(error)
 			onerror?.(error)
+			processing = false
 			return
 		}
 
 		// Validate file size
 		if (file.size > maxSizeBytes) {
 			error = m.upload_error_size({ size: Math.round(maxSizeBytes / 1024 / 1024) })
+			toast.error(error)
 			onerror?.(error)
+			processing = false
 			return
+		}
+
+		// Show processing message for large files
+		if (file.size > 2 * 1024 * 1024) {
+			toast.info('Processing large image...')
 		}
 
 		// Create preview
@@ -81,6 +97,13 @@
 		reader.onload = (e) => {
 			previewUrl = e.target?.result as string
 			onupload?.({ file, preview: previewUrl })
+			processing = false
+		}
+		reader.onerror = () => {
+			error = 'Failed to read file'
+			toast.error(error)
+			onerror?.(error)
+			processing = false
 		}
 		reader.readAsDataURL(file)
 	}
@@ -136,16 +159,17 @@
 
 	<div
 		class={cn(
-			"relative border-2 border-dashed rounded-lg transition-all cursor-pointer",
+			"relative border-2 border-dashed rounded-lg transition-all",
 			aspectClasses,
 			dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25",
-			disabled && "opacity-50 cursor-not-allowed",
-			previewUrl ? "border-solid border-border" : ""
+			(disabled || loading || processing) && "opacity-50 cursor-not-allowed",
+			previewUrl ? "border-solid border-border" : "",
+			!(disabled || loading || processing) && "cursor-pointer"
 		)}
-		onclick={triggerFileInput}
-		ondragover={handleDragOver}
-		ondragleave={handleDragLeave}
-		ondrop={handleDrop}
+		onclick={disabled || loading || processing ? undefined : triggerFileInput}
+		ondragover={disabled || loading || processing ? undefined : handleDragOver}
+		ondragleave={disabled || loading || processing ? undefined : handleDragLeave}
+		ondrop={disabled || loading || processing ? undefined : handleDrop}
 	>
 		{#if previewUrl}
 			<!-- Image Preview -->
@@ -157,7 +181,7 @@
 				/>
 				
 				<!-- Remove Button -->
-				{#if !disabled}
+				{#if !disabled && !loading && !processing}
 					<button
 						onclick={(e) => {
 							e.stopPropagation()
@@ -169,8 +193,18 @@
 					</button>
 				{/if}
 
-				<!-- Change Image Overlay -->
-				{#if !disabled}
+				<!-- Loading Overlay -->
+				{#if loading || processing}
+					<div class="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+						<div class="text-white text-center">
+							<Loader2 class="h-8 w-8 animate-spin mx-auto mb-2" />
+							<p class="text-sm font-medium">
+								{processing ? 'Processing...' : 'Uploading...'}
+							</p>
+						</div>
+					</div>
+				{:else if !disabled}
+					<!-- Change Image Overlay -->
 					<div class="absolute inset-0 bg-black/0 hover:bg-black/10 rounded-lg transition-colors flex items-center justify-center opacity-0 hover:opacity-100">
 						<div class="flex items-center gap-2 text-white">
 							<Camera class="h-5 w-5" />
@@ -182,9 +216,11 @@
 		{:else}
 			<!-- Upload Placeholder -->
 			<div class="flex flex-col items-center justify-center h-full p-6 text-center">
-				{#if uploading}
+				{#if uploading || processing}
 					<Loader2 class="h-8 w-8 animate-spin text-muted-foreground mb-2" />
-					<p class="text-sm text-muted-foreground">{m.upload_uploading()}</p>
+					<p class="text-sm text-muted-foreground">
+						{processing ? 'Processing image...' : m.upload_uploading()}
+					</p>
 				{:else}
 					<Upload class="h-8 w-8 text-muted-foreground mb-2" />
 					<p class="text-sm font-medium text-foreground mb-1">{placeholder}</p>

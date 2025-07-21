@@ -196,6 +196,32 @@
 								<span class="text-sm text-gray-700">{m.header_settings()}</span>
 							</button>
 							
+							<!-- Brand Profile & Analytics (for brand accounts) -->
+							{#if authContext.profile?.account_type === 'brand'}
+								{#await authContext.supabase
+									.from('brand_profiles')
+									.select('brand_slug')
+									.eq('user_id', authContext.user.id)
+									.single() then result}
+									{#if result.data?.brand_slug}
+										<button
+											onclick={() => navigateTo(`/brands/${result.data.brand_slug}`)}
+											class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+										>
+											<span class="text-lg">🏪</span>
+											<span class="text-sm text-gray-700">View Brand Profile</span>
+										</button>
+									{/if}
+								{/await}
+								<button
+									onclick={() => navigateTo('/brands/analytics')}
+									class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+								>
+									<span class="text-lg">📊</span>
+									<span class="text-sm text-gray-700">Brand Analytics</span>
+								</button>
+							{/if}
+							
 							<!-- Brand Settings -->
 							<button
 								onclick={() => navigateTo('/brands/settings')}
@@ -382,6 +408,32 @@
 								<span class="text-lg">⚙️</span>
 								<span class="text-sm text-gray-700">{m.header_settings()}</span>
 							</button>
+							
+							<!-- Brand Profile & Analytics (for brand accounts) -->
+							{#if authContext.profile?.account_type === 'brand'}
+								{#await authContext.supabase
+									.from('brand_profiles')
+									.select('brand_slug')
+									.eq('user_id', authContext.user.id)
+									.single() then result}
+									{#if result.data?.brand_slug}
+										<button
+											onclick={() => navigateTo(`/brands/${result.data.brand_slug}`)}
+											class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+										>
+											<span class="text-lg">🏪</span>
+											<span class="text-sm text-gray-700">View Brand Profile</span>
+										</button>
+									{/if}
+								{/await}
+								<button
+									onclick={() => navigateTo('/brands/analytics')}
+									class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+								>
+									<span class="text-lg">📊</span>
+									<span class="text-sm text-gray-700">Brand Analytics</span>
+								</button>
+							{/if}
 							
 							<!-- Brand Settings -->
 							<button

@@ -47,6 +47,22 @@
 		// Refresh profile
 		await auth.loadProfile();
 
+		// Check if user created a brand account
+		if (auth.profile?.account_type === 'brand') {
+			// Get the brand profile to find the slug
+			const { data: brandProfile } = await auth.supabase
+				.from('brand_profiles')
+				.select('brand_slug')
+				.eq('user_id', auth.user!.id)
+				.single();
+
+			if (brandProfile?.brand_slug) {
+				// Redirect to brand profile
+				goto(`/brands/${brandProfile.brand_slug}`);
+				return;
+			}
+		}
+
 		// Redirect to home or wherever they came from
 		const redirectTo = $page.url.searchParams.get('redirectTo') || '/';
 		goto(redirectTo);

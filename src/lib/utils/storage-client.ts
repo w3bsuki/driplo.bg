@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database'
+import { compressImage } from './image-compression'
 
 export type UploadResult = {
 	url: string
@@ -11,6 +12,7 @@ export type UploadResult = {
 }
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024 // 5MB for actual upload
 export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
 
 /**
@@ -44,26 +46,57 @@ export async function uploadImage(
 			return { url: '', error: validationError }
 		}
 
-		// Use the simple upload API for now
-		const formData = new FormData();
-		formData.append('file', file);
-		formData.append('bucket', bucket);
-
-		const response = await fetch('/api/upload/simple', {
-			method: 'POST',
-			body: formData
-		});
-
-		if (!response.ok) {
-			const error = await response.json();
-			throw new Error(error.message || 'Upload failed');
+		// Compress image if needed (especially important for Android)
+		let processedFile = file
+		if (file.size > MAX_UPLOAD_SIZE || file.type === 'image/jpeg' || file.type === 'image/jpg') {
+			try {
+				processedFile = await compressImage(file, {
+					maxWidth: 1920,
+					maxHeight: 1920,
+					quality: 0.85,
+					maxSizeMB: 4.5 // Leave some buffer under 5MB limit
+				})
+				console.log(`Compressed image from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`)
+			} catch (compressionError) {
+				console.warn('Image compression failed, using original:', compressionError)
+			}
 		}
 
-		const data = await response.json();
-		return {
-			url: data.url,
-			path: data.path
-		};
+		// Use the simple upload API with timeout
+		const formData = new FormData();
+		formData.append('file', processedFile);
+		formData.append('bucket', bucket);
+
+		// Create AbortController for timeout
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+		try {
+			const response = await fetch('/api/upload/simple', {
+				method: 'POST',
+				body: formData,
+				signal: controller.signal
+			});
+
+			clearTimeout(timeoutId);
+
+			if (!response.ok) {
+				const error = await response.json();
+				throw new Error(error.message || 'Upload failed');
+			}
+
+			const data = await response.json();
+			return {
+				url: data.url,
+				path: data.path
+			};
+		} catch (fetchError: any) {
+			clearTimeout(timeoutId);
+			if (fetchError.name === 'AbortError') {
+				throw new Error('Upload timed out. Please try again with a smaller image.');
+			}
+			throw fetchError;
+		}
 	} catch (error) {
 		console.error('Upload error:', error)
 		return { 

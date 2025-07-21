@@ -8,6 +8,7 @@
 	import { toast } from 'svelte-sonner'
 	import { AlertCircle, X, MapPin } from 'lucide-svelte'
 	import { uploadMultipleImages, validateImageFile, fileToBase64 } from '$lib/utils/storage-client'
+	import { compressImages } from '$lib/utils/image-compression'
 	import PaymentAccountSetup from '$lib/components/payment/PaymentAccountSetup.svelte'
 	import type { Database } from '$lib/types/database'
 	import * as m from '$lib/paraglide/messages.js'
@@ -35,6 +36,7 @@
 	let isCheckingPayment = $state(true)
 	let showPaymentSetup = $state(false)
 	let showValidationErrors = $state(false)
+	let isProcessingImages = $state(false)
 	
 	// Form data
 	let formData = $state<{
@@ -183,6 +185,14 @@
 		const newFiles = Array.from(input.files)
 		const validFiles: File[] = []
 		
+		// Show loading state for Android users
+		const isAndroid = /android/i.test(navigator.userAgent)
+		if (isAndroid && newFiles.length > 0) {
+			toast.info('Processing images... This may take a moment on Android devices.')
+		}
+		
+		isProcessingImages = true
+		
 		for (const file of newFiles) {
 			const error = validateImageFile(file)
 			if (error) {
@@ -197,12 +207,34 @@
 			return
 		}
 		
-		// Add files and generate previews
-		for (const file of validFiles) {
-			const preview = await fileToBase64(file)
-			formData.images = [...formData.images, file]
-			formData.imagePreviews = [...formData.imagePreviews, preview]
+		try {
+			// Compress images if needed (especially for Android)
+			const processedFiles = await compressImages(validFiles, {
+				maxWidth: 1920,
+				maxHeight: 1920,
+				quality: 0.85,
+				maxSizeMB: 4.5
+			})
+			
+			// Add files and generate previews
+			for (const file of processedFiles) {
+				const preview = await fileToBase64(file)
+				formData.images = [...formData.images, file]
+				formData.imagePreviews = [...formData.imagePreviews, preview]
+			}
+			
+			if (isAndroid) {
+				toast.success('Images processed successfully!')
+			}
+		} catch (error) {
+			console.error('Error processing images:', error)
+			toast.error('Failed to process images. Please try again with smaller images.')
+		} finally {
+			isProcessingImages = false
 		}
+		
+		// Reset input
+		input.value = ''
 	}
 	
 	function removeImage(index: number) {
@@ -252,31 +284,50 @@
 			if (formData.images.length > 0) {
 				// Try to upload images
 				try {
+					toast.info('Uploading images...')
 					const uploadResults = await uploadMultipleImages(
 						formData.images,
 						'listings',
 						supabase,
 						authContext.user.id,
-						(progress) => { uploadProgress = progress }
+						(progress) => { 
+							uploadProgress = progress
+							if (progress % 25 === 0 && progress > 0) {
+								toast.info(`Upload progress: ${progress}%`)
+							}
+						}
 					)
 					
 					// Check for upload errors
 					const failedUploads = uploadResults.filter(r => r.error)
-					if (failedUploads.length === 0) {
+					if (failedUploads.length > 0) {
+						// Show specific errors
+						failedUploads.forEach((failed, index) => {
+							toast.error(`Failed to upload image ${index + 1}: ${failed.error}`)
+						})
+						
+						// If some succeeded, use those
+						const successfulUploads = uploadResults.filter(r => !r.error && r.url)
+						if (successfulUploads.length > 0) {
+							imageUrls = successfulUploads.map(r => r.url)
+							toast.warning(`Only ${successfulUploads.length} of ${formData.images.length} images uploaded successfully`)
+						} else {
+							throw new Error('All image uploads failed')
+						}
+					} else {
 						// Success! Get URLs
 						imageUrls = uploadResults
 							.filter(r => !r.error && r.url)
 							.map(r => r.url)
-					} else {
-						throw new Error('Storage bucket not set up')
+						toast.success('Images uploaded successfully!')
 					}
-				} catch (uploadError) {
+				} catch (uploadError: any) {
 					console.error('Image upload failed:', uploadError)
 					// Use placeholder images for now
 					imageUrls = formData.images.map((_, index) => 
 						`https://picsum.photos/400/600?random=${Date.now()}-${index}`
 					)
-					toast.error('Image upload failed - check storage bucket policies')
+					toast.error(uploadError.message || 'Image upload failed - please try again')
 				}
 			} else {
 				// Use a default placeholder
@@ -586,7 +637,7 @@
 						{#if formData.images.length === 0}
 							<label 
 								for="image-upload"
-								class="relative block w-full h-64 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50"
+								class="relative block w-full h-64 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 {isProcessingImages ? 'pointer-events-none' : ''}"
 							>
 								<input
 									id="image-upload"
@@ -595,7 +646,17 @@
 									multiple
 									onchange={handleImageSelect}
 									class="sr-only"
+									disabled={isProcessingImages}
 								/>
+								{#if isProcessingImages}
+									<div class="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+										<div class="text-center">
+											<div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#87CEEB] mx-auto mb-3"></div>
+											<p class="text-sm font-medium text-gray-700">Processing images...</p>
+											<p class="text-xs text-gray-500 mt-1">This may take a moment</p>
+										</div>
+									</div>
+								{/if}
 								<div class="flex flex-col items-center justify-center h-full text-gray-400">
 									<span class="text-5xl mb-3 opacity-60">📤</span>
 									<p class="text-sm font-medium">{m.listing_upload_instructions()}</p>
@@ -650,7 +711,7 @@
 								{#if formData.images.length < 10}
 									<label 
 										for="image-upload-more"
-										class="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 flex items-center justify-center"
+										class="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 flex items-center justify-center relative {isProcessingImages ? 'pointer-events-none' : ''}"
 									>
 										<input
 											id="image-upload-more"
@@ -659,7 +720,13 @@
 											multiple
 											onchange={handleImageSelect}
 											class="sr-only"
+											disabled={isProcessingImages}
 										/>
+										{#if isProcessingImages}
+											<div class="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center z-10">
+												<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#87CEEB]"></div>
+											</div>
+										{/if}
 										<div class="text-center">
 											<span class="text-3xl opacity-60 block mb-1">➕</span>
 											<p class="text-xs text-gray-500">{m.listing_add_more()}</p>

@@ -368,6 +368,17 @@
 						<div class="bg-white rounded-xl shadow-sm p-4">
 							<h3 class="text-base font-semibold text-gray-900 mb-3">{m.profile_account()}</h3>
 							<div class="space-y-2">
+								{#if profile.account_type !== 'brand'}
+									<button 
+										class="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-md"
+										onclick={() => goto('/brands/onboarding')}
+									>
+										<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+											<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+										</svg>
+										Turn into Brand
+									</button>
+								{/if}
 								<button 
 									class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm"
 									onclick={handleSignOut}
