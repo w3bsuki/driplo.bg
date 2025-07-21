@@ -41,9 +41,10 @@
 	const form = superForm($page.data.form, {
 		dataType: 'json',
 		multipleSubmits: 'prevent',
-		onSubmit: ({ formElement, formData }) => {
+		onSubmit: ({ formElement, formData: submittedData }) => {
 			console.log('🚀 Form submission triggered')
-			debugFormSubmission(formElement, $formData)
+			// Use submittedData instead of $formData to avoid store subscription error
+			debugFormSubmission(formElement, submittedData)
 			
 			// Log the actual FormData being sent
 			const fd = new FormData(formElement)
