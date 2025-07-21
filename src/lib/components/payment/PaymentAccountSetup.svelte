@@ -47,7 +47,8 @@
 		}
 	});
 
-	async function handleSubmit() {
+	async function handleSubmit(event: Event) {
+		event.preventDefault();
 		if (!isValid || isSubmitting) return;
 
 		isSubmitting = true;
@@ -121,7 +122,7 @@
 		<p class="text-sm text-gray-600">Choose how you'd like to receive payments</p>
 	</div>
 
-	<form on:submit|preventDefault={handleSubmit} class="space-y-4">
+	<form onsubmit={handleSubmit} class="space-y-4">
 		<!-- Payment Method Selection -->
 		<div class="space-y-2">
 			<label class="block text-sm font-medium text-gray-700">
@@ -296,7 +297,7 @@
 							id="revtag"
 							type="text"
 							bind:value={revtag}
-							on:input={handleRevtagInput}
+							oninput={handleRevtagInput}
 							placeholder="@yourusername"
 							class="block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
 							required

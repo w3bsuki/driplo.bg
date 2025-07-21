@@ -11,6 +11,7 @@
 	import ImageUploadStep from './form/ImageUploadStep.svelte'
 	import PricingDetailsStep from './form/PricingDetailsStep.svelte'
 	import ShippingLocationStep from './form/ShippingLocationStep.svelte'
+	import ListingPreview from './form/ListingPreview.svelte'
 	import PaymentAccountSetup from '$lib/components/payment/PaymentAccountSetup.svelte'
 	import type { Database } from '$lib/types/database'
 	import * as m from '$lib/paraglide/messages.js'
@@ -34,7 +35,11 @@
 	let categories = $state<Category[]>([])
 	let paymentAccount = $state<any>(null)
 	let isCheckingPayment = $state(true)
+	let isLoadingCategories = $state(true)
 	let showPaymentSetup = $state(false)
+	let draftStatus = $state<'idle' | 'saving' | 'saved' | 'error'>('idle')
+	let lastSaved = $state<Date | null>(null)
+	let showPreview = $state(false)
 	
 	// Initialize superForm
 	const form = superForm($page.data.form, {
@@ -43,7 +48,7 @@
 		onResult: ({ result }) => {
 			if (result.type === 'redirect') {
 				// Clear saved form data on successful submission
-				clearFormData('create_listing')
+				deleteDraft()
 			}
 		},
 		onError: () => {
@@ -93,48 +98,120 @@
 	})
 	
 	onMount(async () => {
-		// Load persisted form data
-		const savedData = loadFormData<any>('create_listing')
-		if (savedData && Object.keys(savedData).length > 0) {
-			// Merge saved data with current form data
-			Object.assign($formData, savedData)
-		} else {
-			// Make sure default values are set
-			if (!$formData.shipping_type) {
-				$formData.shipping_type = 'standard'
+		// First try to load draft from database
+		await loadDraft()
+		
+		// If no draft in database, check localStorage (migration path)
+		if (!lastSaved) {
+			const savedData = loadFormData<any>('create_listing')
+			if (savedData && Object.keys(savedData).length > 0) {
+				Object.assign($formData, savedData)
+				// Clear localStorage after migrating to database
+				clearFormData('create_listing')
 			}
+		}
+		
+		// Make sure default values are set
+		if (!$formData.shipping_type) {
+			$formData.shipping_type = 'standard'
 		}
 		
 		await loadCategories()
 		await checkPaymentAccount()
 	})
 	
+	// Load draft from database
+	async function loadDraft() {
+		// Only try to load draft if user is authenticated
+		if (!authContext?.user) return
+		
+		try {
+			const response = await fetch('/api/drafts/listing')
+			if (response.ok) {
+				const { draft, updated_at } = await response.json()
+				if (draft) {
+					Object.assign($formData, draft)
+					lastSaved = new Date(updated_at)
+					draftStatus = 'saved'
+				}
+			} else if (response.status === 401) {
+				// User not authenticated, skip draft loading
+				console.log('User not authenticated, skipping draft load')
+			}
+		} catch (error) {
+			console.error('Failed to load draft:', error)
+		}
+	}
+	
+	// Save draft to database
+	async function saveDraft() {
+		if (draftStatus === 'saving') return
+		
+		draftStatus = 'saving'
+		
+		try {
+			const response = await fetch('/api/drafts/listing', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify($formData)
+			})
+			
+			if (response.ok) {
+				const { updated_at } = await response.json()
+				lastSaved = new Date(updated_at)
+				draftStatus = 'saved'
+			} else {
+				draftStatus = 'error'
+			}
+		} catch (error) {
+			console.error('Failed to save draft:', error)
+			draftStatus = 'error'
+			// Fall back to localStorage on error
+			saveFormData('create_listing', $formData)
+		}
+	}
+	
+	// Delete draft after successful submission
+	async function deleteDraft() {
+		try {
+			await fetch('/api/drafts/listing', { method: 'DELETE' })
+			clearFormData('create_listing') // Also clear localStorage
+		} catch (error) {
+			console.error('Failed to delete draft:', error)
+		}
+	}
+	
 	// Auto-save form data with debouncing
 	const saveForm = debounce(() => {
-		saveFormData('create_listing', $formData)
-	}, 1000)
+		saveDraft()
+	}, 2000) // Increased to 2 seconds to reduce API calls
 	
 	// Watch for form changes and auto-save
 	$effect(() => {
-		// Only save if form has been modified
-		if ($formData.title || $formData.description || $formData.price) {
+		// Only save if form has been modified and user is authenticated
+		if (authContext?.user && ($formData.title || $formData.description || $formData.price)) {
 			saveForm()
 		}
 	})
 	
 	async function loadCategories() {
-		const { data, error } = await supabase
-			.from('categories')
-			.select('*')
-			.is('parent_id', null)
-			.eq('is_active', true)
-			.order('display_order')
-		
-		if (error) {
-			toast.error(m.listing_error_categories())
-			categories = []
-		} else {
-			categories = data || []
+		isLoadingCategories = true
+		try {
+			const { data, error } = await supabase
+				.from('categories')
+				.select('*')
+				.is('parent_id', null)
+				.eq('is_active', true)
+				.order('display_order')
+			
+			if (error) {
+				toast.error(m.listing_error_categories())
+				categories = []
+			} else {
+				categories = data || []
+			}
+		} finally {
+			isLoadingCategories = false
 		}
 	}
 	
@@ -167,6 +244,8 @@
 		toast.success('Payment account set up successfully!')
 	}
 	
+	let formElement = $state<HTMLFormElement>()
+	
 	function nextStep() {
 		let isValid = false
 		let validationResult: any = null
@@ -193,9 +272,17 @@
 		if (isValid && currentStep < totalSteps) {
 			currentStep++
 		} else if (!isValid && validationResult?.error) {
-			// Show specific validation error
+			// Show specific validation error with visual feedback
 			const firstError = validationResult.error.errors[0]
 			toast.error(firstError?.message || 'Please fill in all required fields')
+			
+			// Add shake animation to form
+			if (formElement) {
+				formElement.classList.add('animate-shake')
+				setTimeout(() => {
+					formElement?.classList.remove('animate-shake')
+				}, 500)
+			}
 		}
 	}
 	
@@ -240,8 +327,33 @@
 				>
 					<span class="text-lg">←</span>
 				</button>
-				<h1 class="text-lg font-semibold">{m.listing_create_title()}</h1>
-				<div class="w-5 h-5" />
+				<div class="flex items-center gap-3">
+					<h1 class="text-lg font-semibold">{m.listing_create_title()}</h1>
+					{#if draftStatus !== 'idle'}
+						<div class="flex items-center gap-1 text-xs">
+							{#if draftStatus === 'saving'}
+								<span class="animate-pulse">☁️</span>
+								<span class="text-gray-600">Saving...</span>
+							{:else if draftStatus === 'saved'}
+								<span>✅</span>
+								<span class="text-gray-600">
+									{#if lastSaved}
+										Saved {new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
+											Math.round((lastSaved.getTime() - Date.now()) / 60000),
+											'minute'
+										)}
+									{:else}
+										Saved
+									{/if}
+								</span>
+							{:else if draftStatus === 'error'}
+								<span>⚠️</span>
+								<span class="text-red-600">Save failed</span>
+							{/if}
+						</div>
+					{/if}
+				</div>
+				<div class="w-5 h-5"></div>
 			</div>
 			
 			<!-- Progress Bar -->
@@ -257,17 +369,53 @@
 							style="width: {stepProgress}%"
 						></div>
 					</div>
+					<!-- Step indicators with validation status -->
+					<div class="flex justify-between mt-3">
+						{#each Array(totalSteps) as _, step}
+							{@const stepNum = step + 1}
+							{@const isComplete = stepNum < currentStep}
+							{@const isCurrent = stepNum === currentStep}
+							{@const hasError = 
+								(stepNum === 1 && !isStep1Valid && currentStep > 1) ||
+								(stepNum === 2 && !isStep2Valid && currentStep > 2) ||
+								(stepNum === 3 && !isStep3Valid && currentStep > 3) ||
+								(stepNum === 4 && !isStep4Valid && currentStep > 4)
+							}
+							<div class="flex flex-col items-center">
+								<div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
+									{isComplete && !hasError ? 'bg-green-500 text-white' : ''}
+									{isCurrent ? 'bg-[#87CEEB] text-white' : ''}
+									{hasError ? 'bg-red-500 text-white' : ''}
+									{!isComplete && !isCurrent && !hasError ? 'bg-gray-300 text-gray-600' : ''}
+								">
+									{#if isComplete && !hasError}
+										✓
+									{:else if hasError}
+										!
+									{:else}
+										{stepNum}
+									{/if}
+								</div>
+							</div>
+						{/each}
+					</div>
 				</div>
 			{/if}
 		</div>
 	</div>
 	
 	<!-- Content -->
-	{#if isCheckingPayment}
+	{#if isCheckingPayment || isLoadingCategories}
 		<div class="flex-1 flex items-center justify-center">
 			<div class="text-center">
 				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#87CEEB] mx-auto mb-3"></div>
-				<p class="text-gray-600 text-sm">Checking payment account...</p>
+				<p class="text-gray-600 text-sm">
+					{#if isCheckingPayment}
+						Checking payment account...
+					{:else}
+						Loading categories...
+					{/if}
+				</p>
 			</div>
 		</div>
 	{:else if showPaymentSetup}
@@ -291,6 +439,7 @@
 				action="?/createListing"
 				use:enhance
 				aria-label={m.listing_create_title()}
+				bind:this={formElement}
 			>
 				<!-- Step 1: Basic Info -->
 				{#if currentStep === 1}
@@ -343,14 +492,14 @@
 				{/each}
 				
 				<!-- Navigation -->
-				<div class="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-3 z-20" role="navigation" aria-label="Form navigation">
-					<div class="max-w-lg mx-auto flex gap-2">
+				<div class="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4 z-20 safe-area-inset-bottom" role="navigation" aria-label="Form navigation">
+					<div class="max-w-lg mx-auto flex gap-3">
 						{#if currentStep > 1}
 							<Button
 								type="button"
 								variant="outline"
 								onclick={prevStep}
-								class="flex-1"
+								class="flex-1 min-h-[48px] text-base font-medium touch-manipulation"
 							>
 								← {m.listing_btn_previous()}
 							</Button>
@@ -360,21 +509,31 @@
 							<Button
 								type="button"
 								onclick={nextStep}
-								class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white"
+								class="flex-1 min-h-[48px] text-base font-medium bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white touch-manipulation"
 							>
 								{m.listing_btn_next()} →
 							</Button>
 						{:else}
 							<Button
-								type="submit"
-								disabled={$submitting || !isStep4Valid}
-								class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white"
+								type="button"
+								onclick={() => {
+									console.log('Preview button clicked');
+									console.log('isStep4Valid:', isStep4Valid);
+									console.log('Form data:', $formData);
+									if (isStep4Valid) {
+										showPreview = true;
+									} else {
+										const result = validateStep4($formData);
+										console.log('Validation result:', result);
+										if (!result.success) {
+											toast.error('Please fill in all required fields: ' + result.error.errors.map(e => e.message).join(', '));
+										}
+									}
+								}}
+								disabled={!isStep4Valid}
+								class="flex-1 min-h-[48px] text-base font-medium bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all"
 							>
-								{#if $submitting}
-									{m.listing_creating()}
-								{:else}
-									✨ {m.listing_btn_publish()}
-								{/if}
+								👀 Preview & Publish
 							</Button>
 						{/if}
 					</div>
@@ -382,4 +541,55 @@
 			</form>
 		</div>
 	{/if}
+	
+	<!-- Listing Preview Modal -->
+	<ListingPreview
+		formData={$formData}
+		user={authContext?.user}
+		isOpen={showPreview}
+		onClose={() => showPreview = false}
+		onEdit={() => showPreview = false}
+		onPublish={() => {
+			showPreview = false;
+			// Submit the form programmatically
+			if (formElement) {
+				formElement.requestSubmit();
+			}
+		}}
+		isSubmitting={$submitting}
+	/>
 </div>
+
+<style>
+	/* Handle safe area insets for devices with notches */
+	.safe-area-inset-bottom {
+		padding-bottom: env(safe-area-inset-bottom, 1rem);
+	}
+	
+	/* Improve touch targets on mobile */
+	@media (max-width: 640px) {
+		:global(input[type="text"]),
+		:global(input[type="number"]),
+		:global(textarea),
+		:global(select) {
+			min-height: 48px;
+			font-size: 16px; /* Prevents zoom on iOS */
+		}
+	}
+	
+	/* Prevent double-tap zoom on buttons */
+	:global(.touch-manipulation) {
+		touch-action: manipulation;
+	}
+	
+	/* Shake animation for validation errors */
+	:global(.animate-shake) {
+		animation: shake 0.5s ease-in-out;
+	}
+	
+	@keyframes shake {
+		0%, 100% { transform: translateX(0); }
+		10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+		20%, 40%, 60%, 80% { transform: translateX(5px); }
+	}
+</style>

@@ -413,9 +413,9 @@
 						<div class="space-y-2">
 							<h3 class="text-sm font-medium text-gray-900">Details</h3>
 							<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-								{#if listing.material}
-									<div class="text-gray-500">Material</div>
-									<div class="text-gray-700">{listing.material}</div>
+								{#if listing.materials && listing.materials.length > 0}
+									<div class="text-gray-500">Materials</div>
+									<div class="text-gray-700">{listing.materials.join(', ')}</div>
 								{/if}
 								{#if listing.category}
 									<div class="text-gray-500">Category</div>

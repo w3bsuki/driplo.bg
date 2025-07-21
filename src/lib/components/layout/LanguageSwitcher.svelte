@@ -34,7 +34,7 @@
 	}
 </script>
 
-<select on:change={(e) => switchToLanguage(e.target.value)} class="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+<select onchange={(e) => switchToLanguage(e.target.value)} class="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
 	<option value="en" selected={currentLanguage === 'en'}>English</option>
 	<option value="bg" selected={currentLanguage === 'bg'}>Български</option>
 </select>

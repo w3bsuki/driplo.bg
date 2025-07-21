@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SuperForm } from 'sveltekit-superforms'
-	import { Label, Input, Badge } from '$lib/components/ui'
-	import { MapPin, X } from 'lucide-svelte'
+	import { Label, Input } from '$lib/components/ui'
+	import { Badge } from '$lib/components/ui/badge'
 	import * as m from '$lib/paraglide/messages.js'
 	
 	interface Props {
@@ -39,7 +39,7 @@
 			{m.listing_location_label()} <span class="text-red-500">*</span>
 		</Label>
 		<div class="relative mt-2">
-			<MapPin class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+			<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">📍</span>
 			<Input
 				id="location"
 				bind:value={$formData.location_city}
@@ -140,7 +140,7 @@
 						onclick={() => removeTag(tag)}
 						class="ml-1 p-0.5 hover:bg-secondary rounded"
 					>
-						<X class="w-3 h-3" />
+						✕
 					</button>
 				</Badge>
 			{/each}

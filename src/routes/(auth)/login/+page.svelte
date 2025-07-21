@@ -1,17 +1,42 @@
 <script lang="ts">
 	import { enhance } from '$app/forms'
 	import { goto } from '$app/navigation'
+	import { page } from '$app/stores'
 	import { auth } from '$lib/stores/auth'
 	import { Eye, EyeOff, Github } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
+	import { onMount } from 'svelte'
 
 	let email = ''
 	let password = ''
 	let showPassword = false
 	let rememberMe = false
 	let loading = false
+
+	// Show error messages based on URL parameters
+	onMount(() => {
+		const error = $page.url.searchParams.get('error')
+		if (error) {
+			switch (error) {
+				case 'verification_expired':
+					toast.error('Your verification link has expired. Please sign up again.')
+					break
+				case 'invalid_token':
+					toast.error('Invalid verification link. Please try signing up again.')
+					break
+				case 'verification_failed':
+					toast.error('Email verification failed. Please try again.')
+					break
+				case 'missing_token':
+					toast.error('Invalid verification link.')
+					break
+				default:
+					toast.error('An error occurred. Please try again.')
+			}
+		}
+	})
 
 	async function handleLogin() {
 		if (!email || !password) {
@@ -38,6 +63,40 @@
 		} catch (error: any) {
 			toast.error(error.message || m.auth_oauth_failed())
 			loading = false
+		}
+	}
+
+	let resendEmail = ''
+	let resendLoading = false
+	let showResendForm = false
+
+	async function handleResendVerification() {
+		if (!resendEmail) {
+			toast.error('Please enter your email address')
+			return
+		}
+
+		resendLoading = true
+		try {
+			const response = await fetch('/api/auth/resend-verification', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: resendEmail })
+			})
+
+			const data = await response.json()
+			
+			if (data.success) {
+				toast.success(data.message)
+				showResendForm = false
+				resendEmail = ''
+			} else {
+				toast.error(data.error || 'Failed to resend verification email')
+			}
+		} catch (error) {
+			toast.error('An error occurred. Please try again.')
+		} finally {
+			resendLoading = false
 		}
 	}
 </script>
@@ -104,6 +163,9 @@
 						placeholder="Enter your email"
 						required
 						disabled={loading}
+						autocomplete="email"
+						oninput={(e) => email = e.currentTarget.value}
+						onchange={(e) => email = e.currentTarget.value}
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
 					/>
 				</div>
@@ -120,6 +182,9 @@
 							placeholder="Enter your password"
 							required
 							disabled={loading}
+							autocomplete="current-password"
+							oninput={(e) => password = e.currentTarget.value}
+							onchange={(e) => password = e.currentTarget.value}
 							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
 						/>
 						<button
@@ -170,6 +235,60 @@
 					Sign up
 				</a>
 			</p>
+
+			<!-- Resend verification link -->
+			<p class="text-center text-sm text-gray-600 mt-2">
+				Need to verify your email?
+				<button
+					type="button"
+					onclick={() => showResendForm = !showResendForm}
+					class="text-blue-400 hover:text-blue-500 font-medium"
+				>
+					Resend verification
+				</button>
+			</p>
+
+			<!-- Resend verification form -->
+			{#if showResendForm}
+				<div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+					<p class="text-sm text-gray-700 mb-3">
+						Enter your email to receive a new verification link
+					</p>
+					<form onsubmit={(e) => { e.preventDefault(); handleResendVerification(); }} class="space-y-3">
+						<input
+							type="email"
+							bind:value={resendEmail}
+							placeholder="Enter your email"
+							required
+							disabled={resendLoading}
+							autocomplete="email"
+							oninput={(e) => resendEmail = e.currentTarget.value}
+							onchange={(e) => resendEmail = e.currentTarget.value}
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+						/>
+						<div class="flex gap-2">
+							<button
+								type="submit"
+								disabled={resendLoading}
+								class="flex-1 py-2 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm"
+							>
+								{#if resendLoading}
+									<Spinner size="sm" color="white" />
+								{:else}
+									Send Verification Email
+								{/if}
+							</button>
+							<button
+								type="button"
+								onclick={() => { showResendForm = false; resendEmail = ''; }}
+								class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+							>
+								Cancel
+							</button>
+						</div>
+					</form>
+				</div>
+			{/if}
 		</div>
 	</div>
 </div>

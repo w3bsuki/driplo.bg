@@ -12,4 +12,5 @@ export { Label } from './label/index.js';
 export { Textarea } from './textarea/index.js';
 export { default as LoadingSpinner } from './LoadingSpinner.svelte';
 export { default as LazyModal } from './LazyModal.svelte';
+export { default as Skeleton } from './skeleton.svelte';
 

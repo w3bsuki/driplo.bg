@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { X, Plus } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
-	import { uploadMultipleImages, validateImageFile } from '$lib/utils/storage-client'
+	import { uploadImage, uploadMultipleImages, validateImageFile } from '$lib/utils/storage-client'
 	import { compressImages } from '$lib/utils/image-compression'
 	import type { SuperForm } from 'sveltekit-superforms'
 	import * as m from '$lib/paraglide/messages.js'
@@ -18,6 +18,8 @@
 	let isUploading = $state(false)
 	let uploadProgress = $state(0)
 	let localPreviews = $state<string[]>([])
+	let uploadStatuses = $state<Map<number, { status: 'uploading' | 'success' | 'error', message?: string }>>(new Map())
+	let failedFiles = $state<Map<number, File>>(new Map())
 	
 	async function handleImageSelect(event: Event) {
 		const input = event.target as HTMLInputElement
@@ -47,6 +49,10 @@
 			
 			if (validFiles.length === 0) return
 			
+			// Clear previous failed files
+			failedFiles.clear()
+			uploadStatuses.clear()
+			
 			// Compress images
 			const compressedFiles = await compressImages(validFiles, {
 				maxWidth: 1920,
@@ -55,39 +61,62 @@
 				maxSizeMB: 4.5
 			})
 			
-			// Upload images
-			const uploadResults = await uploadMultipleImages(
-				compressedFiles,
-				'listings',
-				supabase,
-				userId,
-				(progress) => { uploadProgress = progress }
-			)
-			
-			// Process results
-			const successfulUploads = uploadResults.filter(r => !r.error && r.url)
-			if (successfulUploads.length === 0) {
-				throw new Error('All uploads failed')
-			}
-			
-			// Update form data
-			const newUrls = successfulUploads.map(r => r.url!)
-			$formData.images = [...($formData.images || []), ...newUrls]
-			
-			// Generate local previews
-			for (const file of compressedFiles) {
+			// Generate local previews first for immediate feedback
+			const startIndex = $formData.images?.length || 0
+			for (let i = 0; i < compressedFiles.length; i++) {
+				const file = compressedFiles[i]
 				const reader = new FileReader()
 				reader.onload = (e) => {
 					localPreviews = [...localPreviews, e.target!.result as string]
 				}
 				reader.readAsDataURL(file)
+				uploadStatuses.set(startIndex + i, { status: 'uploading' })
 			}
 			
-			toast.success(`${successfulUploads.length} images uploaded successfully`)
+			// Upload images individually to track status
+			const newUrls: string[] = []
+			for (let i = 0; i < compressedFiles.length; i++) {
+				const fileIndex = startIndex + i
+				try {
+					const result = await uploadImage(compressedFiles[i], 'listings', supabase, userId)
+					
+					if (result.error) {
+						uploadStatuses.set(fileIndex, { status: 'error', message: result.error })
+						failedFiles.set(fileIndex, validFiles[i])
+					} else if (result.url) {
+						uploadStatuses.set(fileIndex, { status: 'success' })
+						newUrls.push(result.url)
+					}
+					
+					// Update progress
+					uploadProgress = ((i + 1) / compressedFiles.length) * 100
+				} catch (error) {
+					uploadStatuses.set(fileIndex, { 
+						status: 'error', 
+						message: error instanceof Error ? error.message : 'Upload failed' 
+					})
+					failedFiles.set(fileIndex, validFiles[i])
+				}
+			}
+			
+			// Update form data with successful uploads
+			if (newUrls.length > 0) {
+				$formData.images = [...($formData.images || []), ...newUrls]
+			}
+			
+			// Show results
+			const failedCount = compressedFiles.length - newUrls.length
+			if (failedCount === 0) {
+				toast.success(`All ${compressedFiles.length} images uploaded successfully`)
+			} else if (newUrls.length > 0) {
+				toast.warning(`${newUrls.length} images uploaded, ${failedCount} failed`)
+			} else {
+				toast.error('All uploads failed. Please try again.')
+			}
 			
 		} catch (error) {
 			console.error('Upload error:', error)
-			toast.error('Failed to upload images')
+			toast.error('Failed to process images')
 		} finally {
 			isUploading = false
 			uploadProgress = 0
@@ -98,6 +127,49 @@
 	function removeImage(index: number) {
 		$formData.images = $formData.images.filter((_: string, i: number) => i !== index)
 		localPreviews = localPreviews.filter((_, i) => i !== index)
+		uploadStatuses.delete(index)
+		failedFiles.delete(index)
+	}
+	
+	async function retryFailedUpload(index: number) {
+		const file = failedFiles.get(index)
+		if (!file) return
+		
+		uploadStatuses.set(index, { status: 'uploading' })
+		
+		try {
+			// Compress the file again
+			const compressed = await compressImages([file], {
+				maxWidth: 1920,
+				maxHeight: 1920,
+				quality: 0.85,
+				maxSizeMB: 4.5
+			})
+			
+			// Retry upload
+			const result = await uploadImage(compressed[0], 'listings', supabase, userId)
+			
+			if (result.error) {
+				uploadStatuses.set(index, { status: 'error', message: result.error })
+				toast.error(`Retry failed: ${result.error}`)
+			} else if (result.url) {
+				uploadStatuses.set(index, { status: 'success' })
+				failedFiles.delete(index)
+				
+				// Add to form data at the correct position
+				const newImages = [...($formData.images || [])]
+				newImages.splice(index, 0, result.url)
+				$formData.images = newImages
+				
+				toast.success('Image uploaded successfully')
+			}
+		} catch (error) {
+			uploadStatuses.set(index, { 
+				status: 'error', 
+				message: error instanceof Error ? error.message : 'Retry failed' 
+			})
+			toast.error('Retry failed. Please try again.')
+		}
 	}
 	
 	function moveImage(from: number, to: number) {
@@ -124,17 +196,18 @@
 		
 		{#if !$formData.images || $formData.images.length === 0}
 			<label 
-				class="relative block w-full h-64 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50"
+				class="relative block w-full h-64 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 touch-manipulation"
 			>
 				<input
 					type="file"
 					accept="image/*"
 					multiple
+					capture="environment"
 					onchange={handleImageSelect}
 					class="sr-only"
 					disabled={isUploading}
 				/>
-				<div class="flex flex-col items-center justify-center h-full text-gray-400">
+				<div class="flex flex-col items-center justify-center h-full text-gray-400 p-6">
 					{#if isUploading}
 						<div class="text-center">
 							<div class="animate-spin rounded-full h-10 w-10 border-b-2 border-[#87CEEB] mx-auto mb-3"></div>
@@ -142,71 +215,100 @@
 						</div>
 					{:else}
 						<span class="text-5xl mb-3">📤</span>
-						<p class="text-sm font-medium">{m.listing_upload_instructions()}</p>
-						<p class="text-xs mt-1">{m.listing_upload_formats()}</p>
+						<p class="text-sm font-medium text-center">{m.listing_upload_instructions()}</p>
+						<p class="text-xs mt-1 text-center">{m.listing_upload_formats()}</p>
+						<div class="mt-3 px-4 py-2 bg-[#87CEEB] text-white rounded-lg text-sm font-medium min-h-[44px] flex items-center justify-center">
+							📷 Take Photo / Choose Files
+						</div>
 					{/if}
 				</div>
 			</label>
 		{:else}
 			<div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
 				{#each $formData.images as imageUrl, index}
+					{@const status = uploadStatuses.get(index)}
 					<div class="relative group aspect-square">
 						<img 
 							src={localPreviews[index] || imageUrl} 
 							alt="Preview {index + 1}"
-							class="w-full h-full object-cover rounded-xl"
+							class="w-full h-full object-cover rounded-xl {status?.status === 'error' ? 'opacity-50' : ''}"
 						/>
 						{#if index === 0}
 							<div class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
 								{m.listing_cover_image()}
 							</div>
 						{/if}
-						<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2 touch:opacity-100">
-							{#if index > 0}
+						
+						{#if status?.status === 'uploading'}
+							<div class="absolute inset-0 bg-black/50 rounded-xl flex items-center justify-center">
+								<div class="text-center">
+									<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+									<p class="text-white text-xs">Uploading...</p>
+								</div>
+							</div>
+						{:else if status?.status === 'error'}
+							<div class="absolute inset-0 bg-red-500/20 rounded-xl flex flex-col items-center justify-center p-2">
+								<p class="text-red-600 text-xs font-semibold mb-2">Upload failed</p>
 								<button
 									type="button"
-									onclick={() => moveImage(index, index - 1)}
-									class="p-2 bg-white rounded-full hover:bg-gray-100 touch-manipulation"
-									aria-label="Move image left"
+									onclick={() => retryFailedUpload(index)}
+									class="flex items-center gap-1 px-3 py-1 bg-white rounded-full text-sm hover:bg-gray-100 touch-manipulation"
+									aria-label="Retry upload"
 								>
-									←
+									🔄 Retry
 								</button>
-							{/if}
-							<button
-								type="button"
-								onclick={() => removeImage(index)}
-								class="p-2 bg-white rounded-full text-red-600 hover:bg-gray-100 touch-manipulation"
-								aria-label="Remove image"
-							>
-								<X class="w-4 h-4" />
-							</button>
-							{#if index < $formData.images.length - 1}
+							</div>
+						{:else}
+							<div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2 touch:opacity-100">
+								{#if index > 0}
+									<button
+										type="button"
+										onclick={() => moveImage(index, index - 1)}
+										class="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100 touch-manipulation text-lg"
+										aria-label="Move image left"
+									>
+										←
+									</button>
+								{/if}
 								<button
 									type="button"
-									onclick={() => moveImage(index, index + 1)}
-									class="p-2 bg-white rounded-full hover:bg-gray-100 touch-manipulation"
-									aria-label="Move image right"
+									onclick={() => removeImage(index)}
+									class="w-10 h-10 flex items-center justify-center bg-white rounded-full text-red-600 hover:bg-gray-100 touch-manipulation"
+									aria-label="Remove image"
 								>
-									→
+									<X class="w-5 h-5" />
 								</button>
-							{/if}
-						</div>
+								{#if index < $formData.images.length - 1}
+									<button
+										type="button"
+										onclick={() => moveImage(index, index + 1)}
+										class="w-10 h-10 flex items-center justify-center bg-white rounded-full hover:bg-gray-100 touch-manipulation text-lg"
+										aria-label="Move image right"
+									>
+										→
+									</button>
+								{/if}
+							</div>
+						{/if}
 					</div>
 				{/each}
 				
 				{#if $formData.images.length < 10}
-					<label class="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 flex items-center justify-center">
+					<label class="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 flex items-center justify-center touch-manipulation">
 						<input
 							type="file"
 							accept="image/*"
 							multiple
+							capture="environment"
 							onchange={handleImageSelect}
 							class="sr-only"
 							disabled={isUploading}
 						/>
-						<div class="text-center">
-							<Plus class="w-8 h-8 mx-auto mb-1 text-gray-400" />
-							<p class="text-xs text-gray-500">{m.listing_add_more()}</p>
+						<div class="text-center p-4">
+							<div class="w-12 h-12 mx-auto mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
+								<Plus class="w-6 h-6 text-[#87CEEB]" />
+							</div>
+							<p class="text-xs text-gray-600 font-medium">{m.listing_add_more()}</p>
 						</div>
 					</label>
 				{/if}

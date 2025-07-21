@@ -106,5 +106,12 @@ export const rateLimiters = {
     windowMs: 60 * 1000, // 1 minute
     max: 100, // 100 webhook calls per minute per IP
     message: 'Webhook rate limit exceeded.'
+  }),
+  
+  // Rate limit for image uploads
+  upload: createRateLimiter({
+    windowMs: 60 * 1000, // 1 minute
+    max: 20, // 20 uploads per minute
+    message: 'Too many upload requests. Please wait a moment before uploading more images.'
   })
 };

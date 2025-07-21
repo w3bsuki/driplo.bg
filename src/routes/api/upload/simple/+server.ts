@@ -1,8 +1,17 @@
 import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { v4 as uuidv4 } from 'uuid'
+import { rateLimiters } from '$lib/server/rate-limit'
 
-export const POST: RequestHandler = async ({ request, locals: { supabase, safeGetSession } }) => {
+export const POST: RequestHandler = async (event) => {
+	const { request, locals: { supabase, safeGetSession } } = event
+	
+	// Apply rate limiting
+	const rateLimitResponse = await rateLimiters.upload(event)
+	if (rateLimitResponse) {
+		return rateLimitResponse
+	}
+	
 	const { user } = await safeGetSession()
 	
 	if (!user) {

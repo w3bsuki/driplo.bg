@@ -1,2 +1,9 @@
-// Enable prerendering for login page (no server data)
-export const prerender = true;
+import type { PageLoad } from './$types';
+
+export const load: PageLoad = async ({ url }) => {
+	const error = url.searchParams.get('error');
+	
+	return {
+		error
+	};
+};

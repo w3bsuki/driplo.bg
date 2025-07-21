@@ -252,6 +252,9 @@
 							bind:value={fullName}
 							placeholder="John Doe"
 							disabled={loading}
+							autocomplete="name"
+							oninput={(e) => fullName = e.currentTarget.value}
+							onchange={(e) => fullName = e.currentTarget.value}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
@@ -266,6 +269,9 @@
 							placeholder="johndoe"
 							required
 							disabled={loading}
+							autocomplete="username"
+							oninput={(e) => username = e.currentTarget.value}
+							onchange={(e) => username = e.currentTarget.value}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
@@ -282,6 +288,9 @@
 						placeholder="Enter your email"
 						required
 						disabled={loading}
+						autocomplete="email"
+						oninput={(e) => email = e.currentTarget.value}
+						onchange={(e) => email = e.currentTarget.value}
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 					/>
 				</div>
@@ -356,6 +365,9 @@
 							placeholder="Min 8 characters"
 							required
 							disabled={loading}
+							autocomplete="new-password"
+							oninput={(e) => password = e.currentTarget.value}
+							onchange={(e) => password = e.currentTarget.value}
 							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button
@@ -384,6 +396,9 @@
 							placeholder="Confirm password"
 							required
 							disabled={loading}
+							autocomplete="new-password"
+							oninput={(e) => confirmPassword = e.currentTarget.value}
+							onchange={(e) => confirmPassword = e.currentTarget.value}
 							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button
