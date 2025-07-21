@@ -136,7 +136,6 @@
 			supportsHEIC = true
 		}
 		
-		console.log('iOS detection:', { isIOS, isSafari, supportsHEIC })
 		
 		await loadCategories()
 		await checkPaymentAccount()
@@ -551,52 +550,9 @@
 	}
 	
 	function nextStep() {
-		// Test if function is being called
-		if (currentStep === 1) {
-			// Direct validation for step 1
-			if (formData.title.length < 3) {
-				toast.error('Title must be at least 3 characters')
-				return
-			}
-			if (formData.description.length < 10) {
-				toast.error('Description must be at least 10 characters')
-				return
-			}
-			if (!formData.category_id) {
-				toast.error('Please select a category')
-				return
-			}
-		}
-		
 		if (canProceed && currentStep < totalSteps) {
 			showValidationErrors = false
 			currentStep++
-		} else {
-			showValidationErrors = true
-			// Show specific error messages
-			if (currentStep === 1) {
-				if (formData.title.length < 3) {
-					toast.error('Title must be at least 3 characters')
-				} else if (formData.description.length < 10) {
-					toast.error('Description must be at least 10 characters')
-				} else if (!formData.category_id) {
-					toast.error('Please select a category')
-				}
-			} else if (currentStep === 2) {
-				toast.error('Please add at least one image')
-			} else if (currentStep === 3) {
-				if (formData.price <= 0) {
-					toast.error('Please enter a valid price')
-				} else if (!formData.condition) {
-					toast.error('Please select the item condition')
-				} else if (!formData.color) {
-					toast.error('Please specify the color')
-				} else if (isSizeRequired() && !formData.size) {
-					toast.error('Size is required for this category')
-				}
-			} else if (currentStep === 4) {
-				toast.error('Please enter your location')
-			}
 		}
 	}
 	
