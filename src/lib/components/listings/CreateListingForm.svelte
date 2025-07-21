@@ -109,7 +109,7 @@
 		4: formData.location.length > 0
 	})
 	
-	const canProceed = $derived(stepValidation[currentStep as keyof typeof stepValidation])
+	const canProceed = $derived(stepValidation[currentStep as keyof typeof stepValidation] || false)
 	const totalSteps = 4
 	const stepProgress = $derived((currentStep / totalSteps) * 100)
 	
@@ -551,6 +551,23 @@
 	}
 	
 	function nextStep() {
+		// Test if function is being called
+		if (currentStep === 1) {
+			// Direct validation for step 1
+			if (formData.title.length < 3) {
+				toast.error('Title must be at least 3 characters')
+				return
+			}
+			if (formData.description.length < 10) {
+				toast.error('Description must be at least 10 characters')
+				return
+			}
+			if (!formData.category_id) {
+				toast.error('Please select a category')
+				return
+			}
+		}
+		
 		if (canProceed && currentStep < totalSteps) {
 			showValidationErrors = false
 			currentStep++
