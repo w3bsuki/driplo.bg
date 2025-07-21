@@ -2,7 +2,10 @@ import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
+	// Get session first to check authentication
+	const { session } = await safeGetSession()
 
+	// First, get the main listing
 	const { data: listing, error: listingError } = await supabase
 		.from('listings')
 		.select(`
@@ -33,83 +36,94 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		throw error(404, 'Listing not found')
 	}
 
-	// Calculate followers_count and listings_count for the seller
-	if (listing.seller) {
-		const [followersResult, listingsResult] = await Promise.all([
-			supabase
-				.from('user_follows')
-				.select('id', { count: 'exact', head: true })
-				.eq('following_id', listing.seller.id),
-			supabase
-				.from('listings')
-				.select('id', { count: 'exact', head: true })
-				.eq('seller_id', listing.seller.id)
-				.eq('status', 'active')
-		])
+	// Now execute all dependent queries in parallel
+	const [
+		followersResult,
+		listingsCountResult,
+		sellerListingsResult,
+		relatedListingsResult,
+		followCheckResult
+	] = await Promise.all([
+		// Get seller's followers count
+		listing.seller
+			? supabase
+					.from('user_follows')
+					.select('id', { count: 'exact', head: true })
+					.eq('following_id', listing.seller.id)
+			: Promise.resolve({ count: 0 }),
 
+		// Get seller's active listings count
+		listing.seller
+			? supabase
+					.from('listings')
+					.select('id', { count: 'exact', head: true })
+					.eq('seller_id', listing.seller.id)
+					.eq('status', 'active')
+			: Promise.resolve({ count: 0 }),
+
+		// Get seller's other listings
+		supabase
+			.from('listings')
+			.select(`
+				id,
+				title,
+				price,
+				images,
+				created_at
+			`)
+			.eq('seller_id', listing.seller_id)
+			.eq('status', 'active')
+			.neq('id', params.id)
+			.limit(6),
+
+		// Get related listings from same category
+		supabase
+			.from('listings')
+			.select(`
+				id,
+				title,
+				price,
+				images,
+				size,
+				brand,
+				condition,
+				seller:profiles!seller_id(username, avatar_url, account_type, is_verified)
+			`)
+			.eq('category_id', listing.category_id)
+			.eq('status', 'active')
+			.neq('id', params.id)
+			.limit(8),
+
+		// Check if current user is following the seller
+		session?.user
+			? supabase
+					.from('user_follows')
+					.select('id')
+					.eq('follower_id', session.user.id)
+					.eq('following_id', listing.seller_id)
+					.single()
+			: Promise.resolve({ data: null })
+	])
+
+	// Update seller stats
+	if (listing.seller) {
 		listing.seller.followers_count = followersResult.count || 0
-		listing.seller.listings_count = listingsResult.count || 0
+		listing.seller.listings_count = listingsCountResult.count || 0
 	}
 
-	// Increment view count
-	await supabase
+	// Increment view count (fire and forget - don't wait for response)
+	supabase
 		.from('listings')
 		.update({ view_count: (listing.view_count || 0) + 1 })
 		.eq('id', params.id)
-
-	// Get related listings from same seller
-	const { data: sellerListings } = await supabase
-		.from('listings')
-		.select(`
-			id,
-			title,
-			price,
-			images,
-			created_at
-		`)
-		.eq('seller_id', listing.seller_id)
-		.eq('status', 'active')
-		.neq('id', params.id)
-		.limit(6)
-
-	// Get related listings from same category
-	const { data: relatedListings } = await supabase
-		.from('listings')
-		.select(`
-			id,
-			title,
-			price,
-			images,
-			size,
-			brand,
-			condition,
-			seller:profiles!seller_id(username, avatar_url, account_type, is_verified)
-		`)
-		.eq('category_id', listing.category_id)
-		.eq('status', 'active')
-		.neq('id', params.id)
-		.limit(8)
-
-	// Check if current user is following the seller
-	const { session } = await safeGetSession()
-	let isFollowing = false
-	
-	if (session?.user) {
-		const { data: followData } = await supabase
-			.from('user_follows')
-			.select('id')
-			.eq('follower_id', session.user.id)
-			.eq('following_id', listing.seller_id)
-			.single()
-		
-		isFollowing = !!followData
-	}
+		.then(() => {}) // Silent success
+		.catch(() => {}) // Silent failure - view count is not critical
 
 	return {
 		listing,
-		sellerListings: sellerListings || [],
-		relatedListings: relatedListings || [],
-		isFollowing,
+		sellerListings: sellerListingsResult.data || [],
+		relatedListings: relatedListingsResult.data || [],
+		isFollowing: !!followCheckResult.data,
 		user: session?.user || null
 	}
 }

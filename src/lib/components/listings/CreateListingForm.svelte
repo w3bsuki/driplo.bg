@@ -96,26 +96,27 @@
 		return ['women', 'men', 'kids', 'shoes'].includes(category.slug || '')
 	}
 
-	// Validation - using getter for reactive computation
-	const canProceed = $derived.by(() => {
-		switch (currentStep) {
-			case 1:
-				return formData.title.length >= 3 && 
-					   formData.description.length >= 10 && 
-					   formData.category_id.length > 0
-			case 2:
-				return formData.images.length > 0
-			case 3:
-				return formData.price > 0 && 
-					   formData.condition !== '' &&
-					   formData.color.length > 0 && 
-					   (!isSizeRequired() || formData.size.length > 0)
-			case 4:
-				return formData.location.length > 0
-			default:
-				return false
-		}
-	})
+	// Simple validation functions
+	function validateStep1() {
+		return formData.title.length >= 3 && 
+			   formData.description.length >= 10 && 
+			   formData.category_id.length > 0
+	}
+	
+	function validateStep2() {
+		return formData.images.length > 0
+	}
+	
+	function validateStep3() {
+		return formData.price > 0 && 
+			   formData.condition !== '' &&
+			   formData.color.length > 0 && 
+			   (!isSizeRequired() || formData.size.length > 0)
+	}
+	
+	function validateStep4() {
+		return formData.location.length > 0
+	}
 	const totalSteps = 4
 	const stepProgress = $derived((currentStep / totalSteps) * 100)
 	
@@ -157,13 +158,7 @@
 		
 		if (error) {
 			toast.error(m.listing_error_categories())
-			// Add default categories with proper UUIDs
-			categories = [
-				{ id: '550e8400-e29b-41d4-a716-446655440001', name: 'Women', icon: '👗', slug: 'women', is_active: true },
-				{ id: '550e8400-e29b-41d4-a716-446655440002', name: 'Men', icon: '👔', slug: 'men', is_active: true },
-				{ id: '550e8400-e29b-41d4-a716-446655440005', name: 'Shoes', icon: '👟', slug: 'shoes', is_active: true },
-				{ id: '550e8400-e29b-41d4-a716-446655440004', name: 'Accessories', icon: '👜', slug: 'accessories', is_active: true }
-			] as any
+			categories = []
 		} else {
 			categories = data || []
 		}
@@ -504,7 +499,24 @@
 	}
 	
 	function nextStep() {
-		if (canProceed && currentStep < totalSteps) {
+		let isValid = false
+		
+		switch (currentStep) {
+			case 1:
+				isValid = validateStep1()
+				break
+			case 2:
+				isValid = validateStep2()
+				break
+			case 3:
+				isValid = validateStep3()
+				break
+			case 4:
+				isValid = validateStep4()
+				break
+		}
+		
+		if (isValid && currentStep < totalSteps) {
 			showValidationErrors = false
 			currentStep++
 		}
@@ -1028,20 +1040,19 @@
 				{/if}
 				
 				{#if currentStep < totalSteps}
-					<Button
+					<button
 						type="button"
 						on:click={nextStep}
-						disabled={!canProceed}
-						class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+						class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm rounded-md px-4 inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 					>
 						{m.listing_btn_next()}
 						<span class="ml-1">→</span>
-					</Button>
+					</button>
 				{:else}
-					<Button
+					<button
 						type="submit"
-						disabled={!canProceed || isSubmitting}
-						class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+						disabled={isSubmitting || !validateStep4()}
+						class="flex-1 bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm rounded-md px-4 inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
 					>
 						{#if isSubmitting}
 							{#if uploadProgress > 0}
@@ -1053,7 +1064,7 @@
 							<span class="mr-2">✨</span>
 							{m.listing_btn_publish()}
 						{/if}
-					</Button>
+					</button>
 				{/if}
 			</div>
 			</div>

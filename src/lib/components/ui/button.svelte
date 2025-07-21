@@ -49,7 +49,19 @@
 	}: ButtonProps = $props();
 </script>
 
-<button {type} {disabled} class={cn(buttonVariants({ variant, size, className }))} {...restProps}>
+<button 
+	{type} 
+	{disabled} 
+	class={cn(buttonVariants({ variant, size, className }))}
+	{...restProps}
+	on:click
+	on:focus
+	on:blur
+	on:mouseenter
+	on:mouseleave
+	on:keydown
+	on:keyup
+>
 	{@render children()}
 </button>
 
