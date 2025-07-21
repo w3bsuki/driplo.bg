@@ -215,7 +215,7 @@
         {/if}
 
         <div class="space-y-3">
-            {#each transactions as transaction}
+            {#each transactions as transaction (transaction.id)}
                 {@const config = statusConfig[transaction.status] || statusConfig.pending}
                 <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
                     <div class="p-4">

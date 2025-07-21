@@ -149,7 +149,7 @@
 		
 		{#if loading}
 			<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-4">
-				{#each Array(8) as _, i}
+				{#each Array(8) as _, i (i)}
 					<div class="aspect-[3/4] bg-gray-200 rounded-xl animate-pulse"></div>
 				{/each}
 			</div>
@@ -171,7 +171,7 @@
 			{:else}
 				<!-- Regular grid for smaller lists -->
 				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 md:gap-4">
-					{#each listings as listing, index}
+					{#each listings as listing, index (listing.id)}
 						<ListingCard {...listing} eagerLoading={index < 8} />
 					{/each}
 				</div>

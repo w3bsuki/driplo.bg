@@ -101,14 +101,10 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
         // Restore listing availability if items were reserved
         for (const item of order.order_items) {
             if (item.listing && item.listing.seller_id === order.seller_id) {
-                await supabase
-                    .from('listings')
-                    .update({
-                        status: 'active',
-                        available_quantity: supabase.sql`available_quantity + ${item.quantity}`,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', item.listing.id);
+                await supabase.rpc('increment_listing_quantity', {
+                    listing_id: item.listing.id,
+                    quantity_increment: item.quantity
+                });
             }
         }
 

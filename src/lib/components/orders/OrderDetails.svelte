@@ -202,7 +202,7 @@
             <div class="card-body">
                 <h3 class="text-lg font-semibold mb-4">Order Items</h3>
                 <div class="space-y-4">
-                    {#each order.order_items as item}
+                    {#each order.order_items as item (item.id)}
                         <div class="flex gap-4">
                             <div class="w-24 h-24 rounded overflow-hidden bg-gray-100">
                                 {#if item.listing.images?.[0]}
@@ -328,7 +328,7 @@
                 <div class="card-body">
                     <h3 class="text-lg font-semibold mb-4">Order History</h3>
                     <div class="space-y-3">
-                        {#each order.status_history as event}
+                        {#each order.status_history as event (event.id)}
                             <div class="flex items-start gap-3">
                                 <div class="w-2 h-2 rounded-full bg-gray-400 mt-2"></div>
                                 <div class="flex-1">
