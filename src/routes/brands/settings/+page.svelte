@@ -49,10 +49,46 @@
 	let isBrand = $derived(profile?.account_type === 'brand');
 	let isVerified = $derived(profile?.is_verified || false);
 	
+	async function generateBrandSlug(brandName: string): Promise<string> {
+		const baseSlug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+		let slug = baseSlug;
+		let counter = 0;
+		
+		while (true) {
+			const { data } = await supabase
+				.from('brand_profiles')
+				.select('id')
+				.eq('brand_slug', slug)
+				.single();
+			
+			if (!data) break;
+			
+			counter++;
+			slug = `${baseSlug}-${counter}`;
+		}
+		
+		return slug;
+	}
+
 	onMount(async () => {
 		if (!user) {
 			goto('/login');
 			return;
+		}
+		
+		// If profile is null or not loaded properly, try to fetch it
+		if (!profile) {
+			console.log('Profile not loaded, fetching...');
+			const { data: fetchedProfile } = await supabase
+				.from('profiles')
+				.select('*')
+				.eq('id', user.id)
+				.single();
+			
+			if (fetchedProfile) {
+				// Update the local state with fetched profile
+				data.profile = fetchedProfile;
+			}
 		}
 		
 		// Load existing verification request if any
@@ -70,11 +106,8 @@
 			}
 		}
 		
-		// Load social media accounts
-		const { data: socialAccounts } = await supabase
-			.from('social_media_accounts')
-			.select('*')
-			.eq('user_id', user.id);
+		// Load social media accounts from page data
+		const socialAccounts = data.socialMediaAccounts;
 		
 		if (socialAccounts) {
 			socialAccounts.forEach(account => {
@@ -116,9 +149,25 @@
 			
 			if (error) throw error;
 			
+			// Generate brand slug for the new brand
+			const brandSlug = await generateBrandSlug(brandName);
+			
+			// Create brand profile
+			const { error: brandProfileError } = await supabase
+				.from('brand_profiles')
+				.insert({
+					user_id: user.id,
+					brand_name: brandName,
+					brand_slug: brandSlug,
+					brand_description: brandDescription,
+					website_url: brandWebsite
+				});
+			
+			if (brandProfileError) throw brandProfileError;
+			
 			toast.success('Successfully upgraded to brand account!');
-			// Redirect to brand settings to continue setup
-			goto('/brands/settings');
+			// Redirect to brand welcome page
+			goto(`/brands/welcome?slug=${brandSlug}`);
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to upgrade account');
 		} finally {
@@ -283,7 +332,12 @@
 			</p>
 		</div>
 		
-		{#if !isBrand}
+		{#if profile === null || profile === undefined}
+			<!-- Loading State -->
+			<div class="bg-white rounded-xl shadow-sm p-8 flex items-center justify-center">
+				<Spinner size="lg" />
+			</div>
+		{:else if !isBrand}
 			<!-- Upgrade to Brand Section -->
 			<div class="bg-white rounded-xl shadow-sm p-8">
 				<h2 class="text-2xl font-semibold mb-6">Why upgrade to a Brand Account?</h2>

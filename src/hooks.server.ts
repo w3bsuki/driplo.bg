@@ -109,18 +109,20 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		// Check if profile setup is complete
 		const { data: profile } = await event.locals.supabase
 			.from('profiles')
-			.select('setup_completed')
+			.select('setup_completed, account_type')
 			.eq('id', user.id)
 			.single()
 		
 		if (profile && !profile.setup_completed) {
 			// Redirect to onboarding if profile setup is not complete
-			// Skip redirect for auth pages and static assets
+			// Skip redirect for auth pages, brand pages (for existing brands), and static assets
 			if (!event.url.pathname.startsWith('/login') && 
 				!event.url.pathname.startsWith('/register') &&
 				!event.url.pathname.startsWith('/callback') &&
 				!event.url.pathname.startsWith('/_app') &&
-				!event.url.pathname.includes('.')) {
+				!event.url.pathname.includes('.') &&
+				// Don't redirect brand accounts from brand pages
+				!(profile.account_type === 'brand' && event.url.pathname.startsWith('/brands/'))) {
 				return new Response(null, {
 					status: 302,
 					headers: {

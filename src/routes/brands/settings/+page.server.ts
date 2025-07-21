@@ -8,15 +8,37 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/login')
 	}
 	
-	// Get user profile with brand info
-	const { data: profile } = await locals.supabase
+	// Get user profile with brand info and social media accounts
+	const { data: profile, error: profileError } = await locals.supabase
 		.from('profiles')
 		.select(`
 			*,
-			social_media_accounts(*)
+			socialMediaAccounts:social_media_accounts(*)
 		`)
 		.eq('id', user.id)
 		.single()
+	
+	if (profileError) {
+		console.error('Error loading profile:', profileError)
+		// Fallback: try without join
+		const { data: profileSimple } = await locals.supabase
+			.from('profiles')
+			.select('*')
+			.eq('id', user.id)
+			.single()
+		
+		const { data: socialMediaAccounts } = await locals.supabase
+			.from('social_media_accounts')
+			.select('*')
+			.eq('user_id', user.id)
+		
+		return {
+			user,
+			profile: profileSimple,
+			socialMediaAccounts: socialMediaAccounts || [],
+			verificationRequest: null
+		}
+	}
 	
 	// Get verification status
 	const { data: verificationRequest } = await locals.supabase
@@ -28,7 +50,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.maybeSingle()
 	
 	return {
+		user,
 		profile,
+		socialMediaAccounts: profile?.socialMediaAccounts || [],
 		verificationRequest
 	}
 }
