@@ -7,6 +7,7 @@
   import { ChevronRight } from 'lucide-svelte';
   import type { SupabaseClient } from '@supabase/supabase-js';
   import type { Database } from '$lib/types/database';
+  import { getFiltersForCategory } from '$lib/config/categoryFilters';
   
   interface Props {
     category: Category;
@@ -14,59 +15,30 @@
     products?: any[];
     topSellers?: any[];
     supabase?: SupabaseClient<Database>;
+    theme?: 'blue' | 'pink';
   }
   
-  let { category, subcategories, products = [], topSellers = [], supabase }: Props = $props();
+  let { category, subcategories, products = [], topSellers = [], supabase, theme = 'blue' }: Props = $props();
   
   // State for filtering
   let selectedSubcategory = $state('all');
-  let selectedSizes = $state<string[]>([]);
-  let selectedConditions = $state<string[]>([]);
-  let selectedPriceRange = $state('');
   let searchQuery = $state('');
+  let sortBy = $state('newest');
   
-  // Filter configuration for category pages
-  const filterGroups = [
-    {
-      type: 'price',
-      label: 'Price',
-      options: [
-        { value: '0-20', label: 'Under $20' },
-        { value: '20-50', label: '$20-$50' },
-        { value: '50-100', label: '$50-$100' },
-        { value: '100-', label: '$100+' }
-      ]
-    },
-    {
-      type: 'size',
-      label: 'Size',
-      options: [
-        { value: 'XS', label: 'XS' },
-        { value: 'S', label: 'S' },
-        { value: 'M', label: 'M' },
-        { value: 'L', label: 'L' },
-        { value: 'XL', label: 'XL' },
-        { value: 'XXL', label: 'XXL' }
-      ]
-    },
-    {
-      type: 'condition',
-      label: 'Condition',
-      options: [
-        { value: 'new', label: 'New with tags' },
-        { value: 'likenew', label: 'Like new' },
-        { value: 'good', label: 'Good' },
-        { value: 'fair', label: 'Fair' }
-      ]
-    }
+  // Get dynamic filters based on category
+  const filterGroups = $derived(getFiltersForCategory(category.slug));
+  
+  // Selected filters state - dynamic based on filter types
+  const selectedFilters = $state<Record<string, string | string[]>>({});
+  
+  // Sort options
+  const sortOptions = [
+    { value: 'newest', label: 'Newest First', field: 'created_at', order: 'desc' as const },
+    { value: 'price-low', label: 'Price: Low to High', field: 'price', order: 'asc' as const },
+    { value: 'price-high', label: 'Price: High to Low', field: 'price', order: 'desc' as const },
+    { value: 'popular', label: 'Most Popular', field: 'favorites_count', order: 'desc' as const },
+    { value: 'rating', label: 'Best Rated', field: 'seller_rating', order: 'desc' as const }
   ];
-  
-  // Selected filters state
-  const selectedFilters = $state({
-    price: '',
-    size: [],
-    condition: []
-  });
   
   // Filtered products
   const filteredProducts = $derived(() => {
@@ -87,25 +59,75 @@
       );
     }
     
-    // Size filter
-    if (selectedFilters.size.length > 0) {
-      filtered = filtered.filter(p => selectedFilters.size.includes(p.size));
-    }
+    // Apply all dynamic filters
+    Object.entries(selectedFilters).forEach(([filterType, filterValue]) => {
+      if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) return;
+      
+      switch (filterType) {
+        case 'price':
+          if (typeof filterValue === 'string') {
+            const [min, max] = filterValue.split('-').map(Number);
+            filtered = filtered.filter(p => {
+              if (max) {
+                return p.price >= min && p.price <= max;
+              } else {
+                return p.price >= min;
+              }
+            });
+          }
+          break;
+          
+        case 'size':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.size));
+          }
+          break;
+          
+        case 'color':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.color));
+          }
+          break;
+          
+        case 'brand':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.brand?.toLowerCase().replace(/\s+/g, '-')));
+          }
+          break;
+          
+        case 'condition':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.condition));
+          }
+          break;
+          
+        case 'style':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.style));
+          }
+          break;
+          
+        case 'material':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.material));
+          }
+          break;
+          
+        case 'type':
+          if (Array.isArray(filterValue)) {
+            filtered = filtered.filter(p => filterValue.includes(p.type));
+          }
+          break;
+      }
+    });
     
-    // Condition filter
-    if (selectedFilters.condition.length > 0) {
-      filtered = filtered.filter(p => selectedFilters.condition.includes(p.condition));
-    }
-    
-    // Price filter
-    if (selectedFilters.price) {
-      const [min, max] = selectedFilters.price.split('-').map(Number);
-      filtered = filtered.filter(p => {
-        if (max) {
-          return p.price >= min && p.price <= max;
-        } else {
-          return p.price >= min;
-        }
+    // Apply sorting
+    const currentSort = sortOptions.find(s => s.value === sortBy);
+    if (currentSort) {
+      filtered = filtered.sort((a, b) => {
+        const aVal = a[currentSort.field] || 0;
+        const bVal = b[currentSort.field] || 0;
+        return currentSort.order === 'asc' ? aVal - bVal : bVal - aVal;
       });
     }
     
@@ -122,23 +144,29 @@
   
   function clearFilters() {
     selectedSubcategory = 'all';
-    selectedFilters.price = '';
-    selectedFilters.size = [];
-    selectedFilters.condition = [];
+    Object.keys(selectedFilters).forEach(key => {
+      selectedFilters[key] = Array.isArray(selectedFilters[key]) ? [] : '';
+    });
     searchQuery = '';
+    sortBy = 'newest';
   }
   
-  const hasActiveFilters = $derived(
-    selectedSubcategory !== 'all' ||
-    selectedFilters.size.length > 0 ||
-    selectedFilters.condition.length > 0 ||
-    selectedFilters.price !== '' ||
-    searchQuery !== ''
-  );
+  const hasActiveFilters = $derived(() => {
+    if (selectedSubcategory !== 'all' || searchQuery !== '') return true;
+    
+    return Object.entries(selectedFilters).some(([key, value]) => {
+      if (Array.isArray(value)) return value.length > 0;
+      return value !== '';
+    });
+  });
 </script>
 
+
 <!-- Hero Section with Top Sellers and Search -->
-<section class="relative bg-gradient-to-b from-blue-50 to-white py-6 md:py-8">
+<section class={cn(
+  "relative py-6 md:py-8",
+  theme === 'pink' ? "bg-gradient-to-b from-pink-50 to-white" : "bg-gradient-to-b from-blue-50 to-white"
+)}>
   <div class="container px-4">
     <div class="max-w-3xl mx-auto">
       
@@ -157,12 +185,21 @@
                     <div class="absolute -top-2 -right-2 text-lg">👑</div>
                   {/if}
                   <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
-                    <div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white shadow-lg group-hover:ring-blue-200 transition-all duration-300">
+                    <div class={cn(
+                      "absolute inset-0 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-300",
+                      theme === 'pink' ? "bg-gradient-to-r from-pink-400 to-pink-600" : "bg-gradient-to-r from-blue-400 to-blue-600"
+                    )}></div>
+                    <div class={cn(
+                      "relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white shadow-lg transition-all duration-300",
+                      theme === 'pink' ? "group-hover:ring-pink-200" : "group-hover:ring-blue-200"
+                    )}>
                       {#if seller.avatar_url}
                         <img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
                       {:else}
-                        <div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                        <div class={cn(
+                          "w-full h-full flex items-center justify-center",
+                          theme === 'pink' ? "bg-gradient-to-br from-pink-400 to-pink-600" : "bg-gradient-to-br from-blue-400 to-blue-600"
+                        )}>
                           <span class="text-white font-bold text-lg md:text-xl">{seller.username.split('_')[0][0].toUpperCase()}</span>
                         </div>
                       {/if}
@@ -185,7 +222,10 @@
       
       <!-- Search Bar -->
       <div class="relative group">
-        <div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl blur-xl opacity-20 transition-all duration-300 group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
+        <div class={cn(
+          "absolute inset-0 rounded-2xl blur-xl opacity-20 transition-all duration-300 group-focus-within:opacity-30 group-focus-within:blur-2xl",
+          theme === 'pink' ? "bg-gradient-to-r from-pink-400 to-pink-600" : "bg-gradient-to-r from-blue-400 to-blue-600"
+        )}></div>
         
         <div class="relative bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <div class="flex items-center">
@@ -202,7 +242,12 @@
             
             <button
               onclick={() => {}}
-              class="mr-2 px-4 md:px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg text-sm md:text-base hover:from-blue-600 hover:to-blue-700 transition-all duration-200 active:scale-95"
+              class={cn(
+                "mr-2 px-4 md:px-5 py-2 text-white font-medium rounded-lg text-sm md:text-base transition-all duration-200 active:scale-95",
+                theme === 'pink' 
+                  ? "bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700" 
+                  : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+              )}
             >
               Search
             </button>
@@ -224,14 +269,43 @@
   onFilterChange={handleFilterChange}
   onSubcategoryChange={handleSubcategoryChange}
   onClearFilters={clearFilters}
+  {theme}
 />
+
+<!-- Sort Bar -->
+<div class="bg-white border-b">
+  <div class="container mx-auto px-4 py-3">
+    <div class="flex items-center justify-between">
+      <div class="text-sm text-gray-600">
+        {hasActiveFilters() ? `${filteredProducts().length} results` : `${products.length} products`}
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-gray-600">Sort by:</span>
+        <div class="relative">
+          <select
+            bind:value={sortBy}
+            class="w-full text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 font-medium text-gray-700"
+            style="appearance: none; -webkit-appearance: none; -moz-appearance: none;"
+          >
+            {#each sortOptions as option}
+              <option value={option.value}>{option.label}</option>
+            {/each}
+          </select>
+          <!-- Chevron Icon -->
+          <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Products Grid -->
 <div class="container mx-auto px-4 py-8">
   {#if filteredProducts().length > 0}
-    <div class="mb-4 text-sm text-gray-600">
-      {filteredProducts().length} items found
-    </div>
     <ListingGrid 
       listings={filteredProducts()}
       showLoading={false}
@@ -258,6 +332,16 @@
     scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Custom select styling */
+  select {
+    background-image: none;
+  }
+  
+  /* Remove default arrow in IE */
+  select::-ms-expand {
     display: none;
   }
 </style>

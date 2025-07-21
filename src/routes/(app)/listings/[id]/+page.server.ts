@@ -14,7 +14,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				avatar_url,
 				bio,
 				location,
-				created_at
+				created_at,
+				account_type,
+				is_verified
 			),
 			category:categories!category_id(
 				id,
@@ -81,7 +83,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			size,
 			brand,
 			condition,
-			seller:profiles!seller_id(username, avatar_url)
+			seller:profiles!seller_id(username, avatar_url, account_type, is_verified)
 		`)
 		.eq('category_id', listing.category_id)
 		.eq('status', 'active')

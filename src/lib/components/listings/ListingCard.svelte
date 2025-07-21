@@ -3,6 +3,7 @@
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
 	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	
 	interface Props {
 		id: string;
@@ -15,6 +16,8 @@
 		seller: {
 			username: string;
 			avatar?: string;
+			account_type?: string;
+			is_verified?: boolean;
 		};
 		likes?: number;
 		isLiked?: boolean;
@@ -175,6 +178,9 @@
 					</div>
 				{/if}
 				<span class="text-xs text-neutral-600">{seller.username}</span>
+				{#if seller.account_type === 'brand'}
+					<BrandBadge size="xs" isVerified={seller.is_verified} showText={false} />
+				{/if}
 				{#if likeCount > 0}
 					<span class="text-xs text-neutral-400 ml-auto" aria-live="polite">{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
 				{/if}

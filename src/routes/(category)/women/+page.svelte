@@ -13,4 +13,5 @@
   subcategories={data.subcategories}
   products={data.products}
   topSellers={data.topSellers}
+  theme="pink"
 />

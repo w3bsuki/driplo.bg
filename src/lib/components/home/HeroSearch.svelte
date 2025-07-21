@@ -29,10 +29,20 @@
 	
 	// Quick filters and trending categories
 	const quickFilters = [
+		{ icon: '⭐', name: getLocale() === 'bg' ? 'Топ продавачи' : 'Top sellers', action: 'top-sellers' },
 		{ icon: '✨', name: getLocale() === 'bg' ? 'Най-нови' : 'Newest', action: 'newest' },
-		{ icon: '💸', name: getLocale() === 'bg' ? 'Намаления' : 'Sale', action: 'sale' },
 		{ icon: '🔥', name: getLocale() === 'bg' ? 'Горещи' : 'Hot', action: 'hot' },
-		{ icon: '⭐', name: getLocale() === 'bg' ? 'Топ продавачи' : 'Top sellers', action: 'top-sellers' }
+		{ icon: '👨', name: getLocale() === 'bg' ? 'Мъже' : 'Men', action: 'men' },
+		{ icon: '👩', name: getLocale() === 'bg' ? 'Жени' : 'Women', action: 'women' },
+		{ icon: '🏷️', name: getLocale() === 'bg' ? 'С етикети' : 'With tags', action: 'with-tags' },
+		{ icon: '👟', name: getLocale() === 'bg' ? 'Обувки' : 'Shoes', action: 'shoes' },
+		{ icon: '👕', name: getLocale() === 'bg' ? 'Тениски' : 'T-shirts', action: 't-shirts' },
+		{ icon: '💍', name: getLocale() === 'bg' ? 'Аксесоари' : 'Accessories', action: 'accessories' },
+		{ icon: '👖', name: getLocale() === 'bg' ? 'Дънки' : 'Jeans', action: 'jeans' },
+		{ icon: '👗', name: getLocale() === 'bg' ? 'Рокли' : 'Dresses', action: 'dresses' },
+		{ icon: '🧥', name: getLocale() === 'bg' ? 'Якета' : 'Jackets', action: 'jackets' },
+		{ icon: '👜', name: getLocale() === 'bg' ? 'Чанти' : 'Bags', action: 'bags' },
+		{ icon: '💸', name: getLocale() === 'bg' ? 'Намаления' : 'Sale', action: 'sale' }
 	];
 	
 	// Category name translations
@@ -60,6 +70,12 @@
 	// Sticky search state for mobile
 	let isSticky = $state(false);
 	let heroRef: HTMLElement;
+	
+	// Scroll state for pills
+	let pillsContainerRef: HTMLElement;
+	let mobilePillsContainerRef: HTMLElement;
+	let showScrollArrow = $state(true);
+	let showMobileScrollArrow = $state(true);
 	
 	$effect(() => {
 		if (typeof window === 'undefined') return;
@@ -109,6 +125,36 @@
 			case 'top-sellers':
 				goto('/browse?sort=favorites_count&order=desc');
 				break;
+			case 'with-tags':
+				goto('/browse?filter=with-tags');
+				break;
+			case 'men':
+				goto('/men');
+				break;
+			case 'women':
+				goto('/women');
+				break;
+			case 'shoes':
+				goto('/shoes');
+				break;
+			case 't-shirts':
+				goto('/browse?category=t-shirts');
+				break;
+			case 'accessories':
+				goto('/accessories');
+				break;
+			case 'jeans':
+				goto('/browse?category=jeans');
+				break;
+			case 'dresses':
+				goto('/browse?category=dresses');
+				break;
+			case 'jackets':
+				goto('/browse?category=jackets');
+				break;
+			case 'bags':
+				goto('/bags');
+				break;
 			default:
 				goto('/browse');
 		}
@@ -150,19 +196,16 @@
 									data-categories-button
 									onclick={toggleCategoryDropdown}
 									class={cn(
-										"flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-sm focus:outline-none",
+										"flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-sm focus:outline-none transition-all",
 										isCategoryDropdownOpen 
-											? "bg-gradient-to-r from-blue-300 to-blue-400 text-white shadow-sm" 
-											: "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
+											? "bg-gray-900 text-white shadow-sm" 
+											: "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
 									)}
 								>
-									<span class={cn(
-										isCategoryDropdownOpen ? "text-white" : "text-gray-900"
-									)}>{m.header_categories()}</span>
+									<span>{m.header_categories()}</span>
 									<ChevronDown class={cn(
 										"h-4 w-4 transition-transform duration-200",
-										isCategoryDropdownOpen && "rotate-180",
-										isCategoryDropdownOpen ? "text-white" : "text-gray-900"
+										isCategoryDropdownOpen && "rotate-180"
 									)} />
 								</button>
 								
@@ -176,7 +219,7 @@
 							</div>
 							
 							<!-- Divider -->
-							<div class="w-px h-6 bg-blue-100 flex-shrink-0"></div>
+							<div class="w-px h-6 bg-gray-200 flex-shrink-0"></div>
 							
 							<!-- Search Input with Icon -->
 							<div class="flex-1 min-w-0 flex items-center">
@@ -202,13 +245,20 @@
 						
 						<!-- Trending Category Links -->
 						<div class="border-t border-blue-50 py-3 md:py-3 relative overflow-hidden rounded-b-2xl">
-							<div class="mx-4 flex items-center gap-2.5 md:gap-3 overflow-x-auto relative">
+							<div 
+								bind:this={pillsContainerRef}
+								onscroll={() => {
+									if (pillsContainerRef) {
+										showScrollArrow = pillsContainerRef.scrollLeft < 10;
+									}
+								}}
+								class="mx-4 flex items-center gap-2.5 md:gap-3 overflow-x-auto relative">
 								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
 								
-								{#each quickFilters as filter}
+								{#each quickFilters.slice(0, 4) as filter}
 									<button
 										onclick={() => handleQuickFilter(filter.action)}
-										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white text-xs font-medium whitespace-nowrap active:from-blue-400 active:to-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
 									>
 										<span class="text-sm">{filter.icon}</span>
 										<span>{filter.name}</span>
@@ -216,23 +266,39 @@
 								{/each}
 								
 								<!-- Divider -->
-								<div class="w-px h-5 bg-blue-200 flex-shrink-0"></div>
+								<div class="w-px h-5 bg-gray-300 flex-shrink-0"></div>
+								
+								<!-- More quick filters -->
+								{#each quickFilters.slice(4) as filter}
+									<button
+										onclick={() => handleQuickFilter(filter.action)}
+										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+									>
+										<span class="text-sm">{filter.icon}</span>
+										<span>{filter.name}</span>
+									</button>
+								{/each}
+								
+								<!-- Divider -->
+								<div class="w-px h-5 bg-gray-300 flex-shrink-0"></div>
 								
 								<!-- Category Quick Links -->
-								{#each categories.slice(0, 6) as category}
+								{#each categories.slice(0, 3) as category}
 									<button
 										onclick={() => handleCategorySelect(category.slug)}
-										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-full bg-white border border-blue-200 hover:bg-blue-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
 									>
 										<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
 										<span>{getCategoryName(category)}</span>
 									</button>
 								{/each}
 							</div>
-							<!-- Gradient fade on right side for mobile -->
-							<div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none md:hidden flex items-center justify-end pr-2">
-								<span class="text-blue-300 text-xs">→</span>
-							</div>
+							<!-- Arrow indicator for scrolling - Desktop -->
+							{#if showScrollArrow}
+								<div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none flex items-center justify-end pr-4 transition-opacity duration-300">
+									<span class="text-blue-400 text-lg animate-pulse">→</span>
+								</div>
+							{/if}
 						</div>
 					</div>
 				</div>
@@ -254,15 +320,15 @@
 							class={cn(
 								"ml-3 p-2 rounded-lg transition-colors",
 								isCategoryDropdownOpen 
-									? "bg-blue-400 text-white" 
-									: "bg-blue-50 text-blue-600"
+									? "bg-gray-900 text-white" 
+									: "bg-gray-100 text-gray-700"
 							)}
 							aria-label="Categories"
 						>
 							<Menu class="h-5 w-5" />
 						</button>
 						<!-- Divider -->
-						<div class="w-px h-6 bg-blue-100 mx-2"></div>
+						<div class="w-px h-6 bg-gray-200 mx-2"></div>
 						<!-- Search Input -->
 						<input
 							type="search"
@@ -283,19 +349,26 @@
 					</div>
 					
 					<!-- Pills Section OR Category Dropdown -->
-					<div class="border-t border-blue-50">
+					<div class="border-t border-gray-100">
 						{#if !isCategoryDropdownOpen}
 							<!-- Pills Section -->
-							<div class="pt-2 pb-3 px-3">
+							<div class="pt-2 pb-3 px-3 relative">
 								<!-- Pills Container aligned with search input area -->
 								<div class="ml-1 mr-1">
 									<!-- Quick Filters -->
-									<div class="overflow-x-auto">
-										<div class="flex items-center gap-1.5">
-											{#each quickFilters as filter}
+									<div class="overflow-x-auto relative">
+										<div 
+											bind:this={mobilePillsContainerRef}
+											onscroll={() => {
+												if (mobilePillsContainerRef) {
+													showMobileScrollArrow = mobilePillsContainerRef.scrollLeft < 10;
+												}
+											}}
+											class="flex items-center gap-1.5">
+											{#each quickFilters.slice(0, 4) as filter}
 												<button
 													onclick={() => handleQuickFilter(filter.action)}
-													class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-300 to-blue-400 text-white text-xs font-medium whitespace-nowrap active:from-blue-400 active:to-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+													class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0"
 												>
 													<span class="text-sm">{filter.icon}</span>
 													<span>{filter.name}</span>
@@ -303,13 +376,27 @@
 											{/each}
 											
 											<!-- Divider -->
-											<div class="w-px h-4 bg-blue-200 flex-shrink-0"></div>
+											<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
+											
+											<!-- More quick filters -->
+											{#each quickFilters.slice(4) as filter}
+												<button
+													onclick={() => handleQuickFilter(filter.action)}
+													class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+												>
+													<span class="text-sm">{filter.icon}</span>
+													<span>{filter.name}</span>
+												</button>
+											{/each}
+											
+											<!-- Divider -->
+											<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
 											
 											<!-- Category Quick Links -->
-											{#each categories.slice(0, 4) as category}
+											{#each categories.slice(0, 2) as category}
 												<button
 													onclick={() => handleCategorySelect(category.slug)}
-													class="flex items-center gap-1 px-3 py-1.5 rounded-full bg-white border border-blue-200 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0"
+													class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0"
 												>
 													<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
 													<span>{getCategoryName(category)}</span>
@@ -317,6 +404,12 @@
 											{/each}
 										</div>
 									</div>
+									<!-- Arrow indicator for mobile -->
+									{#if showMobileScrollArrow}
+										<div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none flex items-center justify-end pr-2 transition-opacity duration-300">
+											<span class="text-blue-400 text-sm animate-pulse">→</span>
+										</div>
+									{/if}
 								</div>
 							</div>
 						{:else}

@@ -34,6 +34,7 @@
 	let paymentAccount = $state<any>(null)
 	let isCheckingPayment = $state(true)
 	let showPaymentSetup = $state(false)
+	let showValidationErrors = $state(false)
 	
 	// Form data
 	let formData = $state<{
@@ -69,7 +70,7 @@
 		imageUrls: [],
 		imagePreviews: [],
 		price: 0,
-		condition: 'good',
+		condition: '' as any,
 		size: '',
 		brand: '',
 		color: '',
@@ -79,11 +80,25 @@
 		tags: []
 	})
 	
+	// Helper to check if category requires size
+	const isSizeRequired = $derived(() => {
+		if (!formData.category_id) return false
+		const category = categories.find(c => c.id === formData.category_id)
+		if (!category) return false
+		// Size is required for clothing and shoes categories
+		return ['women', 'men', 'kids', 'shoes'].includes(category.slug || '')
+	})
+
 	// Validation
 	const stepValidation = $derived({
-		1: formData.title.length >= 3 && formData.description.length >= 10,
+		1: formData.title.length >= 3 && 
+		   formData.description.length >= 10 && 
+		   formData.category_id.length > 0,
 		2: formData.images.length > 0,
-		3: formData.price > 0,
+		3: formData.price > 0 && 
+		   formData.condition !== '' &&
+		   formData.color.length > 0 && 
+		   (!isSizeRequired() || formData.size.length > 0),
 		4: formData.location.length > 0
 	})
 	
@@ -379,9 +394,35 @@
 		console.log('Next step clicked. Current validation:', validation)
 		
 		if (canProceed && currentStep < totalSteps) {
+			showValidationErrors = false
 			currentStep++
 			console.log('Advanced to step:', currentStep)
 		} else {
+			showValidationErrors = true
+			// Show specific error messages
+			if (currentStep === 1) {
+				if (formData.title.length < 3) {
+					toast.error('Title must be at least 3 characters')
+				} else if (formData.description.length < 10) {
+					toast.error('Description must be at least 10 characters')
+				} else if (!formData.category_id) {
+					toast.error('Please select a category')
+				}
+			} else if (currentStep === 2) {
+				toast.error('Please add at least one image')
+			} else if (currentStep === 3) {
+				if (formData.price <= 0) {
+					toast.error('Please enter a valid price')
+				} else if (!formData.condition) {
+					toast.error('Please select the item condition')
+				} else if (!formData.color) {
+					toast.error('Please specify the color')
+				} else if (isSizeRequired() && !formData.size) {
+					toast.error('Size is required for this category')
+				}
+			} else if (currentStep === 4) {
+				toast.error('Please enter your location')
+			}
 			console.log('Cannot proceed:', { canProceed, currentStep, totalSteps })
 		}
 	}
@@ -659,7 +700,7 @@
 					
 					<div>
 						<label for="condition" class="block text-sm font-medium text-gray-700 mb-2">
-							{m.listing_condition_label()} <span class="text-red-500">{m.listing_required_field()}</span>
+							{m.listing_condition_label()} <span class="text-red-500">*</span>
 						</label>
 						<select
 							id="condition"
@@ -667,6 +708,7 @@
 							class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-transparent"
 							required
 						>
+							<option value="">{m.listing_condition_placeholder ? m.listing_condition_placeholder() : 'Select condition'}</option>
 							<option value="new">{m.listing_condition_new()}</option>
 							<option value="like_new">{m.listing_condition_like_new()}</option>
 							<option value="good">{m.listing_condition_good()}</option>
@@ -691,7 +733,7 @@
 						
 						<div>
 							<label for="size" class="block text-sm font-medium text-gray-700 mb-2">
-								{m.listing_size_label()}
+								{m.listing_size_label()} {#if isSizeRequired()}<span class="text-red-500">*</span>{/if}
 							</label>
 							<input
 								id="size"
@@ -699,13 +741,14 @@
 								bind:value={formData.size}
 								placeholder={m.listing_size_placeholder()}
 								class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+								required={isSizeRequired()}
 							/>
 						</div>
 					</div>
 					
 					<div>
 						<label for="color" class="block text-sm font-medium text-gray-700 mb-2">
-							{m.listing_color_label()}
+							{m.listing_color_label()} <span class="text-red-500">*</span>
 						</label>
 						<input
 							id="color"
@@ -713,6 +756,7 @@
 							bind:value={formData.color}
 							placeholder={m.listing_color_placeholder()}
 							class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+							required
 						/>
 					</div>
 				</div>

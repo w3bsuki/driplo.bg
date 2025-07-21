@@ -79,7 +79,9 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			image: listing.images?.[0] || '/placeholder.jpg',
 			seller: {
 				username: listing.seller?.username || 'Unknown',
-				avatar: listing.seller?.avatar_url
+				avatar: listing.seller?.avatar_url,
+				account_type: listing.seller?.account_type,
+				is_verified: listing.seller?.is_verified
 			},
 			likes: listing.favorite_count || 0,
 			isLiked: userFavorites.includes(listing.id),

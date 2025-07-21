@@ -64,7 +64,9 @@ export async function browseListings(
 					id,
 					username,
 					full_name,
-					avatar_url
+					avatar_url,
+					account_type,
+					is_verified
 				),
 				category:categories!category_id(
 					id,
@@ -131,8 +133,16 @@ export async function browseListings(
 			case 'favorites':
 				query = query.order('favorite_count', { ascending: false })
 				break
+			case 'brands-first':
+				// Sort by verified brands first, then brand accounts, then regular users
+				// Note: This requires a computed column or RPC function for optimal performance
+				// For now, we'll sort by created_at and handle priority in the client
+				query = query.order('created_at', { ascending: false })
+				break
 			case 'recent':
 			default:
+				// For default sorting, we can add a subtle brand priority
+				// by using multiple order clauses (brands will naturally appear first if they post more recently)
 				query = query.order('created_at', { ascending: false })
 				break
 		}

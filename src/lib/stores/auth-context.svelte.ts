@@ -65,7 +65,7 @@ class AuthContext {
 	}
 	
 	// Auth methods
-	async signUp(email: string, password: string, username: string, fullName?: string) {
+	async signUp(email: string, password: string, username: string, fullName?: string, metadata?: Record<string, any>) {
 		this.loading = true
 		this.error = null
 		this.notifyStateChange()
@@ -77,7 +77,8 @@ class AuthContext {
 				options: {
 					data: {
 						username,
-						full_name: fullName
+						full_name: fullName,
+						...metadata
 					},
 					emailRedirectTo: `${window.location.origin}/onboarding?new=true`
 				}

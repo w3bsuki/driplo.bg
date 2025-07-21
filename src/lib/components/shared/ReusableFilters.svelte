@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { Filter, X, Sparkles } from 'lucide-svelte';
+	import { X, Sparkles } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import { Sheet } from '$lib/components/ui';
 	import type { Category } from '$lib/types';
 	
 	interface FilterOption {
@@ -24,6 +23,7 @@
 		showSubcategories?: boolean;
 		selectedSubcategory?: string;
 		onSubcategoryChange?: (subcategory: string) => void;
+		theme?: 'blue' | 'pink';
 	}
 	
 	let {
@@ -34,10 +34,10 @@
 		subcategories = [],
 		showSubcategories = false,
 		selectedSubcategory = 'all',
-		onSubcategoryChange
+		onSubcategoryChange,
+		theme = 'blue'
 	}: Props = $props();
 	
-	let showAllFilters = $state(false);
 	
 	const activeFilterCount = $derived(() => {
 		let count = 0;
@@ -99,6 +99,8 @@
 	}
 </script>
 
+
+
 <!-- Subcategories (if enabled) -->
 {#if showSubcategories && subcategories.length > 0}
 	<div class="bg-white border-b sticky top-0 z-20">
@@ -109,7 +111,7 @@
 					class={cn(
 						"flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all",
 						selectedSubcategory === 'all'
-							? "bg-blue-500 text-white"
+							? theme === 'pink' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
 							: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 					)}
 				>
@@ -121,7 +123,7 @@
 						class={cn(
 							"flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap",
 							selectedSubcategory === subcategory.id
-								? "bg-blue-500 text-white"
+								? theme === 'pink' ? "bg-pink-500 text-white" : "bg-blue-500 text-white"
 								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 						)}
 					>
@@ -139,79 +141,19 @@
 		<!-- Mobile Layout -->
 		<div class="md:hidden">
 			<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-				<!-- Filter Toggle Button -->
-				<Sheet.Root bind:open={showAllFilters}>
-					<Sheet.Trigger>
-						<button
-							class={cn(
-								"flex items-center gap-1.5 px-3 py-1.5 rounded-full border whitespace-nowrap transition-all duration-200 flex-shrink-0 text-xs",
-								activeFilterCount() > 0
-									? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-									: "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-							)}
-						>
-							<Filter class="h-3.5 w-3.5" />
-							<span class="font-medium">Filters</span>
-							{#if activeFilterCount() > 0}
-								<span class="bg-white text-blue-500 rounded-full px-1.5 py-0.5 text-[10px] font-bold">
-									{activeFilterCount()}
-								</span>
-							{/if}
-						</button>
-					</Sheet.Trigger>
-					
-					<Sheet.Content side="bottom" class="h-[80vh]">
-						<Sheet.Header>
-							<Sheet.Title>Filters</Sheet.Title>
-						</Sheet.Header>
-						
-						<div class="space-y-6 pt-4">
-							{#each filters as filter}
-								<div>
-									<h3 class="text-sm font-semibold text-gray-700 mb-2">
-										{filter.label}
-									</h3>
-									<div class="flex flex-wrap gap-2">
-										{#each filter.options as option}
-											<button
-												onclick={() => handleFilterChange(filter.type, option.value)}
-												class={cn(
-													"px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200",
-													isFilterActive(filter.type, option.value)
-														? "bg-blue-500 text-white border-blue-500"
-														: "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50"
-												)}
-											>
-												{option.label}
-											</button>
-										{/each}
-									</div>
-								</div>
-							{/each}
-							
-							{#if activeFilterCount() > 0}
-								<button
-									onclick={onClearFilters}
-									class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-								>
-									Clear All Filters
-								</button>
-							{/if}
-						</div>
-					</Sheet.Content>
-				</Sheet.Root>
-				
-				<!-- Quick Filter Pills -->
+				<!-- Just the scrollable filter dropdowns -->
 				{#each filters as filter}
 					<div class="relative">
 						<select
 							value={Array.isArray(selectedFilters[filter.type]) ? selectedFilters[filter.type][0] || '' : selectedFilters[filter.type] || ''}
 							onchange={(e) => handleFilterChange(filter.type, e.currentTarget.value)}
 							class={cn(
-								"appearance-none pl-3 pr-6 py-2 rounded-full text-xs font-medium border cursor-pointer transition-all duration-200 min-w-[70px] max-w-[120px]",
+								"w-full pl-3 pr-8 py-2 rounded-lg text-xs font-medium border cursor-pointer transition-all duration-200 min-w-[80px] max-w-[130px] shadow-sm focus:outline-none focus:ring-2",
 								selectedFilters[filter.type] && (Array.isArray(selectedFilters[filter.type]) ? selectedFilters[filter.type].length > 0 : selectedFilters[filter.type])
-									? "bg-blue-100 border-blue-300 text-blue-700"
-									: "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+									? theme === 'pink' 
+										? "bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100 focus:ring-pink-200"
+										: "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 focus:ring-blue-200"
+									: "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md text-gray-700 focus:ring-blue-200"
 							)}
 						>
 							<option value="">{filter.label}</option>
@@ -219,6 +161,12 @@
 								<option value={option.value}>{option.label}</option>
 							{/each}
 						</select>
+						<!-- Chevron Icon -->
+						<div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+							<svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</div>
 						{#if selectedFilters[filter.type] && (Array.isArray(selectedFilters[filter.type]) ? selectedFilters[filter.type].length > 0 : selectedFilters[filter.type])}
 							<button
 								onclick={() => clearFilter(filter.type)}
@@ -241,10 +189,12 @@
 							value={Array.isArray(selectedFilters[filter.type]) ? selectedFilters[filter.type][0] || '' : selectedFilters[filter.type] || ''}
 							onchange={(e) => handleFilterChange(filter.type, e.currentTarget.value)}
 							class={cn(
-								"appearance-none pl-3 pr-8 py-2 rounded-lg border cursor-pointer transition-all duration-200 min-w-[120px] font-medium",
+								"w-full pl-4 pr-10 py-2.5 rounded-lg border cursor-pointer transition-all duration-200 min-w-[140px] font-medium text-sm shadow-sm focus:outline-none focus:ring-2",
 								selectedFilters[filter.type] && (Array.isArray(selectedFilters[filter.type]) ? selectedFilters[filter.type].length > 0 : selectedFilters[filter.type])
-									? "bg-blue-100 border-blue-300 text-blue-700 hover:bg-blue-200"
-									: "bg-white border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+									? theme === 'pink' 
+										? "bg-pink-50 border-pink-200 text-pink-700 hover:bg-pink-100 hover:border-pink-300 focus:ring-pink-200"
+										: "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-300 focus:ring-blue-200"
+									: "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md text-gray-700 focus:ring-blue-200"
 							)}
 						>
 							<option value="">{filter.label}</option>
@@ -252,6 +202,12 @@
 								<option value={option.value}>{option.label}</option>
 							{/each}
 						</select>
+						<!-- Chevron Icon -->
+						<div class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+							<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+							</svg>
+						</div>
 					</div>
 				{/each}
 				
@@ -275,5 +231,31 @@
 	}
 	.scrollbar-hide::-webkit-scrollbar {
 		display: none;
+	}
+	
+	/* Custom select styling to remove native dropdown appearance */
+	select {
+		background-image: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+	}
+	
+	/* Remove default arrow in IE */
+	select::-ms-expand {
+		display: none;
+	}
+	
+	/* Style the dropdown options */
+	select option {
+		background-color: white;
+		color: #374151;
+		padding: 0.5rem;
+	}
+	
+	/* Focus styles */
+	select:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 	}
 </style>

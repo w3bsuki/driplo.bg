@@ -2,11 +2,12 @@
 	import { goto } from '$app/navigation'
 	import { page } from '$app/stores'
 	import { auth } from '$lib/stores/auth'
-	import { Eye, EyeOff, Github, CheckCircle } from 'lucide-svelte'
+	import { Eye, EyeOff, Github, CheckCircle, Store, User } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import { z } from 'zod'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
+	import { cn } from '$lib/utils'
 
 	let email = $state('')
 	let password = $state('')
@@ -17,6 +18,12 @@
 	let showConfirmPassword = $state(false)
 	let loading = $state(false)
 	let agreedToTerms = $state(false)
+	let accountType = $state<'personal' | 'brand'>('personal')
+	
+	// Brand-specific fields
+	let brandName = $state('')
+	let brandCategory = $state('')
+	let brandWebsite = $state('')
 	
 	// Check if showing success message
 	let showSuccess = $derived($page.url.searchParams.get('success') === 'true')
@@ -30,14 +37,25 @@
 			.max(30, 'Username must be less than 30 characters')
 			.regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
 		fullName: z.string().optional(),
-		agreedToTerms: z.boolean().refine(val => val === true, 'You must agree to the terms of service')
+		agreedToTerms: z.boolean().refine(val => val === true, 'You must agree to the terms of service'),
+		accountType: z.enum(['personal', 'brand']),
+		brandName: z.string().optional(),
+		brandCategory: z.string().optional(),
+		brandWebsite: z.string().url().optional().or(z.literal(''))
 	}).refine(data => data.password === data.confirmPassword, {
 		message: "Passwords don't match",
 		path: ["confirmPassword"]
+	}).refine(data => {
+		if (data.accountType === 'brand') {
+			return data.brandName && data.brandName.length >= 2
+		}
+		return true
+	}, {
+		message: "Brand name is required for brand accounts",
+		path: ["brandName"]
 	})
 
 	async function handleRegister() {
-		console.log('handleRegister called!', { email, password, username, agreedToTerms })
 		try {
 			const validatedData = registerSchema.parse({
 				email,
@@ -45,14 +63,25 @@
 				confirmPassword,
 				username,
 				fullName: fullName || undefined,
-				agreedToTerms
+				agreedToTerms,
+				accountType,
+				brandName: brandName || undefined,
+				brandCategory: brandCategory || undefined,
+				brandWebsite: brandWebsite || undefined
 			})
 
 			loading = true
-			await auth.signUp(email, password, username, fullName || undefined)
-			// Show success message and redirect to a confirmation page
+			
+			// Sign up with additional metadata
+			await auth.signUp(email, password, username, fullName || undefined, {
+				account_type: accountType,
+				brand_name: accountType === 'brand' ? brandName : undefined,
+				brand_category: accountType === 'brand' ? brandCategory : undefined,
+				brand_website: accountType === 'brand' ? brandWebsite : undefined
+			})
+			
+			// Show success message
 			toast.success('Account created! Please check your email to verify your account.')
-			// Stay on the page or redirect to a confirmation page
 			goto('/register?success=true')
 		} catch (error: any) {
 			if (error.issues) {
@@ -71,6 +100,10 @@
 	async function handleOAuth(provider: 'google' | 'github') {
 		loading = true
 		try {
+			// Store account type preference in localStorage for OAuth callback
+			if (accountType === 'brand') {
+				localStorage.setItem('pending_account_type', 'brand')
+			}
 			await auth.signInWithProvider(provider)
 		} catch (error: any) {
 			toast.error(error.message || 'OAuth registration failed')
@@ -81,7 +114,7 @@
 
 <svelte:head>
 	<title>Sign Up | Driplo</title>
-	<meta name="description" content="Create your Driplo account" />
+	<meta name="description" content="Create your Driplo account - Personal or Brand" />
 </svelte:head>
 
 <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-4">
@@ -97,12 +130,21 @@
 					We've sent a verification link to your email address. 
 					Click the link to activate your account and get started.
 				</p>
-				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-					<p class="text-sm text-blue-700">
-						<strong>Tip:</strong> If you don't see the email, check your spam folder or wait a few minutes.
-					</p>
-				</div>
-				<a href="/login" class="text-blue-400 hover:text-blue-500 font-medium">
+				{#if accountType === 'brand'}
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+						<p class="text-sm text-blue-700">
+							<strong>Next steps for brand accounts:</strong> After verifying your email, 
+							you'll need to complete brand verification to access all features.
+						</p>
+					</div>
+				{:else}
+					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+						<p class="text-sm text-blue-700">
+							<strong>Tip:</strong> If you don't see the email, check your spam folder or wait a few minutes.
+						</p>
+					</div>
+				{/if}
+				<a href="/login" class="text-[#87CEEB] hover:text-[#87CEEB]/80 font-medium">
 					Return to login
 				</a>
 			</div>
@@ -110,10 +152,58 @@
 		<div class="bg-white rounded-xl shadow-lg p-6">
 			<!-- Logo -->
 			<div class="text-center mb-4">
-				<h1 class="text-3xl font-bold text-blue-400">Driplo</h1>
+				<h1 class="text-3xl font-bold text-[#87CEEB]">Driplo</h1>
 				<p class="text-gray-600 text-sm mt-1">Create your account</p>
 			</div>
 			
+			<!-- Account Type Selection -->
+			<div class="mb-4">
+				<label class="block text-xs font-medium text-gray-700 mb-2">
+					Account Type
+				</label>
+				<div class="grid grid-cols-2 gap-2">
+					<button
+						type="button"
+						onclick={() => accountType = 'personal'}
+						class={cn(
+							"relative p-3 rounded-lg border-2 transition-all",
+							accountType === 'personal' 
+								? "border-[#87CEEB] bg-[#87CEEB]/5" 
+								: "border-gray-200 hover:border-gray-300"
+						)}
+					>
+						<div class="text-center">
+							<User class={cn("w-6 h-6 mx-auto mb-1", 
+								accountType === 'personal' ? "text-[#87CEEB]" : "text-gray-400"
+							)} />
+							<div class="font-medium text-sm">Personal</div>
+							<div class="text-xs text-gray-500">Buy & sell fashion</div>
+						</div>
+					</button>
+					<button
+						type="button"
+						onclick={() => accountType = 'brand'}
+						class={cn(
+							"relative p-3 rounded-lg border-2 transition-all",
+							accountType === 'brand' 
+								? "border-[#87CEEB] bg-[#87CEEB]/5" 
+								: "border-gray-200 hover:border-gray-300"
+						)}
+					>
+						<div class="text-center">
+							<Store class={cn("w-6 h-6 mx-auto mb-1", 
+								accountType === 'brand' ? "text-[#87CEEB]" : "text-gray-400"
+							)} />
+							<div class="font-medium text-sm">Brand</div>
+							<div class="text-xs text-gray-500">Sell as a business</div>
+						</div>
+						<div class="absolute -top-2 -right-2 bg-[#87CEEB] text-white text-[10px] px-1.5 py-0.5 rounded-full">
+							Pro
+						</div>
+					</button>
+				</div>
+			</div>
+
 			<!-- OAuth Buttons -->
 			<div class="space-y-2 mb-4">
 				<button
@@ -162,7 +252,7 @@
 							bind:value={fullName}
 							placeholder="John Doe"
 							disabled={loading}
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
 					<div>
@@ -176,7 +266,7 @@
 							placeholder="johndoe"
 							required
 							disabled={loading}
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
 				</div>
@@ -192,9 +282,67 @@
 						placeholder="Enter your email"
 						required
 						disabled={loading}
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 					/>
 				</div>
+
+				{#if accountType === 'brand'}
+					<div class="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+						<div>
+							<label for="brandName" class="block text-xs font-medium text-gray-700 mb-1">
+								Brand Name *
+							</label>
+							<input
+								id="brandName"
+								type="text"
+								bind:value={brandName}
+								placeholder="Your brand name"
+								required
+								disabled={loading}
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+							/>
+						</div>
+						<div>
+							<label for="brandCategory" class="block text-xs font-medium text-gray-700 mb-1">
+								Brand Category
+							</label>
+							<select
+								id="brandCategory"
+								bind:value={brandCategory}
+								disabled={loading}
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+							>
+								<option value="">Select category</option>
+								<option value="fashion">Fashion & Apparel</option>
+								<option value="accessories">Accessories</option>
+								<option value="footwear">Footwear</option>
+								<option value="jewelry">Jewelry</option>
+								<option value="bags">Bags & Luggage</option>
+								<option value="beauty">Beauty & Cosmetics</option>
+								<option value="vintage">Vintage & Thrift</option>
+								<option value="handmade">Handmade & Artisan</option>
+								<option value="sustainable">Sustainable Fashion</option>
+								<option value="other">Other</option>
+							</select>
+						</div>
+						<div>
+							<label for="brandWebsite" class="block text-xs font-medium text-gray-700 mb-1">
+								Website (optional)
+							</label>
+							<input
+								id="brandWebsite"
+								type="url"
+								bind:value={brandWebsite}
+								placeholder="https://yourbrand.com"
+								disabled={loading}
+								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+							/>
+						</div>
+						<p class="text-xs text-blue-700">
+							You'll need to verify your brand after registration to access all features.
+						</p>
+					</div>
+				{/if}
 
 				<div>
 					<label for="password" class="block text-xs font-medium text-gray-700 mb-1">
@@ -208,7 +356,7 @@
 							placeholder="Min 8 characters"
 							required
 							disabled={loading}
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button
 							type="button"
@@ -236,7 +384,7 @@
 							placeholder="Confirm password"
 							required
 							disabled={loading}
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button
 							type="button"
@@ -257,26 +405,26 @@
 						type="checkbox"
 						id="terms"
 						bind:checked={agreedToTerms}
-						class="mt-0.5 rounded border-gray-300 text-blue-400 focus:ring-2 focus:ring-blue-300"
+						class="mt-0.5 rounded border-gray-300 text-[#87CEEB] focus:ring-2 focus:ring-[#87CEEB]/30"
 						required
 					/>
 					<label for="terms" class="ml-2 text-xs text-gray-600">
 						I agree to the
-						<a href="/terms" class="text-blue-400 hover:text-blue-500">Terms of Service</a>
+						<a href="/terms" class="text-[#87CEEB] hover:text-[#87CEEB]/80">Terms of Service</a>
 						and
-						<a href="/privacy" class="text-blue-400 hover:text-blue-500">Privacy Policy</a>
+						<a href="/privacy" class="text-[#87CEEB] hover:text-[#87CEEB]/80">Privacy Policy</a>
 					</label>
 				</div>
 
 				<button 
 					type="submit" 
-					class="w-full py-2.5 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+					class="w-full py-2.5 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 					disabled={loading || !agreedToTerms}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />
 					{:else}
-						Sign up
+						Sign up {accountType === 'brand' ? 'as Brand' : ''}
 					{/if}
 				</button>
 			</form>
@@ -285,7 +433,7 @@
 			<!-- Sign in link -->
 			<p class="text-center text-sm text-gray-600 mt-4">
 				Already have an account?
-				<a href="/login" class="text-blue-400 hover:text-blue-500 font-medium">
+				<a href="/login" class="text-[#87CEEB] hover:text-[#87CEEB]/80 font-medium">
 					Sign in
 				</a>
 			</p>

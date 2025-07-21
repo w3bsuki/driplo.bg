@@ -5,3 +5,4 @@ export * from './transaction';
 export * from './social';
 export * from './database';
 export * from './category';
+export * from './filter';

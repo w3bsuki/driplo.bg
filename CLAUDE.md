@@ -3,7 +3,8 @@
 ## Project Status
 **Project**: Driplo (Threadly Marketplace)  
 **Completion**: 75% - See PROJECT_MASTER_PLAN.md for full details  
-**Next Priority**: Payment integration with Stripe
+**Next Priority**: Payment integration with Stripe  
+**Package Manager**: ALWAYS use pnpm, NOT npm
 
 ## Core Development Principles
 

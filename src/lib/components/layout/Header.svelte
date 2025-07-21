@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Heart, MessageCircle, User, Menu, Camera, Home, LogOut, ShoppingBag, ChevronDown } from 'lucide-svelte';
+	import { Heart, MessageCircle, User, Menu, ChevronDown, ShoppingBag } from 'lucide-svelte';
 	import { Button, DropdownMenu } from '$lib/components/ui';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
@@ -113,25 +113,23 @@
 			
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger
-					class="relative h-10 w-10 flex items-center justify-center rounded-xl hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 group"
+					class="relative rounded-full focus:outline-none focus:ring-2 focus:ring-[#87CEEB] focus:ring-offset-1 transition-all duration-200 group hover:scale-105"
 					aria-label="Account menu"
 				>
 					{#if authContext?.user}
-						{#if authContext.profile?.avatar_url}
-							<img src={authContext.profile.avatar_url} alt="Profile" class="h-8 w-8 rounded-xl border-2 border-gray-200 object-cover" />
-						{:else}
-							<div class="h-8 w-8 rounded-xl bg-gray-100 flex items-center justify-center">
-								<span class="text-gray-700 font-semibold text-xs">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
-							</div>
-						{/if}
+						<img 
+							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+							alt="Profile" 
+							class="h-9 w-9 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-[#87CEEB]/30" 
+						/>
 					{:else}
-						<div class="h-8 w-8 rounded-xl border-2 border-gray-200 bg-white flex items-center justify-center">
+						<div class="h-9 w-9 rounded-full bg-white flex items-center justify-center ring-2 ring-gray-100 group-hover:ring-[#87CEEB]/30">
 							<User class="h-4 w-4 text-gray-600" />
 						</div>
 					{/if}
 					<!-- Dropdown Indicator -->
-					<div class="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 shadow-sm border border-gray-100">
-						<ChevronDown class="h-2.5 w-2.5 text-gray-400 group-hover:text-gray-600" />
+					<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-md border border-gray-100 group-hover:bg-[#87CEEB] group-hover:border-[#87CEEB] transition-all">
+						<ChevronDown class="h-3 w-3 text-gray-600 group-hover:text-white transition-colors" />
 					</div>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content 
@@ -146,13 +144,11 @@
 								onclick={() => navigateTo(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
 								class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
 							>
-								{#if authContext.profile?.avatar_url}
-									<img src={authContext.profile.avatar_url} alt="Profile" class="h-12 w-12 rounded-xl object-cover" />
-								{:else}
-									<div class="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center">
-										<span class="text-gray-700 font-bold text-lg">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
-									</div>
-								{/if}
+								<img 
+									src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+									alt="Profile" 
+									class="h-12 w-12 rounded-xl object-cover" 
+								/>
 								<div class="flex-1 text-left">
 									<p class="font-semibold text-gray-900">{authContext.profile?.full_name || authContext.profile?.username || 'My Profile'}</p>
 									<p class="text-xs text-gray-500">@{authContext.profile?.username || 'user'}</p>
@@ -163,40 +159,19 @@
 						<!-- Quick Actions Grid -->
 						<div class="grid grid-cols-2 gap-2 mb-3">
 							<button
-								onclick={() => navigateTo('/orders')}
+								onclick={() => navigateTo('/orders?type=bought')}
 								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
 							>
-								<ShoppingBag class="h-5 w-5 text-gray-600" />
-								<span class="text-xs text-gray-700">Orders</span>
+								<span class="text-lg">🛒</span>
+								<span class="text-xs text-gray-700">Bought</span>
 							</button>
 							
 							<button
-								onclick={() => navigateTo('/messages')}
-								class="relative flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
-							>
-								<MessageCircle class="h-5 w-5 text-gray-600" />
-								{#if $unreadCount > 0}
-									<span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
-										{$unreadCount > 9 ? '9+' : $unreadCount}
-									</span>
-								{/if}
-								<span class="text-xs text-gray-700">Messages</span>
-							</button>
-							
-							<button
-								onclick={() => navigateTo('/wishlist')}
+								onclick={() => navigateTo('/orders?type=sold')}
 								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
 							>
-								<Heart class="h-5 w-5 text-gray-600" />
-								<span class="text-xs text-gray-700">Wishlist</span>
-							</button>
-							
-							<button
-								onclick={() => navigateTo('/sell')}
-								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-900 hover:bg-gray-800 transition-all text-white"
-							>
-								<Camera class="h-5 w-5" />
-								<span class="text-xs font-medium">Sell</span>
+								<span class="text-lg">💰</span>
+								<span class="text-xs text-gray-700">Sold</span>
 							</button>
 						</div>
 
@@ -217,8 +192,22 @@
 								onclick={() => navigateTo('/profile/settings')}
 								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
 							>
-								<User class="h-4 w-4 text-gray-500" />
+								<span class="text-lg">⚙️</span>
 								<span class="text-sm text-gray-700">{m.header_settings()}</span>
+							</button>
+							
+							<!-- Brand Settings -->
+							<button
+								onclick={() => navigateTo('/brands/settings')}
+								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+							>
+								<span class="text-lg">🏪</span>
+								<span class="text-sm text-gray-700">
+									{authContext.profile?.account_type === 'brand' ? 'Brand Settings' : 'Upgrade to Brand'}
+								</span>
+								{#if authContext.profile?.is_verified}
+									<span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Verified</span>
+								{/if}
 							</button>
 							
 							<!-- Language -->
@@ -233,10 +222,10 @@
 							<!-- Sign Out -->
 							<button
 								onclick={handleSignOut}
-								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors text-left"
+								class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
 							>
-								<LogOut class="h-4 w-4" />
-								<span class="text-sm">Sign out</span>
+								<span class="text-lg">🚪</span>
+								<span class="text-sm font-medium">Sign out</span>
 							</button>
 						</div>
 					{:else}
@@ -309,22 +298,157 @@
 				{/if}
 				<span class="sr-only">{m.header_messages()}</span>
 			</a>
-			<a href={authContext?.user ? (authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile') : '/login'} class="relative rounded-full focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 hover:scale-105 transition-transform">
-				{#if authContext?.user}
-					{#if authContext.profile?.avatar_url}
-						<img src={authContext.profile.avatar_url} alt="Profile" class="h-9 w-9 rounded-full border-2 border-gray-200 object-cover" />
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger
+					class="relative rounded-full focus:outline-none focus:ring-2 focus:ring-[#87CEEB] focus:ring-offset-1 transition-all duration-200 group hover:scale-105"
+					aria-label="Account menu"
+				>
+					{#if authContext?.user}
+						<img 
+							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+							alt="Profile" 
+							class="h-10 w-10 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-[#87CEEB]/30" 
+						/>
 					{:else}
-						<div class="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center">
-							<span class="text-gray-700 font-semibold text-sm">{(authContext.profile?.full_name || authContext.profile?.username || authContext.user.email)?.charAt(0).toUpperCase()}</span>
+						<div class="h-10 w-10 rounded-full bg-white flex items-center justify-center ring-2 ring-gray-100 group-hover:ring-[#87CEEB]/30">
+							<User class="h-5 w-5 text-gray-600" />
 						</div>
 					{/if}
-				{:else}
-					<div class="h-9 w-9 rounded-full border-2 border-gray-200 bg-white flex items-center justify-center">
-						<User class="h-5 w-5 text-gray-600" />
+					<!-- Dropdown Indicator -->
+					<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-md border border-gray-100 group-hover:bg-[#87CEEB] group-hover:border-[#87CEEB] transition-all">
+						<ChevronDown class="h-3 w-3 text-gray-600 group-hover:text-white transition-colors" />
 					</div>
-				{/if}
-				<span class="sr-only">{authContext?.user ? m.header_my_profile() : m.header_sign_in()}</span>
-			</a>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content 
+					align="end" 
+					sideOffset={8}
+					class="w-64 rounded-xl border border-gray-200 bg-white/95 backdrop-blur-sm p-2 shadow-2xl z-50"
+				>
+					{#if authContext?.user}
+						<!-- Compact Profile Header -->
+						<div class="px-2 py-2 mb-2">
+							<button
+								onclick={() => navigateTo(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
+								class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+							>
+								<img 
+									src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+									alt="Profile" 
+									class="h-12 w-12 rounded-xl object-cover" 
+								/>
+								<div class="flex-1 text-left">
+									<p class="font-semibold text-gray-900">{authContext.profile?.full_name || authContext.profile?.username || 'My Profile'}</p>
+									<p class="text-xs text-gray-500">@{authContext.profile?.username || 'user'}</p>
+								</div>
+							</button>
+						</div>
+
+						<!-- Quick Actions Grid -->
+						<div class="grid grid-cols-2 gap-2 mb-3">
+							<button
+								onclick={() => navigateTo('/orders?type=bought')}
+								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+							>
+								<span class="text-lg">🛒</span>
+								<span class="text-xs text-gray-700">Bought</span>
+							</button>
+							
+							<button
+								onclick={() => navigateTo('/orders?type=sold')}
+								class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+							>
+								<span class="text-lg">💰</span>
+								<span class="text-xs text-gray-700">Sold</span>
+							</button>
+						</div>
+
+						<div class="border-t border-gray-100 pt-2 space-y-1">
+							<!-- Admin Dashboard -->
+							{#if authContext.profile?.is_admin}
+								<button
+									onclick={() => navigateTo('/admin')}
+									class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-colors text-left"
+								>
+									<span class="text-lg">👑</span>
+									<span class="text-sm font-medium text-purple-700">Admin Dashboard</span>
+								</button>
+							{/if}
+							
+							<!-- Settings -->
+							<button
+								onclick={() => navigateTo('/profile/settings')}
+								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+							>
+								<span class="text-lg">⚙️</span>
+								<span class="text-sm text-gray-700">{m.header_settings()}</span>
+							</button>
+							
+							<!-- Brand Settings -->
+							<button
+								onclick={() => navigateTo('/brands/settings')}
+								class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+							>
+								<span class="text-lg">🏪</span>
+								<span class="text-sm text-gray-700">
+									{authContext.profile?.account_type === 'brand' ? 'Brand Settings' : 'Upgrade to Brand'}
+								</span>
+								{#if authContext.profile?.is_verified}
+									<span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Verified</span>
+								{/if}
+							</button>
+							
+							<!-- Language -->
+							<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50">
+								<div class="flex items-center gap-3">
+									<span class="text-lg">🌐</span>
+									<span class="text-sm text-gray-700">Language</span>
+								</div>
+								<LanguageSwitcher />
+							</div>
+							
+							<!-- Sign Out -->
+							<button
+								onclick={handleSignOut}
+								class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
+							>
+								<span class="text-lg">🚪</span>
+								<span class="text-sm font-medium">Sign out</span>
+							</button>
+						</div>
+					{:else}
+						<!-- Not logged in state -->
+						<div class="p-4 text-center">
+							<div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+								<User class="h-8 w-8 text-gray-400" />
+							</div>
+							<p class="text-sm text-gray-600 mb-4">Sign in to access your account</p>
+							<button
+								onclick={() => navigateTo('/login')}
+								class="w-full px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition-colors"
+							>
+								{m.header_sign_in()}
+							</button>
+							<button
+								onclick={() => navigateTo('/register')}
+								class="w-full mt-2 px-4 py-2.5 border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-lg font-medium transition-colors"
+							>
+								Create account
+							</button>
+						</div>
+						
+						<!-- Language at bottom when not logged in -->
+						<div class="border-t border-gray-100 pt-2 mt-4">
+							<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50">
+								<div class="flex items-center gap-3">
+									<span class="text-lg">🌐</span>
+									<span class="text-sm text-gray-700">Language</span>
+								</div>
+								<LanguageSwitcher />
+							</div>
+						</div>
+					{/if}
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 		</div>
 
 	</div>

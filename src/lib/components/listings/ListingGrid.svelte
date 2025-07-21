@@ -100,7 +100,7 @@
 				.from('listings')
 				.select(`
 					*,
-					seller:profiles(username, avatar_url)
+					seller:profiles(username, avatar_url, account_type, is_verified)
 				`)
 				.eq('status', 'active')
 				.order(orderBy, { ascending: false })
