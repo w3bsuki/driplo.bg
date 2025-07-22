@@ -1,13 +1,14 @@
 <script lang="ts">
-	import { Sparkles, TrendingUp, ChevronDown, Menu } from 'lucide-svelte';
+	import { ChevronDown, Menu } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
-	import { throttle } from '$lib/utils/performance';
+	import { debounce } from '$lib/utils/performance';
 	import CategoryDropdown from '$lib/components/shared/CategoryDropdown.svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
+	import QuickFilterPills from '$lib/components/search/QuickFilterPills.svelte';
+	import TrendingSearches from '$lib/components/search/TrendingSearches.svelte';
 	import type { Category } from '$lib/types';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getLocale } from '$lib/paraglide/runtime.js';
 	
 	interface Props {
 		categories?: Category[];
@@ -15,6 +16,12 @@
 	
 	let { categories = [] }: Props = $props();
 	
+	// Constants
+	const SEARCH_DEBOUNCE_DELAY = 300;
+	const INTERSECTION_ROOT_MARGIN = '-100px 0px 0px 0px';
+	const DESKTOP_QUICK_FILTERS_LIMIT = 4;
+	const MOBILE_CATEGORIES_LIMIT = 2;
+
 	let searchQuery = $state('');
 	let isFocused = $state(false);
 	let isCategoryDropdownOpen = $state(false);
@@ -28,55 +35,33 @@
 		m.search_north_face_jacket()
 	];
 	
-	// Quick filters and trending categories
-	const quickFilters = [
-		{ icon: '⭐', name: getLocale() === 'bg' ? 'Топ продавачи' : 'Top sellers', action: 'top-sellers' },
-		{ icon: '✨', name: getLocale() === 'bg' ? 'Най-нови' : 'Newest', action: 'newest' },
-		{ icon: '🔥', name: getLocale() === 'bg' ? 'Горещи' : 'Hot', action: 'hot' },
-		{ icon: '👨', name: getLocale() === 'bg' ? 'Мъже' : 'Men', action: 'men' },
-		{ icon: '👩', name: getLocale() === 'bg' ? 'Жени' : 'Women', action: 'women' },
-		{ icon: '🏷️', name: getLocale() === 'bg' ? 'С етикети' : 'With tags', action: 'with-tags' },
-		{ icon: '👟', name: getLocale() === 'bg' ? 'Обувки' : 'Shoes', action: 'shoes' },
-		{ icon: '👕', name: getLocale() === 'bg' ? 'Тениски' : 'T-shirts', action: 't-shirts' },
-		{ icon: '💍', name: getLocale() === 'bg' ? 'Аксесоари' : 'Accessories', action: 'accessories' },
-		{ icon: '👖', name: getLocale() === 'bg' ? 'Дънки' : 'Jeans', action: 'jeans' },
-		{ icon: '👗', name: getLocale() === 'bg' ? 'Рокли' : 'Dresses', action: 'dresses' },
-		{ icon: '🧥', name: getLocale() === 'bg' ? 'Якета' : 'Jackets', action: 'jackets' },
-		{ icon: '👜', name: getLocale() === 'bg' ? 'Чанти' : 'Bags', action: 'bags' },
-		{ icon: '💸', name: getLocale() === 'bg' ? 'Намаления' : 'Sale', action: 'sale' }
-	];
+	// Quick filters with i18n support
+	const quickFilters = $derived([
+		{ icon: '⭐', name: m.quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: m.quick_filter_top_sellers() },
+		{ icon: '✨', name: m.quick_filter_newest(), action: 'newest', ariaLabel: m.quick_filter_newest() },
+		{ icon: '🔥', name: m.quick_filter_hot(), action: 'hot', ariaLabel: m.quick_filter_hot() },
+		{ icon: '👨', name: m.quick_filter_men(), action: 'men', ariaLabel: m.category_men() },
+		{ icon: '👩', name: m.quick_filter_women(), action: 'women', ariaLabel: m.category_women() },
+		{ icon: '🏷️', name: m.quick_filter_with_tags(), action: 'with-tags', ariaLabel: m.condition_new_with_tags() },
+		{ icon: '👟', name: m.quick_filter_shoes(), action: 'shoes', ariaLabel: m.subcategory_shoes() },
+		{ icon: '👕', name: m.quick_filter_tshirts(), action: 't-shirts', ariaLabel: m.subcategory_tshirts() },
+		{ icon: '💍', name: m.quick_filter_accessories(), action: 'accessories', ariaLabel: m.subcategory_accessories() },
+		{ icon: '👖', name: m.quick_filter_jeans(), action: 'jeans', ariaLabel: m.subcategory_jeans() },
+		{ icon: '👗', name: m.quick_filter_dresses(), action: 'dresses', ariaLabel: m.subcategory_dresses() },
+		{ icon: '🧥', name: m.quick_filter_jackets(), action: 'jackets', ariaLabel: m.subcategory_jackets() },
+		{ icon: '👜', name: m.quick_filter_bags(), action: 'bags', ariaLabel: m.subcategory_bags() },
+		{ icon: '💸', name: m.quick_filter_sale(), action: 'sale', ariaLabel: m.filter_browse_all() }
+	]);
 	
-	// Category name translations
+	// Get localized category name
 	function getCategoryName(category: Category): string {
-		if (getLocale() === 'bg') {
-			const translations: Record<string, string> = {
-				'women': 'Жени',
-				'men': 'Мъже',
-				'kids': 'Деца',
-				'shoes': 'Обувки',
-				'bags': 'Чанти',
-				'accessories': 'Аксесоари',
-				'jewelry': 'Бижута',
-				'beauty': 'Козметика',
-				'home': 'Дом',
-				'sports': 'Спорт',
-				'electronics': 'Електроника',
-				'books': 'Книги'
-			};
-			return translations[category.slug] || category.name;
-		}
+		// Use the category's localized name if available
 		return category.name;
 	}
 	
 	// Sticky search state for mobile
 	let isSticky = $state(false);
 	let heroRef: HTMLElement;
-	
-	// Scroll state for pills
-	let pillsContainerRef: HTMLElement;
-	let mobilePillsContainerRef: HTMLElement;
-	let showScrollArrow = $state(true);
-	let showMobileScrollArrow = $state(true);
 	
 	$effect(() => {
 		if (typeof window === 'undefined') return;
@@ -85,7 +70,7 @@
 			([entry]) => {
 				isSticky = !entry.isIntersecting;
 			},
-			{ threshold: 0, rootMargin: '-100px 0px 0px 0px' }
+			{ threshold: 0, rootMargin: INTERSECTION_ROOT_MARGIN }
 		);
 		
 		if (heroRef) observer.observe(heroRef);
@@ -96,7 +81,8 @@
 	});
 
 	
-	function handleSearch() {
+	// Debounced search handler for performance
+	const debouncedHandleSearch = debounce(() => {
 		if (searchQuery.trim()) {
 			const params = new URLSearchParams();
 			params.set('q', searchQuery.trim());
@@ -104,6 +90,10 @@
 		} else {
 			goto('/browse');
 		}
+	}, SEARCH_DEBOUNCE_DELAY);
+
+	function handleSearch() {
+		debouncedHandleSearch();
 	}
 	
 	function searchTrending(term: string) {
@@ -199,8 +189,8 @@
 									class={cn(
 										"flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-sm focus:outline-none transition-all",
 										isCategoryDropdownOpen 
-											? "bg-gray-900 text-white shadow-sm" 
-											: "bg-gray-50 border border-gray-200 text-gray-700 hover:bg-gray-100"
+											? "bg-blue-500 text-white shadow-sm hover:bg-blue-600" 
+											: "bg-gray-900 text-white hover:bg-gray-800"
 									)}
 								>
 									<span>{m.header_categories()}</span>
@@ -231,14 +221,16 @@
 									onfocus={() => isFocused = true}
 									onblur={() => isFocused = false}
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
+									oninput={handleSearch}
+									aria-label={m.browse_search_placeholder()}
 									class="w-full py-4 md:py-4.5 pl-4 pr-3 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 mr-2 hover:scale-110 transition-transform focus:outline-none"
-									aria-label="Search"
+									class="p-2 mr-2 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
+									aria-label={m.quick_filter_search_button()}
 								>
-									<span class="text-lg">🔍</span>
+									<span class="text-lg" aria-hidden="true">🔍</span>
 								</button>
 							</div>
 						</div>
@@ -246,60 +238,43 @@
 						
 						<!-- Trending Category Links -->
 						<div class="border-t border-blue-50 py-3 md:py-3 relative overflow-hidden rounded-b-2xl">
-							<div 
-								bind:this={pillsContainerRef}
-								onscroll={throttle(() => {
-									if (pillsContainerRef) {
-										showScrollArrow = pillsContainerRef.scrollLeft < 10;
-									}
-								}, 100)}
-								class="mx-4 flex items-center gap-2.5 md:gap-3 overflow-x-auto relative">
+							<div class="mx-4 flex items-center gap-2.5 md:gap-3">
 								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
 								
-								{#each quickFilters.slice(0, 4) as filter}
-									<button
-										onclick={() => handleQuickFilter(filter.action)}
-										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-									>
-										<span class="text-sm">{filter.icon}</span>
-										<span>{filter.name}</span>
-									</button>
-								{/each}
+								<!-- Quick Filters Component -->
+								<QuickFilterPills
+									filters={quickFilters.slice(0, DESKTOP_QUICK_FILTERS_LIMIT)}
+									onFilterClick={handleQuickFilter}
+									class="flex-1"
+								/>
 								
 								<!-- Divider -->
-								<div class="w-px h-5 bg-gray-300 flex-shrink-0"></div>
+								<div class="w-px h-5 bg-gray-300 flex-shrink-0" aria-hidden="true"></div>
 								
-								<!-- More quick filters -->
-								{#each quickFilters.slice(4) as filter}
-									<button
-										onclick={() => handleQuickFilter(filter.action)}
-										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-									>
-										<span class="text-sm">{filter.icon}</span>
-										<span>{filter.name}</span>
-									</button>
-								{/each}
+								<!-- More Filters -->
+								<QuickFilterPills
+									filters={quickFilters.slice(DESKTOP_QUICK_FILTERS_LIMIT)}
+									onFilterClick={handleQuickFilter}
+									class="flex-1"
+								/>
 								
 								<!-- Divider -->
-								<div class="w-px h-5 bg-gray-300 flex-shrink-0"></div>
+								<div class="w-px h-5 bg-gray-300 flex-shrink-0" aria-hidden="true"></div>
 								
 								<!-- Category Quick Links -->
-								{#each categories.slice(0, 3) as category}
-									<button
-										onclick={() => handleCategorySelect(category.slug)}
-										class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
-									>
-										<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
-										<span>{getCategoryName(category)}</span>
-									</button>
-								{/each}
-							</div>
-							<!-- Arrow indicator for scrolling - Desktop -->
-							{#if showScrollArrow}
-								<div class="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none flex items-center justify-end pr-4 transition-opacity duration-300">
-									<span class="text-blue-400 text-lg animate-pulse">→</span>
+								<div class="flex items-center gap-2.5 overflow-x-auto scrollbar-hide">
+									{#each categories.slice(0, 3) as category}
+										<button
+											onclick={() => handleCategorySelect(category.slug)}
+											aria-label="{m.filter_categories()}: {getCategoryName(category)}"
+											class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+										>
+											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
+											<span>{getCategoryName(category)}</span>
+										</button>
+									{/each}
 								</div>
-							{/if}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -321,10 +296,11 @@
 							class={cn(
 								"ml-3 p-2 rounded-lg transition-colors",
 								isCategoryDropdownOpen 
-									? "bg-gray-900 text-white" 
-									: "bg-gray-100 text-gray-700"
+									? "bg-blue-500 text-white hover:bg-blue-600" 
+									: "bg-gray-900 text-white hover:bg-gray-800"
 							)}
-							aria-label="Categories"
+							aria-label={m.quick_filter_categories_menu()}
+							aria-expanded={isCategoryDropdownOpen}
 						>
 							<Menu class="h-5 w-5" />
 						</button>
@@ -338,14 +314,16 @@
 							onfocus={() => isFocused = true}
 							onblur={() => isFocused = false}
 							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
+							oninput={handleSearch}
+							aria-label={m.browse_search_placeholder()}
 							class="flex-1 py-4 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 						/>
 						<button
 							onclick={handleSearch}
-							class="p-3 mr-2 hover:scale-110 transition-transform focus:outline-none"
-							aria-label="Search"
+							class="p-3 mr-2 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
+							aria-label={m.quick_filter_search_button()}
 						>
-							<span class="text-xl">🔍</span>
+							<span class="text-xl" aria-hidden="true">🔍</span>
 						</button>
 					</div>
 					
@@ -358,14 +336,7 @@
 								<div class="ml-1 mr-1">
 									<!-- Quick Filters -->
 									<div class="overflow-x-auto relative">
-										<div 
-											bind:this={mobilePillsContainerRef}
-											onscroll={throttle(() => {
-												if (mobilePillsContainerRef) {
-													showMobileScrollArrow = mobilePillsContainerRef.scrollLeft < 10;
-												}
-											}, 100)}
-											class="flex items-center gap-1.5">
+										<div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
 											{#each quickFilters.slice(0, 4) as filter}
 												<button
 													onclick={() => handleQuickFilter(filter.action)}
@@ -405,12 +376,6 @@
 											{/each}
 										</div>
 									</div>
-									<!-- Arrow indicator for mobile -->
-									{#if showMobileScrollArrow}
-										<div class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white via-white/90 to-transparent pointer-events-none flex items-center justify-end pr-2 transition-opacity duration-300">
-											<span class="text-blue-400 text-sm animate-pulse">→</span>
-										</div>
-									{/if}
 								</div>
 							</div>
 						{:else}
@@ -428,17 +393,12 @@
 			</div>
 			
 			<!-- Trending Searches - Compact -->
-			<div class="mt-2 flex items-center justify-center gap-2 flex-wrap text-xs md:text-sm">
-				<span class="text-gray-500">{m.search_trending()}:</span>
-				{#each trendingSearches.slice(0, 3) as term}
-					<button
-						onclick={() => searchTrending(term)}
-						class="text-gray-600 active:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded px-1"
-					>
-						{term}
-					</button>
-				{/each}
-			</div>
+			<TrendingSearches
+				searches={trendingSearches}
+				onSearchClick={searchTrending}
+				maxVisible={3}
+				class="mt-2"
+			/>
 		</div>
 	</div>
 </section>
@@ -461,6 +421,13 @@
 		scrollbar-width: none;
 	}
 	.overflow-x-auto::-webkit-scrollbar {
+		display: none;
+	}
+	.scrollbar-hide {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.scrollbar-hide::-webkit-scrollbar {
 		display: none;
 	}
 </style>

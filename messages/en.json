@@ -503,5 +503,22 @@
 	"sell_success_tip3": "Write detailed descriptions with measurements",
 	"sell_success_tip4": "Share your listing on social media for more views",
 	"sell_success_view_profile": "View Profile",
-	"sell_success_browse": "Browse"
+	"sell_success_browse": "Browse",
+	"quick_filter_top_sellers": "Top sellers",
+	"quick_filter_newest": "Newest",
+	"quick_filter_hot": "Hot",
+	"quick_filter_men": "Men",
+	"quick_filter_women": "Women",
+	"quick_filter_with_tags": "With tags",
+	"quick_filter_shoes": "Shoes",
+	"quick_filter_tshirts": "T-shirts",
+	"quick_filter_accessories": "Accessories",
+	"quick_filter_jeans": "Jeans",
+	"quick_filter_dresses": "Dresses",
+	"quick_filter_jackets": "Jackets",
+	"quick_filter_bags": "Bags",
+	"quick_filter_sale": "Sale",
+	"quick_filter_search_button": "Search",
+	"quick_filter_categories_menu": "Open categories menu",
+	"quick_filter_scroll_hint": "Scroll for more filters"
 }

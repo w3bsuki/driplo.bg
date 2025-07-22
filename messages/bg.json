@@ -503,5 +503,22 @@
 	"sell_success_tip3": "Пиши подробни описания с размери",
 	"sell_success_tip4": "Сподели обявата си в социалните мрежи за повече прегледи",
 	"sell_success_view_profile": "Виж профил",
-	"sell_success_browse": "Разгледай"
+	"sell_success_browse": "Разгледай",
+	"quick_filter_top_sellers": "Топ продавачи",
+	"quick_filter_newest": "Най-нови",
+	"quick_filter_hot": "Горещи",
+	"quick_filter_men": "Мъже",
+	"quick_filter_women": "Жени",
+	"quick_filter_with_tags": "С етикети",
+	"quick_filter_shoes": "Обувки",
+	"quick_filter_tshirts": "Тениски",
+	"quick_filter_accessories": "Аксесоари",
+	"quick_filter_jeans": "Дънки",
+	"quick_filter_dresses": "Рокли",
+	"quick_filter_jackets": "Якета",
+	"quick_filter_bags": "Чанти",
+	"quick_filter_sale": "Намаления",
+	"quick_filter_search_button": "Търси",
+	"quick_filter_categories_menu": "Отвори менюто с категории",
+	"quick_filter_scroll_hint": "Превъртете за още филтри"
 }
