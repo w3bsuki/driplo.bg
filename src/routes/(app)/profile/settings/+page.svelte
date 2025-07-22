@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { user } from '$lib/stores/auth'
+	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { onMount } from 'svelte'
 	import ImageUpload from '$lib/components/upload/ImageUpload.svelte'
 	import { Save, ArrowLeft, User, Image as ImageIcon, MapPin, Globe, FileText, Loader2, Camera, Instagram, Music2, Facebook, Twitter, Youtube, Link } from 'lucide-svelte'
@@ -10,6 +10,9 @@
 
 	// Get page data from server
 	let { data }: { data: PageData } = $props()
+	
+	// Get auth context
+	const auth = getAuthContext()
 	
 	// Get supabase client from page data
 	const supabase = $derived(data.supabase)
@@ -38,12 +41,12 @@
 	
 	// Load existing social media accounts on mount
 	onMount(async () => {
-		if ($user?.id) {
+		if (auth.user?.id) {
 			try {
 				const { data: socialAccounts } = await supabase
 					.from('social_media_accounts')
 					.select('*')
-					.eq('user_id', $user.id)
+					.eq('user_id', auth.user.id)
 				
 				if (socialAccounts) {
 					socialAccounts.forEach(account => {
@@ -134,7 +137,7 @@
 					website: website.trim() || null,
 					updated_at: new Date().toISOString()
 				})
-				.eq('id', $user?.id)
+				.eq('id', auth.user?.id)
 
 			if (profileError) throw profileError
 
@@ -145,7 +148,7 @@
 					const { data: existing } = await supabase
 						.from('social_media_accounts')
 						.select('id')
-						.eq('user_id', $user?.id)
+						.eq('user_id', auth.user?.id)
 						.eq('platform', platform)
 						.single()
 
@@ -164,7 +167,7 @@
 						await supabase
 							.from('social_media_accounts')
 							.insert({
-								user_id: $user?.id,
+								user_id: auth.user?.id,
 								platform,
 								username: username.trim(),
 								url: getSocialMediaUrl(platform, username.trim())
@@ -175,7 +178,7 @@
 					await supabase
 						.from('social_media_accounts')
 						.delete()
-						.eq('user_id', $user?.id)
+						.eq('user_id', auth.user?.id)
 						.eq('platform', platform)
 				}
 			}

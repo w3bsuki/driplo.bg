@@ -6,6 +6,8 @@
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
 	import type { Category } from '$lib/types';
+	import type { SupabaseClient } from '@supabase/supabase-js';
+	import type { Database } from '$lib/types/database';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import DriploLogo from '$lib/components/ui/DriploLogo.svelte';
@@ -13,9 +15,10 @@
 	
 	interface Props {
 		categories?: Category[];
+		supabase: SupabaseClient<Database>;
 	}
 	
-	let { categories = [] }: Props = $props();
+	let { categories = [], supabase }: Props = $props();
 	
 	let searchQuery = $state('');
 	let activeCategory = $state('');
@@ -27,19 +30,19 @@
 	onMount(() => {
 		if (authContext?.user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates(authContext.user.id);
+			subscribeToUnreadUpdates(authContext.user.id, supabase);
 		}
 	});
 
 	onDestroy(() => {
-		unsubscribeFromUnreadUpdates();
+		unsubscribeFromUnreadUpdates(supabase);
 	});
 
 	// Re-initialize when user changes
 	$effect(() => {
 		if (authContext?.user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates(authContext.user.id);
+			subscribeToUnreadUpdates(authContext.user.id, supabase);
 		}
 	});
 	

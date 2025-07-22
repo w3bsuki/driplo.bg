@@ -2,6 +2,7 @@
 	import { Sparkles, TrendingUp, ChevronDown, Menu } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
+	import { throttle } from '$lib/utils/performance';
 	import CategoryDropdown from '$lib/components/shared/CategoryDropdown.svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
 	import type { Category } from '$lib/types';
@@ -247,11 +248,11 @@
 						<div class="border-t border-blue-50 py-3 md:py-3 relative overflow-hidden rounded-b-2xl">
 							<div 
 								bind:this={pillsContainerRef}
-								onscroll={() => {
+								onscroll={throttle(() => {
 									if (pillsContainerRef) {
 										showScrollArrow = pillsContainerRef.scrollLeft < 10;
 									}
-								}}
+								}, 100)}
 								class="mx-4 flex items-center gap-2.5 md:gap-3 overflow-x-auto relative">
 								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
 								
@@ -359,11 +360,11 @@
 									<div class="overflow-x-auto relative">
 										<div 
 											bind:this={mobilePillsContainerRef}
-											onscroll={() => {
+											onscroll={throttle(() => {
 												if (mobilePillsContainerRef) {
 													showMobileScrollArrow = mobilePillsContainerRef.scrollLeft < 10;
 												}
-											}}
+											}, 100)}
 											class="flex items-center gap-1.5">
 											{#each quickFilters.slice(0, 4) as filter}
 												<button

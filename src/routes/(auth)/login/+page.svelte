@@ -2,12 +2,14 @@
 	import { enhance } from '$app/forms'
 	import { goto } from '$app/navigation'
 	import { page } from '$app/stores'
-	import { auth } from '$lib/stores/auth'
+	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { Eye, EyeOff, Github } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import { onMount } from 'svelte'
+
+	const auth = getAuthContext()
 
 	let email = ''
 	let password = ''

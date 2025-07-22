@@ -1,14 +1,17 @@
 <script lang="ts">
-	import { user } from '$lib/stores/auth'
+	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { goto } from '$app/navigation'
 	import { onMount } from 'svelte'
 	import { page } from '$app/stores'
+	
+	// Get auth context
+	const auth = getAuthContext()
 	
 	// Get supabase client from page data
 	const supabase = $derived($page.data.supabase)
 
 	onMount(async () => {
-		if (!$user) {
+		if (!auth.user) {
 			goto('/login')
 			return
 		}
@@ -18,7 +21,7 @@
 			const { data: profile, error } = await supabase
 				.from('profiles')
 				.select('username')
-				.eq('id', $user.id)
+				.eq('id', auth.user.id)
 				.single()
 
 			if (error || !profile?.username) {

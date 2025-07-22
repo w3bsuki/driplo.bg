@@ -173,7 +173,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_categories()}</h3>
 				<div class="grid grid-cols-2 gap-2">
-					{#each categories as category}
+					{#each categories as category (category.slug)}
 						<button
 							onclick={() => selectFilter('category', category.slug)}
 							class={cn(
@@ -200,7 +200,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_what_looking_for()}</h3>
 				<div class="grid grid-cols-2 gap-2">
-					{#each subcategories as subcategory}
+					{#each subcategories as subcategory (subcategory.slug)}
 						<button
 							onclick={() => selectFilter('subcategory', subcategory.slug)}
 							class={cn(
@@ -224,7 +224,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_price_range()}</h3>
 				<div class="grid grid-cols-2 gap-2">
-					{#each priceRanges as price}
+					{#each priceRanges as price (price.value)}
 						<button
 							onclick={() => selectFilter('price', price.value)}
 							class={cn(
@@ -244,7 +244,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_size()}</h3>
 				<div class="flex flex-wrap gap-2">
-					{#each sizes as size}
+					{#each sizes as size (size.value)}
 						<button
 							onclick={() => selectFilter('size', size.value)}
 							class={cn(
@@ -264,7 +264,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_brand()}</h3>
 				<div class="grid grid-cols-2 gap-2">
-					{#each brands as brand}
+					{#each brands as brand (brand.value)}
 						<button
 							onclick={() => selectFilter('brand', brand.value)}
 							class={cn(
@@ -284,7 +284,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_condition()}</h3>
 				<div class="space-y-2">
-					{#each conditions as condition}
+					{#each conditions as condition (condition.value)}
 						<button
 							onclick={() => selectFilter('condition', condition.value)}
 							class={cn(
@@ -307,7 +307,7 @@
 			<div>
 				<h3 class="text-sm font-semibold text-gray-900 mb-2">{m.filter_sort_by()}</h3>
 				<div class="space-y-2">
-					{#each sortOptions as sort}
+					{#each sortOptions as sort (sort.value)}
 						<button
 							onclick={() => selectFilter('sort', sort.value)}
 							class={cn(

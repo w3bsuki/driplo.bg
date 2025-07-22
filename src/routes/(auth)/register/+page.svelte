@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { page } from '$app/stores'
-	import { auth } from '$lib/stores/auth'
+	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { Eye, EyeOff, Github, CheckCircle, Store, User } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import { z } from 'zod'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import { cn } from '$lib/utils'
+
+	const auth = getAuthContext()
 
 	let email = $state('')
 	let password = $state('')

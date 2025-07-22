@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
-	import { auth } from '$lib/stores/auth'
+	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import ProfileHeader from '$lib/components/profile/ProfileHeader.svelte'
 	import ProfileStats from '$lib/components/profile/ProfileStats.svelte'
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte'
@@ -16,6 +16,9 @@
 	
 	// Get page data from server
 	let { data }: { data: PageData } = $props()
+	
+	// Get auth context
+	const auth = getAuthContext()
 	
 	// Get supabase client from page data
 	const supabase = $derived(data.supabase)
@@ -227,7 +230,7 @@
 						<!-- Reviews Tab -->
 						{#if reviews.length > 0}
 							<div class="space-y-3">
-								{#each reviews as review}
+								{#each reviews as review (review.id)}
 									<div class="bg-white rounded-xl shadow-sm p-4">
 										<div class="flex items-start gap-3">
 											<img 
@@ -323,7 +326,7 @@
 									<div class="pt-3">
 										<h4 class="text-sm font-medium text-gray-900 mb-2">{m.profile_verifications()}</h4>
 										<div class="flex flex-wrap gap-2">
-											{#each profile.verification_badges as badge}
+											{#each profile.verification_badges as badge (badge)}
 												<div class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-full text-xs font-medium">
 													<svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
 														<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />

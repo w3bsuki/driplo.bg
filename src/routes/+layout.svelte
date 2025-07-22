@@ -107,10 +107,7 @@
 				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
 			}
 			
-			// Also invalidate server data
-			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-				invalidate('supabase:auth');
-			}
+			// Server data is now managed by auth context reactively
 		});
 
 		return () => {
@@ -140,7 +137,7 @@
 					variant="gradient"
 				/>
 			{/if}
-			<Header categories={data.categories} />
+			<Header categories={data.categories} supabase={data.supabase} />
 		{/if}
 		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
 			<slot />

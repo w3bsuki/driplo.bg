@@ -161,7 +161,7 @@
 
 			<!-- Items List -->
 			<div class="space-y-3">
-				{#each favorites as favorite}
+				{#each favorites as favorite (favorite.id)}
 					{@const listing = favorite.listings}
 					{#if listing}
 						<div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">

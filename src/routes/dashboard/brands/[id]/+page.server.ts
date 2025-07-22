@@ -1,5 +1,5 @@
-import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
+import { error, redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params, locals, parent }) => {
 	const { isAdmin, user } = await parent();
@@ -55,4 +55,151 @@ export const load: PageServerLoad = async ({ params, locals, parent }) => {
 		reviewer,
 		user
 	};
+};
+
+export const actions: Actions = {
+	approve: async ({ request, params, locals }) => {
+		const formData = await request.formData();
+		const adminNotes = formData.get('adminNotes') as string;
+		const userId = locals.user?.id;
+
+		if (!userId) {
+			throw error(401, 'Unauthorized');
+		}
+
+		// Update brand verification request
+		const { error: updateError } = await locals.supabase
+			.from('brand_verification_requests')
+			.update({
+				verification_status: 'approved',
+				admin_notes: adminNotes,
+				reviewed_by: userId,
+				reviewed_at: new Date().toISOString()
+			})
+			.eq('id', params.id);
+
+		if (updateError) {
+			throw error(500, 'Failed to update verification request');
+		}
+
+		// Get request data for profile update
+		const { data: requestData } = await locals.supabase
+			.from('brand_verification_requests')
+			.select('user_id, brand_name, brand_category')
+			.eq('id', params.id)
+			.single();
+
+		if (requestData) {
+			const { error: profileError } = await locals.supabase
+				.from('profiles')
+				.update({
+					is_verified: true,
+					account_type: 'brand',
+					brand_name: requestData.brand_name,
+					brand_category: requestData.brand_category
+				})
+				.eq('id', requestData.user_id);
+
+			if (profileError) {
+				throw error(500, 'Failed to update profile');
+			}
+		}
+
+		// Create admin approval record
+		await locals.supabase
+			.from('admin_approvals')
+			.insert({
+				request_type: 'brand_verification',
+				request_id: params.id,
+				admin_id: userId,
+				action: 'approve',
+				notes: adminNotes
+			});
+
+		throw redirect(303, '/admin/brands');
+	},
+
+	reject: async ({ request, params, locals }) => {
+		const formData = await request.formData();
+		const adminNotes = formData.get('adminNotes') as string;
+		const userId = locals.user?.id;
+
+		if (!userId) {
+			throw error(401, 'Unauthorized');
+		}
+
+		if (!adminNotes?.trim()) {
+			throw error(400, 'Please provide a reason for rejection');
+		}
+
+		// Update brand verification request
+		const { error: updateError } = await locals.supabase
+			.from('brand_verification_requests')
+			.update({
+				verification_status: 'rejected',
+				admin_notes: adminNotes,
+				reviewed_by: userId,
+				reviewed_at: new Date().toISOString()
+			})
+			.eq('id', params.id);
+
+		if (updateError) {
+			throw error(500, 'Failed to update verification request');
+		}
+
+		// Create admin approval record
+		await locals.supabase
+			.from('admin_approvals')
+			.insert({
+				request_type: 'brand_verification',
+				request_id: params.id,
+				admin_id: userId,
+				action: 'reject',
+				notes: adminNotes
+			});
+
+		throw redirect(303, '/admin/brands');
+	},
+
+	requestInfo: async ({ request, params, locals }) => {
+		const formData = await request.formData();
+		const infoMessage = formData.get('infoMessage') as string;
+		const userId = locals.user?.id;
+
+		if (!userId) {
+			throw error(401, 'Unauthorized');
+		}
+
+		if (!infoMessage?.trim()) {
+			throw error(400, 'Please specify what information is needed');
+		}
+
+		// Update status to more_info_needed
+		const { error: updateError } = await locals.supabase
+			.from('brand_verification_requests')
+			.update({
+				verification_status: 'more_info_needed',
+				admin_notes: infoMessage,
+				reviewed_by: userId,
+				reviewed_at: new Date().toISOString()
+			})
+			.eq('id', params.id);
+
+		if (updateError) {
+			throw error(500, 'Failed to update verification request');
+		}
+
+		// Create admin approval record
+		await locals.supabase
+			.from('admin_approvals')
+			.insert({
+				request_type: 'brand_verification',
+				request_id: params.id,
+				admin_id: userId,
+				action: 'request_info',
+				notes: infoMessage
+			});
+
+		throw redirect(303, '/admin/brands');
+	}
 };

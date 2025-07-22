@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { RefreshCw, Upload, Sparkles, Check } from 'lucide-svelte';
-	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 	import { toast } from 'svelte-sonner';
 
 	interface Props {
@@ -142,7 +142,7 @@
 		<div class="relative group">
 			<div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-blue-100 shadow-xl">
 				{#if customAvatarUrl}
-					<ResponsiveImage
+					<Image
 						src={customAvatarUrl}
 						alt="Custom avatar"
 						class="w-full h-full object-cover"

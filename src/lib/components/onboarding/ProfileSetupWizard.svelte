@@ -16,9 +16,10 @@
 		profile: any;
 		onComplete: () => void;
 		initialStep?: number;
+		supabase?: any; // Optional supabase client
 	}
 
-	let { user, profile, onComplete, initialStep = 1 }: Props = $props();
+	let { user, profile, onComplete, initialStep = 1, supabase }: Props = $props();
 	
 	const auth = getAuthContext();
 
@@ -80,7 +81,8 @@
 		let counter = 0;
 		
 		while (true) {
-			const { data } = await auth.supabase
+			const client = supabase || auth.supabase;
+			const { data } = await client
 				.from('brand_profiles')
 				.select('id')
 				.eq('brand_slug', slug)
@@ -101,10 +103,11 @@
 		loading = true;
 		try {
 			// Save progress for current step
+			const client = supabase || auth.supabase;
 			switch (currentStep) {
 				case 1:
 					// Account type selection
-					await auth.supabase
+					await client
 						.from('profiles')
 						.update({ 
 							account_type: setupData.accountType,
@@ -115,7 +118,7 @@
 					
 				case 2:
 					// Avatar saved via upload endpoint
-					await auth.supabase
+					await client
 						.from('profiles')
 						.update({ onboarding_step: 2 })
 						.eq('id', user.id);
@@ -123,7 +126,7 @@
 					
 				case 3:
 					// Update profile with basic info
-					await auth.supabase
+					await client
 						.from('profiles')
 						.update({
 							full_name: setupData.fullName,
@@ -137,7 +140,7 @@
 				case 4:
 					// Create brand profile
 					const brandSlug = await generateBrandSlug(setupData.brandName);
-					const { error: brandError } = await auth.supabase
+					const { error: brandError } = await client
 						.from('brand_profiles')
 						.insert({
 							user_id: user.id,
@@ -153,7 +156,7 @@
 					if (brandError) throw brandError;
 					
 					// Update onboarding step
-					await auth.supabase
+					await client
 						.from('profiles')
 						.update({ onboarding_step: 4 })
 						.eq('id', user.id);
@@ -209,7 +212,8 @@
 		
 		// Load brand profile if exists
 		if (setupData.accountType === 'brand') {
-			const { data: brandProfile } = await auth.supabase
+			const client = supabase || auth.supabase;
+			const { data: brandProfile } = await client
 				.from('brand_profiles')
 				.select('*')
 				.eq('user_id', user.id)

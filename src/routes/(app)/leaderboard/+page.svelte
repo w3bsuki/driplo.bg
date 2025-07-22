@@ -1,49 +1,67 @@
 <script lang="ts">
 	import { createQuery } from '@tanstack/svelte-query';
-	import { supabase } from '$lib/supabase';
+	import { goto } from '$app/navigation';
 	import * as m from '$lib/paraglide/messages.js';
+	import type { PageData } from './$types';
+	
+	export let data: PageData;
 	
 	let activeTab = $state<'personal' | 'brands' | 'reviews'>('personal');
-	let timePeriod = $state<'week' | 'month' | 'year' | 'all'>('month');
+	let timePeriod = $state<'week' | 'month' | 'year' | 'all'>(data.initialTimePeriod || 'month');
 	
 	// Query for top personal sellers
 	const personalSellersQuery = createQuery({
 		queryKey: ['top-sellers', timePeriod],
 		queryFn: async () => {
-			const { data, error } = await supabase.rpc('get_top_sellers', {
+			if (timePeriod === data.initialTimePeriod) {
+				return data.topSellers;
+			}
+			// Fetch new data when time period changes
+			const { data: sellers, error } = await data.supabase.rpc('get_top_sellers', {
 				time_period: timePeriod,
 				result_limit: 20
 			});
 			if (error) throw error;
-			return data || [];
-		}
+			return sellers || [];
+		},
+		initialData: data.topSellers
 	});
 	
 	// Query for top brands
 	const brandsQuery = createQuery({
 		queryKey: ['top-brands', timePeriod],
 		queryFn: async () => {
-			const { data, error } = await supabase.rpc('get_top_brands', {
+			if (timePeriod === data.initialTimePeriod) {
+				return data.topBrands;
+			}
+			// Fetch new data when time period changes
+			const { data: brands, error } = await data.supabase.rpc('get_top_brands', {
 				time_period: timePeriod,
 				result_limit: 20
 			});
 			if (error) throw error;
-			return data || [];
-		}
+			return brands || [];
+		},
+		initialData: data.topBrands
 	});
 	
 	// Query for recent reviews
 	const reviewsQuery = createQuery({
 		queryKey: ['recent-reviews', timePeriod],
 		queryFn: async () => {
-			const { data, error } = await supabase.rpc('get_recent_reviews', {
+			if (timePeriod === data.initialTimePeriod) {
+				return data.recentReviews;
+			}
+			// Fetch new data when time period changes
+			const { data: reviews, error } = await data.supabase.rpc('get_recent_reviews', {
 				time_period: timePeriod,
 				page: 1,
 				page_size: 20
 			});
 			if (error) throw error;
-			return data || [];
-		}
+			return reviews || [];
+		},
+		initialData: data.recentReviews
 	});
 	
 	function getRankBadgeClass(rank: number) {
@@ -117,7 +135,7 @@
 			{ value: 'month', label: 'This Month' },
 			{ value: 'year', label: 'This Year' },
 			{ value: 'all', label: 'All Time' }
-		] as period}
+		] as period (period.value)}
 			<button
 				onclick={() => timePeriod = period.value}
 				class="px-4 py-2 rounded-lg text-sm font-medium transition-all {timePeriod === period.value
@@ -143,7 +161,7 @@
 				<div class="p-8 text-center text-red-500">Error loading sellers</div>
 			{:else if $personalSellersQuery.data}
 				<div class="divide-y divide-gray-100">
-					{#each $personalSellersQuery.data as seller, index}
+					{#each $personalSellersQuery.data as seller, index (seller.user_id || seller.username)}
 						{@const movement = getMovementIndicator(index)}
 						<a 
 							href="/profile/{seller.username}"
@@ -202,7 +220,7 @@
 				<div class="p-8 text-center text-red-500">Error loading brands</div>
 			{:else if $brandsQuery.data}
 				<div class="divide-y divide-gray-100">
-					{#each $brandsQuery.data as brand, index}
+					{#each $brandsQuery.data as brand, index (brand.brand_id || brand.brand_slug)}
 						{@const movement = getMovementIndicator(index)}
 						<a 
 							href="/brands/{brand.brand_slug}"
@@ -272,7 +290,7 @@
 				<div class="bg-white rounded-xl p-8 text-center text-red-500">Error loading reviews</div>
 			{:else if $reviewsQuery.data}
 				<div class="space-y-4">
-					{#each $reviewsQuery.data as review}
+					{#each $reviewsQuery.data as review (review.review_id || review.created_at)}
 						<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
 							<!-- Review Header -->
 							<div class="flex items-start justify-between mb-4">
@@ -293,7 +311,7 @@
 									</div>
 								</div>
 								<div class="flex items-center gap-1">
-									{#each Array(5) as _, i}
+									{#each Array(5) as _, i (i)}
 										<svg class="w-5 h-5 {i < review.rating ? 'text-yellow-400' : 'text-gray-200'}" fill="currentColor" viewBox="0 0 20 20">
 											<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
 										</svg>

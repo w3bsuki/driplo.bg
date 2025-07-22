@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import MobileFiltersDrawer from './MobileFiltersDrawer.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
@@ -50,7 +51,7 @@
 	<!-- Top accent line -->
 	<div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent"></div>
 	<div class="grid grid-cols-5 items-center h-[64px] px-3" style="padding-bottom: env(safe-area-inset-bottom)">
-		{#each navItems as item}
+		{#each navItems as item (item.href)}
 			{#if item.isPrimary}
 				<!-- Primary Sell Button -->
 				<a

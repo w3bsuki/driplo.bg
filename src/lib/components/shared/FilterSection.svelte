@@ -1,5 +1,27 @@
 <script lang="ts">
 	import { X, Search } from 'lucide-svelte';
+	import CategoryDropdown from './CategoryDropdown.svelte';
+	import * as m from '$lib/paraglide/messages.js';
+	
+	interface Props {
+		variant?: 'default' | 'with-dropdown' | 'icon-dropdown' | 'modal';
+		showCategoryButton?: boolean;
+		categoryButtonType?: 'icon' | 'dropdown' | 'icon-only';
+		containerClass?: string;
+		searchClass?: string;
+		filterClass?: string;
+		onSearch?: (params: URLSearchParams) => void;
+	}
+	
+	let { 
+		variant = 'default',
+		showCategoryButton = true,
+		categoryButtonType = 'icon',
+		containerClass = '',
+		searchClass = '',
+		filterClass = '',
+		onSearch
+	}: Props = $props();
 
 	let searchQuery = $state('');
 	let showCategoryModal = $state(false);
@@ -7,6 +29,7 @@
 	let selectedSize = $state('');
 	let selectedBrand = $state('');
 	let selectedCondition = $state('');
+	let categoryDropdownOpen = $state(false);
 
 	const priceRanges = [
 		{ name: 'Under £20', value: '0-20' },
@@ -31,20 +54,16 @@
 		if (selectedBrand) params.set('brand', selectedBrand);
 		if (selectedCondition) params.set('condition', selectedCondition);
 		
-		const queryString = params.toString();
-		window.location.href = `/browse${queryString ? '?' + queryString : ''}`;
+		if (onSearch) {
+			onSearch(params);
+		} else {
+			const queryString = params.toString();
+			window.location.href = `/browse${queryString ? '?' + queryString : ''}`;
+		}
 	}
 
 	function applyFilters() {
-		const params = new URLSearchParams();
-		if (searchQuery.trim()) params.set('q', searchQuery.trim());
-		if (selectedPriceRange) params.set('price', selectedPriceRange);
-		if (selectedSize) params.set('size', selectedSize);
-		if (selectedBrand) params.set('brand', selectedBrand);
-		if (selectedCondition) params.set('condition', selectedCondition);
-		
-		const queryString = params.toString();
-		window.location.href = `/browse${queryString ? '?' + queryString : ''}`;
+		handleSearch();
 	}
 
 	function clearFilters() {
@@ -67,6 +86,7 @@
 
 	const hasActiveFilters = $derived(searchQuery || selectedPriceRange || selectedSize || selectedBrand || selectedCondition);
 
+	// Quick categories for modal variant
 	const quickCategories = [
 		{ name: 'All', value: '', count: '5.2M' },
 		{ name: 'Women', value: 'women', count: '2.3M' },
@@ -94,26 +114,69 @@
 		}
 		window.location.href = `/browse${params.toString() ? '?' + params.toString() : ''}`;
 	}
+
+	// Determine search input styling based on variant
+	const searchInputClass = $derived(
+		variant === 'default' 
+			? "w-full rounded-xl border border-neutral-200 bg-white pl-12 pr-4 py-3 text-base placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm transition-all duration-200"
+			: "w-full rounded-lg border border-input bg-background pl-12 pr-4 py-2.5 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 shadow-sm"
+	);
+
+	// Container background based on variant
+	const sectionBg = $derived(variant === 'default' ? 'bg-white' : 'bg-background');
 </script>
 
-<section class="py-4 border-b bg-white">
+<section class="py-4 border-b {sectionBg} {containerClass}">
 	<div class="container px-4">
-		<!-- Search Bar with Category Icon -->
+		<!-- Search Bar with Category Button/Dropdown -->
 		<div class="max-w-4xl mx-auto mb-4">
 			<div class="flex gap-3">
-				<!-- Categories Icon Dropdown -->
-				<div class="flex-shrink-0">
-					<button
-						onclick={() => showCategoryModal = true}
-						class="flex items-center justify-center w-12 h-12 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-primary/30 transition-all duration-200"
-						aria-label="Browse categories"
-						title="Quick category access"
-					>
-						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-						</svg>
-					</button>
-				</div>
+				<!-- Category Button/Dropdown -->
+				{#if showCategoryButton}
+					<div class="flex-shrink-0">
+						{#if categoryButtonType === 'icon'}
+							<!-- Icon button that opens modal -->
+							<button
+								onclick={() => showCategoryModal = true}
+								class="flex items-center justify-center w-12 h-12 rounded-xl border border-neutral-200 bg-white hover:bg-neutral-50 hover:border-primary/30 transition-all duration-200"
+								aria-label="Browse categories"
+								title="Quick category access"
+							>
+								<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+								</svg>
+							</button>
+						{:else if categoryButtonType === 'dropdown'}
+							<!-- Full CategoryDropdown component -->
+							<CategoryDropdown 
+								isOpen={categoryDropdownOpen}
+								onToggle={() => categoryDropdownOpen = !categoryDropdownOpen}
+								onClose={() => categoryDropdownOpen = false}
+							/>
+						{:else if categoryButtonType === 'icon-only'}
+							<!-- Icon-only dropdown trigger -->
+							<button
+								onclick={() => categoryDropdownOpen = !categoryDropdownOpen}
+								class="flex items-center justify-center w-11 h-11 rounded-lg border border-input bg-background hover:bg-muted hover:border-primary/30 transition-all duration-200"
+								aria-label="Browse categories"
+								title="Quick category access"
+							>
+								<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+								</svg>
+							</button>
+							<!-- Render dropdown if open -->
+							{#if categoryDropdownOpen}
+								<CategoryDropdown 
+									isOpen={categoryDropdownOpen}
+									onToggle={() => categoryDropdownOpen = !categoryDropdownOpen}
+									onClose={() => categoryDropdownOpen = false}
+									class="absolute left-0"
+								/>
+							{/if}
+						{/if}
+					</div>
+				{/if}
 				
 				<!-- Search Input -->
 				<div class="relative flex-1">
@@ -123,7 +186,7 @@
 						placeholder="Search for items, brands, or users..."
 						bind:value={searchQuery}
 						onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-						class="w-full rounded-xl border border-neutral-200 bg-white pl-12 pr-4 py-3 text-base placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm transition-all duration-200"
+						class="{searchInputClass} {searchClass}"
 					/>
 				</div>
 			</div>
@@ -141,7 +204,7 @@
 		{/if}
 
 		<!-- Mobile Filters -->
-		<div class="flex gap-1.5 overflow-x-auto pb-1 md:hidden scrollbar-hide">
+		<div class="flex gap-1.5 overflow-x-auto pb-1 md:hidden scrollbar-hide {filterClass}">
 			<!-- Price -->
 			<select
 				bind:value={selectedPriceRange}
@@ -192,7 +255,7 @@
 		</div>
 
 		<!-- Desktop Filters -->
-		<div class="hidden md:flex items-center gap-3">
+		<div class="hidden md:flex items-center gap-3 {filterClass}">
 			<!-- Price -->
 			<select
 				bind:value={selectedPriceRange}
@@ -237,7 +300,7 @@
 			>
 				<option value="">Condition</option>
 				{#each conditions as condition}
-					<option value={condition}>{condition}</option>
+					<option value={condition}>{option}</option>
 				{/each}
 			</select>
 		</div>
@@ -290,8 +353,8 @@
 	</div>
 </section>
 
-<!-- Quick Categories Modal -->
-{#if showCategoryModal}
+<!-- Quick Categories Modal (only for 'modal' variant) -->
+{#if showCategoryModal && variant === 'modal'}
 	<div class="fixed inset-0 z-50 bg-black/20 backdrop-blur-sm">
 		<div class="fixed inset-x-0 bottom-0 bg-background rounded-t-2xl max-h-[80vh] overflow-hidden">
 			<div class="flex flex-col h-full max-h-[80vh]">

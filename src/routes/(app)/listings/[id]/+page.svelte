@@ -17,7 +17,7 @@
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
-	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { onMount } from 'svelte';
 
@@ -201,7 +201,7 @@
 							disabled={!hasImages}
 						>
 							{#if images[currentImageIndex]}
-								<ResponsiveImage
+								<Image
 									src={images[currentImageIndex]}
 									alt={listing.title}
 									class="w-full h-full transition-transform duration-200 group-hover:scale-[1.02]"
@@ -243,7 +243,7 @@
 
 							<!-- Image indicators -->
 							<div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-								{#each images as _, index}
+								{#each images as _, index (index)}
 									<button
 										onclick={(e) => { e.stopPropagation(); currentImageIndex = index; }}
 										class={cn("w-1 h-1 rounded-full transition-all", 
@@ -259,7 +259,7 @@
 					<!-- Thumbnail strip -->
 					{#if hasMultipleImages}
 						<div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
-							{#each images as image, index}
+							{#each images as image, index (index)}
 								<button
 									onclick={() => currentImageIndex = index}
 									class={cn("flex-shrink-0 w-12 h-12 rounded overflow-hidden border transition-all",
@@ -267,7 +267,7 @@
 									)}
 								>
 									{#if image}
-										<ResponsiveImage 
+										<Image 
 											src={image} 
 											alt="Product {index + 1}" 
 											class="w-full h-full" 
@@ -356,7 +356,7 @@
 						<div class="flex items-center justify-between">
 							<a href="/profile/{listing.seller.username}" class="flex items-center gap-2 group flex-1">
 								{#if listing.seller.avatar_url}
-									<ResponsiveImage
+									<Image
 										src={listing.seller.avatar_url}
 										alt={listing.seller.username}
 										class="w-8 h-8 rounded-full"
@@ -442,7 +442,7 @@
 						<!-- Tags -->
 						{#if listing.tags && listing.tags.length > 0}
 							<div class="flex flex-wrap gap-1.5">
-								{#each listing.tags as tag}
+								{#each listing.tags as tag (tag)}
 									<span class="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
 										#{tag}
 									</span>
@@ -502,7 +502,7 @@
 						<div class="aspect-square bg-gray-100 rounded-md animate-pulse"></div>
 					</div>
 					<div class="flex gap-1.5">
-						{#each Array(4) as _}
+						{#each Array(4) as _, index (index)}
 							<div class="w-12 h-12 bg-gray-100 rounded animate-pulse"></div>
 						{/each}
 					</div>
@@ -582,7 +582,7 @@
 			<!-- Thumbnail strip -->
 			{#if hasMultipleImages}
 				<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-					{#each images as _, index}
+					{#each images as _, index (index)}
 						<button
 							onclick={(e) => { e.stopPropagation(); currentImageIndex = index; }}
 							class={cn("w-12 h-12 rounded overflow-hidden border-2 transition-all",

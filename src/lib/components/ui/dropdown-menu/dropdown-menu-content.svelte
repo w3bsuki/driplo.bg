@@ -19,7 +19,7 @@
 		data-slot="dropdown-menu-content"
 		{sideOffset}
 		class={cn(
-			"z-50 min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-white p-1 shadow-md outline-none",
+			"z-[9999] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-white p-1 shadow-md outline-none",
 			className
 		)}
 		{...restProps}

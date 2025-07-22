@@ -1,7 +1,6 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
-import { createBrowserClient } from '@supabase/ssr';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '$lib/types/database';
 
 // Store for global unread message count
@@ -27,10 +26,8 @@ export async function initializeUnreadCount() {
 }
 
 // Subscribe to real-time updates
-export function subscribeToUnreadUpdates(userId: string) {
+export function subscribeToUnreadUpdates(userId: string, supabase: SupabaseClient<Database>) {
     if (!browser || isSubscribed) return;
-
-    const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
     
     realtimeChannel = supabase
         .channel('unread-messages')
@@ -72,10 +69,9 @@ export function subscribeToUnreadUpdates(userId: string) {
 }
 
 // Unsubscribe from real-time updates
-export function unsubscribeFromUnreadUpdates() {
+export function unsubscribeFromUnreadUpdates(supabase: SupabaseClient<Database>) {
     if (!browser || !isSubscribed || !realtimeChannel) return;
 
-    const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
     supabase.removeChannel(realtimeChannel);
     
     isSubscribed = false;

@@ -4,9 +4,9 @@
 	import { Search, X } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui';
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
-	import SearchInput from '$lib/components/search/SearchInput.svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
 	import { cn } from '$lib/utils';
+	import { throttle } from '$lib/utils/performance';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -157,11 +157,13 @@
 			showStickySearch = scrollY > 400;
 		}
 
-		window.addEventListener('scroll', handleScroll);
+		const throttledHandleScroll = throttle(handleScroll, 100);
+
+		window.addEventListener('scroll', throttledHandleScroll);
 		handleScroll(); // Check initial position
 
 		return () => {
-			window.removeEventListener('scroll', handleScroll);
+			window.removeEventListener('scroll', throttledHandleScroll);
 		};
 	});
 
@@ -287,7 +289,7 @@
 						<div class="text-center">
 							<div class="h-7 w-48 bg-gray-200 rounded-lg mx-auto mb-4 animate-pulse"></div>
 							<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-								{#each Array(6) as _}
+								{#each Array(6) as _, index (index)}
 									<div class="text-center">
 										<div class="relative">
 											<div class="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-full animate-pulse"></div>
@@ -309,7 +311,7 @@
 							<span>Top Sellers This Month</span>
 						</h2>
 						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
-							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index}
+							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index (seller.id)}
 								<a href="/profile/{seller.username}" class="text-center group">
 									<div class="relative">
 										{#if index === 0}
@@ -375,7 +377,7 @@
 							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50">
 								<p class="text-sm font-medium text-gray-700 mb-3">Quick searches:</p>
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-									{#each quickSearchSuggestions as suggestion}
+									{#each quickSearchSuggestions as suggestion (suggestion.text)}
 										<button
 											onmousedown={() => handleQuickSearch(suggestion.text)}
 											class="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm"
@@ -416,7 +418,7 @@
 					<div class="bg-white rounded-xl border border-gray-200 p-4">
 						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_categories()}</h3>
 						<div class="space-y-1">
-							{#each categoriesWithAll as category}
+							{#each categoriesWithAll as category (category.slug)}
 								<button
 									onclick={() => updateCategory(category.slug)}
 									class={cn(
@@ -467,7 +469,7 @@
 					<div class="bg-white rounded-xl border border-gray-200 p-4">
 						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_size()}</h3>
 						<div class="grid grid-cols-3 gap-2">
-							{#each sizeOptions as size}
+							{#each sizeOptions as size (size)}
 								<button
 									onclick={() => toggleSize(size)}
 									class={cn(
@@ -487,7 +489,7 @@
 					<div class="bg-white rounded-xl border border-gray-200 p-4">
 						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_condition()}</h3>
 						<div class="space-y-2">
-							{#each conditionOptions as condition}
+							{#each conditionOptions as condition (condition.value)}
 								<label class="flex items-center gap-3 py-1 cursor-pointer group">
 									<input
 										type="checkbox"
@@ -505,7 +507,7 @@
 					<div class="bg-white rounded-xl border border-gray-200 p-4">
 						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_brand()}</h3>
 						<div class="space-y-2 max-h-48 overflow-y-auto">
-							{#each data.popularBrands as brand}
+							{#each data.popularBrands as brand (brand)}
 								<label class="flex items-center gap-3 py-1 cursor-pointer group">
 									<input
 										type="checkbox"
@@ -553,7 +555,7 @@
 								onchange={(e) => updateSort(e.currentTarget.value)}
 								class="rounded-lg border border-gray-300 px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
 							>
-								{#each sortOptions as option}
+								{#each sortOptions as option (option.value)}
 									<option value={option.value}>{option.label}</option>
 								{/each}
 							</select>
@@ -590,7 +592,7 @@
 									</button>
 								</span>
 							{/if}
-							{#each Array.from(selectedSizes) as size}
+							{#each Array.from(selectedSizes) as size (size)}
 								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
 									Size {size}
 									<button onclick={() => toggleSize(size)} class="hover:text-blue-900">
@@ -598,7 +600,7 @@
 									</button>
 								</span>
 							{/each}
-							{#each Array.from(selectedBrands) as brand}
+							{#each Array.from(selectedBrands) as brand (brand)}
 								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
 									{brand}
 									<button onclick={() => toggleBrand(brand)} class="hover:text-blue-900">
@@ -606,7 +608,7 @@
 									</button>
 								</span>
 							{/each}
-							{#each Array.from(selectedConditions) as condition}
+							{#each Array.from(selectedConditions) as condition (condition)}
 								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
 									{conditionOptions.find(c => c.value === condition)?.label}
 									<button onclick={() => toggleCondition(condition)} class="hover:text-blue-900">

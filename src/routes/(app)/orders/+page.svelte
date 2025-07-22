@@ -91,7 +91,7 @@
         
         <!-- Tabs -->
         <div class="flex space-x-1 bg-gray-100/80 p-1 rounded-xl mb-6 overflow-x-auto">
-            {#each tabs as tab}
+            {#each tabs as tab (tab.id)}
                 <a 
                     href="?tab={tab.id}{statusFilter ? `&status=${statusFilter}` : ''}"
                     class="flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-fit {activeTab === tab.id ? 'bg-white text-[#87CEEB] shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
@@ -125,7 +125,7 @@
                                 window.location.href = `?${params.toString()}`;
                             }}
                         >
-                            {#each statuses as status}
+                            {#each statuses as status (status.value)}
                                 <option value={status.value}>{status.label}</option>
                             {/each}
                         </select>
@@ -256,7 +256,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Orders by Status</h3>
                     <div class="space-y-3">
-                        {#each Object.entries(stats.ordersByStatus) as [status, count]}
+                        {#each Object.entries(stats.ordersByStatus) as [status, count] (status)}
                             {@const statusConfig = statuses.find(s => s.value === status)}
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
@@ -274,7 +274,7 @@
                 <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow col-span-full md:col-span-2">
                     <h3 class="text-sm font-medium text-gray-900 mb-4">Monthly Trends</h3>
                     <div class="space-y-3">
-                        {#each stats.monthlyTrends as trend}
+                        {#each stats.monthlyTrends as trend (trend.month)}
                             <div class="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors">
                                 <span class="text-sm text-gray-600">
                                     {new Date(trend.month).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}

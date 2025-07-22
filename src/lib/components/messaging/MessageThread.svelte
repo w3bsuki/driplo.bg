@@ -2,9 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import { formatDistanceToNow } from 'date-fns';
     import type { Database } from '$lib/types/database';
-    import type { RealtimeChannel } from '@supabase/supabase-js';
-    import { createBrowserClient } from '@supabase/ssr';
-    import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+    import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
     import { decrementUnreadCount } from '$lib/stores/messages';
     import VirtualList from '$lib/components/ui/VirtualList.svelte';
     
@@ -18,6 +16,7 @@
 
     export let conversationId: string;
     export let userId: string;
+    export let supabase: SupabaseClient<Database>;
     export let useVirtualScrolling = false;
     
     let messages: Message[] = [];
@@ -129,7 +128,6 @@
     }
 
     function setupRealtimeSubscription() {
-        const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
         realtimeChannel = supabase
             .channel(`conversation:${conversationId}`)
             .on(
@@ -256,7 +254,6 @@
 
     onDestroy(() => {
         if (realtimeChannel) {
-            const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
             supabase.removeChannel(realtimeChannel);
         }
     });
@@ -308,7 +305,7 @@
                                 <!-- Display attachments -->
                                 {#if message.attachments && Array.isArray(message.attachments) && message.attachments.length > 0}
                                     <div class="mt-2 space-y-2">
-                                        {#each message.attachments as attachment}
+                                        {#each message.attachments as attachment (attachment.url)}
                                             {#if attachment.type === 'image'}
                                                 <div class="rounded-lg overflow-hidden max-w-xs">
                                                     <img 
@@ -414,7 +411,7 @@
                                 <!-- Display attachments -->
                                 {#if message.attachments && Array.isArray(message.attachments) && message.attachments.length > 0}
                                     <div class="mt-2 space-y-2">
-                                        {#each message.attachments as attachment}
+                                        {#each message.attachments as attachment (attachment.url)}
                                             {#if attachment.type === 'image'}
                                                 <div class="rounded-lg overflow-hidden max-w-xs">
                                                     <img 
@@ -485,7 +482,7 @@
         {#if attachments.length > 0}
             <div class="mb-4">
                 <div class="flex flex-wrap gap-2">
-                    {#each attachments as attachment, index}
+                    {#each attachments as attachment, index (index)}
                         <div class="relative">
                             <img 
                                 src={attachment.preview} 

@@ -9,6 +9,21 @@
 		<!-- Cookie Consent Default State -->
 		<script src="%sveltekit.assets%/cookie-consent-init.js"></script>
 		
+		<!-- Theme Detection -->
+		<script>
+			// Apply theme before render to prevent flash
+			(function() {
+				const stored = localStorage.getItem('theme');
+				const system = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+				const theme = stored || system;
+				document.documentElement.setAttribute('data-theme', theme);
+				// Also add class for Tailwind dark mode compatibility
+				if (theme === 'dark') {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
+		
 		<!-- Google Analytics (if you have it) -->
 		<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
 		<script>

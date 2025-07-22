@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
+	import { throttle } from '$lib/utils/performance';
 	
 	interface Props {
 		min?: number;
@@ -26,18 +27,21 @@
 		maxValue = value[1];
 	});
 	
+	// Throttle the onChange callback to prevent excessive updates
+	const throttledOnChange = onChange ? throttle(onChange, 100) : undefined;
+	
 	function handleMinChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		const newMin = Math.min(Number(target.value), maxValue - 10);
 		minValue = newMin;
-		onChange?.([newMin, maxValue]);
+		throttledOnChange?.([newMin, maxValue]);
 	}
 	
 	function handleMaxChange(e: Event) {
 		const target = e.target as HTMLInputElement;
 		const newMax = Math.max(Number(target.value), minValue + 10);
 		maxValue = newMax;
-		onChange?.([minValue, newMax]);
+		throttledOnChange?.([minValue, newMax]);
 	}
 	
 	const minPercent = $derived(((minValue - min) / (max - min)) * 100);

@@ -116,28 +116,8 @@ class OnboardingStore {
 		}
 		
 		// Update in database via Supabase function
-		if (browser && this.userId) {
-			try {
-				const { supabase } = await import('$lib/supabase');
-				
-				const stepMap = {
-					hasSeenWelcome: 'welcome',
-					hasCompletedProfile: 'profile',
-					hasCreatedFirstListing: 'first_listing',
-					hasMadeFirstPurchase: 'first_purchase'
-				};
-				
-				const { error } = await supabase.rpc('update_onboarding_step', {
-					step_name: stepMap[step]
-				});
-				
-				if (error) {
-					console.error('Failed to update onboarding step:', error);
-				}
-			} catch (e) {
-				console.error('Failed to update onboarding in database:', e);
-			}
-		}
+		// TODO: Implement this using the proper Supabase client from page data
+		// For now, just save to localStorage
 	}
 	
 	reset() {

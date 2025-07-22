@@ -16,7 +16,7 @@
 		Shield
 	} from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
-	import { supabase } from '$lib/supabase';
+	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -40,141 +40,34 @@
 		pinterest: Link2
 	};
 
-	async function handleApprove() {
-		loading = true;
-		try {
-			// Update brand verification request
-			const { error: updateError } = await supabase
-				.from('brand_verification_requests')
-				.update({
-					verification_status: 'approved',
-					admin_notes: adminNotes,
-					reviewed_by: data.user.id,
-					reviewed_at: new Date().toISOString()
-				})
-				.eq('id', data.request.id);
-
-			if (updateError) throw updateError;
-
-			// Update profile to verified brand
-			const { error: profileError } = await supabase
-				.from('profiles')
-				.update({
-					is_verified: true,
-					account_type: 'brand',
-					brand_name: data.request.brand_name,
-					brand_category: data.request.brand_category
-				})
-				.eq('id', data.request.user_id);
-
-			if (profileError) throw profileError;
-
-			// Create admin approval record
-			const { error: approvalError } = await supabase
-				.from('admin_approvals')
-				.insert({
-					request_type: 'brand_verification',
-					request_id: data.request.id,
-					admin_id: data.user.id,
-					action: 'approve',
-					notes: adminNotes
-				});
-
-			if (approvalError) throw approvalError;
-
-			toast.success('Brand approved successfully!');
-			goto('/admin/brands');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to approve brand');
-		} finally {
-			loading = false;
-		}
+	function handleFormSubmit() {
+		return async ({ formElement, cancel }: { formElement: HTMLFormElement; cancel: () => void }) => {
+			loading = true;
+			return async ({ result }: { result: any }) => {
+				loading = false;
+				if (result.type === 'redirect') {
+					toast.success('Action completed successfully!');
+				} else if (result.type === 'error') {
+					toast.error(result.error?.message || 'An error occurred');
+				}
+			};
+		};
 	}
 
-	async function handleReject() {
+	function validateReject() {
 		if (!adminNotes.trim()) {
 			toast.error('Please provide a reason for rejection');
-			return;
+			return false;
 		}
-
-		loading = true;
-		try {
-			// Update brand verification request
-			const { error: updateError } = await supabase
-				.from('brand_verification_requests')
-				.update({
-					verification_status: 'rejected',
-					admin_notes: adminNotes,
-					reviewed_by: data.user.id,
-					reviewed_at: new Date().toISOString()
-				})
-				.eq('id', data.request.id);
-
-			if (updateError) throw updateError;
-
-			// Create admin approval record
-			const { error: approvalError } = await supabase
-				.from('admin_approvals')
-				.insert({
-					request_type: 'brand_verification',
-					request_id: data.request.id,
-					admin_id: data.user.id,
-					action: 'reject',
-					notes: adminNotes
-				});
-
-			if (approvalError) throw approvalError;
-
-			toast.success('Brand rejected');
-			goto('/admin/brands');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to reject brand');
-		} finally {
-			loading = false;
-		}
+		return true;
 	}
 
-	async function handleRequestInfo() {
+	function validateRequestInfo() {
 		if (!infoMessage.trim()) {
 			toast.error('Please specify what information is needed');
-			return;
+			return false;
 		}
-
-		loading = true;
-		try {
-			// Update status to more_info_needed
-			const { error: updateError } = await supabase
-				.from('brand_verification_requests')
-				.update({
-					verification_status: 'more_info_needed',
-					admin_notes: infoMessage,
-					reviewed_by: data.user.id,
-					reviewed_at: new Date().toISOString()
-				})
-				.eq('id', data.request.id);
-
-			if (updateError) throw updateError;
-
-			// Create admin approval record
-			const { error: approvalError } = await supabase
-				.from('admin_approvals')
-				.insert({
-					request_type: 'brand_verification',
-					request_id: data.request.id,
-					admin_id: data.user.id,
-					action: 'request_info',
-					notes: infoMessage
-				});
-
-			if (approvalError) throw approvalError;
-
-			toast.success('Information request sent');
-			goto('/admin/brands');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to request information');
-		} finally {
-			loading = false;
-		}
+		return true;
 	}
 
 	function formatDate(dateString: string) {
@@ -390,12 +283,19 @@
 
 			<!-- Request More Info -->
 			{#if requestMoreInfo}
-				<div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+				<form
+					method="POST"
+					action="?/requestInfo"
+					use:enhance={handleFormSubmit()}
+					onsubmit={() => validateRequestInfo()}
+					class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"
+				>
 					<label for="infoMessage" class="block text-sm font-medium text-gray-700 mb-2">
 						What information is needed?
 					</label>
 					<textarea
 						id="infoMessage"
+						name="infoMessage"
 						bind:value={infoMessage}
 						rows="3"
 						placeholder="Specify what additional information or documents are required..."
@@ -404,7 +304,7 @@
 					></textarea>
 					<div class="flex gap-2 mt-3">
 						<button
-							onclick={handleRequestInfo}
+							type="submit"
 							disabled={loading}
 							class="px-4 py-2 bg-yellow-600 text-white rounded-lg
 								hover:bg-yellow-700 disabled:opacity-50 transition-colors"
@@ -412,37 +312,50 @@
 							Send Request
 						</button>
 						<button
+							type="button"
 							onclick={() => requestMoreInfo = false}
 							class="px-4 py-2 text-gray-600 hover:text-gray-800"
 						>
 							Cancel
 						</button>
 					</div>
-				</div>
+				</form>
 			{/if}
 
 			<!-- Action Buttons -->
 			<div class="flex gap-3">
-				<button
-					onclick={handleApprove}
-					disabled={loading}
-					class="flex-1 flex items-center justify-center gap-2 px-6 py-3
-						bg-green-600 text-white font-medium rounded-lg
-						hover:bg-green-700 disabled:opacity-50 transition-colors"
+				<form method="POST" action="?/approve" use:enhance={handleFormSubmit()} class="flex-1">
+					<input type="hidden" name="adminNotes" value={adminNotes} />
+					<button
+						type="submit"
+						disabled={loading}
+						class="w-full flex items-center justify-center gap-2 px-6 py-3
+							bg-green-600 text-white font-medium rounded-lg
+							hover:bg-green-700 disabled:opacity-50 transition-colors"
+					>
+						<CheckCircle class="w-5 h-5" />
+						Approve Brand
+					</button>
+				</form>
+				<form
+					method="POST"
+					action="?/reject"
+					use:enhance={handleFormSubmit()}
+					onsubmit={() => validateReject()}
+					class="flex-1"
 				>
-					<CheckCircle class="w-5 h-5" />
-					Approve Brand
-				</button>
-				<button
-					onclick={handleReject}
-					disabled={loading}
-					class="flex-1 flex items-center justify-center gap-2 px-6 py-3
-						bg-red-600 text-white font-medium rounded-lg
-						hover:bg-red-700 disabled:opacity-50 transition-colors"
-				>
-					<XCircle class="w-5 h-5" />
-					Reject
-				</button>
+					<input type="hidden" name="adminNotes" value={adminNotes} />
+					<button
+						type="submit"
+						disabled={loading}
+						class="w-full flex items-center justify-center gap-2 px-6 py-3
+							bg-red-600 text-white font-medium rounded-lg
+							hover:bg-red-700 disabled:opacity-50 transition-colors"
+					>
+						<XCircle class="w-5 h-5" />
+						Reject
+					</button>
+				</form>
 				<button
 					onclick={() => requestMoreInfo = true}
 					disabled={loading || requestMoreInfo}

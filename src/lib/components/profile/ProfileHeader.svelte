@@ -5,7 +5,6 @@
 	import { Camera, MapPin, Calendar, ExternalLink, MessageCircle, UserPlus, UserMinus, Award, Star, Building2 } from 'lucide-svelte'
 	import type { Profile } from '$lib/types/unified'
 	import { getAchievementIcon, getAchievementColor } from '$lib/data/achievements'
-	import { auth } from '$lib/stores/auth'
 	import * as m from '$lib/paraglide/messages.js'
 	
 	interface Props {

@@ -129,7 +129,7 @@
         </div>
     {:else}
         <div class="space-y-2">
-            {#each conversations as conversation}
+            {#each conversations as conversation (conversation.id)}
                 {@const otherUser = getOtherUser(conversation)}
                 {@const isActive = $page.params.id === conversation.id}
                 

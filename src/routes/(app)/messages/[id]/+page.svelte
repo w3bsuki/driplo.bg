@@ -25,6 +25,7 @@
                     <MessageThread 
                         conversationId={$page.params.id} 
                         userId={data.session?.user.id || ''} 
+                        supabase={data.supabase}
                     />
                 </div>
             </div>

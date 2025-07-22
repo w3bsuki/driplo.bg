@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import { formatCurrency } from '$lib/utils/currency';
-	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 	import { Badge } from '$lib/components/ui/badge';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
@@ -122,7 +122,7 @@
 				<div class="space-y-3">
 					<div class="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
 						{#if hasImages}
-							<ResponsiveImage
+							<Image
 								src={images[currentImageIndex]}
 								alt={formData.title || 'Listing preview'}
 								class="w-full h-full"
@@ -178,7 +178,7 @@
 										index === currentImageIndex ? "border-[#87CEEB]" : "border-gray-200"
 									)}
 								>
-									<ResponsiveImage 
+									<Image 
 										src={image} 
 										alt="Product {index + 1}" 
 										class="w-full h-full" 
@@ -298,7 +298,7 @@
 				<div class="space-y-4">
 					<div class="relative aspect-square overflow-hidden rounded-lg bg-gray-50">
 						{#if hasImages}
-							<ResponsiveImage
+							<Image
 								src={images[currentImageIndex]}
 								alt={formData.title || 'Listing preview'}
 								class="w-full h-full"
@@ -354,7 +354,7 @@
 										index === currentImageIndex ? "border-[#87CEEB] shadow-md" : "border-gray-200 hover:border-gray-300"
 									)}
 								>
-									<ResponsiveImage 
+									<Image 
 										src={image} 
 										alt="Product {index + 1}" 
 										class="w-full h-full" 

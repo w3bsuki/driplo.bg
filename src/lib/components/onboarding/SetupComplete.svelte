@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { CheckCircle, Sparkles, Package, ShoppingBag, Users, TrendingUp, Clock } from 'lucide-svelte';
 	import Confetti from '$lib/components/ui/Confetti.svelte';
-	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 
 	interface Props {
 		accountType: 'personal' | 'brand';
@@ -70,7 +70,7 @@
 		<div class="relative inline-block">
 			<div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-green-100 shadow-xl mx-auto">
 				{#if avatarUrl}
-					<ResponsiveImage
+					<Image
 						src={avatarUrl}
 						alt="Your avatar"
 						class="w-full h-full object-cover"

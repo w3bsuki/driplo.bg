@@ -2,7 +2,7 @@
 	import { Heart } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
-	import ResponsiveImage from '$lib/components/ui/ResponsiveImage.svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	
 	interface Props {
@@ -100,13 +100,14 @@
 	<a href="/listings/{id}" class="block focus:outline-none rounded-lg">
 		<div class="relative aspect-[3/4] overflow-hidden rounded-t-lg bg-neutral-100">
 			{#if !imageError}
-				<ResponsiveImage
+				<Image
 					src={imageUrls || image}
 					alt={title}
 					class="h-full w-full"
 					objectFit="cover"
 					preferredSize="small"
 					loading={eagerLoading ? 'eager' : 'lazy'}
+					priority={eagerLoading}
 					onerror={handleImageError}
 					sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
 				/>

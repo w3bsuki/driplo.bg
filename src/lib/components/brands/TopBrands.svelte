@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { Star, TrendingUp, ShieldCheck, ExternalLink } from 'lucide-svelte';
-	import { supabase } from '$lib/supabase';
-	import { onMount } from 'svelte';
-	import type { Database } from '$lib/types/database';
 
-	type Brand = {
+	interface Brand {
 		user_id: string;
 		username: string;
 		avatar_url: string | null;
@@ -16,27 +13,15 @@
 		seller_rating_count: number;
 		is_verified: boolean;
 		badges: string[] | null;
-	};
+	}
 
-	let brands = $state<Brand[]>([]);
-	let loading = $state(true);
-	let error = $state<string | null>(null);
+	interface Props {
+		brands?: Brand[];
+		loading?: boolean;
+		error?: string | null;
+	}
 
-	onMount(async () => {
-		try {
-			const { data, error: fetchError } = await supabase
-				.rpc('get_top_brands', { limit_count: 12 });
-
-			if (fetchError) throw fetchError;
-
-			brands = data || [];
-		} catch (err: any) {
-			error = err.message;
-			console.error('Error fetching top brands:', err);
-		} finally {
-			loading = false;
-		}
-	});
+	let { brands = [], loading = false, error = null }: Props = $props();
 
 	function getAvatarUrl(brand: Brand): string {
 		if (brand.brand_logo_url) return brand.brand_logo_url;
@@ -80,7 +65,7 @@
 		{#if loading}
 			<!-- Loading skeleton -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-				{#each Array(8) as _, i}
+				{#each Array(8) as _, i (i)}
 					<div class="bg-white rounded-xl shadow-sm p-6 animate-pulse">
 						<div class="flex items-center gap-4 mb-4">
 							<div class="w-16 h-16 bg-gray-200 rounded-full"></div>
@@ -110,7 +95,7 @@
 		{:else}
 			<!-- Brands grid -->
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-				{#each brands as brand}
+				{#each brands as brand (brand.user_id || brand.username)}
 					<a 
 						href="/profile/{brand.username}"
 						class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 

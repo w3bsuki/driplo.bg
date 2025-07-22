@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { Building2, Search, Filter, ChevronDown } from 'lucide-svelte';
 	import TopBrands from '$lib/components/brands/TopBrands.svelte';
-	import { supabase } from '$lib/supabase';
-	import { onMount } from 'svelte';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -156,7 +154,7 @@
 	</div>
 
 	<!-- Brands Content -->
-	<TopBrands />
+	<TopBrands brands={data.topBrands} />
 
 	<!-- CTA Section -->
 	<div class="bg-gradient-to-r from-purple-100 to-blue-100 py-16 mt-16">

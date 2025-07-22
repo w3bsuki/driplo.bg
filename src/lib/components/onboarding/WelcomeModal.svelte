@@ -47,17 +47,10 @@
 		await onboarding.completeStep('hasSeenWelcome');
 		onboarding.showWelcomeModal = false;
 		
-		// Check if profile is complete
-		const { supabase } = await import('$lib/supabase');
-		const { data: profile } = await supabase
-			.from('profiles')
-			.select('full_name, bio')
-			.eq('id', user.id)
-			.single();
-		
-		if (!profile?.full_name || !profile?.bio) {
-			goto('/profile/edit?onboarding=true');
-		}
+		// Profile completion check moved to profile page
+		// The profile page will check if profile is complete
+		// and redirect to edit page if needed
+		goto('/profile?onboarding=true');
 	}
 	
 	function skip() {
