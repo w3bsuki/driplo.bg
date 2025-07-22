@@ -1,4 +1,4 @@
-import { error } from '@sveltejs/kit'
+import { error, type RequestEvent } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 import { browseListings, getBrowseFilters } from '$lib/server/browse'
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache'
@@ -8,8 +8,8 @@ export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
 	const session = await locals.safeGetSession()
 	const { supabase } = locals
 	
-	// Set cache headers for browse page
-	setCacheHeaders({ setHeaders } as any, cachePresets.browse)
+	// Set cache headers for browse page - disabled for now due to dynamic content
+	// setCacheHeaders({ setHeaders }, cachePresets.browse)
 	
 	// Extract filter parameters from URL
 	const searchParams = url.searchParams

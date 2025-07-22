@@ -79,12 +79,15 @@ export async function browseListings(
 
 		// Apply filters
 		if (category) {
-			if (category.includes('-')) {
-				// If category includes dash, treat as slug
-				query = query.eq('categories.slug', category)
-			} else {
-				// Otherwise treat as category name
-				query = query.eq('categories.name', category)
+			// First, get the category ID from slug or name
+			const categoryQuery = category.includes('-')
+				? supabase.from('categories').select('id').eq('slug', category).single()
+				: supabase.from('categories').select('id').eq('name', category).single()
+			
+			const { data: categoryData } = await categoryQuery
+			
+			if (categoryData) {
+				query = query.eq('category_id', categoryData.id)
 			}
 		}
 
@@ -121,10 +124,10 @@ export async function browseListings(
 
 		// Apply sorting
 		switch (sortBy) {
-			case 'price-asc':
+			case 'price-low':
 				query = query.order('price', { ascending: true })
 				break
-			case 'price-desc':
+			case 'price-high':
 				query = query.order('price', { ascending: false })
 				break
 			case 'popular':
@@ -133,16 +136,13 @@ export async function browseListings(
 			case 'favorites':
 				query = query.order('favorite_count', { ascending: false })
 				break
-			case 'brands-first':
-				// Sort by verified brands first, then brand accounts, then regular users
-				// Note: This requires a computed column or RPC function for optimal performance
-				// For now, we'll sort by created_at and handle priority in the client
-				query = query.order('created_at', { ascending: false })
+			case 'ending':
+				// For ending soon, we'd need an end_date field
+				// For now, sort by created_at ascending (oldest first)
+				query = query.order('created_at', { ascending: true })
 				break
 			case 'recent':
 			default:
-				// For default sorting, we can add a subtle brand priority
-				// by using multiple order clauses (brands will naturally appear first if they post more recently)
 				query = query.order('created_at', { ascending: false })
 				break
 		}
@@ -155,27 +155,15 @@ export async function browseListings(
 
 		// Apply same filters to count query
 		if (category) {
-			if (category.includes('-')) {
-				// Need to join with categories for count query
-				const { data: categoryData } = await supabase
-					.from('categories')
-					.select('id')
-					.eq('slug', category)
-					.single()
-				
-				if (categoryData) {
-					countQuery.eq('category_id', categoryData.id)
-				}
-			} else {
-				const { data: categoryData } = await supabase
-					.from('categories')
-					.select('id')
-					.eq('name', category)
-					.single()
-				
-				if (categoryData) {
-					countQuery.eq('category_id', categoryData.id)
-				}
+			// Use the same category ID we already fetched
+			const categoryQuery = category.includes('-')
+				? supabase.from('categories').select('id').eq('slug', category).single()
+				: supabase.from('categories').select('id').eq('name', category).single()
+			
+			const { data: categoryData } = await categoryQuery
+			
+			if (categoryData) {
+				countQuery.eq('category_id', categoryData.id)
 			}
 		}
 

@@ -1,7 +1,7 @@
 import { getContext, setContext } from 'svelte'
 import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database'
-import { goto } from '$app/navigation'
+import { goto, invalidateAll } from '$app/navigation'
 import { browser } from '$app/environment'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
@@ -84,7 +84,17 @@ class AuthContext {
 				}
 			})
 			
-			if (error) throw error
+			if (error) {
+				console.error('Supabase signUp error:', error);
+				// Check for specific error types
+				if (error.message?.includes('duplicate key') || error.message?.includes('already registered')) {
+					throw new Error('An account with this email already exists');
+				}
+				if (error.status === 406) {
+					throw new Error('Invalid request. Please check your information and try again.');
+				}
+				throw error;
+			}
 			
 			// Update local state
 			if (data.user) {
@@ -146,7 +156,10 @@ class AuthContext {
 			
 			const { data, error } = await this.supabase.auth.signInWithPassword({
 				email,
-				password
+				password,
+				options: {
+					// Ensure we're using the correct flow
+				}
 			})
 			
 			if (error) {
@@ -228,8 +241,11 @@ class AuthContext {
 			this.session = null
 			this.profile = null
 			
+			// Invalidate all supabase:auth dependencies
+			await invalidateAll()
+			
 			// Redirect to home
-			await goto('/')
+			await goto('/', { replaceState: true, invalidateAll: true })
 		} catch (error) {
 			this.error = error instanceof Error ? error : new Error('Sign out failed')
 			throw error

@@ -4,9 +4,23 @@
 	import { onMount } from 'svelte'
 	import { getAuthContext } from '$lib/stores/auth-context.svelte'
 	import { superForm } from 'sveltekit-superforms'
-	import { Button } from '$lib/components/ui'
+	import { zodClient } from 'sveltekit-superforms/adapters'
 	import { toast } from 'svelte-sonner'
-	import { AlertCircle } from 'lucide-svelte'
+	import { cn } from '$lib/utils'
+	import { 
+		ChevronRight, 
+		ChevronLeft, 
+		Check, 
+		X,
+		Save,
+		Eye,
+		Package,
+		Camera,
+		DollarSign,
+		Truck,
+		AlertCircle,
+		Sparkles
+	} from 'lucide-svelte'
 	import BasicInfoStep from './form/BasicInfoStep.svelte'
 	import ImageUploadStep from './form/ImageUploadStep.svelte'
 	import PricingDetailsStep from './form/PricingDetailsStep.svelte'
@@ -15,17 +29,19 @@
 	import PaymentAccountSetup from '$lib/components/payment/PaymentAccountSetup.svelte'
 	import type { Database } from '$lib/types/database'
 	import * as m from '$lib/paraglide/messages.js'
-	import { validateStep1, validateStep2, validateStep3, validateStep4 } from '$lib/schemas/listing'
-	import { saveFormData, loadFormData, clearFormData, debounce } from '$lib/utils/form-persistence'
-	import { debugFormSubmission } from '$lib/utils/form-debug'
+	import { createListingSchema, validateStep1, validateStep2, validateStep3, validateStep4 } from '$lib/schemas/listing'
+	import { debounce } from '$lib/utils/form-persistence'
 	
 	type Category = Database['public']['Tables']['categories']['Row']
 	
 	interface Props {
+		data: any
 		supabase: any
+		userId: string
+		draftId?: string
 	}
 	
-	let { supabase }: Props = $props()
+	let { data, supabase, userId, draftId }: Props = $props()
 	
 	// Get auth context
 	const authContext = getAuthContext()
@@ -40,18 +56,26 @@
 	let draftStatus = $state<'idle' | 'saving' | 'saved' | 'error'>('idle')
 	let lastSaved = $state<Date | null>(null)
 	let showPreview = $state(false)
+	let isMobile = $state(false)
 	
 	// Initialize superForm
-	const form = superForm($page.data.form, {
+	const form = superForm(data, {
+		validators: zodClient(createListingSchema),
 		dataType: 'json',
-		multipleSubmits: 'prevent',
+		resetForm: false,
 		onResult: ({ result }) => {
+			console.log('Form result:', result)
 			if (result.type === 'redirect') {
+				toast.success('🎉 Listing created successfully!')
 				// Clear saved form data on successful submission
 				deleteDraft()
+			} else if (result.type === 'failure') {
+				console.error('Form failure:', result)
+				toast.error(result.data?.error || 'Failed to create listing')
 			}
 		},
-		onError: () => {
+		onError: (error) => {
+			console.error('Form error:', error)
 			toast.error(m.listing_error_create())
 		}
 	})
@@ -59,57 +83,104 @@
 	const { form: formData, errors, submitting, message, enhance } = form
 	
 	const totalSteps = 4
-	const stepProgress = $derived((currentStep / totalSteps) * 100)
 	
-	// Validation for each step using Zod schemas
-	const isStep1Valid = $derived.by(() => {
-		const result = validateStep1($formData)
-		return result.success
-	})
-	
-	const isStep2Valid = $derived.by(() => {
-		const result = validateStep2($formData)
-		return result.success
-	})
-	
-	const isStep3Valid = $derived.by(() => {
-		const result = validateStep3($formData)
-		return result.success
-	})
-	
-	const isStep4Valid = $derived.by(() => {
-		const result = validateStep4($formData)
-		if (!result.success && currentStep === 4) {
-			console.log('Step 4 validation failed:', result.error)
-			console.log('Form data:', $formData)
+	// Step configuration with emojis
+	const steps = [
+		{ 
+			id: 1, 
+			name: 'Details', 
+			emoji: '✏️',
+			emojiActive: '📝',
+			color: 'blue'
+		},
+		{ 
+			id: 2, 
+			name: 'Photos', 
+			emoji: '📷',
+			emojiActive: '📸',
+			color: 'pink'
+		},
+		{ 
+			id: 3, 
+			name: 'Pricing', 
+			emoji: '💰',
+			emojiActive: '💵',
+			color: 'green'
+		},
+		{ 
+			id: 4, 
+			name: 'Shipping', 
+			emoji: '📦',
+			emojiActive: '🚚',
+			color: 'amber'
 		}
-		return result.success
-	})
+	]
 	
-	// Get step title
-	const stepTitle = $derived.by(() => {
-		switch (currentStep) {
-			case 1: return m.listing_step_basic_info()
-			case 2: return m.listing_step_add_photos()
-			case 3: return m.listing_step_pricing_details()
-			case 4: return m.listing_step_shipping_location()
-			default: return ''
+	// Step validation helper
+	function isStepValid(stepId: number): boolean {
+		switch (stepId) {
+			case 1:
+				return !!(
+					$formData.title?.trim() && 
+					$formData.description?.trim() && 
+					$formData.category_id && 
+					$formData.condition
+				)
+			case 2:
+				return !!($formData.images && $formData.images.length > 0)
+			case 3:
+				return !!(
+					$formData.price && 
+					$formData.price > 0 &&
+					$formData.size &&
+					$formData.brand &&
+					$formData.color
+				)
+			case 4:
+				return !!(
+					$formData.location_city?.trim() &&
+					$formData.shipping_type
+				)
+			default:
+				return false
 		}
-	})
+	}
+	
+	// Check if all steps are complete
+	let allStepsComplete = $derived(steps.every(step => isStepValid(step.id)))
+	
+	// Can navigate to step
+	function canNavigateToStep(stepId: number): boolean {
+		if (stepId === 1) return true
+		// Can only go to a step if all previous steps are valid
+		for (let i = 1; i < stepId; i++) {
+			if (!isStepValid(i)) return false
+		}
+		return true
+	}
+	
+	// Format saved time
+	function formatSavedTime(date: Date): string {
+		const now = new Date()
+		const diff = now.getTime() - date.getTime()
+		const seconds = Math.floor(diff / 1000)
+		
+		if (seconds < 60) return 'Just now'
+		if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+		return `${Math.floor(seconds / 3600)}h ago`
+	}
 	
 	onMount(async () => {
+		// Check if mobile
+		const checkMobile = () => {
+			isMobile = window.innerWidth < 768
+		}
+		
+		checkMobile()
+		window.addEventListener('resize', checkMobile)
+		
 		// First try to load draft from database
 		await loadDraft()
-		
-		// If no draft in database, check localStorage (migration path)
-		if (!lastSaved) {
-			const savedData = loadFormData<any>('create_listing')
-			if (savedData && Object.keys(savedData).length > 0) {
-				Object.assign($formData, savedData)
-				// Clear localStorage after migrating to database
-				clearFormData('create_listing')
-			}
-		}
 		
 		// Make sure default values are set
 		if (!$formData.shipping_type) {
@@ -118,6 +189,10 @@
 		
 		await loadCategories()
 		await checkPaymentAccount()
+		
+		return () => {
+			window.removeEventListener('resize', checkMobile)
+		}
 	})
 	
 	// Load draft from database
@@ -174,24 +249,33 @@
 	// Delete draft after successful submission
 	async function deleteDraft() {
 		try {
-			await fetch('/api/drafts/listing', { method: 'DELETE' })
-			clearFormData('create_listing') // Also clear localStorage
+			if (draftId) {
+				await supabase
+					.from('listing_drafts')
+					.delete()
+					.eq('id', draftId)
+					.eq('user_id', userId)
+			}
 		} catch (error) {
 			console.error('Failed to delete draft:', error)
 		}
 	}
 	
-	// Auto-save form data with debouncing
-	const saveForm = debounce(() => {
-		saveDraft()
-	}, 2000) // Increased to 2 seconds to reduce API calls
+	// Auto-save draft functionality
+	let saveTimeout: NodeJS.Timeout
 	
-	// Watch for form changes and auto-save
 	$effect(() => {
-		// Only save if form has been modified and user is authenticated
-		if (authContext?.user && ($formData.title || $formData.description || $formData.price)) {
-			saveForm()
+		// Watch for form changes
+		const formValues = $formData
+		
+		if (draftId && formValues && ($formData.title || $formData.description || $formData.price)) {
+			clearTimeout(saveTimeout)
+			saveTimeout = setTimeout(() => {
+				saveDraft()
+			}, 2000)
 		}
+		
+		return () => clearTimeout(saveTimeout)
 	})
 	
 	async function loadCategories() {
@@ -244,51 +328,46 @@
 		toast.success('Payment account set up successfully!')
 	}
 	
-	let formElement = $state<HTMLFormElement>()
+	let formElement: HTMLFormElement
+	
+	// Navigation
+	function goToStep(stepId: number) {
+		if (canNavigateToStep(stepId)) {
+			currentStep = stepId
+			// Smooth scroll to top on mobile
+			if (isMobile) {
+				window.scrollTo({ top: 0, behavior: 'smooth' })
+			}
+		}
+	}
 	
 	function nextStep() {
-		let isValid = false
-		let validationResult: any = null
-		
-		switch (currentStep) {
-			case 1: 
-				validationResult = validateStep1($formData)
-				isValid = validationResult.success
-				break
-			case 2: 
-				validationResult = validateStep2($formData)
-				isValid = validationResult.success
-				break
-			case 3: 
-				validationResult = validateStep3($formData)
-				isValid = validationResult.success
-				break
-			case 4: 
-				validationResult = validateStep4($formData)
-				isValid = validationResult.success
-				break
-		}
-		
-		if (isValid && currentStep < totalSteps) {
-			currentStep++
-		} else if (!isValid && validationResult?.error) {
-			// Show specific validation error with visual feedback
-			const firstError = validationResult.error.errors[0]
-			toast.error(firstError?.message || 'Please fill in all required fields')
+		if (currentStep < totalSteps && isStepValid(currentStep)) {
+			goToStep(currentStep + 1)
+		} else if (!isStepValid(currentStep)) {
+			const validationResult = currentStep === 1 ? validateStep1($formData) :
+									currentStep === 2 ? validateStep2($formData) :
+									currentStep === 3 ? validateStep3($formData) :
+									validateStep4($formData)
 			
-			// Add shake animation to form
-			if (formElement) {
-				formElement.classList.add('animate-shake')
-				setTimeout(() => {
-					formElement?.classList.remove('animate-shake')
-				}, 500)
+			if (!validationResult.success) {
+				const firstError = validationResult.error.errors[0]
+				toast.error(firstError?.message || 'Please fill in all required fields')
+				
+				// Add shake animation to form
+				if (formElement) {
+					formElement.classList.add('animate-shake')
+					setTimeout(() => {
+						formElement?.classList.remove('animate-shake')
+					}, 500)
+				}
 			}
 		}
 	}
 	
 	function prevStep() {
 		if (currentStep > 1) {
-			currentStep--
+			goToStep(currentStep - 1)
 		}
 	}
 	
@@ -316,53 +395,112 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="min-h-screen bg-[var(--color-neutral-50)]">
+<div class="min-h-screen bg-gray-50">
 	<!-- Header -->
-	<div class="sticky top-0 z-30 bg-[var(--color-neutral-0)] border-b border-[var(--color-neutral-200)]">
-		<div class="w-full px-[var(--space-3)]">
-			<div class="flex items-center justify-between h-[var(--space-10)]">
-				<button 
+	<div class="bg-white sticky top-0 z-20 border-b border-gray-100">
+		<div class="max-w-4xl mx-auto px-4 py-2.5 md:py-3">
+			<!-- Top Bar -->
+			<div class="flex items-center justify-between mb-3">
+				<button
 					onclick={() => goto('/sell')}
-					class="touch-min flex items-center justify-center text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)] transition-colors duration-[var(--duration-fast)] rounded-[var(--radius-lg)] hover:bg-[var(--color-neutral-100)] active-scale"
+					class="p-1.5 -ml-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+					aria-label="Close form"
 				>
-					<svg class="w-[var(--space-5)] h-[var(--space-5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-					</svg>
+					<X class="w-5 h-5" />
 				</button>
-				<div class="flex items-center gap-[var(--space-2)]">
-					<h1 class="text-[var(--text-base)] font-[var(--font-semibold)] text-[var(--color-neutral-900)]">{m.listing_create_title()}</h1>
-					{#if draftStatus === 'saved'}
-						<span class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">Saved</span>
-					{/if}
-				</div>
-				<div class="w-[var(--space-8)]"></div>
+				
+				<h1 class="text-base md:text-lg font-semibold text-gray-900 flex items-center gap-2">
+					<span class="text-xl">🏷️</span>
+					{m.listing_create_title()}
+				</h1>
+				
+				{#if lastSaved}
+					<div class="flex items-center gap-1 text-xs text-gray-500">
+						<span class="text-sm">💾</span>
+						<span class="hidden sm:inline">Saved</span>
+						{formatSavedTime(lastSaved)}
+					</div>
+				{:else}
+					<div class="w-16"></div>
+				{/if}
 			</div>
 			
-			<!-- Progress Bar -->
+			<!-- Progress Steps -->
 			{#if !showPaymentSetup}
-				<div class="pb-[var(--space-2)]">
-					<div class="flex items-center justify-between mb-[var(--space-1)]">
-						<span class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">Step {currentStep} of {totalSteps}</span>
-						<span class="text-[var(--text-xs)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">{stepTitle}</span>
-					</div>
-					<div class="w-full bg-[var(--color-neutral-200)] rounded-full h-[2px]">
-						<div 
-							class="bg-[var(--color-primary-500)] h-[2px] rounded-full transition-all duration-[var(--duration-slow)]"
-							style="width: {stepProgress}%"
-						></div>
-					</div>
+				<div class="flex items-center justify-between gap-2 md:gap-4">
+					{#each steps as step}
+						{@const isActive = currentStep === step.id}
+						{@const isComplete = isStepValid(step.id)}
+						{@const canNavigate = canNavigateToStep(step.id)}
+						
+						<button
+							onclick={() => goToStep(step.id)}
+							disabled={!canNavigate}
+							class={cn(
+								"flex-1 relative transition-all duration-200",
+								canNavigate && "cursor-pointer"
+							)}
+						>
+							<!-- Progress Line (hidden on first step) -->
+							{#if step.id > 1}
+								<div class="absolute top-5 -left-2 md:-left-4 right-1/2 h-0.5 bg-gray-200">
+									<div 
+										class={cn(
+											"h-full transition-all duration-300",
+											isStepValid(step.id - 1) ? "bg-blue-500" : "bg-transparent"
+										)}
+										style="width: 100%"
+									></div>
+								</div>
+							{/if}
+							
+							<!-- Step Circle & Info -->
+							<div class="relative flex flex-col items-center">
+								<div class={cn(
+									"w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center transition-all duration-200 relative z-10 text-base md:text-lg",
+									isActive 
+										? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg scale-110 ring-4 ring-blue-100" 
+										: isComplete 
+											? "bg-gradient-to-br from-green-500 to-green-600" 
+											: canNavigate
+												? "bg-white border-2 border-gray-300 hover:border-gray-400 hover:scale-105"
+												: "bg-gray-50 border-2 border-gray-200"
+								)}>
+									{#if isComplete && !isActive}
+										<span class="text-white">✓</span>
+									{:else}
+										<span class={isActive || isComplete ? "" : "opacity-60"}>
+											{isActive ? step.emojiActive : step.emoji}
+										</span>
+									{/if}
+								</div>
+								
+								<!-- Step Name -->
+								<span class={cn(
+									"text-[10px] md:text-xs mt-0.5 font-medium transition-colors",
+									isActive 
+										? "text-gray-900" 
+										: canNavigate 
+											? "text-gray-600"
+											: "text-gray-400"
+								)}>
+									{step.name}
+								</span>
+							</div>
+						</button>
+					{/each}
 				</div>
 			{/if}
 		</div>
 	</div>
 	
 	<!-- Content -->
-	<div class="pb-[var(--space-20)]">
+	<div class="pb-32">
 		{#if isCheckingPayment || isLoadingCategories}
 			<div class="flex items-center justify-center min-h-[400px]">
 				<div class="text-center">
-					<div class="animate-spin rounded-full h-[var(--space-8)] w-[var(--space-8)] border-b-2 border-[var(--color-primary-500)] mx-auto mb-[var(--space-3)]"></div>
-					<p class="text-[var(--color-neutral-600)] text-[var(--text-sm)]">
+					<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-3"></div>
+					<p class="text-gray-600 text-sm">
 						{#if isCheckingPayment}
 							Checking payment account...
 						{:else}
@@ -372,13 +510,13 @@
 				</div>
 			</div>
 		{:else if showPaymentSetup}
-			<div class="w-full px-[var(--space-3)] py-[var(--space-3)]">
-				<div class="mb-[var(--space-3)] bg-[var(--color-warning-light)] border border-[var(--color-warning-main)] rounded-[var(--radius-lg)] p-[var(--space-3)]">
-					<div class="flex items-center gap-[var(--space-2)] text-[var(--color-warning-dark)]">
-						<AlertCircle class="w-[var(--space-4)] h-[var(--space-4)]" />
-						<span class="font-[var(--font-semibold)] text-[var(--text-sm)]">Payment Account Required</span>
+			<div class="max-w-5xl mx-auto px-4 py-6">
+				<div class="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+					<div class="flex items-center gap-2 text-amber-800">
+						<AlertCircle class="w-4 h-4" />
+						<span class="font-semibold text-sm">Payment Account Required</span>
 					</div>
-					<p class="text-[var(--text-xs)] text-[var(--color-warning-dark)] mt-[var(--space-1)]">
+					<p class="text-xs text-amber-700 mt-1">
 						You need to set up a payment account before creating listings.
 					</p>
 				</div>
@@ -392,32 +530,35 @@
 				use:enhance
 				aria-label={m.listing_create_title()}
 				bind:this={formElement}
+				class="max-w-4xl mx-auto"
 			>
 				<!-- Form Content -->
-				<div class="px-[var(--space-3)] py-[var(--space-2)]">
-					<!-- Step 1: Basic Info -->
-					{#if currentStep === 1}
-						<BasicInfoStep {form} {categories} />
-					{/if}
-					
-					<!-- Step 2: Images -->
-					{#if currentStep === 2}
-						<ImageUploadStep 
-							{form} 
-							{supabase} 
-							userId={authContext?.user?.id || ''} 
-						/>
-					{/if}
-					
-					<!-- Step 3: Pricing & Details -->
-					{#if currentStep === 3}
-						<PricingDetailsStep {form} {categories} />
-					{/if}
-					
-					<!-- Step 4: Shipping & Location -->
-					{#if currentStep === 4}
-						<ShippingLocationStep {form} />
-					{/if}
+				<div class="px-4 py-4 md:py-6">
+					<!-- Step Content with Animation -->
+					<div class="relative min-h-[400px]">
+						{#if currentStep === 1}
+							<div class="animate-in fade-in slide-in-from-right-5 duration-200">
+								<BasicInfoStep {form} {categories} isMobile={isMobile} />
+							</div>
+						{:else if currentStep === 2}
+							<div class="animate-in fade-in slide-in-from-right-5 duration-200">
+								<ImageUploadStep 
+									{form} 
+									{supabase} 
+									userId={userId} 
+									isMobile={isMobile}
+								/>
+							</div>
+						{:else if currentStep === 3}
+							<div class="animate-in fade-in slide-in-from-right-5 duration-200">
+								<PricingDetailsStep {form} {categories} isMobile={isMobile} />
+							</div>
+						{:else if currentStep === 4}
+							<div class="animate-in fade-in slide-in-from-right-5 duration-200">
+								<ShippingLocationStep {form} isMobile={isMobile} />
+							</div>
+						{/if}
+					</div>
 				</div>
 				
 				<!-- Single hidden input with JSON data -->
@@ -426,61 +567,104 @@
 		{/if}
 	</div>
 	
-	<!-- Fixed Navigation -->
-	<div class="fixed bottom-0 left-0 right-0 bg-[var(--color-neutral-0)] border-t border-[var(--color-neutral-100)] px-[var(--space-3)] py-[var(--space-2)] z-50" style="padding-bottom: max(env(safe-area-inset-bottom), var(--space-2))">
-		<div class="max-w-lg mx-auto flex gap-[var(--space-2)]">
-			{#if currentStep > 1}
-				<button
-					type="button"
-					onclick={prevStep}
-					class="flex-1 button-size-md font-[var(--font-medium)] text-[var(--color-neutral-700)] bg-[var(--color-neutral-100)] hover:bg-[var(--color-neutral-200)] rounded-[var(--radius-lg)] transition-colors duration-[var(--duration-fast)] active-scale"
-				>
-					Back
-				</button>
-			{/if}
+	<!-- Bottom Navigation -->
+	<div class={cn(
+		"bg-white border-t border-gray-200",
+		isMobile 
+			? "fixed bottom-0 left-0 right-0 px-4 py-3 safe-area-padding-bottom"
+			: "sticky bottom-0 py-4"
+	)}>
+		<div class="max-w-4xl mx-auto px-4 md:px-0">
+			<div class="flex gap-3">
+				{#if currentStep > 1}
+					<button
+						type="button"
+						onclick={prevStep}
+						class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-xl transition-colors flex items-center gap-2"
+					>
+						<ChevronLeft class="w-4 h-4" />
+						<span class="hidden sm:inline">Back</span>
+					</button>
+				{/if}
+				
+				{#if currentStep < totalSteps}
+					<button
+						type="button"
+						onclick={nextStep}
+						disabled={!isStepValid(currentStep)}
+						class={cn(
+							"flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2",
+							isStepValid(currentStep)
+								? "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl"
+								: "bg-gray-200 text-gray-400 cursor-not-allowed"
+						)}
+					>
+						Continue
+						<ChevronRight class="w-4 h-4" />
+					</button>
+				{:else}
+					<button
+						type="button"
+						onclick={() => showPreview = true}
+						disabled={!allStepsComplete || $submitting}
+						class={cn(
+							"flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2",
+							allStepsComplete && !$submitting
+								? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl"
+								: "bg-gray-200 text-gray-400 cursor-not-allowed"
+						)}
+					>
+						{#if $submitting}
+							<div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+							Creating...
+						{:else}
+							<Eye class="w-4 h-4" />
+							Preview & Publish
+						{/if}
+					</button>
+				{/if}
+			</div>
 			
-			{#if currentStep < totalSteps}
-				<button
-					type="button"
-					onclick={nextStep}
-					class="flex-1 button-size-md font-[var(--font-medium)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-600)] text-white rounded-[var(--radius-lg)] transition-all duration-[var(--duration-fast)] active-scale"
-				>
-					Continue
-				</button>
-			{:else}
-				<button
-					type="button"
-					onclick={() => {
-						if (isStep4Valid) {
-							showPreview = true;
-						} else {
-							const result = validateStep4($formData);
-							if (!result.success) {
-								toast.error('Please fill in all required fields: ' + result.error.errors.map(e => e.message).join(', '));
-							}
-						}
-					}}
-					disabled={!isStep4Valid}
-					class="flex-1 button-size-md font-[var(--font-medium)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-600)] text-white rounded-[var(--radius-lg)] transition-all duration-[var(--duration-fast)] active-scale disabled:opacity-50 disabled:cursor-not-allowed"
-				>
-					Preview & Publish
-				</button>
+			<!-- Progress dots on mobile -->
+			{#if isMobile && !showPaymentSetup}
+				<div class="flex justify-center gap-1.5 mt-3">
+					{#each steps as step}
+						<button
+							type="button"
+							onclick={() => goToStep(step.id)}
+							disabled={!canNavigateToStep(step.id)}
+							class={cn(
+								"h-2 rounded-full transition-all duration-200",
+								currentStep === step.id 
+									? "w-8 bg-blue-500" 
+									: "w-2",
+								isStepValid(step.id) 
+									? "bg-blue-500" 
+									: "bg-gray-300"
+							)}
+							aria-label={`Go to ${step.name}`}
+						/>
+					{/each}
+				</div>
 			{/if}
 		</div>
 	</div>
 	
-	<!-- Listing Preview Modal -->
-	<ListingPreview
+	<!-- Preview Modal -->
+	<ListingPreview 
 		formData={$formData}
 		user={authContext?.user}
 		isOpen={showPreview}
 		onClose={() => showPreview = false}
 		onEdit={() => showPreview = false}
 		onPublish={() => {
-			showPreview = false;
-			// Submit the form programmatically
+			showPreview = false
+			// Submit form
 			if (formElement) {
-				formElement.requestSubmit();
+				console.log('Submitting form with data:', $formData)
+				formElement.requestSubmit()
+			} else {
+				console.error('Form element not found')
 			}
 		}}
 		isSubmitting={$submitting}
@@ -488,39 +672,44 @@
 </div>
 
 <style>
-	/* Mobile-first optimizations */
-	@media (max-width: 640px) {
-		/* Ensure minimum touch targets on mobile */
-		:global(input[type="text"]),
-		:global(input[type="number"]),
-		:global(input[type="email"]),
-		:global(input[type="tel"]),
-		:global(textarea),
-		:global(select),
-		:global(button) {
-			min-height: var(--button-height-md); /* 32px minimum */
-			font-size: var(--text-base); /* 14px - prevents zoom on iOS */
-			-webkit-appearance: none; /* Remove iOS styling */
+	.safe-area-padding-bottom {
+		padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+	}
+	
+	@keyframes slide-in-from-right-5 {
+		from {
+			transform: translateX(1.25rem);
 		}
-		
-		/* Compact spacing on mobile */
-		:global(.space-y-\[var\(--space-3\)\] > :not([hidden]) ~ :not([hidden])) {
-			margin-top: var(--space-2-5); /* Slightly tighter on mobile */
+		to {
+			transform: translateX(0);
 		}
 	}
 	
-	/* Prevent double-tap zoom on all interactive elements */
-	:global(button),
-	:global(a),
-	:global(input),
-	:global(select),
-	:global(textarea) {
-		touch-action: manipulation;
+	.animate-in {
+		animation-duration: 200ms;
+		animation-fill-mode: both;
+	}
+	
+	.fade-in {
+		animation-name: fade-in;
+	}
+	
+	.slide-in-from-right-5 {
+		animation-name: slide-in-from-right-5;
+	}
+	
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 	
 	/* Shake animation for validation errors */
 	:global(.animate-shake) {
-		animation: shake var(--duration-slow) var(--ease-bounce);
+		animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 	}
 	
 	@keyframes shake {
@@ -529,11 +718,14 @@
 		20%, 40%, 60%, 80% { transform: translateX(4px); }
 	}
 	
-	/* Optimize for small screens */
-	@media (max-width: 375px) {
-		:global(.button-size-md) {
-			font-size: var(--text-xs);
-			padding-inline: var(--space-2);
+	/* Ensure proper touch targets on mobile */
+	@media (max-width: 640px) {
+		:global(button),
+		:global(input),
+		:global(textarea),
+		:global(select) {
+			min-height: 44px;
+			-webkit-tap-highlight-color: transparent;
 		}
 	}
 </style>

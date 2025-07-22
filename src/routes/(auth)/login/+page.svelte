@@ -10,11 +10,7 @@
 	import { Button, Input, Icon } from '$lib/components/ui'
 	import { onMount } from 'svelte'
 
-	let auth = $state(null)
-	
-	onMount(() => {
-		auth = getAuthContext()
-	})
+	const auth = getAuthContext()
 
 	let email = ''
 	let password = ''
@@ -53,10 +49,6 @@
 
 		loading = true
 		try {
-			if (!auth) {
-				toast.error('Authentication not initialized')
-				return
-			}
 			await auth.signIn(email, password, rememberMe)
 			toast.success(m.auth_welcome_back_toast())
 			goto('/')
@@ -74,10 +66,6 @@
 	async function handleOAuth(provider: 'google' | 'github') {
 		loading = true
 		try {
-			if (!auth) {
-				toast.error('Authentication not initialized')
-				return
-			}
 			await auth.signInWithProvider(provider)
 		} catch (error) {
 			if (error instanceof Error) {

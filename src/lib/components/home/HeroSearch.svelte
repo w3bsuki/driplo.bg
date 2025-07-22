@@ -182,7 +182,7 @@
 					)}>
 						<div class="flex items-center min-w-0">
 							<!-- Category Dropdown Button -->
-							<div class="relative flex-shrink-0 pl-4 pr-3">
+							<div class="relative flex-shrink-0 pl-4 pr-3 py-3">
 								<button
 									data-categories-button
 									onclick={toggleCategoryDropdown}
@@ -213,7 +213,7 @@
 							<div class="w-px h-6 bg-gray-200 flex-shrink-0"></div>
 							
 							<!-- Search Input with Icon -->
-							<div class="flex-1 min-w-0 flex items-center">
+							<div class="flex-1 min-w-0 flex items-center px-3">
 								<input
 									type="search"
 									placeholder={m.browse_search_placeholder()}
@@ -223,11 +223,11 @@
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
 									aria-label={m.browse_search_placeholder()}
-									class="w-full py-4 md:py-4.5 pl-4 pr-3 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+									class="w-full py-3 pr-3 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 mr-2 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
+									class="p-2 hover:scale-110 transition-transform focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg"
 									aria-label={m.quick_filter_search_button()}
 								>
 									<span class="text-lg" aria-hidden="true">🔍</span>
@@ -237,8 +237,8 @@
 						
 						
 						<!-- Trending Category Links -->
-						<div class="border-t border-blue-50 py-3 md:py-3 relative overflow-hidden rounded-b-2xl">
-							<div class="mx-4 flex items-center gap-2.5 md:gap-3">
+						<div class="border-t border-blue-50 py-2 relative overflow-hidden rounded-b-2xl">
+							<div class="px-3 flex items-center gap-2">
 								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
 								
 								<!-- Quick Filters Component -->
@@ -262,12 +262,12 @@
 								<div class="w-px h-5 bg-gray-300 flex-shrink-0" aria-hidden="true"></div>
 								
 								<!-- Category Quick Links -->
-								<div class="flex items-center gap-2.5 overflow-x-auto scrollbar-hide">
+								<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
 									{#each categories.slice(0, 3) as category}
 										<button
 											onclick={() => handleCategorySelect(category.slug)}
 											aria-label="{m.filter_categories()}: {getCategoryName(category)}"
-											class="flex items-center gap-1.5 px-3 md:px-3 py-2 md:py-1.5 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
+											class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
 										>
 											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
 											<span>{getCategoryName(category)}</span>

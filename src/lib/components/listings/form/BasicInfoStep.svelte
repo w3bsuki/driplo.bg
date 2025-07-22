@@ -3,6 +3,8 @@
 	import { Label, Input, Textarea, Skeleton } from '$lib/components/ui'
 	import * as m from '$lib/paraglide/messages.js'
 	import { page } from '$app/stores'
+	import { formTokens, designTokens } from '$lib/design-tokens'
+	import { cn } from '$lib/utils'
 	
 	interface Category {
 		id: string
@@ -14,6 +16,7 @@
 	interface Props {
 		form: SuperForm<any>
 		categories: Category[]
+		isMobile?: boolean
 	}
 	
 	let { form, categories }: Props = $props()
@@ -116,11 +119,12 @@
 	}
 </script>
 
-<div class="space-y-[var(--space-3)]">
+<div class={formTokens.form.section}>
 	<!-- Title Field -->
-	<div class="space-y-[var(--space-1)]">
-		<Label for="title" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-			{m.listing_title_label()} <span class="text-[var(--color-error-main)]">*</span>
+	<div class={formTokens.fieldGroup.withHelper}>
+		<Label for="title" class={formTokens.label.base}>
+			<span class="text-lg">✏️</span>
+			{m.listing_title_label()} <span class={formTokens.label.required}>*</span>
 		</Label>
 		<div class="relative">
 			<Input
@@ -128,7 +132,14 @@
 				bind:value={$formData.title}
 				placeholder={m.listing_title_placeholder()}
 				maxlength={80}
-				class="input-size-md {touched.title && validateTitle($formData.title || '') ? 'border-[var(--color-error-light)] focus:border-[var(--color-error-main)] focus:ring-[var(--color-error-main)]' : touched.title && $formData.title ? 'border-[var(--color-success-light)] focus:border-[var(--color-success-main)] focus:ring-[var(--color-success-main)]' : 'border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)]'} rounded-[var(--radius-lg)]"
+				class={cn(
+					formTokens.input.base,
+					touched.title && validateTitle($formData.title || '') 
+						? formTokens.input.error
+						: touched.title && $formData.title 
+							? formTokens.input.success 
+							: ""
+				)}
 				aria-invalid={touched.title && validateTitle($formData.title || '') ? 'true' : undefined}
 				inputmode="text"
 				autocapitalize="sentences"
@@ -136,11 +147,11 @@
 			/>
 		</div>
 		<div class="flex items-center justify-between">
-			<p class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">
+			<p class={cn(designTokens.fontSize.sm, "text-gray-500")}>
 				{($formData.title || '').length}/80
 			</p>
 			{#if touched.title && validateTitle($formData.title || '')}
-				<p class="text-[var(--text-xs)] text-[var(--color-error-main)]">
+				<p class={formTokens.label.error}>
 					{validateTitle($formData.title || '')}
 				</p>
 			{/if}
@@ -148,9 +159,10 @@
 	</div>
 	
 	<!-- Description Field -->
-	<div class="space-y-[var(--space-1)]">
-		<Label for="description" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-			{m.listing_description_label()} <span class="text-[var(--color-error-main)]">*</span>
+	<div class={formTokens.fieldGroup.withHelper}>
+		<Label for="description" class={formTokens.label.base}>
+			<span class="text-lg">📝</span>
+			{m.listing_description_label()} <span class={formTokens.label.required}>*</span>
 		</Label>
 		<Textarea
 			id="description"
@@ -158,18 +170,25 @@
 			placeholder={m.listing_description_placeholder()}
 			rows={3}
 			maxlength={1000}
-			class="resize-none text-[var(--text-sm)] {touched.description && validateDescription($formData.description || '') ? 'border-[var(--color-error-light)] focus:border-[var(--color-error-main)] focus:ring-[var(--color-error-main)]' : touched.description && $formData.description ? 'border-[var(--color-success-light)] focus:border-[var(--color-success-main)] focus:ring-[var(--color-success-main)]' : 'border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)]'} rounded-[var(--radius-lg)]"
+			class={cn(
+				formTokens.textarea.base,
+				touched.description && validateDescription($formData.description || '') 
+					? formTokens.input.error
+					: touched.description && $formData.description 
+						? formTokens.input.success 
+						: ""
+			)}
 			aria-invalid={touched.description && validateDescription($formData.description || '') ? 'true' : undefined}
 			inputmode="text"
 			autocapitalize="sentences"
 			onblur={() => touched.description = true}
 		/>
 		<div class="flex items-center justify-between">
-			<p class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">
+			<p class={cn(designTokens.fontSize.sm, "text-gray-500")}>
 				{($formData.description || '').length}/1000
 			</p>
 			{#if touched.description && validateDescription($formData.description || '')}
-				<p class="text-[var(--text-xs)] text-[var(--color-error-main)]">
+				<p class={formTokens.label.error}>
 					{validateDescription($formData.description || '')}
 				</p>
 			{/if}
@@ -177,14 +196,18 @@
 	</div>
 	
 	<!-- Category Field -->
-	<div class="space-y-[var(--space-1)]">
-		<Label for="category" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-			{m.listing_category_label()} <span class="text-[var(--color-error-main)]">*</span>
+	<div class={formTokens.fieldGroup.base}>
+		<Label for="category" class={formTokens.label.base}>
+			<span class="text-lg">🏷️</span>
+			{m.listing_category_label()} <span class={formTokens.label.required}>*</span>
 		</Label>
 		<select
 			id="category"
 			bind:value={$formData.category_id}
-			class="flex input-size-md w-full rounded-[var(--radius-lg)] border border-[var(--color-neutral-200)] bg-[var(--color-neutral-0)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--text-sm)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] disabled:cursor-not-allowed disabled:opacity-50"
+			class={cn(
+				formTokens.select.base,
+				$errors.category_id && formTokens.input.error
+			)}
 			aria-invalid={$errors.category_id ? 'true' : undefined}
 		>
 			<option value="">{m.listing_category_placeholder()}</option>
@@ -195,20 +218,24 @@
 			{/each}
 		</select>
 		{#if $errors.category_id}
-			<p class="text-[var(--text-xs)] text-[var(--color-error-main)] mt-[var(--space-1)]">{$errors.category_id}</p>
+			<p class={formTokens.label.error}>{$errors.category_id}</p>
 		{/if}
 	</div>
 	
 	<!-- Subcategory Field -->
 	{#if $formData.category_id && subcategories.length > 0}
-		<div class="space-y-[var(--space-1)]">
-			<Label for="subcategory" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
+		<div class={cn(formTokens.fieldGroup.base, "animate-in fade-in slide-in-from-bottom-2 duration-200")}>
+			<Label for="subcategory" class={formTokens.label.base}>
+				<span class="text-lg">📋</span>
 				{m.listing_subcategory_label()}
 			</Label>
 			<select
 				id="subcategory"
 				bind:value={$formData.subcategory_id}
-				class="flex input-size-md w-full rounded-[var(--radius-lg)] border border-[var(--color-neutral-200)] bg-[var(--color-neutral-0)] px-[var(--space-3)] py-[var(--space-2)] text-[var(--text-sm)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:border-[var(--color-primary-500)] disabled:cursor-not-allowed disabled:opacity-50"
+				class={cn(
+					formTokens.select.base,
+					$errors.subcategory_id && formTokens.input.error
+				)}
 				disabled={loadingSubcategories}
 			>
 				<option value="">{loadingSubcategories ? 'Loading...' : m.listing_subcategory_placeholder()}</option>
@@ -219,8 +246,41 @@
 				{/each}
 			</select>
 			{#if $errors.subcategory_id}
-				<p class="text-[var(--text-xs)] text-[var(--color-error-main)] mt-[var(--space-1)]">{$errors.subcategory_id}</p>
+				<p class={formTokens.label.error}>{$errors.subcategory_id}</p>
 			{/if}
 		</div>
 	{/if}
 </div>
+
+<style>
+	@keyframes slide-in-from-bottom-2 {
+		from {
+			transform: translateY(0.5rem);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+	
+	.animate-in {
+		animation-duration: 200ms;
+		animation-fill-mode: both;
+	}
+	
+	.fade-in {
+		animation-name: fade-in;
+	}
+	
+	.slide-in-from-bottom-2 {
+		animation-name: slide-in-from-bottom-2;
+	}
+	
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+</style>

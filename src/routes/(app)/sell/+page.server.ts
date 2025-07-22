@@ -3,6 +3,7 @@ import { fail, redirect } from '@sveltejs/kit'
 import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { createListingSchema, createListingDefaults } from '$lib/schemas/listing'
+import { serverCache, cacheKeys } from '$lib/server/cache'
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const { data: { user }, error } = await locals.supabase.auth.getUser()
@@ -90,6 +91,13 @@ export const actions: Actions = {
 					error: error.message || 'Failed to create listing' 
 				})
 			}
+			
+			// Clear all relevant caches so new listing appears immediately
+			serverCache.delete(cacheKeys.homepage)
+			serverCache.delete(cacheKeys.featuredListings)
+			serverCache.delete(cacheKeys.popularListings)
+			// Clear browse cache entries that might contain this listing
+			serverCache.clear() // Clear all cache to ensure listing appears everywhere
 			
 			// Redirect to success page
 			throw redirect(303, `/sell/success?id=${data.id}`)

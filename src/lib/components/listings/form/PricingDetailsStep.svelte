@@ -3,7 +3,9 @@
 	import { Label, Input } from '$lib/components/ui'
 	import * as m from '$lib/paraglide/messages.js'
 	import ConditionSelector from './ConditionSelector.svelte'
-	import ColorSelector from './ColorSelector.svelte'
+	import ColorPicker from '$lib/components/ui/ColorPicker.svelte'
+import { formTokens, designTokens } from '$lib/design-tokens'
+import { cn } from '$lib/utils'
 	import { page } from '$app/stores'
 	
 	interface Props {
@@ -12,6 +14,7 @@
 			id: string
 			slug: string
 		}>
+		isMobile?: boolean
 	}
 	
 	let { form, categories }: Props = $props()
@@ -76,14 +79,15 @@
 	}
 </script>
 
-<div class="space-y-[var(--space-3)]">
+<div class={formTokens.form.section}>
 	<!-- Price Field -->
-	<div class="space-y-[var(--space-1)]">
-		<Label for="price" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-			{m.listing_price_label()} <span class="text-[var(--color-error-main)]">*</span>
+	<div class={formTokens.fieldGroup.base}>
+		<Label for="price" class={formTokens.label.base}>
+			<span class="text-lg">💰</span>
+			{m.listing_price_label()} <span class={formTokens.label.required}>*</span>
 		</Label>
 		<div class="relative">
-			<span class="absolute left-[var(--space-3)] top-1/2 -translate-y-1/2 text-[var(--color-neutral-500)] text-[var(--text-sm)]">$</span>
+			<span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-base">$</span>
 			<Input
 				id="price"
 				type="number"
@@ -91,92 +95,127 @@
 				min="0"
 				step="0.01"
 				placeholder={m.listing_price_placeholder()}
-				class="input-size-md pl-[var(--space-8)] border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+				class={cn(
+					formTokens.input.base,
+					"pl-9", // Extra padding for $ symbol
+					$errors.price && formTokens.input.error
+				)}
 				aria-invalid={$errors.price ? 'true' : undefined}
 				inputmode="decimal"
 				autocomplete="off"
 			/>
 		</div>
 		{#if $errors.price}
-			<p class="text-[var(--text-xs)] text-[var(--color-error-main)]">{$errors.price}</p>
+			<p class={formTokens.label.error}>{$errors.price}</p>
 		{/if}
 	</div>
 	
 	<!-- Condition Field -->
 	<ConditionSelector bind:value={$formData.condition} required />
 	{#if $errors.condition}
-		<p class="text-[var(--text-xs)] text-[var(--color-error-main)] -mt-[var(--space-2)]">{$errors.condition}</p>
+		<p class={cn(formTokens.label.error, "-mt-2")}>{$errors.condition}</p>
 	{/if}
 	
 	<!-- Brand and Size Fields -->
-	<div class="grid grid-cols-2 gap-[var(--space-2-5)]">
-		<div class="space-y-[var(--space-1)]">
-			<Label for="brand" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-				{m.listing_brand_label()}
+	<div class={formTokens.form.grid}>
+		<div class={formTokens.fieldGroup.base}>
+			<Label for="brand" class={formTokens.label.base}>
+				<span class="text-lg">🏷️</span>
+				{m.listing_brand_label()} <span class={formTokens.label.required}>*</span>
 			</Label>
 			<Input
 				id="brand"
 				bind:value={$formData.brand}
 				placeholder={m.listing_brand_placeholder()}
-				class="input-size-md border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+				class={cn(
+					formTokens.input.base,
+					$errors.brand && formTokens.input.error
+				)}
 				inputmode="text"
 				autocapitalize="words"
 			/>
+			{#if $errors.brand}
+				<p class={formTokens.label.error}>{$errors.brand}</p>
+			{/if}
 		</div>
 		
-		<div class="space-y-[var(--space-1)]">
-			<Label for="size" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-				{m.listing_size_label()} {#if isSizeRequired()}<span class="text-[var(--color-error-main)]">*</span>{/if}
+		<div class={formTokens.fieldGroup.base}>
+			<Label for="size" class={formTokens.label.base}>
+				<span class="text-lg">📏</span>
+				{m.listing_size_label()} 
+				{#if isSizeRequired()}<span class={formTokens.label.required}>*</span>{/if}
 			</Label>
 			<Input
 				id="size"
 				bind:value={$formData.size}
 				placeholder={m.listing_size_placeholder()}
-				class="input-size-md border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+				class={cn(
+					formTokens.input.base,
+					$errors.size && formTokens.input.error
+				)}
 				required={isSizeRequired()}
 				aria-invalid={$errors.size ? 'true' : undefined}
 				inputmode="text"
 				autocapitalize="off"
 			/>
 			{#if $errors.size}
-				<p class="text-[var(--text-xs)] text-[var(--color-error-main)]">{$errors.size}</p>
+				<p class={formTokens.label.error}>{$errors.size}</p>
 			{/if}
 		</div>
 	</div>
 	
 	<!-- Color Field -->
-	<ColorSelector bind:value={$formData.color} required />
+	<ColorPicker 
+		bind:value={$formData.color} 
+		label={m.listing_color_label()}
+		required 
+	/>
 	{#if $errors.color}
-		<p class="text-[var(--text-xs)] text-[var(--color-error-main)] -mt-[var(--space-2)]">{$errors.color}</p>
+		<p class={cn(formTokens.label.error, "-mt-2")}>{$errors.color}</p>
 	{/if}
 	
 	<!-- Materials Field -->
-	<div class="space-y-[var(--space-1)]">
-		<Label for="materials" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
+	<div class={formTokens.fieldGroup.withHelper}>
+		<Label for="materials" class={formTokens.label.base}>
+			<span class="text-lg">🧵</span>
 			{m.listing_materials_label()}
 		</Label>
-		<div class="space-y-[var(--space-2)]">
+		<div class="space-y-2">
 			<Input
 				id="materials"
 				bind:value={materialsInput}
 				placeholder={m.listing_materials_placeholder()}
-				class="input-size-md border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+				class={formTokens.input.base}
 				onkeydown={addMaterial}
 				onblur={addMaterial}
 				inputmode="text"
 				autocapitalize="off"
 			/>
-			<p class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">{m.listing_materials_hint()}</p>
+			<p class={formTokens.label.helper}>
+				{m.listing_materials_hint()}
+			</p>
 			
 			{#if materials.length > 0}
-				<div class="flex flex-wrap gap-[var(--space-1-5)]">
+				<div class="flex flex-wrap gap-2">
 					{#each materials as material}
-						<span class="inline-flex items-center gap-[var(--space-1)] px-[var(--space-2)] py-[var(--space-1)] rounded-[var(--radius-md)] text-[var(--text-xs)] font-[var(--font-medium)] bg-[var(--color-neutral-100)] text-[var(--color-neutral-700)]">
+						<span class={cn(
+							"inline-flex items-center gap-1.5 px-3 py-1.5",
+							designTokens.radius.lg,
+							designTokens.fontSize.sm,
+							designTokens.fontWeight.medium,
+							"bg-gray-100 text-gray-700",
+							designTokens.transition.fast
+						)}>
 							{material}
 							<button
 								type="button"
 								onclick={() => removeMaterial(material)}
-								class="ml-[var(--space-1)] hover:text-[var(--color-neutral-600)] focus:outline-none touch-min"
+								class={cn(
+									"ml-1 hover:text-gray-900",
+									"focus:outline-none",
+									"min-w-[24px] min-h-[24px]", // Touch target
+									"-mr-1" // Compensate for padding
+								)}
 								aria-label="Remove {material}"
 							>
 								✕
@@ -187,7 +226,7 @@
 			{/if}
 		</div>
 		{#if $errors.materials}
-			<p class="text-[var(--text-sm)] text-[var(--color-error-main)] mt-[var(--space-1)]">{$errors.materials}</p>
+			<p class={formTokens.label.error}>{$errors.materials}</p>
 		{/if}
 	</div>
 </div>

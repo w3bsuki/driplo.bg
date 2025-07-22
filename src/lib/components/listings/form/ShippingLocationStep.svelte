@@ -4,9 +4,12 @@
 	import { Badge } from '$lib/components/ui'
 	import * as m from '$lib/paraglide/messages.js'
 	import { page } from '$app/stores'
+	import { formTokens, designTokens } from '$lib/design-tokens'
+	import { cn } from '$lib/utils'
 	
 	interface Props {
 		form: SuperForm<any>
+		isMobile?: boolean
 	}
 	
 	let { form }: Props = $props()
@@ -41,88 +44,129 @@
 	}
 </script>
 
-<div class="space-y-[var(--space-3)]">
-	<div>
-		<Label for="location" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
-			{m.listing_location_label()} <span class="text-[var(--color-error-main)]">*</span>
+<div class={formTokens.form.section}>
+	<!-- Location Field -->
+	<div class={formTokens.fieldGroup.base}>
+		<Label for="location" class={formTokens.label.base}>
+			<span class="text-lg">📍</span>
+			{m.listing_location_label()} <span class={formTokens.label.required}>*</span>
 		</Label>
-		<div class="relative mt-[var(--space-2)]">
-			<span class="absolute left-[var(--space-3)] top-1/2 -translate-y-1/2 text-[var(--color-neutral-400)] text-[var(--text-lg)]">📍</span>
+		<div class="relative">
 			<Input
 				id="location"
 				bind:value={$formData.location_city}
 				placeholder={m.listing_location_placeholder()}
-				class="input-size-md pl-[var(--space-10)] border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+				class={cn(
+					formTokens.input.base,
+					$errors.location_city && formTokens.input.error
+				)}
 				aria-invalid={$errors.location_city ? 'true' : undefined}
 				inputmode="text"
 				autocomplete="address-level2"
 			/>
 		</div>
 		{#if $errors.location_city}
-			<p class="text-[var(--text-xs)] text-[var(--color-error-main)] mt-[var(--space-1)]">{$errors.location_city}</p>
+			<p class={formTokens.label.error}>{$errors.location_city}</p>
 		{:else if locale === 'bg' && $formData.location_city && !hasCyrillic($formData.location_city)}
-			<p class="text-[var(--text-xs)] text-[var(--color-warning-main)] mt-[var(--space-1)]">Местоположението трябва да бъде на български език</p>
+			<p class={cn(formTokens.label.error, "text-amber-600")}>Местоположението трябва да бъде на български език</p>
 		{/if}
 	</div>
 	
+	<!-- Shipping Options -->
 	<div>
 		<fieldset>
-			<legend class="text-[var(--text-sm)] font-[var(--font-medium)] mb-[var(--space-2-5)] text-[var(--color-neutral-700)]">
-				{m.listing_shipping_options()} <span class="text-[var(--color-error-main)]">*</span>
+			<legend class={cn(formTokens.label.base, "mb-3")}>
+				<span class="text-lg">🚚</span>
+				{m.listing_shipping_options()} <span class={formTokens.label.required}>*</span>
 			</legend>
-			<div class="space-y-[var(--space-2-5)]">
-			<label class="flex items-start gap-[var(--space-3)] p-[var(--space-3)] border rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-primary-500)] transition-colors duration-[var(--duration-fast)] {$formData.shipping_type === 'standard' ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)]' : 'border-[var(--color-neutral-200)]'}">
-				<input
-					type="radio"
-					bind:group={$formData.shipping_type}
-					value="standard"
-					class="mt-[var(--space-0-5)]"
-					aria-label="Standard shipping"
-				/>
-				<div class="flex-1">
-					<div class="font-[var(--font-medium)] text-[var(--text-sm)] text-[var(--color-neutral-900)]">{m.listing_shipping_standard()}</div>
-					<div class="text-[var(--text-xs)] text-[var(--color-neutral-600)]">{m.listing_shipping_standard_time()}</div>
-				</div>
-			</label>
-			
-			<label class="flex items-start gap-[var(--space-3)] p-[var(--space-3)] border rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-primary-500)] transition-colors duration-[var(--duration-fast)] {$formData.shipping_type === 'express' ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)]' : 'border-[var(--color-neutral-200)]'}">
-				<input
-					type="radio"
-					bind:group={$formData.shipping_type}
-					value="express"
-					class="mt-[var(--space-0-5)]"
-					aria-label="Express shipping"
-				/>
-				<div class="flex-1">
-					<div class="font-[var(--font-medium)] text-[var(--text-sm)] text-[var(--color-neutral-900)]">{m.listing_shipping_express()}</div>
-					<div class="text-[var(--text-xs)] text-[var(--color-neutral-600)]">{m.listing_shipping_express_time()}</div>
-				</div>
-			</label>
-			
-			<label class="flex items-start gap-[var(--space-3)] p-[var(--space-3)] border rounded-[var(--radius-lg)] cursor-pointer hover:border-[var(--color-primary-500)] transition-colors duration-[var(--duration-fast)] {$formData.shipping_type === 'pickup' ? 'border-[var(--color-primary-500)] bg-[var(--color-primary-50)]' : 'border-[var(--color-neutral-200)]'}">
-				<input
-					type="radio"
-					bind:group={$formData.shipping_type}
-					value="pickup"
-					class="mt-[var(--space-0-5)]"
-					aria-label="Local pickup only"
-				/>
-				<div class="flex-1">
-					<div class="font-[var(--font-medium)] text-[var(--text-sm)] text-[var(--color-neutral-900)]">{m.listing_shipping_pickup()}</div>
-					<div class="text-[var(--text-xs)] text-[var(--color-neutral-600)]">{m.listing_shipping_pickup_desc()}</div>
-				</div>
-			</label>
+			<div class="space-y-3">
+				<label class={cn(
+					"flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer",
+					designTokens.transition.fast,
+					"hover:border-gray-300 hover:shadow-sm",
+					$formData.shipping_type === 'standard' 
+						? "border-blue-500 bg-blue-50/50 shadow-sm" 
+						: "border-gray-200 bg-white"
+				)}>
+					<input
+						type="radio"
+						bind:group={$formData.shipping_type}
+						value="standard"
+						class="mt-0.5 w-4 h-4 text-blue-600"
+						aria-label="Standard shipping"
+					/>
+					<div class="flex-1">
+						<div class={cn(designTokens.fontWeight.medium, designTokens.fontSize.base, "text-gray-900")}>
+							📦 {m.listing_shipping_standard()}
+						</div>
+						<div class={cn(designTokens.fontSize.sm, "text-gray-600 mt-0.5")}>
+							{m.listing_shipping_standard_time()}
+						</div>
+					</div>
+				</label>
+				
+				<label class={cn(
+					"flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer",
+					designTokens.transition.fast,
+					"hover:border-gray-300 hover:shadow-sm",
+					$formData.shipping_type === 'express' 
+						? "border-blue-500 bg-blue-50/50 shadow-sm" 
+						: "border-gray-200 bg-white"
+				)}>
+					<input
+						type="radio"
+						bind:group={$formData.shipping_type}
+						value="express"
+						class="mt-0.5 w-4 h-4 text-blue-600"
+						aria-label="Express shipping"
+					/>
+					<div class="flex-1">
+						<div class={cn(designTokens.fontWeight.medium, designTokens.fontSize.base, "text-gray-900")}>
+							⚡ {m.listing_shipping_express()}
+						</div>
+						<div class={cn(designTokens.fontSize.sm, "text-gray-600 mt-0.5")}>
+							{m.listing_shipping_express_time()}
+						</div>
+					</div>
+				</label>
+				
+				<label class={cn(
+					"flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer",
+					designTokens.transition.fast,
+					"hover:border-gray-300 hover:shadow-sm",
+					$formData.shipping_type === 'pickup' 
+						? "border-blue-500 bg-blue-50/50 shadow-sm" 
+						: "border-gray-200 bg-white"
+				)}>
+					<input
+						type="radio"
+						bind:group={$formData.shipping_type}
+						value="pickup"
+						class="mt-0.5 w-4 h-4 text-blue-600"
+						aria-label="Local pickup only"
+					/>
+					<div class="flex-1">
+						<div class={cn(designTokens.fontWeight.medium, designTokens.fontSize.base, "text-gray-900")}>
+							🤝 {m.listing_shipping_pickup()}
+						</div>
+						<div class={cn(designTokens.fontSize.sm, "text-gray-600 mt-0.5")}>
+							{m.listing_shipping_pickup_desc()}
+						</div>
+					</div>
+				</label>
 			</div>
 		</fieldset>
 	</div>
 	
+	<!-- Shipping Cost -->
 	{#if $formData.shipping_type !== 'pickup'}
-		<div>
-			<Label for="shipping_cost" class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">
+		<div class={cn(formTokens.fieldGroup.withHelper, "animate-in fade-in slide-in-from-bottom-2 duration-200")}>
+			<Label for="shipping_cost" class={formTokens.label.base}>
+				<span class="text-lg">💸</span>
 				{m.listing_shipping_cost_label()}
 			</Label>
-			<div class="relative mt-[var(--space-2)]">
-				<span class="absolute left-[var(--space-3)] top-1/2 -translate-y-1/2 text-[var(--color-neutral-500)]">$</span>
+			<div class="relative">
+				<span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-base">$</span>
 				<Input
 					id="shipping_cost"
 					type="number"
@@ -130,41 +174,66 @@
 					min="0"
 					step="0.01"
 					placeholder={m.listing_shipping_cost_placeholder()}
-					class="input-size-md pl-[var(--space-8)] border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+					class={cn(formTokens.input.base, "pl-9")}
 					inputmode="decimal"
 					autocomplete="off"
 				/>
 			</div>
-			<p class="text-[var(--text-xs)] text-[var(--color-neutral-500)] mt-[var(--space-1)]">{m.listing_shipping_cost_free()}</p>
+			<p class={formTokens.label.helper}>{m.listing_shipping_cost_free()}</p>
 		</div>
 	{/if}
 	
-	<div>
-		<Label class="text-[var(--text-sm)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">{m.listing_tags_label()}</Label>
-		<div class="flex flex-wrap gap-[var(--space-2)] mt-[var(--space-2)] mb-[var(--space-3)]">
-			{#each $formData.tags || [] as tag}
-				<Badge variant="secondary" class="badge-size-sm pl-[var(--space-3)] pr-[var(--space-1)] py-[var(--space-1)]">
-					#{tag}
-					<button
-						type="button"
-						onclick={() => removeTag(tag)}
-						class="ml-[var(--space-1)] p-[var(--space-0-5)] hover:bg-[var(--color-neutral-300)] rounded touch-min"
-					>
-						✕
-					</button>
-				</Badge>
-			{/each}
-		</div>
+	<!-- Tags -->
+	<div class={formTokens.fieldGroup.base}>
+		<Label class={formTokens.label.base}>
+			<span class="text-lg">🏷️</span>
+			{m.listing_tags_label()}
+		</Label>
+		
+		{#if ($formData.tags || []).length > 0}
+			<div class="flex flex-wrap gap-2 mb-3">
+				{#each $formData.tags || [] as tag}
+					<Badge variant="secondary" class={cn(
+						"pl-3 pr-1 py-1.5",
+						designTokens.fontSize.sm,
+						"flex items-center gap-1"
+					)}>
+						#{tag}
+						<button
+							type="button"
+							onclick={() => removeTag(tag)}
+							class={cn(
+								"ml-1 p-1 hover:bg-gray-300 rounded-md",
+								"min-w-[24px] min-h-[24px]",
+								"flex items-center justify-center",
+								designTokens.transition.fast
+							)}
+							aria-label="Remove {tag}"
+						>
+							✕
+						</button>
+					</Badge>
+				{/each}
+			</div>
+		{/if}
 		
 		{#if suggestedTags.length > 0}
-			<div class="mb-[var(--space-3)]">
-				<p class="text-[var(--text-xs)] text-[var(--color-neutral-500)] mb-[var(--space-2)]">{m.listing_suggested_tags()}</p>
-				<div class="flex flex-wrap gap-[var(--space-2)]">
+			<div class="mb-3">
+				<p class={cn(designTokens.fontSize.sm, "text-gray-500 mb-2")}>
+					{m.listing_suggested_tags()}
+				</p>
+				<div class="flex flex-wrap gap-2">
 					{#each suggestedTags as tag}
 						<button
 							type="button"
 							onclick={() => addTag(tag)}
-							class="text-[var(--text-xs)] bg-[var(--color-neutral-100)] hover:bg-[var(--color-neutral-200)] px-[var(--space-2)] py-[var(--space-1)] rounded-full transition-colors duration-[var(--duration-fast)] active-scale"
+							class={cn(
+								designTokens.fontSize.sm,
+								"bg-gray-100 hover:bg-gray-200",
+								"px-3 py-1.5 rounded-full",
+								designTokens.transition.fast,
+								"active:scale-95"
+							)}
 						>
 							+ {tag}
 						</button>
@@ -176,7 +245,7 @@
 		<Input
 			bind:value={tagInput}
 			placeholder={m.listing_tag_placeholder()}
-			class="input-size-md border-[var(--color-neutral-200)] focus:border-[var(--color-primary-500)] focus:ring-[var(--color-primary-500)] rounded-[var(--radius-lg)]"
+			class={formTokens.input.base}
 			onkeydown={(e) => {
 				if (e.key === 'Enter') {
 					e.preventDefault()
@@ -186,3 +255,36 @@
 		/>
 	</div>
 </div>
+
+<style>
+	@keyframes slide-in-from-bottom-2 {
+		from {
+			transform: translateY(0.5rem);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+	
+	.animate-in {
+		animation-duration: 200ms;
+		animation-fill-mode: both;
+	}
+	
+	.fade-in {
+		animation-name: fade-in;
+	}
+	
+	.slide-in-from-bottom-2 {
+		animation-name: slide-in-from-bottom-2;
+	}
+	
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+</style>

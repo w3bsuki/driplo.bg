@@ -89,7 +89,7 @@
 		window.addEventListener('scroll', handleScroll);
 		
 		// Listen for auth changes and update context
-		const { data: authListener } = data.supabase.auth.onAuthStateChange((event, session) => {
+		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
 			// Update the auth context directly
 			if (event === 'SIGNED_IN' && session?.user) {
 				authContext.user = session.user;
@@ -98,6 +98,8 @@
 				onboarding.initialize(session.user.id);
 				// Notify compatibility layer
 				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
+				// Invalidate to get fresh data
+				await invalidate('supabase:auth');
 			} else if (event === 'SIGNED_OUT') {
 				authContext.user = null;
 				authContext.session = null;
@@ -106,9 +108,13 @@
 				onboarding.reset();
 				// Notify compatibility layer
 				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
+				// Invalidate to clear server-side session
+				await invalidate('supabase:auth');
+			} else if (event === 'TOKEN_REFRESHED' && session) {
+				authContext.session = session;
+				// Invalidate to sync with server
+				await invalidate('supabase:auth');
 			}
-			
-			// Server data is now managed by auth context reactively
 		});
 
 		return () => {

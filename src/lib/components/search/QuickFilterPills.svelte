@@ -69,7 +69,7 @@
 				aria-label={filter.ariaLabel || filter.name}
 				aria-pressed="false"
 				class={cn(
-					"flex items-center gap-1.5 px-3 py-1.5 md:py-2",
+					"flex items-center gap-1.5 px-3 py-2",
 					"rounded-lg bg-white border border-gray-200",
 					"hover:border-gray-300 hover:bg-gray-50",
 					"focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1",

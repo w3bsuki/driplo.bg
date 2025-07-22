@@ -10,11 +10,7 @@
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
 
-	let auth = $state(null)
-	
-	onMount(() => {
-		auth = getAuthContext()
-	})
+	const auth = getAuthContext()
 
 	let email = $state('')
 	let password = $state('')
@@ -80,10 +76,6 @@
 			loading = true
 			
 			// Sign up with additional metadata
-			if (!auth) {
-				toast.error('Authentication not initialized')
-				return
-			}
 			await auth.signUp(email, password, username, fullName || undefined, {
 				account_type: accountType,
 				brand_name: accountType === 'brand' ? brandName : undefined,
@@ -95,6 +87,7 @@
 			toast.success('Account created! Please check your email to verify your account.')
 			goto('/register?success=true')
 		} catch (error) {
+			console.error('Registration error:', error);
 			if (error instanceof z.ZodError) {
 				// Zod validation errors
 				error.issues.forEach((issue) => {
@@ -116,10 +109,6 @@
 			// Store account type preference in localStorage for OAuth callback
 			if (accountType === 'brand') {
 				localStorage.setItem('pending_account_type', 'brand')
-			}
-			if (!auth) {
-				toast.error('Authentication not initialized')
-				return
 			}
 			await auth.signInWithProvider(provider)
 		} catch (error) {
@@ -228,6 +217,7 @@
 			<!-- OAuth Buttons -->
 			<div class="space-y-2 mb-4">
 				<button
+					type="button"
 					class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
 					onclick={() => handleOAuth('google')}
 					disabled={loading}
@@ -241,6 +231,7 @@
 					Continue with Google
 				</button>
 				<button
+					type="button"
 					class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
 					onclick={() => handleOAuth('github')}
 					disabled={loading}
@@ -274,8 +265,6 @@
 							placeholder="John Doe"
 							disabled={loading}
 							autocomplete="name"
-							oninput={(e) => fullName = e.currentTarget.value}
-							onchange={(e) => fullName = e.currentTarget.value}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
@@ -291,8 +280,6 @@
 							required
 							disabled={loading}
 							autocomplete="username"
-							oninput={(e) => username = e.currentTarget.value}
-							onchange={(e) => username = e.currentTarget.value}
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 					</div>
@@ -310,8 +297,6 @@
 						required
 						disabled={loading}
 						autocomplete="email"
-						oninput={(e) => email = e.currentTarget.value}
-						onchange={(e) => email = e.currentTarget.value}
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 					/>
 				</div>
@@ -387,8 +372,6 @@
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							oninput={(e) => password = e.currentTarget.value}
-							onchange={(e) => password = e.currentTarget.value}
 							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button
@@ -418,8 +401,6 @@
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							oninput={(e) => confirmPassword = e.currentTarget.value}
-							onchange={(e) => confirmPassword = e.currentTarget.value}
 							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
 						/>
 						<button

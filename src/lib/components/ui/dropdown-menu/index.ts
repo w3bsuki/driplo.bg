@@ -3,6 +3,7 @@ import CheckboxItem from "./dropdown-menu-checkbox-item.svelte";
 import Content from "./dropdown-menu-content.svelte";
 import Group from "./dropdown-menu-group.svelte";
 import Item from "./dropdown-menu-item.svelte";
+import ItemCustom from "./dropdown-menu-item-custom.svelte";
 import Label from "./dropdown-menu-label.svelte";
 import RadioGroup from "./dropdown-menu-radio-group.svelte";
 import RadioItem from "./dropdown-menu-radio-item.svelte";
@@ -23,6 +24,7 @@ export {
 	Content as DropdownMenuContent,
 	Group as DropdownMenuGroup,
 	Item as DropdownMenuItem,
+	ItemCustom as DropdownMenuItemCustom,
 	Label as DropdownMenuLabel,
 	RadioGroup as DropdownMenuRadioGroup,
 	RadioItem as DropdownMenuRadioItem,
@@ -36,6 +38,7 @@ export {
 	Group,
 	GroupHeading,
 	Item,
+	ItemCustom,
 	Label,
 	RadioGroup,
 	RadioItem,

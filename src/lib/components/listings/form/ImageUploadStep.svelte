@@ -5,11 +5,14 @@
 	import { compressImages } from '$lib/utils/image-compression'
 	import type { SuperForm } from 'sveltekit-superforms'
 	import * as m from '$lib/paraglide/messages.js'
+	import { formTokens, designTokens } from '$lib/design-tokens'
+	import { cn } from '$lib/utils'
 	
 	interface Props {
 		form: SuperForm<any>
 		supabase: any
 		userId: string
+		isMobile?: boolean
 	}
 	
 	let { form, supabase, userId }: Props = $props()
@@ -189,14 +192,24 @@
 	}
 </script>
 
-<div class="space-y-4">
+<div class={formTokens.form.section}>
 	<div>
-		<h3 class="text-base font-semibold mb-2">{m.listing_add_photos_title()}</h3>
-		<p class="text-sm text-gray-600 mb-3">{m.listing_add_photos_description()}</p>
+		<h3 class={cn(designTokens.fontSize.lg, designTokens.fontWeight.semibold, "mb-2 flex items-center gap-2")}>
+			<span class="text-xl">📷</span>
+			{m.listing_add_photos_title()}
+		</h3>
+		<p class={cn(designTokens.fontSize.base, "text-gray-600 mb-4")}>{m.listing_add_photos_description()}</p>
 		
 		{#if !$formData.images || $formData.images.length === 0}
 			<label 
-				class="relative block w-full h-64 border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 touch-manipulation"
+				class={cn(
+					"relative block w-full h-64 border-2 border-dashed",
+					designTokens.radius.xl,
+					designTokens.transition.normal,
+					"border-gray-300 hover:border-blue-400",
+					"bg-gray-50 hover:bg-gray-50/70",
+					"cursor-pointer touch-manipulation"
+				)}
 			>
 				<input
 					type="file"
@@ -215,9 +228,14 @@
 						</div>
 					{:else}
 						<span class="text-5xl mb-3">📤</span>
-						<p class="text-sm font-medium text-center">{m.listing_upload_instructions()}</p>
-						<p class="text-xs mt-1 text-center">{m.listing_upload_formats()}</p>
-						<div class="mt-3 px-4 py-2 bg-[#87CEEB] text-white rounded-lg text-sm font-medium min-h-[44px] flex items-center justify-center">
+						<p class={cn(designTokens.fontSize.base, designTokens.fontWeight.medium, "text-center")}>{m.listing_upload_instructions()}</p>
+						<p class={cn(designTokens.fontSize.sm, "mt-1 text-center")}>{m.listing_upload_formats()}</p>
+						<div class={cn(
+							formTokens.button.base,
+							"mt-4 px-6 py-3",
+							"bg-gradient-to-r from-blue-500 to-blue-600 text-white",
+							designTokens.fontSize.base
+						)}>
 							📷 Take Photo / Choose Files
 						</div>
 					{/if}
@@ -234,8 +252,14 @@
 							class="w-full h-full object-cover rounded-xl {status?.status === 'error' ? 'opacity-50' : ''}"
 						/>
 						{#if index === 0}
-							<div class="absolute top-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
-								{m.listing_cover_image()}
+							<div class={cn(
+								"absolute top-2 left-2",
+								"bg-blue-500 text-white",
+								designTokens.fontSize.xs,
+								"px-2.5 py-1 rounded-full",
+								designTokens.fontWeight.medium
+							)}>
+								⭐ {m.listing_cover_image()}
 							</div>
 						{/if}
 						
@@ -252,7 +276,15 @@
 								<button
 									type="button"
 									onclick={() => retryFailedUpload(index)}
-									class="flex items-center gap-1 px-3 py-1 bg-white rounded-full text-sm hover:bg-gray-100 touch-manipulation"
+									class={cn(
+										"flex items-center gap-1.5 px-3 py-1.5",
+										"bg-white hover:bg-gray-100",
+										designTokens.radius.full,
+										designTokens.fontSize.sm,
+										designTokens.fontWeight.medium,
+										designTokens.transition.fast,
+										"touch-manipulation"
+									)}
 									aria-label="Retry upload"
 								>
 									🔄 Retry
@@ -294,7 +326,15 @@
 				{/each}
 				
 				{#if $formData.images.length < 10}
-					<label class="aspect-square border-2 border-dashed border-gray-300 rounded-xl hover:border-blue-300 transition-colors cursor-pointer bg-gray-50 flex items-center justify-center touch-manipulation">
+					<label class={cn(
+						"aspect-square border-2 border-dashed",
+						designTokens.radius.xl,
+						designTokens.transition.normal,
+						"border-gray-300 hover:border-blue-400",
+						"bg-gray-50 hover:bg-gray-50/70",
+						"cursor-pointer flex items-center justify-center",
+						"touch-manipulation"
+					)}>
 						<input
 							type="file"
 							accept="image/*"
@@ -308,19 +348,21 @@
 							<div class="w-12 h-12 mx-auto mb-2 bg-white rounded-full flex items-center justify-center shadow-sm">
 								<Plus class="w-6 h-6 text-[#87CEEB]" />
 							</div>
-							<p class="text-xs text-gray-600 font-medium">{m.listing_add_more()}</p>
+							<p class={cn(designTokens.fontSize.sm, "text-gray-600", designTokens.fontWeight.medium)}>
+								{m.listing_add_more()}
+							</p>
 						</div>
 					</label>
 				{/if}
 			</div>
 			
-			<p class="text-sm text-gray-600">
+			<p class={cn(designTokens.fontSize.base, "text-gray-600")}>
 				{m.listing_images_count({ count: $formData.images.length })}
 			</p>
 		{/if}
 		
 		{#if $errors.images}
-			<p class="text-sm text-red-500 mt-2">{$errors.images}</p>
+			<p class={cn(formTokens.label.error, "mt-2")}>{$errors.images}</p>
 		{/if}
 	</div>
 </div>

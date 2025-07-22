@@ -4,21 +4,12 @@
 	import MobileFiltersDrawer from './MobileFiltersDrawer.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
-	// Constants
-	const ANIMATION_DURATION = 200; // ms
-	const ICON_SIZE = 'text-lg'; // 1.125rem
-	const LABEL_SIZE = 'text-[10px]';
-	const PRIMARY_BUTTON_SIZE = 'w-11 h-11';
-	const MIN_TOUCH_TARGET = 'min-h-[44px]'; // WCAG 2.1 AAA standard
-	
-	// Props interface
 	interface Props {
 		class?: string;
 	}
 	
 	let { class: className = '' }: Props = $props();
 	
-	// State
 	let showFilters = $state(false);
 	
 	// Define pages where bottom nav should be hidden
@@ -99,57 +90,54 @@
 
 {#if isVisible}
 <nav 
-	class="fixed bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-lg border-t border-gray-100 shadow-lg md:hidden {className}"
+	class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg md:hidden safe-area-pb {className}"
 	role="navigation"
 	aria-label={m.nav_mobile_navigation ? m.nav_mobile_navigation() : 'Mobile navigation'}
 >
-	<!-- Top accent line -->
-	<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent" aria-hidden="true"></div>
-	<div class="grid grid-cols-5 items-center h-14 px-3 pb-safe" role="list">
+	<div class="grid grid-cols-5">
 		{#each navItems as item (item.href)}
-			<div role="listitem">
-				{#if item.isPrimary}
-					<!-- Primary Sell Button -->
-					<a
-						href={item.href}
-						class="flex flex-col items-center justify-center py-1.5 relative group {MIN_TOUCH_TARGET}"
-						aria-label={item.ariaLabel}
-					>
-						<div class="flex items-center justify-center {PRIMARY_BUTTON_SIZE} bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-lg shadow-gray-900/25 transform transition-all duration-{ANIMATION_DURATION} active:scale-95 hover:shadow-xl hover:shadow-gray-900/30 border-2 border-white/80">
-							<span class="text-xl font-bold" aria-hidden="true">+</span>
+			{#if item.isPrimary}
+				<!-- Primary Sell Button -->
+				<a
+					href={item.href}
+					class="flex items-center justify-center py-2"
+					aria-label={item.ariaLabel}
+				>
+					<div class="relative">
+						<div class="absolute inset-0 bg-gray-900 rounded-full blur-lg opacity-20"></div>
+						<div class="relative flex items-center justify-center w-12 h-12 bg-gray-900 text-white rounded-full shadow-lg transform transition-all duration-200 active:scale-95">
+							<span class="text-2xl font-bold" aria-hidden="true">+</span>
 						</div>
-					</a>
-				{:else if item.isAction}
-					<!-- Filter Action -->
-					<button
-						onclick={() => handleNavClick(item)}
-						class="flex flex-col items-center justify-center gap-0.5 py-1.5 text-gray-500 hover:text-[#4F9FC5] active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET}"
-						aria-label={item.ariaLabel}
-						type="button"
-					>
-						<div class="relative">
-							<span class="{ICON_SIZE} opacity-80 hover:opacity-100 transition-opacity" aria-hidden="true">{item.emoji}</span>
-						</div>
-						<span class="{LABEL_SIZE} font-medium tracking-tight leading-tight">{item.label}</span>
-					</button>
-				{:else}
-					<!-- Regular Navigation -->
-					<a
-						href={item.href}
-						class="flex flex-col items-center justify-center gap-0.5 py-1.5 active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET} {isActive(item) ? 'text-[#4F9FC5]' : 'text-gray-500 hover:text-[#4F9FC5]'}"
-						aria-label={item.ariaLabel}
-						aria-current={isActive(item) ? 'page' : undefined}
-					>
-						<div class="relative">
-							<span class="{ICON_SIZE} transition-all {isActive(item) ? 'opacity-100 scale-105' : 'opacity-80 hover:opacity-100'}" aria-hidden="true">{item.emoji}</span>
-							{#if isActive(item)}
-								<div class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#4F9FC5] rounded-full animate-pulse" aria-hidden="true"></div>
-							{/if}
-						</div>
-						<span class="{LABEL_SIZE} font-medium tracking-tight leading-tight">{item.label}</span>
-					</a>
-				{/if}
-			</div>
+					</div>
+				</a>
+			{:else if item.isAction}
+				<!-- Filter Action -->
+				<button
+					onclick={() => handleNavClick(item)}
+					class="flex flex-col items-center justify-center gap-1 py-2 px-2 text-gray-600 transition-colors duration-200 active:scale-95"
+					aria-label={item.ariaLabel}
+					type="button"
+				>
+					<span class="text-xl" aria-hidden="true">{item.emoji}</span>
+					<span class="text-[10px] font-medium">{item.label}</span>
+				</button>
+			{:else}
+				<!-- Regular Navigation -->
+				<a
+					href={item.href}
+					class="flex flex-col items-center justify-center gap-1 py-2 px-2 transition-all duration-200 active:scale-95 {isActive(item) ? 'text-blue-600' : 'text-gray-600'}"
+					aria-label={item.ariaLabel}
+					aria-current={isActive(item) ? 'page' : undefined}
+				>
+					<div class="relative">
+						<span class="text-xl {isActive(item) ? 'scale-110' : ''}" aria-hidden="true">{item.emoji}</span>
+						{#if isActive(item)}
+							<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" aria-hidden="true"></div>
+						{/if}
+					</div>
+					<span class="text-[10px] font-medium {isActive(item) ? 'font-semibold' : ''}">{item.label}</span>
+				</a>
+			{/if}
 		{/each}
 	</div>
 </nav>
@@ -159,12 +147,7 @@
 
 <style>
 	/* Safe area padding for iOS devices */
-	.pb-safe {
-		padding-bottom: env(safe-area-inset-bottom);
-	}
-	
-	/* Ensure proper animation duration variables are set */
-	.duration-200 {
-		transition-duration: 200ms;
+	.safe-area-pb {
+		padding-bottom: env(safe-area-inset-bottom, 0);
 	}
 </style>

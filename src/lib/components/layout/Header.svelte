@@ -132,7 +132,7 @@
 				<DropdownMenu.Content 
 					align="end" 
 					sideOffset={8}
-					class="w-64 rounded-xl border border-border bg-background/95 backdrop-blur-sm p-2 shadow-2xl z-50"
+					class="w-64 rounded-xl border border-border bg-background backdrop-blur-sm p-2 shadow-2xl z-50"
 				>
 					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
@@ -197,7 +197,7 @@
 				<DropdownMenu.Content 
 					align="end" 
 					sideOffset={8}
-					class="w-64 rounded-xl border border-border bg-background/95 backdrop-blur-sm p-2 shadow-2xl z-50"
+					class="w-64 rounded-xl border border-border bg-background backdrop-blur-sm p-2 shadow-2xl z-50"
 				>
 					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
