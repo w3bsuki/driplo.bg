@@ -8,8 +8,13 @@
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import { cn } from '$lib/utils'
+	import { onMount } from 'svelte'
 
-	const auth = getAuthContext()
+	let auth = $state(null)
+	
+	onMount(() => {
+		auth = getAuthContext()
+	})
 
 	let email = $state('')
 	let password = $state('')
@@ -75,6 +80,10 @@
 			loading = true
 			
 			// Sign up with additional metadata
+			if (!auth) {
+				toast.error('Authentication not initialized')
+				return
+			}
 			await auth.signUp(email, password, username, fullName || undefined, {
 				account_type: accountType,
 				brand_name: accountType === 'brand' ? brandName : undefined,
@@ -107,6 +116,10 @@
 			// Store account type preference in localStorage for OAuth callback
 			if (accountType === 'brand') {
 				localStorage.setItem('pending_account_type', 'brand')
+			}
+			if (!auth) {
+				toast.error('Authentication not initialized')
+				return
 			}
 			await auth.signInWithProvider(provider)
 		} catch (error) {

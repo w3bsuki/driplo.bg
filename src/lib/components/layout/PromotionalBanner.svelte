@@ -3,6 +3,7 @@
 	import { cn } from '$lib/utils';
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
+	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
 		message: string;
@@ -96,7 +97,7 @@
 				</a>
 				{#if countdown && variant === 'launch'}
 					<span class="text-[10px] md:text-xs opacity-90 font-medium hidden md:inline">
-						Join {sellerCount}+ sellers
+						{m.banner_join_sellers({ count: sellerCount })}
 					</span>
 				{/if}
 			{/if}
@@ -110,7 +111,7 @@
 						? "hover:bg-white/10 text-white/70 hover:text-white"
 						: "hover:bg-blue-100 text-blue-600 hover:text-blue-700"
 				)}
-				aria-label="Dismiss banner"
+				aria-label={m.banner_dismiss()}
 			>
 				<X class="h-3 w-3 md:h-4 md:w-4" />
 			</button>

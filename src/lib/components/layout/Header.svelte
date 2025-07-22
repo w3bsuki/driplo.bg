@@ -202,7 +202,7 @@
 							</button>
 							
 							<!-- Brand Profile & Analytics (for brand accounts) -->
-							{#if authContext.profile?.account_type === 'brand'}
+							{#if authContext.profile?.account_type === 'brand' && authContext.user?.id}
 								{#await authContext.supabase
 									.from('brand_profiles')
 									.select('brand_slug')
@@ -415,7 +415,7 @@
 							</button>
 							
 							<!-- Brand Profile & Analytics (for brand accounts) -->
-							{#if authContext.profile?.account_type === 'brand'}
+							{#if authContext.profile?.account_type === 'brand' && authContext.user?.id}
 								{#await authContext.supabase
 									.from('brand_profiles')
 									.select('brand_slug')

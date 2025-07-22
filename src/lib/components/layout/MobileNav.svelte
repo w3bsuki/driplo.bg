@@ -47,10 +47,10 @@
 </script>
 
 {#if isVisible}
-<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05),0_-2px_4px_-1px_rgba(0,0,0,0.03)] md:hidden">
+<nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-lg border-t border-gray-100 shadow-lg md:hidden">
 	<!-- Top accent line -->
-	<div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent"></div>
-	<div class="grid grid-cols-5 items-center h-[56px] px-3" style="padding-bottom: env(safe-area-inset-bottom)">
+	<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent"></div>
+	<div class="grid grid-cols-5 items-center h-14 px-3" style="padding-bottom: env(safe-area-inset-bottom)">
 		{#each navItems as item (item.href)}
 			{#if item.isPrimary}
 				<!-- Primary Sell Button -->

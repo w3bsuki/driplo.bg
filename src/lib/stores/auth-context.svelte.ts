@@ -141,8 +141,11 @@ class AuthContext {
 				this.session = data.session
 				await this.loadProfile(data.user.id)
 				
-				// The remember me functionality is handled by Supabase's session management
-				// No additional action needed here
+				// Store remember me preference
+				if (browser && rememberMe) {
+					// Store that user wants to be remembered
+					localStorage.setItem('remember_me', 'true')
+				}
 			}
 			
 			return data

@@ -25,7 +25,8 @@ export const load: PageServerLoad = async ({ locals }) => {
           .from('listings')
           .select(`
             *,
-            seller:profiles!seller_id(username, avatar_url)
+            seller:profiles!seller_id(username, avatar_url),
+            condition
           `)
           .eq('status', 'active')
           .order('created_at', { ascending: false })
@@ -36,7 +37,8 @@ export const load: PageServerLoad = async ({ locals }) => {
           .from('listings')
           .select(`
             *,
-            seller:profiles!seller_id(username, avatar_url)
+            seller:profiles!seller_id(username, avatar_url),
+            condition
           `)
           .eq('status', 'active')
           .order('view_count', { ascending: false })

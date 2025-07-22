@@ -3,6 +3,7 @@
 	import { cn } from '$lib/utils';
 	
 	interface Props {
+		brand?: string;
 		isVerified?: boolean;
 		size?: 'xs' | 'sm' | 'md' | 'lg';
 		showText?: boolean;
@@ -10,6 +11,7 @@
 	}
 	
 	let { 
+		brand,
 		isVerified = false, 
 		size = 'sm', 
 		showText = true,
@@ -52,7 +54,7 @@
 )}>
 	<Store class={cn(classes.icon, isVerified ? "text-blue-600" : "text-gray-600")} />
 	{#if showText}
-		<span class={cn(classes.text, "font-medium")}>Brand</span>
+		<span class={cn(classes.text, "font-medium")}>{brand || 'Brand'}</span>
 	{/if}
 	{#if isVerified}
 		<CheckCircle2 class={cn(classes.icon, "text-blue-600")} />

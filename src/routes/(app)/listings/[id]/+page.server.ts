@@ -46,7 +46,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		listingsCountResult,
 		sellerListingsResult,
 		relatedListingsResult,
-		followCheckResult
+		followCheckResult,
+		favoriteCheckResult
 	] = await Promise.all([
 		// Get seller's followers count
 		listing.seller
@@ -105,7 +106,17 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 					.select('id')
 					.eq('follower_id', session.user.id)
 					.eq('following_id', listing.seller_id)
-					.single()
+					.maybeSingle()
+			: Promise.resolve({ data: null }),
+		
+		// Check if current user has favorited this listing
+		session?.user
+			? supabase
+					.from('favorites')
+					.select('id')
+					.eq('user_id', session.user.id)
+					.eq('listing_id', params.id)
+					.maybeSingle()
 			: Promise.resolve({ data: null })
 	])
 
@@ -115,19 +126,25 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		listing.seller.listings_count = listingsCountResult.count || 0
 	}
 
-	// Increment view count (fire and forget - don't wait for response)
-	supabase
-		.from('listings')
-		.update({ view_count: (listing.view_count || 0) + 1 })
-		.eq('id', params.id)
+	// Track view using our new stored procedure (fire and forget)
+	if (session?.user) {
+		supabase.rpc('track_listing_view', {
+			p_listing_id: params.id,
+			p_viewer_id: session.user.id
+		})
 		.then(() => {}) // Silent success
 		.catch(() => {}) // Silent failure - view count is not critical
+	} else {
+		// For anonymous users, we'd need IP and session tracking
+		// This would require client-side tracking instead
+	}
 
 	return {
 		listing,
 		sellerListings: sellerListingsResult.data || [],
 		relatedListings: relatedListingsResult.data || [],
 		isFollowing: !!followCheckResult.data,
+		isLiked: !!favoriteCheckResult.data,
 		user: session?.user || null
 	}
 }

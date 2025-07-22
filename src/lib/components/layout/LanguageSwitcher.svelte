@@ -18,13 +18,14 @@
 		});
 		
 		// Set locale cookie for persistence
-		setCookie('locale', newLang);
+		// Using PARAGLIDE_LOCALE as that's what Paraglide runtime expects
+		setCookie('PARAGLIDE_LOCALE', newLang);
 		
 		// Set the locale in Paraglide runtime
 		setLocale(newLang, { reload: false });
 		
 		debugLog('LanguageSwitcher', 'Cookie set and reloading page', {
-			cookieName: 'locale',
+			cookieName: 'PARAGLIDE_LOCALE',
 			cookieValue: newLang
 		});
 		

@@ -19,7 +19,7 @@
 			avatar_url?: string;
 		};
 		favorite_count?: number;
-		condition?: 'new' | 'good' | 'worn';
+		condition?: string | null;
 		status: string;
 		created_at: string;
 		view_count?: number;
@@ -146,10 +146,13 @@
 			price: listing.price,
 			size: listing.size,
 			brand: listing.brand,
-			image: listing.images?.[0] || `https://picsum.photos/400/600?random=${listing.id}`,
+			image: listing.images || listing.image_urls || [],
+			imageUrls: listing.image_urls || listing.images || [],
 			seller: {
 				username: listing.seller?.username || 'user',
-				avatar: listing.seller?.avatar_url
+				avatar: listing.seller?.avatar_url,
+				account_type: listing.seller?.account_type,
+				is_verified: listing.seller?.is_verified
 			},
 			likes: listing.favorite_count || 0,
 			isLiked: userFavorites.includes(listing.id),

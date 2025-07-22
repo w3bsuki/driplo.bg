@@ -139,7 +139,35 @@ export interface DesignTokens {
   breakpoints: BreakpointTokens;
 }
 
-export const tokens: DesignTokens = {
+// Extended color utilities
+export interface ExtendedColorTokens extends ColorTokens {
+  accent: {
+    purple: { light: string; main: string; dark: string };
+    pink: { light: string; main: string; dark: string };
+    cyan: { light: string; main: string; dark: string };
+  };
+  gradient: {
+    brandToPurple: string;
+    brandToCyan: string;
+    purpleToPink: string;
+    blueGradient: string;
+    darkGradient: string;
+  };
+  glass: {
+    white: string;
+    light: string;
+    dark: string;
+  };
+  condition: {
+    newWithTags: { bg: string; text: string; border: string };
+    newWithoutTags: { bg: string; text: string; border: string };
+    veryGood: { bg: string; text: string; border: string };
+    good: { bg: string; text: string; border: string };
+    fair: { bg: string; text: string; border: string };
+  };
+}
+
+export const tokens: DesignTokens & { colors: ExtendedColorTokens } = {
   // Color system with semantic naming
   colors: {
     // Brand colors - maintaining baby blue identity
@@ -157,20 +185,20 @@ export const tokens: DesignTokens = {
       950: '#0A3A5E'
     },
     
-    // Neutral palette
+    // Neutral palette with blue undertones for modern feel
     neutral: {
       0: '#ffffff',
-      50: '#fafafa',
-      100: '#f4f4f5',
-      200: '#e4e4e7',
-      300: '#d4d4d8',
-      400: '#a1a1aa',
-      500: '#71717a',
-      600: '#52525b',
-      700: '#3f3f46',
-      800: '#27272a',
-      900: '#18181b',
-      950: '#09090b'
+      50: '#f8fafc',   // Slight blue tint
+      100: '#f1f5f9',  // Cool gray
+      200: '#e2e8f0',  // Blue-gray
+      300: '#cbd5e1',  // Modern gray
+      400: '#94a3b8',  // Muted blue-gray
+      500: '#64748b',  // Balanced gray
+      600: '#475569',  // Dark blue-gray
+      700: '#334155',  // Deep blue-gray
+      800: '#1e293b',  // Navy-gray
+      900: '#0f172a',  // Almost black with blue
+      950: '#020617'   // Rich black
     },
     
     // Semantic colors
@@ -179,6 +207,58 @@ export const tokens: DesignTokens = {
       warning: { light: '#fef3c7', main: '#f59e0b', dark: '#d97706', contrast: '#ffffff' },
       error: { light: '#fee2e2', main: '#ef4444', dark: '#dc2626', contrast: '#ffffff' },
       info: { light: '#dbeafe', main: '#3b82f6', dark: '#2563eb', contrast: '#ffffff' }
+    },
+    
+    // Modern accent colors
+    accent: {
+      purple: { light: '#f3e8ff', main: '#a855f7', dark: '#7c3aed' },
+      pink: { light: '#fce7f3', main: '#ec4899', dark: '#db2777' },
+      cyan: { light: '#cffafe', main: '#06b6d4', dark: '#0891b2' }
+    },
+    
+    // Beautiful gradients
+    gradient: {
+      brandToPurple: 'linear-gradient(135deg, #87CEEB 0%, #a855f7 100%)',
+      brandToCyan: 'linear-gradient(135deg, #87CEEB 0%, #06b6d4 100%)',
+      purpleToPink: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+      blueGradient: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 50%, #87CEEB 100%)',
+      darkGradient: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)'
+    },
+    
+    // Glassmorphism backgrounds
+    glass: {
+      white: 'rgba(255, 255, 255, 0.8)',
+      light: 'rgba(248, 250, 252, 0.7)',
+      dark: 'rgba(15, 23, 42, 0.7)'
+    },
+    
+    // Condition badge colors (finalized)
+    condition: {
+      newWithTags: {
+        bg: '#10b981', // emerald-500
+        text: '#ffffff',
+        border: '#10b981'
+      },
+      newWithoutTags: {
+        bg: '#3b82f6', // blue-500
+        text: '#ffffff',
+        border: '#3b82f6'
+      },
+      veryGood: {
+        bg: '#8b5cf6', // violet-500
+        text: '#ffffff',
+        border: '#8b5cf6'
+      },
+      good: {
+        bg: '#f59e0b', // amber-500
+        text: '#030712', // gray-950 for contrast
+        border: '#f59e0b'
+      },
+      fair: {
+        bg: '#ef4444', // red-500
+        text: '#ffffff',
+        border: '#ef4444'
+      }
     }
   },
   

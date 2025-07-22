@@ -5,24 +5,24 @@
 	import { cn } from '$lib/utils';
 
 	const buttonVariants = cva(
-		'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+		'inline-flex items-center justify-center whitespace-nowrap font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#87CEEB] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
 		{
 			variants: {
 				variant: {
-					default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-					destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-					outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
-					secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-					ghost: 'hover:bg-accent hover:text-accent-foreground',
-					link: 'text-primary underline-offset-4 hover:underline'
+					default: 'bg-[#87CEEB] text-white shadow-sm hover:bg-[#6BB6D8] active:bg-[#4F9FC5]',
+					destructive: 'bg-red-500 text-white shadow-sm hover:bg-red-600 active:bg-red-700',
+					outline: 'border border-gray-200 bg-white hover:bg-gray-50 active:bg-gray-100',
+					secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300',
+					ghost: 'hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200',
+					link: 'text-[#87CEEB] underline-offset-4 hover:underline p-0 h-auto'
 				},
 				size: {
-					xs: 'button-size-xs text-xs touch-safe',
-					sm: 'button-size-sm text-sm',
-					default: 'button-size-md',
-					lg: 'button-size-lg text-base',
-					xl: 'button-size-xl text-base',
-					icon: 'button-size-md aspect-square p-0'
+					xs: 'button-size-xs rounded-[var(--radius-sm)]',
+					sm: 'button-size-sm rounded-[var(--radius-md)]',
+					default: 'button-size-md rounded-[var(--radius-md)]',
+					lg: 'button-size-lg rounded-[var(--radius-md)]',
+					xl: 'button-size-xl rounded-[var(--radius-lg)]',
+					icon: 'w-8 h-8 p-0 rounded-[var(--radius-md)]'
 				}
 			},
 			defaultVariants: {

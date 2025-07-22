@@ -9,7 +9,8 @@ import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
 const handleI18n: Handle = async ({ event, resolve }) => {
 	// Get language from cookie or Accept-Language header
-	const cookieLocale = event.cookies.get('locale')
+	// Paraglide uses PARAGLIDE_LOCALE as the cookie name
+	const cookieLocale = event.cookies.get('PARAGLIDE_LOCALE') || event.cookies.get('locale')
 	const acceptLanguage = event.request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
 	
 	// Determine which language to use
@@ -37,7 +38,8 @@ const handleI18n: Handle = async ({ event, resolve }) => {
 	
 	// Set cookie if it's not already set or if locale changed
 	if (!cookieLocale || cookieLocale !== locale) {
-		response.headers.append('set-cookie', event.cookies.serialize('locale', locale, {
+		// Set PARAGLIDE_LOCALE cookie for Paraglide runtime
+		response.headers.append('set-cookie', event.cookies.serialize('PARAGLIDE_LOCALE', locale, {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
@@ -67,7 +69,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 						httpOnly: true,
 						secure: !dev,
 						sameSite: 'lax',
-						maxAge: options?.maxAge ?? 60 * 60 * 24 * 7 // 7 days default
+						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
 					})
 				},
 				remove: (key, options) => {

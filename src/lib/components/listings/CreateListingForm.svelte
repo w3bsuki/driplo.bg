@@ -316,88 +316,40 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div class="min-h-[100dvh] bg-gradient-to-b from-blue-50/30 to-white flex flex-col supports-[height:100dvh]:min-h-[100dvh]">
+<div class="min-h-screen bg-[var(--color-neutral-50)]">
 	<!-- Header -->
-	<div class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm border-b border-blue-100/50 flex-shrink-0">
-		<div class="w-full px-4">
-			<div class="flex items-center justify-between py-3">
+	<div class="sticky top-0 z-30 bg-[var(--color-neutral-0)] border-b border-[var(--color-neutral-200)]">
+		<div class="w-full px-[var(--space-3)]">
+			<div class="flex items-center justify-between h-[var(--space-10)]">
 				<button 
 					onclick={() => goto('/sell')}
-					class="p-2 -m-2 text-gray-600 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100"
+					class="touch-min flex items-center justify-center text-[var(--color-neutral-600)] hover:text-[var(--color-neutral-900)] transition-colors duration-[var(--duration-fast)] rounded-[var(--radius-lg)] hover:bg-[var(--color-neutral-100)] active-scale"
 				>
-					<span class="text-lg">←</span>
+					<svg class="w-[var(--space-5)] h-[var(--space-5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+					</svg>
 				</button>
-				<div class="flex items-center gap-3">
-					<h1 class="text-lg font-semibold">{m.listing_create_title()}</h1>
-					{#if draftStatus !== 'idle'}
-						<div class="flex items-center gap-1 text-xs">
-							{#if draftStatus === 'saving'}
-								<span class="animate-pulse">☁️</span>
-								<span class="text-gray-600">Saving...</span>
-							{:else if draftStatus === 'saved'}
-								<span>✅</span>
-								<span class="text-gray-600">
-									{#if lastSaved}
-										Saved {new Intl.RelativeTimeFormat('en', { numeric: 'auto' }).format(
-											Math.round((lastSaved.getTime() - Date.now()) / 60000),
-											'minute'
-										)}
-									{:else}
-										Saved
-									{/if}
-								</span>
-							{:else if draftStatus === 'error'}
-								<span>⚠️</span>
-								<span class="text-red-600">Save failed</span>
-							{/if}
-						</div>
+				<div class="flex items-center gap-[var(--space-2)]">
+					<h1 class="text-[var(--text-base)] font-[var(--font-semibold)] text-[var(--color-neutral-900)]">{m.listing_create_title()}</h1>
+					{#if draftStatus === 'saved'}
+						<span class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">Saved</span>
 					{/if}
 				</div>
-				<div class="w-5 h-5"></div>
+				<div class="w-[var(--space-8)]"></div>
 			</div>
 			
 			<!-- Progress Bar -->
 			{#if !showPaymentSetup}
-				<div class="pb-3">
-					<div class="flex items-center justify-between mb-2">
-						<span class="text-xs text-gray-600">{m.listing_step_of({ step: currentStep, total: totalSteps })}</span>
-						<span class="text-xs font-medium">{stepTitle}</span>
+				<div class="pb-[var(--space-2)]">
+					<div class="flex items-center justify-between mb-[var(--space-1)]">
+						<span class="text-[var(--text-xs)] text-[var(--color-neutral-500)]">Step {currentStep} of {totalSteps}</span>
+						<span class="text-[var(--text-xs)] font-[var(--font-medium)] text-[var(--color-neutral-700)]">{stepTitle}</span>
 					</div>
-					<div class="w-full bg-gray-200 rounded-full h-1.5" role="progressbar" aria-valuenow={currentStep} aria-valuemin="1" aria-valuemax={totalSteps} aria-label="Form progress">
+					<div class="w-full bg-[var(--color-neutral-200)] rounded-full h-[2px]">
 						<div 
-							class="bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] h-1.5 rounded-full transition-all duration-300"
+							class="bg-[var(--color-primary-500)] h-[2px] rounded-full transition-all duration-[var(--duration-slow)]"
 							style="width: {stepProgress}%"
 						></div>
-					</div>
-					<!-- Step indicators with validation status -->
-					<div class="flex justify-between mt-3">
-						{#each Array(totalSteps) as _, step}
-							{@const stepNum = step + 1}
-							{@const isComplete = stepNum < currentStep}
-							{@const isCurrent = stepNum === currentStep}
-							{@const hasError = 
-								(stepNum === 1 && !isStep1Valid && currentStep > 1) ||
-								(stepNum === 2 && !isStep2Valid && currentStep > 2) ||
-								(stepNum === 3 && !isStep3Valid && currentStep > 3) ||
-								(stepNum === 4 && !isStep4Valid && currentStep > 4)
-							}
-							<div class="flex flex-col items-center">
-								<div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
-									{isComplete && !hasError ? 'bg-green-500 text-white' : ''}
-									{isCurrent ? 'bg-[#87CEEB] text-white' : ''}
-									{hasError ? 'bg-red-500 text-white' : ''}
-									{!isComplete && !isCurrent && !hasError ? 'bg-gray-300 text-gray-600' : ''}
-								">
-									{#if isComplete && !hasError}
-										✓
-									{:else if hasError}
-										!
-									{:else}
-										{stepNum}
-									{/if}
-								</div>
-							</div>
-						{/each}
 					</div>
 				</div>
 			{/if}
@@ -405,35 +357,35 @@
 	</div>
 	
 	<!-- Content -->
-	{#if isCheckingPayment || isLoadingCategories}
-		<div class="flex-1 flex items-center justify-center">
-			<div class="text-center">
-				<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#87CEEB] mx-auto mb-3"></div>
-				<p class="text-gray-600 text-sm">
-					{#if isCheckingPayment}
-						Checking payment account...
-					{:else}
-						Loading categories...
-					{/if}
-				</p>
-			</div>
-		</div>
-	{:else if showPaymentSetup}
-		<div class="flex-1 w-full px-4 py-4">
-			<div class="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-				<div class="flex items-center gap-2 text-yellow-800">
-					<AlertCircle class="w-4 h-4" />
-					<span class="font-semibold text-sm">Payment Account Required</span>
+	<div class="pb-[var(--space-20)]">
+		{#if isCheckingPayment || isLoadingCategories}
+			<div class="flex items-center justify-center min-h-[400px]">
+				<div class="text-center">
+					<div class="animate-spin rounded-full h-[var(--space-8)] w-[var(--space-8)] border-b-2 border-[var(--color-primary-500)] mx-auto mb-[var(--space-3)]"></div>
+					<p class="text-[var(--color-neutral-600)] text-[var(--text-sm)]">
+						{#if isCheckingPayment}
+							Checking payment account...
+						{:else}
+							Loading categories...
+						{/if}
+					</p>
 				</div>
-				<p class="text-xs text-yellow-700 mt-1">
-					You need to set up a payment account before creating listings.
-				</p>
 			</div>
-			
-			<PaymentAccountSetup on:success={handlePaymentAccountSetup} />
-		</div>
-	{:else}
-		<div class="flex-1 w-full px-4 py-6 overflow-y-auto pb-32">
+		{:else if showPaymentSetup}
+			<div class="w-full px-[var(--space-3)] py-[var(--space-3)]">
+				<div class="mb-[var(--space-3)] bg-[var(--color-warning-light)] border border-[var(--color-warning-main)] rounded-[var(--radius-lg)] p-[var(--space-3)]">
+					<div class="flex items-center gap-[var(--space-2)] text-[var(--color-warning-dark)]">
+						<AlertCircle class="w-[var(--space-4)] h-[var(--space-4)]" />
+						<span class="font-[var(--font-semibold)] text-[var(--text-sm)]">Payment Account Required</span>
+					</div>
+					<p class="text-[var(--text-xs)] text-[var(--color-warning-dark)] mt-[var(--space-1)]">
+						You need to set up a payment account before creating listings.
+					</p>
+				</div>
+				
+				<PaymentAccountSetup on:success={handlePaymentAccountSetup} />
+			</div>
+		{:else}
 			<form 
 				method="POST" 
 				action="?/createListing"
@@ -441,106 +393,81 @@
 				aria-label={m.listing_create_title()}
 				bind:this={formElement}
 			>
-				<!-- Step 1: Basic Info -->
-				{#if currentStep === 1}
-					<BasicInfoStep {form} {categories} />
-				{/if}
-				
-				<!-- Step 2: Images -->
-				{#if currentStep === 2}
-					<ImageUploadStep 
-						{form} 
-						{supabase} 
-						userId={authContext?.user?.id || ''} 
-					/>
-				{/if}
-				
-				<!-- Step 3: Pricing & Details -->
-				{#if currentStep === 3}
-					<PricingDetailsStep {form} {categories} />
-				{/if}
-				
-				<!-- Step 4: Shipping & Location -->
-				{#if currentStep === 4}
-					<ShippingLocationStep {form} />
-				{/if}
-				
-				<!-- Hidden inputs for all form data to ensure proper submission -->
-				<input type="hidden" name="title" value={$formData.title || ''} />
-				<input type="hidden" name="description" value={$formData.description || ''} />
-				<input type="hidden" name="category_id" value={$formData.category_id || ''} />
-				<input type="hidden" name="subcategory_id" value={$formData.subcategory_id || ''} />
-				<input type="hidden" name="price" value={$formData.price || 0} />
-				<input type="hidden" name="condition" value={$formData.condition || 'new'} />
-				<input type="hidden" name="color" value={$formData.color || ''} />
-				<input type="hidden" name="brand" value={$formData.brand || ''} />
-				<input type="hidden" name="size" value={$formData.size || ''} />
-				<input type="hidden" name="location_city" value={$formData.location_city || ''} />
-				<input type="hidden" name="shipping_type" value={$formData.shipping_type || 'standard'} />
-				<input type="hidden" name="shipping_cost" value={$formData.shipping_cost || 0} />
-				<input type="hidden" name="ships_worldwide" value={$formData.ships_worldwide || false} />
-				
-				<!-- Hidden inputs for array fields -->
-				{#each $formData.images || [] as image}
-					<input type="hidden" name="images" value={image} />
-				{/each}
-				{#each $formData.tags || [] as tag}
-					<input type="hidden" name="tags" value={tag} />
-				{/each}
-				{#each $formData.materials || [] as material}
-					<input type="hidden" name="materials" value={material} />
-				{/each}
-				
-				<!-- Navigation -->
-				<div class="fixed bottom-0 left-0 right-0 bg-white border-t px-4 py-4 z-20 safe-area-inset-bottom" role="navigation" aria-label="Form navigation">
-					<div class="max-w-lg mx-auto flex gap-3">
-						{#if currentStep > 1}
-							<Button
-								type="button"
-								variant="outline"
-								onclick={prevStep}
-								class="flex-1 min-h-[48px] text-base font-medium touch-manipulation"
-							>
-								← {m.listing_btn_previous()}
-							</Button>
-						{/if}
-						
-						{#if currentStep < totalSteps}
-							<Button
-								type="button"
-								onclick={nextStep}
-								class="flex-1 min-h-[48px] text-base font-medium bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white touch-manipulation"
-							>
-								{m.listing_btn_next()} →
-							</Button>
-						{:else}
-							<Button
-								type="button"
-								onclick={() => {
-									console.log('Preview button clicked');
-									console.log('isStep4Valid:', isStep4Valid);
-									console.log('Form data:', $formData);
-									if (isStep4Valid) {
-										showPreview = true;
-									} else {
-										const result = validateStep4($formData);
-										console.log('Validation result:', result);
-										if (!result.success) {
-											toast.error('Please fill in all required fields: ' + result.error.errors.map(e => e.message).join(', '));
-										}
-									}
-								}}
-								disabled={!isStep4Valid}
-								class="flex-1 min-h-[48px] text-base font-medium bg-gradient-to-r from-[#87CEEB] to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation transition-all"
-							>
-								👀 Preview & Publish
-							</Button>
-						{/if}
-					</div>
+				<!-- Form Content -->
+				<div class="px-[var(--space-3)] py-[var(--space-2)]">
+					<!-- Step 1: Basic Info -->
+					{#if currentStep === 1}
+						<BasicInfoStep {form} {categories} />
+					{/if}
+					
+					<!-- Step 2: Images -->
+					{#if currentStep === 2}
+						<ImageUploadStep 
+							{form} 
+							{supabase} 
+							userId={authContext?.user?.id || ''} 
+						/>
+					{/if}
+					
+					<!-- Step 3: Pricing & Details -->
+					{#if currentStep === 3}
+						<PricingDetailsStep {form} {categories} />
+					{/if}
+					
+					<!-- Step 4: Shipping & Location -->
+					{#if currentStep === 4}
+						<ShippingLocationStep {form} />
+					{/if}
 				</div>
+				
+				<!-- Single hidden input with JSON data -->
+				<input type="hidden" name="formData" value={JSON.stringify($formData)} />
 			</form>
+		{/if}
+	</div>
+	
+	<!-- Fixed Navigation -->
+	<div class="fixed bottom-0 left-0 right-0 bg-[var(--color-neutral-0)] border-t border-[var(--color-neutral-100)] px-[var(--space-3)] py-[var(--space-2)] z-50" style="padding-bottom: max(env(safe-area-inset-bottom), var(--space-2))">
+		<div class="max-w-lg mx-auto flex gap-[var(--space-2)]">
+			{#if currentStep > 1}
+				<button
+					type="button"
+					onclick={prevStep}
+					class="flex-1 button-size-md font-[var(--font-medium)] text-[var(--color-neutral-700)] bg-[var(--color-neutral-100)] hover:bg-[var(--color-neutral-200)] rounded-[var(--radius-lg)] transition-colors duration-[var(--duration-fast)] active-scale"
+				>
+					Back
+				</button>
+			{/if}
+			
+			{#if currentStep < totalSteps}
+				<button
+					type="button"
+					onclick={nextStep}
+					class="flex-1 button-size-md font-[var(--font-medium)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-600)] text-white rounded-[var(--radius-lg)] transition-all duration-[var(--duration-fast)] active-scale"
+				>
+					Continue
+				</button>
+			{:else}
+				<button
+					type="button"
+					onclick={() => {
+						if (isStep4Valid) {
+							showPreview = true;
+						} else {
+							const result = validateStep4($formData);
+							if (!result.success) {
+								toast.error('Please fill in all required fields: ' + result.error.errors.map(e => e.message).join(', '));
+							}
+						}
+					}}
+					disabled={!isStep4Valid}
+					class="flex-1 button-size-md font-[var(--font-medium)] bg-[var(--color-primary-500)] hover:bg-[var(--color-primary-600)] text-white rounded-[var(--radius-lg)] transition-all duration-[var(--duration-fast)] active-scale disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					Preview & Publish
+				</button>
+			{/if}
 		</div>
-	{/if}
+	</div>
 	
 	<!-- Listing Preview Modal -->
 	<ListingPreview
@@ -561,35 +488,52 @@
 </div>
 
 <style>
-	/* Handle safe area insets for devices with notches */
-	.safe-area-inset-bottom {
-		padding-bottom: env(safe-area-inset-bottom, 1rem);
-	}
-	
-	/* Improve touch targets on mobile */
+	/* Mobile-first optimizations */
 	@media (max-width: 640px) {
+		/* Ensure minimum touch targets on mobile */
 		:global(input[type="text"]),
 		:global(input[type="number"]),
+		:global(input[type="email"]),
+		:global(input[type="tel"]),
 		:global(textarea),
-		:global(select) {
-			min-height: 48px;
-			font-size: 16px; /* Prevents zoom on iOS */
+		:global(select),
+		:global(button) {
+			min-height: var(--button-height-md); /* 32px minimum */
+			font-size: var(--text-base); /* 14px - prevents zoom on iOS */
+			-webkit-appearance: none; /* Remove iOS styling */
+		}
+		
+		/* Compact spacing on mobile */
+		:global(.space-y-\[var\(--space-3\)\] > :not([hidden]) ~ :not([hidden])) {
+			margin-top: var(--space-2-5); /* Slightly tighter on mobile */
 		}
 	}
 	
-	/* Prevent double-tap zoom on buttons */
-	:global(.touch-manipulation) {
+	/* Prevent double-tap zoom on all interactive elements */
+	:global(button),
+	:global(a),
+	:global(input),
+	:global(select),
+	:global(textarea) {
 		touch-action: manipulation;
 	}
 	
 	/* Shake animation for validation errors */
 	:global(.animate-shake) {
-		animation: shake 0.5s ease-in-out;
+		animation: shake var(--duration-slow) var(--ease-bounce);
 	}
 	
 	@keyframes shake {
 		0%, 100% { transform: translateX(0); }
-		10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-		20%, 40%, 60%, 80% { transform: translateX(5px); }
+		10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+		20%, 40%, 60%, 80% { transform: translateX(4px); }
+	}
+	
+	/* Optimize for small screens */
+	@media (max-width: 375px) {
+		:global(.button-size-md) {
+			font-size: var(--text-xs);
+			padding-inline: var(--space-2);
+		}
 	}
 </style>

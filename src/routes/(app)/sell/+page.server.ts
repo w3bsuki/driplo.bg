@@ -25,7 +25,17 @@ export const actions: Actions = {
 			return fail(401, { error: 'Unauthorized' })
 		}
 
-		const form = await superValidate(request, zod(createListingSchema))
+		const formData = await request.formData()
+		const jsonData = formData.get('formData')
+		
+		let parsedData
+		try {
+			parsedData = jsonData ? JSON.parse(jsonData as string) : {}
+		} catch (e) {
+			return fail(400, { error: 'Invalid form data' })
+		}
+
+		const form = await superValidate(parsedData, zod(createListingSchema))
 		
 		if (!form.valid) {
 			return fail(400, { form })

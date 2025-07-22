@@ -16,7 +16,7 @@
 	}
 	
 	const colorClasses = {
-		primary: 'border-[#87CEEB]/20 border-b-[#87CEEB]',
+		primary: 'border-(#87CEEB)/20 border-b-(#87CEEB)',
 		white: 'border-white/20 border-b-white',
 		current: 'border-current/20 border-b-current'
 	}

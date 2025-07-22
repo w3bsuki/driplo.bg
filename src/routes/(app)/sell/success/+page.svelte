@@ -8,6 +8,7 @@
 	
 	let listing = $state<any>(null)
 	let loading = $state(true)
+	let hasLoaded = $state(false)
 	
 	const listingId = $derived($page.url.searchParams.get('id'))
 	
@@ -15,6 +16,10 @@
 	const supabase = $derived($page.data.supabase)
 	
 	onMount(async () => {
+		// Prevent double execution
+		if (hasLoaded) return
+		hasLoaded = true
+		
 		// Celebrate with confetti!
 		confetti({
 			particleCount: 100,
@@ -22,7 +27,7 @@
 			origin: { y: 0.6 }
 		})
 		
-		if (listingId && !listing) {  // Only load if not already loaded
+		if (listingId && !listing) {
 			await loadListing()
 		} else if (!listingId) {
 			console.warn('No listing ID provided in URL')

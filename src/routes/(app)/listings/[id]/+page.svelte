@@ -15,6 +15,9 @@
 	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
 	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
+	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
+	import CategoryBadge from '$lib/components/badges/CategoryBadge.svelte';
+	import SizeBadge from '$lib/components/badges/SizeBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import Image from '$lib/components/ui/Image.svelte';
@@ -30,10 +33,11 @@
 	let isFollowing = $state(data.isFollowing || false);
 
 	let currentImageIndex = $state(0);
-	let isLiked = $state(false);
+	let isLiked = $state(data.isLiked || false);
 	let showCheckout = $state(false);
 	let activeTab = $state('description');
 	let isFollowLoading = $state(false);
+	let isLikeLoading = $state(false);
 	let showFullscreenGallery = $state(false);
 	let isDescriptionExpanded = $state(false);
 	let checkoutFlowRef: any;
@@ -41,20 +45,51 @@
 	let isOwner = $derived(currentUser?.id === listing?.seller_id);
 	let images = $derived(() => {
 		if (!listing) return [];
-		if (listing.image_urls && Array.isArray(listing.image_urls)) {
-			return listing.image_urls;
+		
+		// Try images field first (this is what the database actually uses)
+		if (listing.images && Array.isArray(listing.images) && listing.images.length > 0) {
+			return listing.images.filter(img => img && typeof img === 'string');
 		}
-		if (listing.images && Array.isArray(listing.images)) {
-			return listing.images.map(img => {
-				if (typeof img === 'string') return img;
-				if (img && typeof img === 'object' && img.url) return img.url;
-				return null;
-			}).filter(Boolean);
+		
+		// Then try image_urls
+		if (listing.image_urls && Array.isArray(listing.image_urls) && listing.image_urls.length > 0) {
+			return listing.image_urls.filter(url => url && typeof url === 'string');
 		}
+		
+		// Handle other formats just in case
+		if (listing.image_urls) {
+			if (typeof listing.image_urls === 'object' && !Array.isArray(listing.image_urls)) {
+				return Object.values(listing.image_urls).filter(url => url && typeof url === 'string');
+			}
+			if (typeof listing.image_urls === 'string') {
+				return [listing.image_urls];
+			}
+		}
+		
+		if (listing.images) {
+			if (typeof listing.images === 'object' && !Array.isArray(listing.images)) {
+				return Object.values(listing.images).filter(url => url && typeof url === 'string');
+			}
+			if (typeof listing.images === 'string') {
+				return [listing.images];
+			}
+		}
+		
+		// Fallback to single image field if it exists
+		if (listing.image && typeof listing.image === 'string') {
+			return [listing.image];
+		}
+		
+		console.log('No images found for listing:', listing?.id, { 
+			images: listing?.images, 
+			image_urls: listing?.image_urls,
+			image: listing?.image 
+		});
+		
 		return [];
 	});
-	let hasMultipleImages = $derived(images && images.length > 1);
-	let hasImages = $derived(images && images.length > 0);
+	let hasMultipleImages = $derived(images.length > 1);
+	let hasImages = $derived(images.length > 0);
 
 	function nextImage() {
 		currentImageIndex = (currentImageIndex + 1) % images.length;
@@ -69,7 +104,41 @@
 			goto('/login');
 			return;
 		}
+		
+		if (isLikeLoading || !listing) return;
+		
+		// Optimistic update
+		const previousLiked = isLiked;
 		isLiked = !isLiked;
+		isLikeLoading = true;
+		
+		try {
+			const response = await fetch('/api/wishlist', {
+				method: isLiked ? 'POST' : 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ listing_id: listing.id })
+			});
+			
+			if (!response.ok) {
+				// Revert on error
+				isLiked = previousLiked;
+				const error = await response.json();
+				toast.error(error.message || 'Failed to update favorites');
+			} else {
+				// Update favorite count
+				if (listing) {
+					listing.favorite_count = (listing.favorite_count || 0) + (isLiked ? 1 : -1);
+				}
+			}
+		} catch (error) {
+			// Revert on error
+			isLiked = previousLiked;
+			toast.error('Failed to update favorites');
+		} finally {
+			isLikeLoading = false;
+		}
 	}
 
 	function handleBuyNow() {
@@ -103,15 +172,6 @@
 		return colors[username.charCodeAt(0) % colors.length];
 	}
 
-	function getConditionBadge(condition: string) {
-		switch(condition) {
-			case 'new_with_tags': return { label: 'New with tags', variant: 'default' };
-			case 'like_new': return { label: 'Like New', variant: 'default' };
-			case 'good': return { label: 'Good', variant: 'secondary' };
-			case 'worn': return { label: 'Worn', variant: 'outline' };
-			default: return { label: condition, variant: 'secondary' };
-		}
-	}
 
 	async function handleFollow() {
 		if (!currentUser || !listing) {
@@ -158,6 +218,32 @@
 		document.body.style.overflow = '';
 	}
 
+	// Track view for anonymous users on mount
+	onMount(() => {
+		if (!currentUser && listing) {
+			// Generate or get session ID for anonymous users
+			let sessionId = sessionStorage.getItem('session_id');
+			if (!sessionId) {
+				sessionId = crypto.randomUUID();
+				sessionStorage.setItem('session_id', sessionId);
+			}
+			
+			// Track the view
+			fetch('/api/views', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					listing_id: listing.id,
+					session_id: sessionId
+				})
+			}).catch(() => {
+				// Silent failure - view tracking is not critical
+			});
+		}
+	});
+
 	function handleKeydown(e: KeyboardEvent) {
 		if (!showFullscreenGallery) return;
 		
@@ -200,17 +286,20 @@
 							class="relative aspect-square overflow-hidden rounded-md bg-gray-50 w-full group cursor-zoom-in"
 							disabled={!hasImages}
 						>
-							{#if images[currentImageIndex]}
+							{#if hasImages && images[currentImageIndex]}
 								<Image
 									src={images[currentImageIndex]}
 									alt={listing.title}
 									class="w-full h-full transition-transform duration-200 group-hover:scale-[1.02]"
+									aspectRatio="1/1"
+									objectFit="contain"
 									preferredSize="large"
 									loading="eager"
+									priority={true}
 								/>
 							{:else}
 								<div class="w-full h-full bg-gray-100 flex items-center justify-center">
-									<span class="text-gray-400">No image</span>
+									<span class="text-gray-400">No image available</span>
 								</div>
 							{/if}
 							
@@ -311,7 +400,7 @@
 						</div>
 						
 						<div class="flex items-center gap-3">
-							<span class="text-2xl font-bold text-[#87CEEB]">{formatCurrency(listing.price)}</span>
+							<span class="text-2xl font-bold text-gray-900">{formatCurrency(listing.price)}</span>
 							{#if listing.original_price && listing.original_price > listing.price}
 								<span class="text-sm text-gray-500 line-through">{formatCurrency(listing.original_price)}</span>
 								<Badge variant="destructive" class="text-xs px-1.5 py-0.5">
@@ -320,16 +409,19 @@
 							{/if}
 						</div>
 
-						<!-- Quick info chips -->
-						<div class="flex items-center gap-2 flex-wrap text-sm">
-							{#if listing.size}
-								<span class="px-2 py-0.5 bg-gray-100 rounded text-gray-700">Size {listing.size}</span>
-							{/if}
+						<!-- Quick info badges -->
+						<div class="flex items-center gap-2 flex-wrap">
 							{#if listing.condition}
-								<span class="px-2 py-0.5 bg-gray-100 rounded text-gray-700">{getConditionBadge(listing.condition).label}</span>
+								<ConditionBadge condition={listing.condition} size="md" />
+							{/if}
+							{#if listing.size}
+								<SizeBadge size={listing.size} badgeSize="md" />
+							{/if}
+							{#if listing.category}
+								<CategoryBadge category={listing.category.name} size="md" />
 							{/if}
 							{#if listing.brand}
-								<span class="px-2 py-0.5 bg-gray-100 rounded text-gray-700">{listing.brand}</span>
+								<BrandBadge brand={listing.brand} size="md" isVerified={false} />
 							{/if}
 						</div>
 
@@ -407,49 +499,152 @@
 					</div>
 
 
-					<!-- Compact Details Section -->
-					<div class="space-y-3">
-						<!-- Product details -->
-						<div class="space-y-2">
-							<h3 class="text-sm font-medium text-gray-900">Details</h3>
-							<div class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+					<!-- Details Section with Tabs -->
+					<Tabs value="details" class="w-full">
+						<TabsList class="grid w-full grid-cols-3">
+							<TabsTrigger value="details" class="text-sm">
+								<span class="mr-1">📋</span> Details
+							</TabsTrigger>
+							<TabsTrigger value="shipping" class="text-sm">
+								<span class="mr-1">📦</span> Shipping
+							</TabsTrigger>
+							<TabsTrigger value="seller" class="text-sm">
+								<span class="mr-1">👤</span> Seller
+							</TabsTrigger>
+						</TabsList>
+						
+						<TabsContent value="details" class="mt-4 space-y-4">
+							<div class="grid grid-cols-1 gap-3">
 								{#if listing.materials && listing.materials.length > 0}
-									<div class="text-gray-500">Materials</div>
-									<div class="text-gray-700">{listing.materials.join(', ')}</div>
+									<div class="flex justify-between items-center py-2 border-b border-gray-100">
+										<span class="text-sm text-gray-500">Materials</span>
+										<span class="text-sm text-gray-900 font-medium">{listing.materials.join(', ')}</span>
+									</div>
 								{/if}
 								{#if listing.category}
-									<div class="text-gray-500">Category</div>
-									<div class="text-gray-700">{listing.category.name}</div>
+									<div class="flex justify-between items-center py-2 border-b border-gray-100">
+										<span class="text-sm text-gray-500">Category</span>
+										<span class="text-sm text-gray-900 font-medium">{listing.category.name}</span>
+									</div>
 								{/if}
-								<div class="text-gray-500">Listed</div>
-								<div class="text-gray-700">{new Date(listing.created_at).toLocaleDateString()}</div>
+								{#if listing.subcategory}
+									<div class="flex justify-between items-center py-2 border-b border-gray-100">
+										<span class="text-sm text-gray-500">Subcategory</span>
+										<span class="text-sm text-gray-900 font-medium">{listing.subcategory.name}</span>
+									</div>
+								{/if}
+								<div class="flex justify-between items-center py-3 border-b border-blue-100/50 hover:bg-white/50 px-2 -mx-2 rounded-lg transition-colors">
+									<span class="text-sm text-gray-500">Listed</span>
+									<span class="text-sm text-gray-900 font-medium">{new Date(listing.created_at).toLocaleDateString()}</span>
+								</div>
+								{#if listing.view_count}
+									<div class="flex justify-between items-center py-2 border-b border-gray-100">
+										<span class="text-sm text-gray-500">Views</span>
+										<span class="text-sm text-gray-900 font-medium flex items-center gap-1">
+											<Eye class="w-3 h-3" />
+											{listing.view_count}
+										</span>
+									</div>
+								{/if}
 							</div>
-						</div>
-
-						<!-- Shipping info -->
-						<div class="space-y-2">
-							<h3 class="text-sm font-medium text-gray-900">Shipping</h3>
-							<div class="flex items-center gap-2 text-sm text-gray-600">
-								<Truck class="w-3.5 h-3.5" />
-								<span>Standard: 3-5 days • {listing.shipping_cost > 0 ? formatCurrency(listing.shipping_cost) : '$5.99'}</span>
+							
+							{#if listing.tags && listing.tags.length > 0}
+								<div class="flex flex-wrap gap-1.5 pt-2">
+									{#each listing.tags as tag (tag)}
+										<Badge variant="secondary" size="sm">
+											#{tag}
+										</Badge>
+									{/each}
+								</div>
+							{/if}
+						</TabsContent>
+						
+						<TabsContent value="shipping" class="mt-4 space-y-4">
+							<div class="space-y-3">
+								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+									<Truck class="w-5 h-5 text-gray-600 mt-0.5" />
+									<div class="flex-1">
+										<p class="text-sm font-medium text-gray-900">Standard Shipping</p>
+										<p class="text-sm text-gray-600">3-5 business days</p>
+										<p class="text-sm font-medium text-gray-900 mt-1">
+											{listing.shipping_cost > 0 ? formatCurrency(listing.shipping_cost) : 'Free'}
+										</p>
+									</div>
+								</div>
+								
+								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+									<RotateCcw class="w-5 h-5 text-gray-600 mt-0.5" />
+									<div class="flex-1">
+										<p class="text-sm font-medium text-gray-900">Returns</p>
+										<p class="text-sm text-gray-600">30-day return policy</p>
+										<p class="text-xs text-gray-500 mt-1">Item must be in original condition</p>
+									</div>
+								</div>
+								
+								{#if listing.location_city}
+									<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+										<MapPin class="w-5 h-5 text-gray-600 mt-0.5" />
+										<div class="flex-1">
+											<p class="text-sm font-medium text-gray-900">Ships from</p>
+											<p class="text-sm text-gray-600">{listing.location_city}</p>
+										</div>
+									</div>
+								{/if}
 							</div>
-							<div class="flex items-center gap-2 text-sm text-gray-600">
-								<RotateCcw class="w-3.5 h-3.5" />
-								<span>30-day returns</span>
+						</TabsContent>
+						
+						<TabsContent value="seller" class="mt-4 space-y-4">
+							<div class="flex items-start gap-3">
+								{#if listing.seller.avatar_url}
+									<Image
+										src={listing.seller.avatar_url}
+										alt={listing.seller.username}
+										class="w-12 h-12 rounded-full"
+										objectFit="cover"
+										preferredSize="thumb"
+									/>
+								{:else}
+									<div class={cn("w-12 h-12 rounded-full flex items-center justify-center", getAvatarColor(listing.seller.username))}>
+										<span class="text-white font-medium">{listing.seller.username.charAt(0).toUpperCase()}</span>
+									</div>
+								{/if}
+								<div class="flex-1">
+									<div class="flex items-center gap-2">
+										<h3 class="text-base font-medium text-gray-900">{listing.seller.username}</h3>
+										{#if listing.seller.account_type === 'brand'}
+											<BrandBadge size="xs" isVerified={listing.seller.is_verified} showText={false} />
+										{/if}
+									</div>
+									<div class="flex items-center gap-3 mt-1 text-sm text-gray-600">
+										<span class="flex items-center gap-1">
+											<Star class="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+											{listing.seller.rating || 4.8}
+										</span>
+										<span>•</span>
+										<span>{listing.seller.sales_count || 0} sales</span>
+										<span>•</span>
+										<span>Joined {new Date(listing.seller.created_at || Date.now()).getFullYear()}</span>
+									</div>
+									<div class="flex gap-2 mt-3">
+										<a 
+											href="/profile/{listing.seller.username}" 
+											class="flex-1 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-center text-sm font-medium text-gray-700 transition-colors"
+										>
+											View Profile
+										</a>
+										{#if !isOwner}
+											<button 
+												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+												onclick={() => goto(`/messages?user=${listing.seller.username}`)}
+											>
+												<MessageCircle class="w-4 h-4 text-gray-700" />
+											</button>
+										{/if}
+									</div>
+								</div>
 							</div>
-						</div>
-
-						<!-- Tags -->
-						{#if listing.tags && listing.tags.length > 0}
-							<div class="flex flex-wrap gap-1.5">
-								{#each listing.tags as tag (tag)}
-									<span class="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
-										#{tag}
-									</span>
-								{/each}
-							</div>
-						{/if}
-					</div>
+						</TabsContent>
+					</Tabs>
 				</div>
 			</div>
 		</div>
@@ -459,7 +654,7 @@
 	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50">
 		<div class="max-w-7xl mx-auto flex items-center gap-2">
 			<div class="flex-1">
-				<div class="text-xl font-bold text-[#87CEEB]">{formatCurrency(listing.price)}</div>
+				<div class="text-xl font-bold text-gray-900">{formatCurrency(listing.price)}</div>
 				<div class="text-xs text-gray-500">{listing.shipping_cost > 0 ? `+ ${formatCurrency(listing.shipping_cost)} shipping` : 'Free shipping'}</div>
 			</div>
 			{#if !isOwner}
@@ -554,12 +749,20 @@
 
 			<!-- Image container -->
 			<div class="relative max-w-full max-h-full" onclick={(e) => e.stopPropagation()}>
-				{#if images[currentImageIndex]}
-					<img
+				{#if hasImages && images[currentImageIndex]}
+					<Image
 						src={images[currentImageIndex]}
 						alt={listing.title}
-						class="max-w-full max-h-[90vh] object-contain"
+						class="max-w-full max-h-[90vh]"
+						objectFit="contain"
+						preferredSize="full"
+						loading="eager"
+						priority={true}
 					/>
+				{:else}
+					<div class="w-full h-full flex items-center justify-center">
+						<span class="text-white text-lg">No image available</span>
+					</div>
 				{/if}
 
 				{#if hasMultipleImages}
@@ -589,10 +792,14 @@
 								index === currentImageIndex ? "border-white" : "border-white/30 opacity-60 hover:opacity-100"
 							)}
 						>
-							<img 
+							<Image 
 								src={images[index]} 
 								alt="Thumbnail {index + 1}" 
-								class="w-full h-full object-cover"
+								class="w-full h-full"
+								aspectRatio="1/1"
+								objectFit="cover"
+								preferredSize="thumb"
+								loading="eager"
 							/>
 						</button>
 					{/each}

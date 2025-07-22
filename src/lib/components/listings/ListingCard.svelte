@@ -2,8 +2,8 @@
 	import { Heart } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
-	import Image from '$lib/components/ui/Image.svelte';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
+	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
 	
 	interface Props {
 		id: string;
@@ -21,7 +21,7 @@
 		};
 		likes?: number;
 		isLiked?: boolean;
-		condition?: 'new' | 'good' | 'worn';
+		condition?: string | null;
 		eagerLoading?: boolean; // For first 8 cards in viewport
 	}
 	
@@ -96,21 +96,32 @@
 	}
 </script>
 
-<div class="relative bg-white rounded-lg shadow-product focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2">
-	<a href="/listings/{id}" class="block focus:outline-none rounded-lg">
-		<div class="relative aspect-[3/4] overflow-hidden rounded-t-lg bg-neutral-100">
+<div class="relative bg-white rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow duration-[var(--duration-fast)] focus-within:ring-2 focus-within:ring-[var(--color-primary-500)] focus-within:ring-offset-2">
+	<a href="/listings/{id}" class="block focus:outline-none rounded-[var(--radius-lg)]">
+		<div class="relative aspect-[3/4] overflow-hidden rounded-t-[var(--radius-lg)] bg-gray-100">
 			{#if !imageError}
-				<Image
-					src={imageUrls || image}
-					alt={title}
-					class="h-full w-full"
-					objectFit="cover"
-					preferredSize="small"
-					loading={eagerLoading ? 'eager' : 'lazy'}
-					priority={eagerLoading}
-					onerror={handleImageError}
-					sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-				/>
+				{#if imageUrls || image}
+					{@const imgSrc = (() => {
+						const img = imageUrls || image;
+						if (Array.isArray(img)) return img[0];
+						if (typeof img === 'object' && img !== null) return Object.values(img)[0];
+						return img;
+					})()}
+					{#if imgSrc}
+						<img
+							src={imgSrc}
+							alt={title}
+							class="absolute inset-0 h-full w-full object-cover"
+							loading={eagerLoading ? 'eager' : 'lazy'}
+							onerror={handleImageError}
+							sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+						/>
+					{:else}
+						<div class="h-full w-full bg-gray-100"></div>
+					{/if}
+				{:else}
+					<div class="h-full w-full bg-gray-100"></div>
+				{/if}
 			{:else}
 				<div class="h-full w-full flex items-center justify-center bg-gray-100">
 					<div class="text-center">
@@ -125,48 +136,38 @@
 			<button
 				onclick={toggleLike}
 				class={cn(
-					"absolute top-2 right-2 p-2 rounded-full bg-white/95 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 active:bg-gray-100 touch-safe",
+					"absolute top-[var(--space-2)] right-[var(--space-2)] w-[var(--button-height-md)] h-[var(--button-height-md)] rounded-[var(--radius-full)] bg-white/90 backdrop-blur-sm shadow-[var(--shadow-border)] hover:shadow-[var(--shadow-md)] transition-all duration-[var(--duration-fast)] flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-500)] focus:ring-offset-2",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
 				aria-label={liked ? 'Unlike' : 'Like'}
 				disabled={likeLoading}
 			>
-				<Heart class={cn("h-4 w-4", liked ? "fill-red-500 text-red-500" : "text-neutral-600")} />
+				<Heart class={cn("h-4 w-4", liked ? "fill-red-500 text-red-500" : "text-gray-600")} />
 			</button>
 			
 			{#if condition}
-				<div class="absolute top-2 left-2">
-					<Badge 
-						variant="outline"
-						class={cn(
-							"font-medium shadow-sm border",
-							condition === 'new' && "!bg-blue-500 !text-white !border-blue-500",
-							condition === 'good' && "!bg-amber-500 !text-white !border-amber-500",
-							condition === 'worn' && "!bg-red-500 !text-white !border-red-500"
-						)}
-					>
-						{condition === 'new' ? 'New' : condition === 'good' ? 'Good' : 'Worn'}
-					</Badge>
+				<div class="absolute top-[var(--space-2)] left-[var(--space-2)]">
+					<ConditionBadge {condition} size="md" />
 				</div>
 			{/if}
 		</div>
 		
-		<div class="p-3 space-y-1">
+		<div class="p-[var(--space-3)] space-y-[var(--space-1)]">
 			<div class="flex items-start justify-between gap-2">
 				<div class="flex-1 min-w-0">
-					<p class="text-sm font-medium text-neutral-900 truncate">{title}</p>
+					<p class="text-[var(--text-sm)] font-[var(--font-medium)] text-gray-900 truncate">{title}</p>
 					{#if brand}
-						<p class="text-xs text-neutral-500">{brand}</p>
+						<p class="text-[var(--text-xs)] text-gray-500">{brand}</p>
 					{/if}
 				</div>
-				<p class="text-sm font-semibold text-primary">{formatPrice(price)}</p>
+				<p class="text-[var(--text-sm)] font-[var(--font-semibold)] text-[var(--color-primary-700)]">{formatPrice(price)}</p>
 			</div>
 			
 			{#if size}
-				<p class="text-xs text-neutral-500">Size {size}</p>
+				<p class="text-[var(--text-xs)] text-gray-500">Size {size}</p>
 			{/if}
 			
-			<div class="flex items-center gap-2 pt-1">
+			<div class="flex items-center gap-[var(--space-1-5)] pt-[var(--space-1)]">
 				{#if seller.avatar}
 					<img
 						src={seller.avatar}
@@ -178,12 +179,12 @@
 						<span class="text-[10px] font-medium text-white">{seller.username.charAt(0).toUpperCase()}</span>
 					</div>
 				{/if}
-				<span class="text-xs text-neutral-600">{seller.username}</span>
+				<span class="text-[var(--text-xs)] text-gray-600">{seller.username}</span>
 				{#if seller.account_type === 'brand'}
 					<BrandBadge size="xs" isVerified={seller.is_verified} showText={false} />
 				{/if}
 				{#if likeCount > 0}
-					<span class="text-xs text-neutral-400 ml-auto" aria-live="polite">{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
+					<span class="text-[var(--text-xs)] text-gray-400 ml-auto" aria-live="polite">{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
 				{/if}
 			</div>
 		</div>

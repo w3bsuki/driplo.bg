@@ -3,7 +3,9 @@
 	import type { Snippet } from 'svelte';
 
 	interface Props {
-		variant?: 'default' | 'secondary' | 'success' | 'destructive' | 'outline';
+		variant?: 'default' | 'secondary' | 'success' | 'destructive' | 'outline' | 
+			'condition-new-with-tags' | 'condition-new-without-tags' | 'condition-very-good' | 
+			'condition-good' | 'condition-fair';
 		size?: 'sm' | 'md' | 'lg';
 		class?: string;
 		children: Snippet;
@@ -12,11 +14,17 @@
 	let { variant = 'default', size = 'md', class: className, children }: Props = $props();
 
 	const variants = {
-		default: 'bg-neutral-100 text-neutral-700 border-neutral-200',
-		secondary: 'bg-brand-50 text-brand-700 border-brand-200',
-		success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-		destructive: 'bg-red-50 text-red-700 border-red-200',
-		outline: 'border-neutral-300 text-neutral-600 bg-transparent'
+		default: 'bg-gray-50 text-gray-600 border-gray-200',
+		secondary: 'bg-blue-50 text-blue-600 border-blue-200',
+		success: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+		destructive: 'bg-red-50 text-red-600 border-red-200',
+		outline: 'border-gray-200 text-gray-600 bg-transparent',
+		// Condition variants using CSS variables
+		'condition-new-with-tags': 'bg-[var(--color-condition-new-with-tags)] text-white border-[var(--color-condition-new-with-tags)]',
+		'condition-new-without-tags': 'bg-[var(--color-condition-new-without-tags)] text-white border-[var(--color-condition-new-without-tags)]',
+		'condition-very-good': 'bg-[var(--color-condition-very-good)] text-white border-[var(--color-condition-very-good)]',
+		'condition-good': 'bg-[var(--color-condition-good)] text-gray-950 border-[var(--color-condition-good)]',
+		'condition-fair': 'bg-[var(--color-condition-fair)] text-white border-[var(--color-condition-fair)]'
 	};
 
 	const sizes = {
@@ -28,7 +36,7 @@
 
 <span
 	class={cn(
-		'inline-flex items-center rounded-md border font-medium transition-colors',
+		'inline-flex items-center justify-center rounded-[var(--radius-sm)] border',
 		variants[variant],
 		sizes[size],
 		className

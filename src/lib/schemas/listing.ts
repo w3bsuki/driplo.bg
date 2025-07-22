@@ -1,11 +1,13 @@
 import { z } from 'zod'
+import { LISTING_CONDITIONS, CONDITION_VALUES } from '$lib/config/conditions'
 
-// Listing conditions enum
+// Re-export for backward compatibility
 export const ListingCondition = {
-	NEW: 'new',
-	LIKE_NEW: 'like_new',
-	GOOD: 'good',
-	FAIR: 'fair'
+	NEW_WITH_TAGS: LISTING_CONDITIONS.NEW_WITH_TAGS,
+	NEW_WITHOUT_TAGS: LISTING_CONDITIONS.NEW_WITHOUT_TAGS,
+	VERY_GOOD: LISTING_CONDITIONS.VERY_GOOD,
+	GOOD: LISTING_CONDITIONS.GOOD,
+	FAIR: LISTING_CONDITIONS.FAIR
 } as const
 
 // Shipping types enum
@@ -14,6 +16,24 @@ export const ShippingType = {
 	EXPRESS: 'express',
 	PICKUP: 'pickup'
 } as const
+
+// Helper for Cyrillic validation
+const cyrillicRegex = /[\u0400-\u04FF]/
+const hasCyrillic = (text: string) => cyrillicRegex.test(text)
+
+// Create locale-aware string validator
+export const createLocaleAwareString = (locale?: string) => {
+	return z.string().refine((val) => {
+		// Skip validation if no locale or not Bulgarian
+		if (!locale || locale !== 'bg') return true
+		// Allow empty strings
+		if (!val || val.trim().length === 0) return true
+		// Check if contains Cyrillic for Bulgarian locale
+		return hasCyrillic(val)
+	}, {
+		message: locale === 'bg' ? 'Текстът трябва да бъде на български език' : 'Text must be in Bulgarian'
+	})
+}
 
 // Create listing validation schema
 export const createListingSchema = z.object({
@@ -38,7 +58,7 @@ export const createListingSchema = z.object({
 	price: z.number()
 		.positive('Price must be greater than 0')
 		.max(100000, 'Price must be less than 100,000'),
-	condition: z.enum(['new', 'like_new', 'good', 'fair'], {
+	condition: z.enum(CONDITION_VALUES as [string, ...string[]], {
 		required_error: 'Please select the item condition'
 	}),
 	brand: z.string().max(50).optional().nullable(),
@@ -68,7 +88,7 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	subcategory_id: null,
 	images: [],
 	price: 0,
-	condition: 'new',
+	condition: LISTING_CONDITIONS.NEW_WITH_TAGS,
 	brand: null,
 	size: null,
 	color: '',

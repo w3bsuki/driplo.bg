@@ -19,6 +19,7 @@
 	import { browser, dev } from '$app/environment';
 	import { initWebVitals } from '$lib/utils/web-vitals';
 	import WebVitalsDebug from '$lib/components/debug/WebVitalsDebug.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 
 	export let data;
 
@@ -122,17 +123,17 @@
 		{#if !isAuthPage}
 			{#if !data.user}
 				<PromotionalBanner 
-					message="🚀 Driplo V1 Launch Week!" 
-					secondaryMessage="First 100 sellers get verified badge ✅"
-					ctaText="Start Selling Now" 
+					message={m.banner_launch_message()} 
+					secondaryMessage={m.banner_launch_secondary()}
+					ctaText={m.banner_launch_cta()} 
 					ctaHref="/register"
 					variant="launch"
 					countdown={true}
 				/>
 			{:else}
 				<PromotionalBanner 
-					message="🎉 Welcome to Driplo V1!" 
-					ctaText="List Your First Item" 
+					message={m.banner_welcome_message()} 
+					ctaText={m.banner_welcome_cta()} 
 					ctaHref="/sell"
 					variant="gradient"
 				/>
