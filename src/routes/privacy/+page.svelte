@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { cookieConsent } from '$lib/stores/cookie-consent.svelte';
-	import Button from '$lib/components/ui/button.svelte';
-	import Badge from '$lib/components/ui/badge.svelte';
+	import { Button, Badge } from '$lib/components/ui';
 	import { Settings, Cookie } from 'lucide-svelte';
 	
 	function openCookieSettings() {

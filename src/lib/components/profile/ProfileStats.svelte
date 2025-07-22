@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge'
+	import { Badge } from '$lib/components/ui'
 	import { TrendingUp, Star, Clock, Package, Award, Eye, DollarSign, Shield } from 'lucide-svelte'
 	import type { Profile } from '$lib/types/unified'
 	import * as m from '$lib/paraglide/messages.js'

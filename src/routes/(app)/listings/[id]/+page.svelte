@@ -13,7 +13,7 @@
 	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages.js';
 	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
-	import Badge from '$lib/components/ui/badge.svelte';
+	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
 	import Spinner from '$lib/components/ui/Spinner.svelte';

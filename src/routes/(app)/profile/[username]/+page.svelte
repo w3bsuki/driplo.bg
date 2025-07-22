@@ -7,7 +7,7 @@
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte'
 	import SocialMediaLinks from '$lib/components/profile/SocialMediaLinks.svelte'
 	import { RatingStars, Button } from '$lib/components/ui'
-	import { Badge } from '$lib/components/ui/badge'
+	import { Badge } from '$lib/components/ui'
 	import { MessageCircle, Calendar, Package, Star, LogOut } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import type { PageData } from './$types'

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge } from '$lib/components/ui/badge'
+	import { Badge } from '$lib/components/ui'
 	import { Button } from '$lib/components/ui'
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte'
 	import { Camera, MapPin, Calendar, ExternalLink, MessageCircle, UserPlus, UserMinus, Award, Star, Building2 } from 'lucide-svelte'

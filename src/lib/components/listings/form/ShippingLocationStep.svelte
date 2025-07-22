@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { SuperForm } from 'sveltekit-superforms'
 	import { Label, Input } from '$lib/components/ui'
-	import { Badge } from '$lib/components/ui/badge'
+	import { Badge } from '$lib/components/ui'
 	import * as m from '$lib/paraglide/messages.js'
 	
 	interface Props {

@@ -2,7 +2,7 @@
 	import { cn } from '$lib/utils';
 	import { formatCurrency } from '$lib/utils/currency';
 	import Image from '$lib/components/ui/Image.svelte';
-	import { Badge } from '$lib/components/ui/badge';
+	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import { Dialog, DialogContent, DialogHeader, DialogTitle } from '$lib/components/ui/dialog';
 	import { Button } from '$lib/components/ui';

@@ -10,52 +10,50 @@
 @import '@fontsource/jetbrains-mono/400.css';
 
 /* Tailwind v4 alpha compatibility utilities */
-@layer utilities {
-	/* Background utilities with opacity support */
-	.bg-background {
-		background-color: hsl(var(--background));
-	}
+/* Background utilities with opacity support */
+.bg-background {
+	background-color: hsl(var(--background));
+}
 
-	.bg-muted {
-		background-color: hsl(var(--muted));
-	}
+.bg-muted {
+	background-color: hsl(var(--muted));
+}
 
-	.bg-muted\/50 {
-		background-color: hsl(var(--muted) / 0.5);
-	}
+.bg-muted\/50 {
+	background-color: hsl(var(--muted) / 0.5);
+}
 
-	/* Space utilities */
-	.space-y-1 > :not([hidden]) ~ :not([hidden]) {
-		margin-top: 0.25rem;
-	}
+/* Space utilities */
+.space-y-1 > :not([hidden]) ~ :not([hidden]) {
+	margin-top: 0.25rem;
+}
 
-	.space-y-2 > :not([hidden]) ~ :not([hidden]) {
-		margin-top: 0.5rem;
-	}
+.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+	margin-top: 0.5rem;
+}
 
-	.space-y-3 > :not([hidden]) ~ :not([hidden]) {
-		margin-top: 0.75rem;
-	}
+.space-y-3 > :not([hidden]) ~ :not([hidden]) {
+	margin-top: 0.75rem;
+}
 
-	.space-y-4 > :not([hidden]) ~ :not([hidden]) {
-		margin-top: 1rem;
-	}
+.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+	margin-top: 1rem;
+}
 
-	.space-y-6 > :not([hidden]) ~ :not([hidden]) {
-		margin-top: 1.5rem;
-	}
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+	margin-top: 1.5rem;
+}
 
-	.space-x-2 > :not([hidden]) ~ :not([hidden]) {
-		margin-left: 0.5rem;
-	}
+.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+	margin-left: 0.5rem;
+}
 
-	.space-x-3 > :not([hidden]) ~ :not([hidden]) {
-		margin-left: 0.75rem;
-	}
+.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+	margin-left: 0.75rem;
+}
 
-	.space-x-4 > :not([hidden]) ~ :not([hidden]) {
-		margin-left: 1rem;
-	}
+.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+	margin-left: 1rem;
 }
 
 /* Fix for dropdown portals */
