@@ -3,6 +3,7 @@
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
 	import Button from '$lib/components/ui/button.svelte';
 	import Input from '$lib/components/ui/input.svelte';
+	import Alert from '$lib/components/ui/alert.svelte';
 	import { Mail, ArrowLeft } from 'lucide-svelte';
 	import { z } from 'zod';
 	import type { ActionData } from './$types';
@@ -84,15 +85,15 @@
 				</div>
 
 				{#if error}
-					<div class="mb-4 p-3 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md">
+					<Alert variant="destructive" class="mb-4">
 						{error}
-					</div>
+					</Alert>
 				{/if}
 
 				{#if form?.error}
-					<div class="mb-4 p-3 text-sm text-red-800 bg-red-50 border border-red-200 rounded-md">
+					<Alert variant="destructive" class="mb-4">
 						{form.error}
-					</div>
+					</Alert>
 				{/if}
 
 				<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
