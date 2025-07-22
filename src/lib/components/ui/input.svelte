@@ -9,6 +9,7 @@
 		disabled?: boolean
 		required?: boolean
 		id?: string
+		size?: 'sm' | 'md' | 'lg'
 		onblur?: (e: FocusEvent) => void
 		onchange?: (e: Event) => void
 		onclick?: (e: MouseEvent) => void
@@ -32,6 +33,7 @@
 		disabled = false,
 		required = false,
 		id,
+		size = 'md',
 		onblur,
 		onchange,
 		onclick,
@@ -46,6 +48,12 @@
 		oninput,
 		...restProps
 	}: Props = $props()
+	
+	const sizeClasses = {
+		sm: 'input-size-sm text-sm',
+		md: 'input-size-md',
+		lg: 'input-size-lg text-base'
+	}
 </script>
 
 <input
@@ -56,7 +64,8 @@
 	{required}
 	bind:value
 	class={cn(
-		'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [font-size:16px] sm:text-sm',
+		'flex w-full rounded-md border border-input bg-background text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [font-size:16px] sm:text-sm',
+		sizeClasses[size],
 		className
 	)}
 	{onblur}

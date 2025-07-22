@@ -1,22 +1,38 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { apiError, apiSuccess, ApiErrorType, requireAuth, validateRequest, getPagination } from '$lib/server/api-utils';
+import { z } from 'zod';
+import type { OrderResponse, OrderCreateRequest } from '$lib/types/api.types';
+
+const orderFiltersSchema = z.object({
+    status: z.string().optional(),
+    role: z.enum(['buyer', 'seller']).optional(),
+    dateFrom: z.string().datetime().optional(),
+    dateTo: z.string().datetime().optional()
+});
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-    const supabase = locals.supabase;
-    const { session } = await locals.safeGetSession();
+    const requestId = crypto.randomUUID();
+    
+    try {
+        // Check authentication
+        const auth = await requireAuth(locals);
+        if (!auth) {
+            return apiError('Unauthorized', 401, ApiErrorType.AUTHENTICATION, undefined, requestId);
+        }
 
-    if (!session) {
-        return json({ error: 'Unauthorized' }, { status: 401 });
-    }
+        // Get pagination
+        const { page, limit } = getPagination(url, 20);
+        const offset = (page - 1) * limit;
+        
+        // Validate filters
+        const filters = orderFiltersSchema.parse({
+            status: url.searchParams.get('status'),
+            role: url.searchParams.get('role'),
+            dateFrom: url.searchParams.get('from'),
+            dateTo: url.searchParams.get('to')
+        });
 
-    const limit = parseInt(url.searchParams.get('limit') || '20');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
-    const status = url.searchParams.get('status');
-    const role = url.searchParams.get('role'); // 'buyer' or 'seller'
-    const dateFrom = url.searchParams.get('from');
-    const dateTo = url.searchParams.get('to');
-
-    let query = supabase
+        let query = locals.supabase
         .from('orders')
         .select(`
             *,
@@ -47,89 +63,117 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         .order('created_at', { ascending: false })
         .range(offset, offset + limit - 1);
 
-    // Filter by role
-    if (role === 'buyer') {
-        query = query.eq('buyer_id', session.user.id);
-    } else if (role === 'seller') {
-        query = query.eq('seller_id', session.user.id);
-    } else {
-        query = query.or(`buyer_id.eq.${session.user.id},seller_id.eq.${session.user.id}`);
-    }
+        // Filter by role
+        if (filters.role === 'buyer') {
+            query = query.eq('buyer_id', auth.userId);
+        } else if (filters.role === 'seller') {
+            query = query.eq('seller_id', auth.userId);
+        } else {
+            query = query.or(`buyer_id.eq.${auth.userId},seller_id.eq.${auth.userId}`);
+        }
 
-    // Filter by status
-    if (status) {
-        query = query.eq('status', status);
-    }
+        // Filter by status
+        if (filters.status) {
+            query = query.eq('status', filters.status);
+        }
 
-    // Filter by date range
-    if (dateFrom) {
-        query = query.gte('created_at', dateFrom);
-    }
-    if (dateTo) {
-        query = query.lte('created_at', dateTo + 'T23:59:59.999Z');
-    }
+        // Filter by date range
+        if (filters.dateFrom) {
+            query = query.gte('created_at', filters.dateFrom);
+        }
+        if (filters.dateTo) {
+            query = query.lte('created_at', filters.dateTo + 'T23:59:59.999Z');
+        }
 
-    const { data: orders, error } = await query;
+        const { data: orders, error } = await query;
 
-    if (error) {
-        console.error('Error fetching orders:', error);
-        return json({ error: 'Failed to fetch orders' }, { status: 500 });
+        if (error) {
+            return apiError(
+                'Failed to fetch orders',
+                500,
+                ApiErrorType.DATABASE,
+                undefined,
+                requestId
+            );
+        }
+
+        return apiSuccess({
+            orders: orders || [],
+            pagination: {
+                page,
+                limit,
+                total: -1, // Would need count query
+                hasMore: orders?.length === limit,
+                nextPage: orders?.length === limit ? page + 1 : null,
+                prevPage: page > 1 ? page - 1 : null
+            }
+        }, 200, requestId);
+    } catch (error) {
+        return apiError(
+            'An unexpected error occurred',
+            500,
+            ApiErrorType.INTERNAL,
+            undefined,
+            requestId
+        );
     }
-
-    return json({
-        orders: orders || [],
-        hasMore: orders?.length === limit
-    });
 };
 
+const createOrderSchema = z.object({
+    listing_id: z.string().uuid(),
+    transaction_id: z.string().uuid(),
+    shipping_address: z.object({
+        line1: z.string().min(1),
+        line2: z.string().optional(),
+        city: z.string().min(1),
+        state: z.string().min(1),
+        postal_code: z.string().min(1),
+        country: z.string().min(1)
+    }),
+    shipping_method: z.string().optional().default('standard')
+});
+
 export const POST: RequestHandler = async ({ locals, request }) => {
-    const supabase = locals.supabase;
-    const { session } = await locals.safeGetSession();
-
-    if (!session) {
-        return json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { 
-        listing_id, 
-        transaction_id,
-        shipping_address,
-        shipping_method 
-    } = await request.json();
-
-    if (!listing_id || !transaction_id || !shipping_address) {
-        return json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
+    const requestId = crypto.randomUUID();
+    
     try {
+        // Check authentication
+        const auth = await requireAuth(locals);
+        if (!auth) {
+            return apiError('Unauthorized', 401, ApiErrorType.AUTHENTICATION, undefined, requestId);
+        }
+        
+        // Validate request body
+        const data = await validateRequest(request, createOrderSchema);
+
         // Get listing and transaction details
         const [listingResult, transactionResult] = await Promise.all([
-            supabase
+            locals.supabase
                 .from('listings')
                 .select('*, seller:profiles!listings_seller_id_fkey(id, username, email)')
-                .eq('id', listing_id)
+                .eq('id', data.listing_id)
                 .single(),
-            supabase
+            locals.supabase
                 .from('transactions')
                 .select('*')
-                .eq('id', transaction_id)
-                .eq('buyer_id', session.user.id)
+                .eq('id', data.transaction_id)
+                .eq('buyer_id', auth.userId)
                 .single()
         ]);
 
         if (listingResult.error || !listingResult.data) {
-            return json({ error: 'Listing not found' }, { status: 404 });
+            return apiError('Listing not found', 404, ApiErrorType.NOT_FOUND, undefined, requestId);
         }
 
         if (transactionResult.error || !transactionResult.data) {
-            return json({ error: 'Transaction not found' }, { status: 404 });
+            return apiError('Transaction not found', 404, ApiErrorType.NOT_FOUND, undefined, requestId);
         }
 
         const listing = listingResult.data;
         const transaction = transactionResult.data;
 
         // Generate order number
-        const { data: orderNumber } = await supabase.rpc('generate_order_number');
+        const { data: orderNumber } = await locals.supabase.rpc('generate_order_number');
 
         // Calculate totals
         const subtotal = listing.price;
@@ -137,16 +181,16 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         const total_amount = subtotal + shipping_cost;
 
         // Create order
-        const { data: order, error: orderError } = await supabase
+        const { data: order, error: orderError } = await locals.supabase
             .from('orders')
             .insert({
                 order_number: orderNumber,
-                buyer_id: session.user.id,
+                buyer_id: auth.userId,
                 seller_id: listing.seller_id,
-                transaction_id,
+                transaction_id: data.transaction_id,
                 status: 'confirmed',
-                shipping_address,
-                shipping_method: shipping_method || 'standard',
+                shipping_address: data.shipping_address,
+                shipping_method: data.shipping_method,
                 subtotal,
                 shipping_cost,
                 tax_amount: 0,
@@ -156,10 +200,18 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             .select()
             .single();
 
-        if (orderError) throw orderError;
+        if (orderError) {
+            return apiError(
+                'Failed to create order',
+                500,
+                ApiErrorType.DATABASE,
+                undefined,
+                requestId
+            );
+        }
 
         // Create order item
-        const { error: itemError } = await supabase
+        const { error: itemError } = await locals.supabase
             .from('order_items')
             .insert({
                 order_id: order.id,
@@ -177,27 +229,44 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 }
             });
 
-        if (itemError) throw itemError;
+        if (itemError) {
+            return apiError(
+                'Failed to create order item',
+                500,
+                ApiErrorType.DATABASE,
+                undefined,
+                requestId
+            );
+        }
 
         // Add status history entry
-        await supabase
+        await locals.supabase
             .from('order_status_history')
             .insert({
                 order_id: order.id,
                 to_status: 'confirmed',
-                changed_by: session.user.id,
+                changed_by: auth.userId,
                 reason: 'Order placed successfully'
             });
 
         // Update listing status to sold
-        await supabase
+        await locals.supabase
             .from('listings')
             .update({ status: 'sold' })
-            .eq('id', listing_id);
+            .eq('id', data.listing_id);
 
-        return json({ order }, { status: 201 });
+        const response: OrderResponse = order;
+        return apiSuccess(response, 201, requestId);
     } catch (error) {
-        console.error('Error creating order:', error);
-        return json({ error: 'Failed to create order' }, { status: 500 });
+        if (error instanceof ApiError) {
+            return apiError(error.message, error.status, error.type, error.details, requestId);
+        }
+        return apiError(
+            'Failed to create order',
+            500,
+            ApiErrorType.INTERNAL,
+            undefined,
+            requestId
+        );
     }
 };

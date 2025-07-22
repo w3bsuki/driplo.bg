@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import type { Database } from '$lib/types/database';
 
 // Store for global unread message count
@@ -8,7 +8,7 @@ export const unreadCount = writable<number>(0);
 
 // Track if we're subscribed to real-time updates
 let isSubscribed = false;
-let realtimeChannel: any = null;
+let realtimeChannel: RealtimeChannel | null = null;
 
 // Initialize unread count
 export async function initializeUnreadCount() {

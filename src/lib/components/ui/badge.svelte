@@ -4,12 +4,12 @@
 
 	interface Props {
 		variant?: 'default' | 'secondary' | 'success' | 'destructive' | 'outline';
-		size?: 'sm' | 'default' | 'lg';
+		size?: 'sm' | 'md' | 'lg';
 		class?: string;
 		children: Snippet;
 	}
 
-	let { variant = 'default', size = 'default', class: className, children }: Props = $props();
+	let { variant = 'default', size = 'md', class: className, children }: Props = $props();
 
 	const variants = {
 		default: 'bg-neutral-100 text-neutral-700 border-neutral-200',
@@ -20,9 +20,9 @@
 	};
 
 	const sizes = {
-		sm: 'px-2 py-0.5 text-xs',
-		default: 'px-2.5 py-1 text-xs',
-		lg: 'px-3 py-1.5 text-sm'
+		sm: 'badge-size-sm',
+		md: 'badge-size-md',
+		lg: 'badge-size-lg'
 	};
 </script>
 

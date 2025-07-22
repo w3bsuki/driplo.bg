@@ -125,7 +125,7 @@
 			<button
 				onclick={toggleLike}
 				class={cn(
-					"absolute top-2 right-2 p-2 rounded-full bg-white/95 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 active:bg-gray-100",
+					"absolute top-2 right-2 p-2 rounded-full bg-white/95 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 active:bg-gray-100 touch-safe",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
 				aria-label={liked ? 'Unlike' : 'Like'}

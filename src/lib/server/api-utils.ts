@@ -1,15 +1,15 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/database.types';
+import type { SupabaseClient, Session, User } from '@supabase/supabase-js';
+import type { Database, Tables } from '$lib/types/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
 
 // Standard API response types
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp?: string;
   requestId?: string;
 }
@@ -43,7 +43,7 @@ export class ApiError extends Error {
     public message: string,
     public status: number,
     public type: ApiErrorType,
-    public details?: Record<string, any>
+    public details?: Record<string, unknown>
   ) {
     super(message);
     this.name = 'ApiError';
@@ -70,7 +70,7 @@ export function apiError(
   message: string,
   status: number = 500,
   type: ApiErrorType = ApiErrorType.INTERNAL,
-  details?: Record<string, any>,
+  details?: Record<string, unknown>,
   requestId?: string
 ) {
   const timestamp = new Date().toISOString();
@@ -119,7 +119,7 @@ export async function requireAuth(
     allowExpired?: boolean;
     requireProfile?: boolean;
   }
-): Promise<{ userId: string; session: any; profile?: any } | null> {
+): Promise<{ userId: string; session: Session; profile?: Tables<'profiles'> } | null> {
   try {
     // First get the session (without validation)
     const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession();
@@ -146,7 +146,7 @@ export async function requireAuth(
       return null;
     }
     
-    const result: any = {
+    const result: { userId: string; session: Session; profile?: Tables<'profiles'> } = {
       userId: user.id,
       session
     };
@@ -177,7 +177,7 @@ export async function requireAuth(
 // Enhanced admin role check
 export async function requireAdmin(
   locals: RequestEvent['locals']
-): Promise<{ userId: string; session: any; profile: any } | null> {
+): Promise<{ userId: string; session: Session; profile: Tables<'profiles'> } | null> {
   const auth = await requireAuth(locals, { requireProfile: true });
   if (!auth) return null;
   
@@ -280,7 +280,7 @@ export function paginatedResponse<T>(
 }
 
 // Enhanced database error handler with specific error messages
-export function handleDatabaseError(error: any): never {
+export function handleDatabaseError(error: unknown): never {
   console.error('Database error:', error);
   
   // Supabase/Postgres error codes
@@ -297,16 +297,19 @@ export function handleDatabaseError(error: any): never {
     'PGRST116': { message: 'The result contains 0 rows', status: 404, type: ApiErrorType.NOT_FOUND }
   };
   
-  const errorInfo = errorMap[error.code] || {
+  // Type guard for database errors
+  const dbError = error as { code?: string; hint?: string; details?: unknown };
+  
+  const errorInfo = (dbError.code && errorMap[dbError.code]) || {
     message: 'Database operation failed',
     status: 500,
     type: ApiErrorType.DATABASE
   };
   
   throw new ApiError(errorInfo.message, errorInfo.status, errorInfo.type, {
-    code: error.code,
-    hint: error.hint,
-    details: error.details
+    code: dbError.code,
+    hint: dbError.hint,
+    details: dbError.details
   });
 }
 
@@ -385,7 +388,7 @@ export function corsHeaders(origin?: string): HeadersInit {
 }
 
 // Request sanitization
-export function sanitizeInput<T extends Record<string, any>>(
+export function sanitizeInput<T extends Record<string, unknown>>(
   input: T,
   allowedFields: string[]
 ): Partial<T> {
@@ -529,19 +532,19 @@ export async function processBatch<T, R>(
 
 // Export common validators for backward compatibility
 export const validators = {
-  isNonEmptyString: (value: any): value is string => 
+  isNonEmptyString: (value: unknown): value is string => 
     typeof value === 'string' && value.trim().length > 0,
     
-  isPositiveNumber: (value: any): value is number =>
+  isPositiveNumber: (value: unknown): value is number =>
     typeof value === 'number' && value > 0,
     
-  isBoolean: (value: any): value is boolean =>
+  isBoolean: (value: unknown): value is boolean =>
     typeof value === 'boolean',
     
-  isArray: <T>(value: any, itemValidator?: (item: any) => item is T): value is T[] =>
+  isArray: <T>(value: unknown, itemValidator?: (item: unknown) => item is T): value is T[] =>
     Array.isArray(value) && (!itemValidator || value.every(itemValidator)),
     
-  isObject: (value: any): value is Record<string, any> =>
+  isObject: (value: unknown): value is Record<string, unknown> =>
     value !== null && typeof value === 'object' && !Array.isArray(value)
 };
 
@@ -561,7 +564,7 @@ export function validateUUID(uuid: string): boolean {
 // Legacy function for backward compatibility
 export async function parseRequestBody<T>(
   request: Request,
-  validator?: (data: any) => data is T
+  validator?: (data: unknown) => data is T
 ): Promise<T> {
   try {
     const body = await request.json();

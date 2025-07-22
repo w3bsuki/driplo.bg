@@ -1,31 +1,63 @@
-import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { browseListings } from '$lib/server/browse'
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache'
+import { apiError, apiSuccess, ApiErrorType, getPagination } from '$lib/server/api-utils'
+import { z } from 'zod'
+import type { BrowseLoadMoreResponse } from '$lib/types/api.types'
 
-export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
-	// Extract filter parameters from URL
-	const searchParams = url.searchParams
-	const filters = {
-		category: searchParams.get('category') || '',
-		subcategory: searchParams.get('subcategory') || '',
-		search: searchParams.get('q') || '',
-		minPrice: searchParams.get('min_price') ? Number(searchParams.get('min_price')) : null,
-		maxPrice: searchParams.get('max_price') ? Number(searchParams.get('max_price')) : null,
-		sizes: searchParams.get('sizes')?.split(',').filter(Boolean) || [],
-		brands: searchParams.get('brands')?.split(',').filter(Boolean) || [],
-		conditions: searchParams.get('conditions')?.split(',').filter(Boolean) || [],
-		sortBy: searchParams.get('sort') || 'recent',
-		page: Number(searchParams.get('page')) || 1,
-		limit: Number(searchParams.get('limit')) || 24
-	}
+const filterSchema = z.object({
+	category: z.string().optional().default(''),
+	subcategory: z.string().optional().default(''),
+	search: z.string().optional().default(''),
+	minPrice: z.number().nullable().optional(),
+	maxPrice: z.number().nullable().optional(),
+	sizes: z.array(z.string()).optional().default([]),
+	brands: z.array(z.string()).optional().default([]),
+	conditions: z.array(z.string()).optional().default([]),
+	sortBy: z.string().optional().default('recent')
+})
 
+export const GET: RequestHandler = async ({ url, locals }) => {
+	const requestId = crypto.randomUUID()
+	
 	try {
+		// Extract and validate filter parameters
+		const searchParams = url.searchParams
+		const { page, limit } = getPagination(url, 24)
+		
+		const parseResult = filterSchema.safeParse({
+			category: searchParams.get('category'),
+			subcategory: searchParams.get('subcategory'),
+			search: searchParams.get('q'),
+			minPrice: searchParams.get('min_price') ? Number(searchParams.get('min_price')) : null,
+			maxPrice: searchParams.get('max_price') ? Number(searchParams.get('max_price')) : null,
+			sizes: searchParams.get('sizes')?.split(',').filter(Boolean),
+			brands: searchParams.get('brands')?.split(',').filter(Boolean),
+			conditions: searchParams.get('conditions')?.split(',').filter(Boolean),
+			sortBy: searchParams.get('sort')
+		})
+		
+		if (!parseResult.success) {
+			return apiError(
+				'Invalid filter parameters',
+				400,
+				ApiErrorType.VALIDATION,
+				{ errors: parseResult.error.flatten() },
+				requestId
+			)
+		}
+		
+		const filters = {
+			...parseResult.data,
+			page,
+			limit
+		}
+
 		// Cache browse results for 5 minutes
 		const cacheKey = cacheKeys.browseResults(filters)
 		const browseResult = await getCachedData(
 			cacheKey,
-			() => browseListings(supabase, filters),
+			() => browseListings(locals.supabase, filters),
 			cacheTTL.browseResults
 		)
 
@@ -49,18 +81,20 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 			shipping_included: false
 		}))
 
-		return json({
+		const response: BrowseLoadMoreResponse = {
 			listings: enrichedListings,
-			totalCount: browseResult.totalCount,
 			hasMore: browseResult.hasMore,
-			page: browseResult.page,
-			limit: browseResult.limit
-		})
+			nextPage: browseResult.hasMore ? page + 1 : null
+		}
+
+		return apiSuccess(response, 200, requestId)
 	} catch (err) {
-		console.error('Load more error:', err)
-		return json(
-			{ error: 'Failed to load more listings' },
-			{ status: 500 }
+		return apiError(
+			'Failed to load listings',
+			500,
+			ApiErrorType.INTERNAL,
+			undefined,
+			requestId
 		)
 	}
 }

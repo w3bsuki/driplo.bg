@@ -272,6 +272,11 @@
 	--touch-target-md: 40px;
 	--touch-target-lg: 44px;
 
+	/* Badge/Chip Heights */
+	--badge-height-sm: 20px;
+	--badge-height-md: 24px;
+	--badge-height-lg: 28px;
+
 	/* ========== Animation ========== */
 	/* Durations */
 	--duration-instant: 0ms;
@@ -668,5 +673,114 @@
 	}
 	.active-scale:active {
 		transform: scale(0.97);
+	}
+}
+
+/* ========== CUSTOM TAILWIND V4 UTILITIES ========== */
+@utility button-size-xs {
+	height: var(--button-height-xs);
+	min-height: var(--button-height-xs);
+	padding-inline: calc(var(--button-height-xs) * 0.5);
+}
+
+@utility button-size-sm {
+	height: var(--button-height-sm);
+	min-height: var(--button-height-sm);
+	padding-inline: calc(var(--button-height-sm) * 0.5);
+}
+
+@utility button-size-md {
+	height: var(--button-height-md);
+	min-height: var(--button-height-md);
+	padding-inline: calc(var(--button-height-md) * 0.5);
+}
+
+@utility button-size-lg {
+	height: var(--button-height-lg);
+	min-height: var(--button-height-lg);
+	padding-inline: calc(var(--button-height-lg) * 0.5);
+}
+
+@utility button-size-xl {
+	height: var(--button-height-xl);
+	min-height: var(--button-height-xl);
+	padding-inline: calc(var(--button-height-xl) * 0.5);
+}
+
+@utility input-size-sm {
+	height: var(--input-height-sm);
+	min-height: var(--input-height-sm);
+	padding-inline: var(--spacing-4);
+}
+
+@utility input-size-md {
+	height: var(--input-height-md);
+	min-height: var(--input-height-md);
+	padding-inline: var(--spacing-4);
+}
+
+@utility input-size-lg {
+	height: var(--input-height-lg);
+	min-height: var(--input-height-lg);
+	padding-inline: var(--spacing-4);
+}
+
+@utility touch-safe {
+	min-width: var(--touch-target-min);
+	min-height: var(--touch-target-min);
+}
+
+@utility badge-size-sm {
+	height: var(--badge-height-sm);
+	padding-inline: var(--spacing-2);
+	font-size: var(--text-xs);
+	line-height: var(--badge-height-sm);
+}
+
+@utility badge-size-md {
+	height: var(--badge-height-md);
+	padding-inline: var(--spacing-2-5);
+	font-size: var(--text-xs);
+	line-height: var(--badge-height-md);
+}
+
+@utility badge-size-lg {
+	height: var(--badge-height-lg);
+	padding-inline: var(--spacing-3);
+	font-size: var(--text-sm);
+	line-height: var(--badge-height-lg);
+}
+
+@utility chip-size-sm {
+	height: var(--badge-height-sm);
+	padding-inline: var(--spacing-2);
+	font-size: var(--text-xs);
+	line-height: var(--badge-height-sm);
+}
+
+@utility chip-size-md {
+	height: var(--badge-height-md);
+	padding-inline: var(--spacing-3);
+	font-size: var(--text-xs);
+	line-height: var(--badge-height-md);
+}
+
+@utility chip-size-lg {
+	height: var(--badge-height-lg);
+	padding-inline: var(--spacing-3-5);
+	font-size: var(--text-sm);
+	line-height: var(--badge-height-lg);
+}
+
+/* Custom Variants for Tailwind v4 */
+@variant reduce-motion {
+	@media (prefers-reduced-motion: reduce) {
+		@slot;
+	}
+}
+
+@variant high-contrast {
+	@media (prefers-contrast: high) {
+		@slot;
 	}
 }

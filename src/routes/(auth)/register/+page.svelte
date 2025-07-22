@@ -85,14 +85,16 @@
 			// Show success message
 			toast.success('Account created! Please check your email to verify your account.')
 			goto('/register?success=true')
-		} catch (error: any) {
-			if (error.issues) {
+		} catch (error) {
+			if (error instanceof z.ZodError) {
 				// Zod validation errors
-				error.issues.forEach((issue: any) => {
+				error.issues.forEach((issue) => {
 					toast.error(issue.message)
 				})
-			} else {
+			} else if (error instanceof Error) {
 				toast.error(error.message || 'Registration failed')
+			} else {
+				toast.error('Registration failed')
 			}
 		} finally {
 			loading = false
@@ -107,8 +109,12 @@
 				localStorage.setItem('pending_account_type', 'brand')
 			}
 			await auth.signInWithProvider(provider)
-		} catch (error: any) {
-			toast.error(error.message || 'OAuth registration failed')
+		} catch (error) {
+			if (error instanceof Error) {
+				toast.error(error.message || 'OAuth registration failed')
+			} else {
+				toast.error('OAuth registration failed')
+			}
 			loading = false
 		}
 	}

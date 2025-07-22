@@ -1,5 +1,7 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { apiError, apiSuccess, ApiErrorType, requireAuth, validateRequest } from '$lib/server/api-utils';
+import { z } from 'zod';
+import type { MessageSendResponse } from '$lib/types/api.types';
 
 // Simple rate limiting - 30 messages per user per minute
 const rateLimiter = new Map<string, { count: number; resetTime: number }>();
@@ -21,59 +23,75 @@ function checkRateLimit(userId: string): boolean {
     return true;
 }
 
+const messageSchema = z.object({
+    conversation_id: z.string().uuid(),
+    content: z.string().min(1).max(5000),
+    attachments: z.array(z.string()).optional().default([])
+});
+
 export const POST: RequestHandler = async ({ locals, request }) => {
-    const supabase = locals.supabase;
-    const session = await locals.safeGetSession();
-
-    if (!session.session) {
-        return json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check rate limit
-    if (!checkRateLimit(session.session.user.id)) {
-        return json({ error: 'Rate limit exceeded' }, { status: 429 });
-    }
-
-    const { conversation_id, content, attachments = [] } = await request.json();
-
-    if (!conversation_id || !content) {
-        return json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // Verify user has access to this conversation
-    const { data: conversation, error: convError } = await supabase
-        .from('conversations')
-        .select(`
-            *,
-            buyer:profiles!conversations_buyer_id_fkey (
-                id,
-                username,
-                email
-            ),
-            seller:profiles!conversations_seller_id_fkey (
-                id,
-                username,
-                email
-            ),
-            listing:listings!inner (
-                title
-            )
-        `)
-        .eq('id', conversation_id)
-        .or(`buyer_id.eq.${session.session.user.id},seller_id.eq.${session.session.user.id}`)
-        .single();
-
-    if (convError || !conversation) {
-        return json({ error: 'Conversation not found' }, { status: 404 });
-    }
-
+    const requestId = crypto.randomUUID();
+    
     try {
+        // Check authentication
+        const auth = await requireAuth(locals);
+        if (!auth) {
+            return apiError('Unauthorized', 401, ApiErrorType.AUTHENTICATION, undefined, requestId);
+        }
+
+        // Check rate limit
+        if (!checkRateLimit(auth.userId)) {
+            return apiError(
+                'Rate limit exceeded. Please wait before sending more messages.',
+                429,
+                ApiErrorType.RATE_LIMIT,
+                { retryAfter: 60 },
+                requestId
+            );
+        }
+
+        // Validate request body
+        const { conversation_id, content, attachments } = await validateRequest(request, messageSchema);
+
+        // Verify user has access to this conversation
+        const { data: conversation, error: convError } = await locals.supabase
+            .from('conversations')
+            .select(`
+                *,
+                buyer:profiles!conversations_buyer_id_fkey (
+                    id,
+                    username,
+                    email
+                ),
+                seller:profiles!conversations_seller_id_fkey (
+                    id,
+                    username,
+                    email
+                ),
+                listing:listings!inner (
+                    title
+                )
+            `)
+            .eq('id', conversation_id)
+            .or(`buyer_id.eq.${auth.userId},seller_id.eq.${auth.userId}`)
+            .single();
+
+        if (convError || !conversation) {
+            return apiError(
+                'Conversation not found or access denied',
+                404,
+                ApiErrorType.NOT_FOUND,
+                undefined,
+                requestId
+            );
+        }
+
         // Create the message
-        const { data: message, error: msgError } = await supabase
+        const { data: message, error: msgError } = await locals.supabase
             .from('messages')
             .insert({
                 conversation_id,
-                sender_id: session.session.user.id,
+                sender_id: auth.userId,
                 message_text: content,
                 attachments: attachments || [],
                 is_read: false,
@@ -90,10 +108,18 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             `)
             .single();
 
-        if (msgError) throw msgError;
+        if (msgError) {
+            return apiError(
+                'Failed to send message',
+                500,
+                ApiErrorType.DATABASE,
+                undefined,
+                requestId
+            );
+        }
 
         // Send email notification to recipient
-        const isBuyer = session.session.user.id === conversation.buyer_id;
+        const isBuyer = auth.userId === conversation.buyer_id;
         const recipient = isBuyer ? conversation.seller : conversation.buyer;
         const sender = isBuyer ? conversation.buyer : conversation.seller;
 
@@ -105,17 +131,27 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 sender,
                 conversation.listing,
                 content,
-                conversationId
+                conversation_id
             ).catch(error => {
-                console.error('Failed to send email notification:', error);
+                console.error(`[${requestId}] Failed to send email notification:`, error);
             });
         } catch (error) {
-            console.error('Failed to load email service:', error);
+            console.error(`[${requestId}] Failed to load email service:`, error);
         }
 
-        return json({ message }, { status: 201 });
+        const response: MessageSendResponse = {
+            message,
+            conversation_id
+        };
+
+        return apiSuccess(response, 201, requestId);
     } catch (error) {
-        console.error('Error sending message:', error);
-        return json({ error: 'Failed to send message' }, { status: 500 });
+        return apiError(
+            'An unexpected error occurred',
+            500,
+            ApiErrorType.INTERNAL,
+            undefined,
+            requestId
+        );
     }
 };

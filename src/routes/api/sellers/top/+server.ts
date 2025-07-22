@@ -1,55 +1,72 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { apiError, apiSuccess, ApiErrorType } from '$lib/server/api-utils';
+import { z } from 'zod';
+import type { TopSellersResponse } from '$lib/types/api.types';
+
+const querySchema = z.object({
+  period: z.enum(['week', 'month', 'year', 'all']).default('month'),
+  limit: z.number().int().min(1).max(50).default(12)
+});
 
 export const GET: RequestHandler = async ({ locals, url }) => {
-  const supabase = locals.supabase;
-  
-  // Get query parameters
-  const timePeriod = url.searchParams.get('period') || 'month';
-  const limit = parseInt(url.searchParams.get('limit') || '12');
-  
-  // Validate parameters
-  const validPeriods = ['week', 'month', 'year', 'all'];
-  if (!validPeriods.includes(timePeriod)) {
-    return json(
-      { error: 'Invalid time period. Must be one of: week, month, year, all' },
-      { status: 400 }
-    );
-  }
-  
-  if (limit < 1 || limit > 50) {
-    return json(
-      { error: 'Limit must be between 1 and 50' },
-      { status: 400 }
-    );
-  }
+  const requestId = crypto.randomUUID();
   
   try {
+    // Validate query parameters
+    const parseResult = querySchema.safeParse({
+      period: url.searchParams.get('period') || 'month',
+      limit: parseInt(url.searchParams.get('limit') || '12')
+    });
+    
+    if (!parseResult.success) {
+      return apiError(
+        'Invalid query parameters',
+        400,
+        ApiErrorType.VALIDATION,
+        { errors: parseResult.error.flatten() },
+        requestId
+      );
+    }
+    
+    const { period, limit } = parseResult.data;
+    
     // Call the database function
-    const { data, error } = await supabase
+    const { data, error } = await locals.supabase
       .rpc('get_top_sellers', { 
-        time_period: timePeriod,
+        time_period: period,
         result_limit: limit 
       });
     
     if (error) {
-      console.error('Error fetching top sellers:', error);
-      return json(
-        { error: 'Failed to fetch top sellers' },
-        { status: 500 }
+      return apiError(
+        'Failed to fetch top sellers',
+        500,
+        ApiErrorType.DATABASE,
+        undefined,
+        requestId
       );
     }
     
-    return json({
-      sellers: data || [],
-      period: timePeriod,
-      limit
-    });
+    // Add ranking to sellers
+    const sellersWithRank = (data || []).map((seller, index) => ({
+      ...seller,
+      rank: index + 1
+    }));
+    
+    const response: TopSellersResponse = {
+      sellers: sellersWithRank,
+      period,
+      totalCount: sellersWithRank.length
+    };
+    
+    return apiSuccess(response, 200, requestId);
   } catch (err) {
-    console.error('Unexpected error:', err);
-    return json(
-      { error: 'An unexpected error occurred' },
-      { status: 500 }
+    return apiError(
+      'An unexpected error occurred',
+      500,
+      ApiErrorType.INTERNAL,
+      undefined,
+      requestId
     );
   }
 };

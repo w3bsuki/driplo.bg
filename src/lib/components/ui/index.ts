@@ -4,6 +4,8 @@ export { default as RatingStars } from './RatingStars.svelte';
 export { default as DriploLogo } from './DriploLogo.svelte';
 export { default as Image } from './Image.svelte';
 export { default as Badge } from './badge.svelte';
+export { default as Chip } from './chip.svelte';
+export { default as Icon } from './icon.svelte';
 export * as Card from './card/index.js';
 export * as Avatar from './avatar/index.js';
 export * as Select from './select/index.js';

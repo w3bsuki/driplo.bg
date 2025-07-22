@@ -9,14 +9,15 @@
 	import PersonalInfoForm from './PersonalInfoForm.svelte';
 	import BrandInfoForm from './BrandInfoForm.svelte';
 	import SetupComplete from './SetupComplete.svelte';
-	import type { User } from '@supabase/supabase-js';
+	import type { User, SupabaseClient } from '@supabase/supabase-js';
+	import type { Tables } from '$lib/types/database.types';
 
 	interface Props {
 		user: User;
-		profile: any;
+		profile: Tables<'profiles'>;
 		onComplete: () => void;
 		initialStep?: number;
-		supabase?: any; // Optional supabase client
+		supabase?: SupabaseClient; // Optional supabase client
 	}
 
 	let { user, profile, onComplete, initialStep = 1, supabase }: Props = $props();
@@ -168,7 +169,7 @@
 			if (nextStepIndex < activeSteps.length) {
 				currentStep = activeSteps[nextStepIndex].id;
 			}
-		} catch (error: any) {
+		} catch (error) {
 			toast.error(error.message || 'Failed to save progress');
 		} finally {
 			loading = false;
@@ -188,7 +189,7 @@
 				await onComplete();
 			}
 			toast.success('Profile setup complete! 🎉');
-		} catch (error: any) {
+		} catch (error) {
 			toast.error(error.message || 'Failed to complete setup');
 		} finally {
 			loading = false;

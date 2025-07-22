@@ -50,7 +50,7 @@
 					
 					<button
 						onclick={() => notifications.dismiss(notification.id)}
-						class="text-muted-foreground hover:text-foreground transition-colors"
+						class="text-muted-foreground hover:text-foreground transition-colors p-1 -m-1 rounded touch-safe"
 					>
 						<X class="w-4 h-4" />
 					</button>

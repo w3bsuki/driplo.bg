@@ -1,19 +1,23 @@
-import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private';
 import { PUBLIC_SUPABASE_URL, PUBLIC_APP_URL } from '$env/static/public';
 import { emailService } from '$lib/server/email';
+import { apiError, apiSuccess, ApiErrorType, validateRequest, ApiError } from '$lib/server/api-utils';
+import { z } from 'zod';
 
 const supabaseAdmin = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+const resendVerificationSchema = z.object({
+	email: z.string().email('Invalid email address')
+});
+
 export const POST: RequestHandler = async ({ request }) => {
+	const requestId = crypto.randomUUID();
+	
 	try {
-		const { email } = await request.json();
-		
-		if (!email) {
-			return json({ error: 'Email is required' }, { status: 400 });
-		}
+		// Validate request body
+		const { email } = await validateRequest(request, resendVerificationSchema);
 
 		// Check if user exists and is not verified
 		const { data: user, error: userError } = await supabaseAdmin
@@ -24,12 +28,21 @@ export const POST: RequestHandler = async ({ request }) => {
 
 		if (userError || !user) {
 			// Don't reveal if email exists or not for security
-			return json({ success: true, message: 'If an account exists with this email, a verification link has been sent.' });
+			return apiSuccess({
+				success: true,
+				message: 'If an account exists with this email, a verification link has been sent.'
+			}, 200, requestId);
 		}
 
 		// Check if already verified
 		if (user.email_confirmed_at) {
-			return json({ error: 'Email is already verified' }, { status: 400 });
+			return apiError(
+				'Email is already verified',
+				400,
+				ApiErrorType.VALIDATION,
+				undefined,
+				requestId
+			);
 		}
 
 		// Generate new confirmation link
@@ -42,8 +55,13 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		if (linkError || !linkData) {
-			console.error('Error generating confirmation link:', linkError);
-			return json({ error: 'Failed to generate verification link' }, { status: 500 });
+			return apiError(
+				'Failed to generate verification link',
+				500,
+				ApiErrorType.INTERNAL,
+				undefined,
+				requestId
+			);
 		}
 
 		// Send confirmation email
@@ -96,17 +114,30 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		if (!emailSent) {
-			console.error('Failed to send verification email');
-			return json({ error: 'Failed to send verification email' }, { status: 500 });
+			return apiError(
+				'Failed to send verification email',
+				500,
+				ApiErrorType.EXTERNAL_SERVICE,
+				undefined,
+				requestId
+			);
 		}
 
-		return json({ 
+		return apiSuccess({ 
 			success: true, 
 			message: 'Verification email sent successfully. Please check your inbox.' 
-		});
+		}, 200, requestId);
 
 	} catch (error) {
-		console.error('Resend verification error:', error);
-		return json({ error: 'An unexpected error occurred' }, { status: 500 });
+		if (error instanceof ApiError) {
+			return apiError(error.message, error.status, error.type, error.details, requestId);
+		}
+		return apiError(
+			'An unexpected error occurred',
+			500,
+			ApiErrorType.INTERNAL,
+			undefined,
+			requestId
+		);
 	}
 };

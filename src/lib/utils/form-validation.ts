@@ -112,7 +112,7 @@ export interface FieldError {
 }
 
 // Form validation result
-export interface ValidationResult<T = any> {
+export interface ValidationResult<T = unknown> {
   success: boolean;
   data?: T;
   errors?: FieldError[];
@@ -319,7 +319,7 @@ export function createFormState<T>(initialValues: T): FormState<T> {
 export function updateFormField<T>(
   state: FormState<T>,
   field: keyof T,
-  value: any,
+  value: unknown,
   validator?: z.ZodSchema
 ): FormState<T> {
   const newState = {

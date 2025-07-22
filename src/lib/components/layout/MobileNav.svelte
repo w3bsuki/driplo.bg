@@ -50,15 +50,15 @@
 <nav class="fixed bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05),0_-2px_4px_-1px_rgba(0,0,0,0.03)] md:hidden">
 	<!-- Top accent line -->
 	<div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent"></div>
-	<div class="grid grid-cols-5 items-center h-[64px] px-3" style="padding-bottom: env(safe-area-inset-bottom)">
+	<div class="grid grid-cols-5 items-center h-[56px] px-3" style="padding-bottom: env(safe-area-inset-bottom)">
 		{#each navItems as item (item.href)}
 			{#if item.isPrimary}
 				<!-- Primary Sell Button -->
 				<a
 					href={item.href}
-					class="flex flex-col items-center justify-center py-1.5 relative group"
+					class="flex flex-col items-center justify-center py-1.5 relative group touch-safe"
 				>
-					<div class="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-[#87CEEB] to-[#6BB6D8] text-white rounded-2xl shadow-lg shadow-[#87CEEB]/25 transform transition-all duration-200 active:scale-95 hover:shadow-xl hover:shadow-[#87CEEB]/30 border-2 border-white/80">
+					<div class="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-[#87CEEB] to-[#6BB6D8] text-white rounded-2xl shadow-lg shadow-[#87CEEB]/25 transform transition-all duration-200 active:scale-95 hover:shadow-xl hover:shadow-[#87CEEB]/30 border-2 border-white/80">
 						<span class="text-xl font-bold">+</span>
 					</div>
 				</a>
@@ -66,7 +66,7 @@
 				<!-- Filter Action -->
 				<button
 					onclick={() => handleNavClick(item)}
-					class="flex flex-col items-center justify-center gap-0.5 py-1.5 text-gray-500 hover:text-[#4F9FC5] active:scale-95 transition-all duration-150"
+					class="flex flex-col items-center justify-center gap-0.5 py-1.5 text-gray-500 hover:text-[#4F9FC5] active:scale-95 transition-all duration-150 touch-safe min-h-[36px]"
 				>
 					<div class="relative">
 						<span class="text-lg opacity-80 hover:opacity-100 transition-opacity">{item.emoji}</span>
@@ -77,7 +77,7 @@
 				<!-- Regular Navigation -->
 				<a
 					href={item.href}
-					class="flex flex-col items-center justify-center gap-0.5 py-1.5 active:scale-95 transition-all duration-150 {isActive(item) ? 'text-[#4F9FC5]' : 'text-gray-500 hover:text-[#4F9FC5]'}"
+					class="flex flex-col items-center justify-center gap-0.5 py-1.5 active:scale-95 transition-all duration-150 touch-safe min-h-[36px] {isActive(item) ? 'text-[#4F9FC5]' : 'text-gray-500 hover:text-[#4F9FC5]'}"
 				>
 					<div class="relative">
 						<span class="text-lg transition-all {isActive(item) ? 'opacity-100 scale-105' : 'opacity-80 hover:opacity-100'}">{item.emoji}</span>

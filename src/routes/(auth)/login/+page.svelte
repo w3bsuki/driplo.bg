@@ -51,8 +51,12 @@
 			await auth.signIn(email, password, rememberMe)
 			toast.success(m.auth_welcome_back_toast())
 			goto('/')
-		} catch (error: any) {
-			toast.error(error.message || m.auth_login_failed())
+		} catch (error) {
+			if (error instanceof Error) {
+				toast.error(error.message || m.auth_login_failed())
+			} else {
+				toast.error(m.auth_login_failed())
+			}
 		} finally {
 			loading = false
 		}
@@ -62,8 +66,12 @@
 		loading = true
 		try {
 			await auth.signInWithProvider(provider)
-		} catch (error: any) {
-			toast.error(error.message || m.auth_oauth_failed())
+		} catch (error) {
+			if (error instanceof Error) {
+				toast.error(error.message || m.auth_oauth_failed())
+			} else {
+				toast.error(m.auth_oauth_failed())
+			}
 			loading = false
 		}
 	}
