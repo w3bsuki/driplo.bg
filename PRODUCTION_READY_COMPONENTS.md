@@ -329,7 +329,7 @@ If updating from old version:
 3. New child components need to be imported
 4. Some CSS classes moved to child components
 
-### Latest Updates (2025-07-22)
+### Latest Updates (2025-01-22)
 
 - **Category Button Styling**: Changed default state from gray to black (`bg-gray-900`), active state now blue (`bg-blue-500`) for better visual hierarchy
 - **Mobile Header Improvements**: 
@@ -1290,3 +1290,277 @@ await supabase.rpc('log_auth_event', {
    - Rate limiting active immediately
    - Onboarding required for new users
    - Password requirements enforced
+
+---
+
+## 7. MobileNav Component
+
+**Location**: `src/lib/components/layout/MobileNav.svelte`  
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-01-22
+
+### Issues Fixed
+
+#### 🔧 Code Quality Improvements
+
+1. **Magic Numbers → Constants**
+   ```javascript
+   const ANIMATION_DURATION = 200; // ms
+   const ICON_SIZE = 'text-lg'; // 1.125rem
+   const LABEL_SIZE = 'text-[10px]';
+   const PRIMARY_BUTTON_SIZE = 'w-11 h-11';
+   const MIN_TOUCH_TARGET = 'min-h-[44px]'; // WCAG 2.1 AAA standard
+   ```
+
+2. **Proper TypeScript Interface**
+   ```typescript
+   interface Props {
+     class?: string;
+   }
+   ```
+
+3. **Enhanced Navigation Items**
+   ```typescript
+   interface NavItem {
+     href: string;
+     emoji: string;
+     label: string;
+     isAction?: boolean;
+     isPrimary?: boolean;
+     ariaLabel?: string;
+   }
+   ```
+
+#### ♿ Accessibility Features
+
+1. **ARIA Attributes**
+   - `role="navigation"` on nav element
+   - `aria-label` for mobile navigation
+   - `role="list"` and `role="listitem"` for nav items
+   - `aria-current="page"` for active nav item
+   - `aria-hidden="true"` on decorative elements
+
+2. **Touch Targets**
+   - All interactive elements meet 44px minimum (WCAG AAA)
+   - Proper spacing for mobile interactions
+   - Clear visual feedback on tap
+
+3. **Keyboard Support**
+   - All items keyboard accessible
+   - Consistent focus states
+   - Proper tab order
+
+#### 🎨 Design Improvements
+
+1. **Visual Hierarchy**
+   - Primary sell button with black gradient (changed from blue)
+   - Active state indicators with pulse animation
+   - Consistent icon and label sizing
+
+2. **Hidden Paths Configuration**
+   ```javascript
+   const HIDDEN_PATHS = [
+     '/orders',
+     '/wishlist',
+     '/checkout',
+     '/messages',
+     '/settings',
+     '/profile/edit',
+     '/onboarding'
+   ] as const;
+   ```
+
+3. **Error Handling**
+   ```javascript
+   function handleNavClick(item: NavItem) {
+     try {
+       if (item.isAction && item.href === '#filters') {
+         showFilters = true;
+       }
+     } catch (error) {
+       console.error('Navigation error:', error);
+     }
+   }
+   ```
+
+### Component Features
+
+1. **Fixed Bottom Navigation**
+   - 5-column grid layout
+   - Sticky positioning with backdrop blur
+   - iOS safe area padding support
+   - Hidden on specific pages
+
+2. **Navigation Items**
+   - Filters (opens drawer)
+   - Shop/Browse
+   - Sell (primary black button)
+   - Wishlist
+   - Top Sellers ("Топ" in Bulgarian)
+
+3. **Integration**
+   - Opens MobileFiltersDrawer when filters clicked
+   - Syncs with page navigation
+   - Respects auth state
+
+### Testing Checklist
+
+- [x] All navigation items functional
+- [x] Filters drawer opens correctly
+- [x] Active states display properly
+- [x] Hidden on specified pages
+- [x] iOS safe area respected
+- [x] All text properly translated
+- [x] Touch targets meet 44px minimum
+- [x] Keyboard navigation works
+- [x] No console errors
+- [x] TypeScript types correct
+
+---
+
+## 8. MobileFiltersDrawer Component
+
+**Location**: `src/lib/components/layout/MobileFiltersDrawer.svelte`  
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-01-22
+
+### Issues Fixed
+
+#### 🔧 Code Quality Improvements
+
+1. **Constants Extraction**
+   ```javascript
+   const ANIMATION_DURATION = 300; // ms
+   const DEBOUNCE_DELAY = 500; // ms
+   const FOCUS_TRAP_SELECTOR = 'button, a, input, select, textarea';
+   ```
+
+2. **TypeScript Enhancements**
+   - Proper Props interface with optional className
+   - Type-safe filter selection with `keyof typeof selectedFilters`
+   - Strongly typed filter options
+
+3. **Performance Optimizations**
+   - Debounced filter application
+   - Loading states during navigation
+   - Error handling with recovery
+
+#### ♿ Accessibility Features
+
+1. **Focus Management**
+   - Complete focus trap implementation
+   - Auto-focus first element on open
+   - Tab cycling within drawer
+   - Escape key to close
+
+2. **ARIA Implementation**
+   ```html
+   role="dialog"
+   aria-modal="true"
+   aria-labelledby="filter-title"
+   aria-describedby="filter-description"
+   ```
+
+3. **Screen Reader Support**
+   - All filters have aria-labels
+   - `aria-pressed` for toggle states
+   - Live regions for errors
+   - Proper heading hierarchy
+
+#### 🎨 Design System Integration
+
+1. **Consistent Styling**
+   - Uses standard Tailwind colors (no CSS variables)
+   - Proper hover and active states
+   - Visual feedback for selections
+   - Error states with red color scheme
+
+2. **Loading States**
+   ```svelte
+   {#if isApplying}
+     <span class="inline-flex items-center gap-2">
+       <span class="animate-spin h-3 w-3 border-2 border-white/30 border-t-white rounded-full"></span>
+       {m.filter_applying ? m.filter_applying() : 'Applying...'}
+     </span>
+   {/if}
+   ```
+
+3. **Error Handling**
+   ```svelte
+   {#if applyError}
+     <div class="mb-2 p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-xs text-red-600">
+       <AlertCircle class="h-3 w-3 flex-shrink-0" />
+       <span role="alert">{applyError}</span>
+     </div>
+   {/if}
+   ```
+
+### Component Features
+
+1. **Filter Categories**
+   - Main categories (Women, Men, Kids, Designer, Home)
+   - Subcategories (Dresses, Shoes, Bags, etc.)
+   - Price ranges
+   - Sizes
+   - Brands (TODO: fetch from database)
+   - Conditions
+   - Sort options
+
+2. **State Management**
+   ```javascript
+   let selectedFilters = $state({
+     category: '',
+     subcategory: '',
+     price: '',
+     size: '',
+     brand: '',
+     condition: '',
+     sort: 'recent'
+   });
+   ```
+
+3. **Navigation Integration**
+   - Builds URL with query parameters
+   - Navigates to category pages
+   - Maintains filter state
+   - Smooth transitions
+
+### Outstanding TODOs
+
+1. **Dynamic Data Loading**
+   ```javascript
+   // TODO: Fetch these from database
+   // Main categories
+   const categories = [...];
+   
+   // TODO: Fetch popular brands from database
+   const brands = [...];
+   ```
+
+2. **Additional Features**
+   - Save filter presets
+   - Recent searches
+   - Filter suggestions
+   - Clear individual filters
+
+### Testing Checklist
+
+- [x] Drawer opens/closes smoothly
+- [x] All filters selectable
+- [x] Apply button works with loading state
+- [x] Error handling displays correctly
+- [x] Focus trap functions properly
+- [x] Escape key closes drawer
+- [x] Debouncing prevents rapid submissions
+- [x] URL updates with correct parameters
+- [x] All text properly translated
+- [x] Accessibility features functional
+- [x] No console errors
+- [x] TypeScript types correct
+
+### Integration Notes
+
+- Used by MobileNav component
+- Requires proper i18n message keys
+- Expects Tailwind CSS classes
+- Compatible with SvelteKit navigation

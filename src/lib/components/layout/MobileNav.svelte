@@ -99,12 +99,12 @@
 
 {#if isVisible}
 <nav 
-	class="fixed bottom-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-lg border-t border-border shadow-lg md:hidden {className}"
+	class="fixed bottom-0 left-0 right-0 z-50 bg-white/98 backdrop-blur-lg border-t border-gray-100 shadow-lg md:hidden {className}"
 	role="navigation"
 	aria-label={m.nav_mobile_navigation ? m.nav_mobile_navigation() : 'Mobile navigation'}
 >
 	<!-- Top accent line -->
-	<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" aria-hidden="true"></div>
+	<div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#87CEEB]/20 to-transparent" aria-hidden="true"></div>
 	<div class="grid grid-cols-5 items-center h-14 px-3 pb-safe" role="list">
 		{#each navItems as item (item.href)}
 			<div role="listitem">
@@ -115,7 +115,7 @@
 						class="flex flex-col items-center justify-center py-1.5 relative group {MIN_TOUCH_TARGET}"
 						aria-label={item.ariaLabel}
 					>
-						<div class="flex items-center justify-center {PRIMARY_BUTTON_SIZE} bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl shadow-lg shadow-primary/25 transform transition-all duration-{ANIMATION_DURATION} active:scale-95 hover:shadow-xl hover:shadow-primary/30 border-2 border-background/80">
+						<div class="flex items-center justify-center {PRIMARY_BUTTON_SIZE} bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl shadow-lg shadow-gray-900/25 transform transition-all duration-{ANIMATION_DURATION} active:scale-95 hover:shadow-xl hover:shadow-gray-900/30 border-2 border-white/80">
 							<span class="text-xl font-bold" aria-hidden="true">+</span>
 						</div>
 					</a>
@@ -123,7 +123,7 @@
 					<!-- Filter Action -->
 					<button
 						onclick={() => handleNavClick(item)}
-						class="flex flex-col items-center justify-center gap-0.5 py-1.5 text-muted-foreground hover:text-primary active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET}"
+						class="flex flex-col items-center justify-center gap-0.5 py-1.5 text-gray-500 hover:text-[#4F9FC5] active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET}"
 						aria-label={item.ariaLabel}
 						type="button"
 					>
@@ -136,14 +136,14 @@
 					<!-- Regular Navigation -->
 					<a
 						href={item.href}
-						class="flex flex-col items-center justify-center gap-0.5 py-1.5 active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET} {isActive(item) ? 'text-primary' : 'text-muted-foreground hover:text-primary'}"
+						class="flex flex-col items-center justify-center gap-0.5 py-1.5 active:scale-95 transition-all duration-{ANIMATION_DURATION} {MIN_TOUCH_TARGET} {isActive(item) ? 'text-[#4F9FC5]' : 'text-gray-500 hover:text-[#4F9FC5]'}"
 						aria-label={item.ariaLabel}
 						aria-current={isActive(item) ? 'page' : undefined}
 					>
 						<div class="relative">
 							<span class="{ICON_SIZE} transition-all {isActive(item) ? 'opacity-100 scale-105' : 'opacity-80 hover:opacity-100'}" aria-hidden="true">{item.emoji}</span>
 							{#if isActive(item)}
-								<div class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full animate-pulse" aria-hidden="true"></div>
+								<div class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-[#4F9FC5] rounded-full animate-pulse" aria-hidden="true"></div>
 							{/if}
 						</div>
 						<span class="{LABEL_SIZE} font-medium tracking-tight leading-tight">{item.label}</span>
