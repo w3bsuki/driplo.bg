@@ -27,4 +27,3 @@
 >
 	<slot />
 </div>
-</script>
