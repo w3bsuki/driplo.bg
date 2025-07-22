@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Heart, MessageCircle, User, ChevronDown, ShoppingBag, Search } from 'lucide-svelte';
+	import { Heart, MessageCircle, User, ChevronDown, ShoppingBag } from 'lucide-svelte';
 	import { DropdownMenu } from '$lib/components/ui';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
@@ -20,7 +20,6 @@
 	let { supabase }: Props = $props();
 	
 	let searchQuery = $state('');
-	let mobileSearchOpen = $state(false);
 	
 	// Get auth context
 	const authContext = getAuthContext();
@@ -91,14 +90,6 @@
 		
 		<!-- Mobile Actions -->
 		<div class="flex md:hidden items-center ml-auto gap-1">
-			<!-- Mobile Search -->
-			<button
-				onclick={() => mobileSearchOpen = !mobileSearchOpen}
-				class="h-10 w-10 flex items-center justify-center rounded-xl hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors"
-				aria-label="Search"
-			>
-				<Search class="h-5 w-5 text-muted-foreground" />
-			</button>
 			<!-- Mobile Messages -->
 			{#if authContext?.user}
 				<a 
@@ -214,26 +205,4 @@
 		</div>
 
 	</div>
-	
-	<!-- Mobile Search Overlay -->
-	{#if mobileSearchOpen}
-		<div class="absolute top-full left-0 right-0 bg-background border-b border-border p-3 md:hidden">
-			<div class="relative">
-				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg pointer-events-none">🔍</span>
-				<input
-					type="search"
-					placeholder={m.header_search_placeholder()}
-					bind:value={searchQuery}
-					onkeydown={(e) => {
-						if (e.key === 'Enter') {
-							handleSearch();
-							mobileSearchOpen = false;
-						}
-					}}
-					class="w-full rounded-xl border border-input bg-background pl-10 pr-4 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-					autofocus
-				/>
-			</div>
-		</div>
-	{/if}
 </header>

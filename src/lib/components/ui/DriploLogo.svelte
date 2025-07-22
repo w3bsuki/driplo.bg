@@ -14,22 +14,23 @@
 	}: Props = $props();
 	
 	const sizeClasses = {
-		sm: 'text-lg md:text-xl',
-		md: 'text-xl md:text-2xl',
-		lg: 'text-2xl md:text-3xl'
+		sm: 'text-xl md:text-2xl',
+		md: 'text-2xl md:text-3xl',
+		lg: 'text-3xl md:text-4xl'
 	};
 	
+	// Emoji needs to be ~1.3x larger to match capital letter height
 	const emojiSizes = {
-		sm: 'text-base',
-		md: 'text-lg',
-		lg: 'text-xl'
+		sm: 'text-2xl md:text-3xl',
+		md: 'text-3xl md:text-4xl',
+		lg: 'text-4xl md:text-5xl'
 	};
 </script>
 
-<div class={cn("flex items-center gap-1", className)}>
+<div class={cn("flex items-center gap-0.5", className)}>
 	<span 
 		class={cn(
-			"font-black tracking-tight text-gray-900",
+			"font-black tracking-tight text-gray-900 leading-none",
 			sizeClasses[size]
 		)}
 	>
@@ -38,11 +39,13 @@
 	{#if showEmoji}
 		<span 
 			class={cn(
-				"inline-block",
-				emojiSizes[size]
+				"inline-flex items-center justify-center",
+				emojiSizes[size],
+				"leading-none"
 			)}
 			role="img"
 			aria-label="Clothing"
+			style="transform: translateY(-0.1em)"
 		>
 			👕
 		</span>

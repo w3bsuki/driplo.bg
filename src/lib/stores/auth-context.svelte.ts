@@ -128,18 +128,52 @@ class AuthContext {
 		this.notifyStateChange()
 		
 		try {
+			// Check rate limit before attempting login
+			const { data: rateLimitCheck } = await this.supabase.rpc('check_auth_rate_limit', {
+				p_identifier: email,
+				p_action: 'login',
+				p_max_attempts: 5,
+				p_window_minutes: 15,
+				p_block_minutes: 30
+			})
+			
+			if (rateLimitCheck && !rateLimitCheck.allowed) {
+				const errorMessage = rateLimitCheck.reason === 'blocked' 
+					? `Too many login attempts. Please try again in ${Math.ceil(rateLimitCheck.retry_after / 60)} minutes.`
+					: `Too many login attempts. Please try again later.`
+				throw new Error(errorMessage)
+			}
+			
 			const { data, error } = await this.supabase.auth.signInWithPassword({
 				email,
 				password
 			})
 			
-			if (error) throw error
+			if (error) {
+				// Log failed login attempt
+				await this.supabase.rpc('log_auth_event', {
+					p_user_id: null,
+					p_action: 'login_failed',
+					p_success: false,
+					p_error_message: error.message,
+					p_metadata: { email }
+				}).catch(console.error)
+				
+				throw error
+			}
 			
 			// Update local state
 			if (data.user && data.session) {
 				this.user = data.user
 				this.session = data.session
 				await this.loadProfile(data.user.id)
+				
+				// Log successful login
+				await this.supabase.rpc('log_auth_event', {
+					p_user_id: data.user.id,
+					p_action: 'login',
+					p_success: true
+				}).catch(console.error)
 				
 				// Store remember me preference
 				if (browser && rememberMe) {

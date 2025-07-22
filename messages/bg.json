@@ -520,5 +520,22 @@
 	"quick_filter_sale": "Намаления",
 	"quick_filter_search_button": "Търси",
 	"quick_filter_categories_menu": "Отвори менюто с категории",
-	"quick_filter_scroll_hint": "Превъртете за още филтри"
+	"quick_filter_scroll_hint": "Превъртете за още филтри",
+	"listing_like": "Добави в любими",
+	"listing_unlike": "Премахни от любими",
+	"listing_favorite_error": "Неуспешно обновяване на любими",
+	"listing_no_image": "Изображението не е налично",
+	"listing_view_details": "Виж детайли за {title}",
+	"listing_price": "{price}",
+	"listing_size": "Размер {size}",
+	"listing_error_no_client": "Няма връзка с базата данни",
+	"listing_error_load": "Неуспешно зареждане на обявите",
+	"listing_error_title": "Не могат да се заредят обявите",
+	"listing_retry": "Опитай отново",
+	"listing_loading": "Зареждане на обяви...",
+	"listing_virtual_grid": "Виртуална мрежа с продукти",
+	"listing_empty_title": "Все още няма обяви",
+	"listing_empty_description": "Бъди първият, който ще продаде нещо страхотно!",
+	"listing_start_selling": "Започни да продаваш",
+	"listing_realtime_enabled": "Обновяванията в реално време са активирани за тази мрежа с обяви"
 }

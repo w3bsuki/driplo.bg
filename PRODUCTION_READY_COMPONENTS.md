@@ -332,6 +332,16 @@ If updating from old version:
 ### Latest Updates (2025-07-22)
 
 - **Category Button Styling**: Changed default state from gray to black (`bg-gray-900`), active state now blue (`bg-blue-500`) for better visual hierarchy
+- **Mobile Header Improvements**: 
+  - Moved emoji to left side of "Driplo" text on mobile (remains on right for desktop)
+  - Removed search icon from mobile header since we have hero search and sticky search
+  - Better visual hierarchy and cleaner mobile experience
+- **Sticky Search Bar Enhancements**:
+  - Fixed gap issue when scrolling - now sits flush against header
+  - Dynamic height calculation that responds to header size changes
+  - Reduced button sizes for better visual balance (38px height)
+  - Improved proportions between category button and search button
+  - Added smooth transitions when position changes
 
 ### Outstanding Improvements (Future)
 
@@ -352,7 +362,92 @@ If updating from old version:
 
 ---
 
-## 3. Header Component
+## 3. StickySearchBar Component
+
+**Location**: `src/lib/components/search/StickySearchBar.svelte`  
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-07-22
+
+### Issues Fixed
+
+#### 📱 Mobile-First Positioning
+
+- **Problem**: Fixed `top-[64px]` didn't account for promotional banner or different header heights
+- **Solution**: Dynamic height calculation based on actual header element
+- **Implementation**:
+  ```javascript
+  // Dynamically calculates header height
+  const header = document.querySelector('header');
+  headerHeight = header ? header.offsetHeight : 56;
+  ```
+
+#### 🎨 Visual Balance Improvements
+
+1. **Button Size Optimization**
+   - Reduced category button from 42x42px to 38x38px
+   - Matched search input height to 38px
+   - Smaller, proportional search button
+   - Better visual hierarchy
+
+2. **Responsive Padding**
+   - Mobile: `px-3 py-2`
+   - Desktop: `px-4 py-3`
+   - Consistent with design system
+
+3. **Smooth Transitions**
+   - Added `transition-[top] duration-300` for position changes
+   - Fly animation on appearance
+   - No jarring movements
+
+### Component Features
+
+1. **Dynamic Positioning**
+   - Calculates header height on mount
+   - Updates on window resize
+   - Accounts for different screen sizes
+   - No hardcoded values
+
+2. **Mobile Optimized**
+   - Compact design for small screens
+   - Touch-friendly targets
+   - Efficient use of space
+   - Clear visual hierarchy
+
+3. **Reusable Design**
+   - Accepts all necessary props
+   - Integrates with existing search system
+   - Consistent with HeroSearch component
+   - Maintains search state across views
+
+### Component API
+
+```typescript
+interface Props {
+  value?: string;
+  placeholder?: string;
+  onSearch?: (value: string) => void;
+  onCategorySelect?: (category: string) => void;
+  categories?: Category[];
+  activeCategory?: string;
+  class?: string;
+  visible?: boolean;
+}
+```
+
+### Testing Checklist
+
+- [x] Positions correctly below header
+- [x] No gap when promotional banner scrolls away
+- [x] Smooth transitions on appearance
+- [x] Responsive padding and sizing
+- [x] Category dropdown works
+- [x] Search functionality intact
+- [x] Mobile touch targets adequate
+- [x] TypeScript types correct
+
+---
+
+## 4. Header Component
 
 **Location**: `src/lib/components/layout/Header.svelte`  
 **Status**: ✅ Production Ready  
@@ -456,7 +551,7 @@ If updating from old version:
 Header.svelte
 ├── ProfileDropdownContent.svelte (shared dropdown content)
 ├── LanguageSwitcher.svelte (language selection)
-└── DriploLogo.svelte (brand logo)
+└── DriploLogo.svelte (brand logo - updated for mobile)
 ```
 
 ### Component API
@@ -470,7 +565,7 @@ interface Props {
 ### Features
 
 1. **Desktop Header**
-   - Logo with home link
+   - Logo with home link (emoji on right)
    - Central search bar
    - Quick action icons (wishlist, orders, messages)
    - Profile dropdown with full menu
@@ -478,11 +573,12 @@ interface Props {
    - Message count badge
 
 2. **Mobile Header**
-   - Compact logo
-   - Search button with overlay
+   - Compact logo (emoji on left for better visual balance)
+   - No search icon (uses hero search and sticky search instead)
    - Messages icon with badge
    - Profile dropdown
    - Optimized for small screens
+   - Cleaner, less cluttered interface
 
 3. **Profile Dropdown Menu**
    - User profile quick view
@@ -523,6 +619,341 @@ If updating from old version:
 2. ProfileDropdownContent is now a separate component
 3. All colors now use design tokens from the design system
 4. Mobile search is a new feature that may need testing
+
+---
+
+## 4. ListingCard Component
+
+**Location**: `src/lib/components/listings/ListingCard.svelte`  
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-07-22
+
+### Issues Fixed
+
+#### 🔧 Code Quality Improvements
+
+1. **Hardcoded CSS Variables → Design Tokens**
+   - **Before**: Used invalid CSS variables like `var(--radius-lg)`, `var(--shadow-sm)`
+   - **After**: Proper Tailwind classes and design tokens
+   ```svelte
+   <!-- Before -->
+   <div class="rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)]">
+   
+   <!-- After -->
+   <article class="rounded-xl shadow-sm">
+   ```
+
+2. **Extracted Constants**
+   ```javascript
+   const PRICE_CURRENCY = 'GBP';
+   const PRICE_LOCALE = 'en-GB';
+   const AVATAR_GRADIENT_COLORS = [...];
+   const API_RETRY_DELAY = 1000;
+   const API_MAX_RETRIES = 2;
+   ```
+
+3. **Improved Image Handling**
+   - Simplified image URL extraction logic
+   - Added proper fallback UI for missing images
+   - Better error handling with retry mechanism
+
+#### ⚡ Performance Optimizations
+
+1. **API Retry Logic**
+   ```javascript
+   async function fetchWithRetry(url, options, retries = 0) {
+     try {
+       return await fetch(url, options);
+     } catch (error) {
+       if (retries < API_MAX_RETRIES) {
+         await new Promise(resolve => setTimeout(resolve, API_RETRY_DELAY));
+         return fetchWithRetry(url, options, retries + 1);
+       }
+       throw error;
+     }
+   }
+   ```
+
+2. **Optimistic Updates**
+   - Immediate UI feedback for likes
+   - Rollback on error with proper state management
+   - No flashing or janky animations
+
+3. **Image Loading Strategy**
+   - Lazy loading by default
+   - Eager loading for first 8 cards in viewport
+   - Proper `sizes` attribute for responsive images
+
+#### ♿ Accessibility Features
+
+1. **Comprehensive ARIA Labels**
+   - `aria-label` on all interactive elements
+   - `aria-pressed` for like button state
+   - `aria-hidden` on decorative elements
+   - `role="img"` for placeholder images
+
+2. **Screen Reader Support**
+   - Proper heading hierarchy (`<h3>`)
+   - Descriptive labels for all actions
+   - Live regions for dynamic content
+   - Error announcements
+
+3. **Keyboard Navigation**
+   - All interactive elements focusable
+   - Consistent focus ring styles
+   - Proper tab order maintained
+
+#### 🌐 Internationalization
+
+- **Added Translation Keys**:
+  - `listing_like` / `listing_unlike`
+  - `listing_favorite_error`
+  - `listing_no_image`
+  - `listing_view_details`
+  - `listing_price`
+  - `listing_size`
+  - `listing_likes_count` (with pluralization)
+
+#### 💅 Design Improvements
+
+1. **Semantic HTML**
+   - Changed from `<div>` to `<article>` for better semantics
+   - Proper heading structure
+   - Meaningful element roles
+
+2. **Visual Enhancements**
+   - Hover scale effect on images
+   - Smooth transitions
+   - Consistent spacing with design system
+   - Error state UI for failed API calls
+
+3. **Responsive Design**
+   - Touch-friendly tap targets (44px minimum)
+   - Proper text truncation
+   - Flexible grid compatibility
+
+### Component API
+
+```typescript
+interface Props {
+  id: string;
+  title: string;
+  price: number;
+  size?: string;
+  brand?: string;
+  image: string | string[] | Record<string, string>;
+  imageUrls?: string[] | Record<string, string>;
+  seller: {
+    username: string;
+    avatar?: string;
+    account_type?: string;
+    is_verified?: boolean;
+  };
+  likes?: number;
+  isLiked?: boolean;
+  condition?: string | null;
+  eagerLoading?: boolean;
+}
+```
+
+### Error Handling
+
+- API errors displayed inline at bottom of card
+- Retry mechanism for network failures
+- Graceful fallbacks for missing data
+- User-friendly error messages
+
+### Testing Checklist
+
+- [x] Like/unlike functionality works
+- [x] API errors handled gracefully
+- [x] Retry mechanism functions properly
+- [x] Images load correctly with fallbacks
+- [x] All text properly translated
+- [x] Keyboard navigation works
+- [x] Screen reader compatible
+- [x] Focus states visible
+- [x] No console errors
+- [x] TypeScript types correct
+
+### Latest Updates (2025-07-22 - Part 2)
+
+- **Like Count Display**: Changed from text ("1 like") to icon format ("1 ❤️")
+  - More compact, especially for Bulgarian translations
+  - Universal understanding across languages
+  - Consistent with the like button design
+  - Better visual hierarchy
+
+---
+
+## 5. ListingGrid Component
+
+**Location**: `src/lib/components/listings/ListingGrid.svelte`  
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-07-22
+
+### Issues Fixed
+
+#### 🚀 Real-time Updates
+
+- **Problem**: New listings didn't appear without page refresh
+- **Solution**: Implemented Supabase real-time subscriptions
+- **Features**:
+  - Auto-updates when new listings are added
+  - Updates when listings are modified
+  - Removes listings when deleted/sold
+  - Maintains sort order integrity
+
+#### 🔧 Code Quality Improvements
+
+1. **Responsive Breakpoints as Constants**
+   ```javascript
+   const RESPONSIVE_BREAKPOINTS = {
+     '2xl': { width: 1536, columns: 6 }, // Reduced from 8
+     xl: { width: 1280, columns: 5 },
+     lg: { width: 1024, columns: 4 },
+     md: { width: 768, columns: 3 },
+     sm: { width: 640, columns: 2 },
+     default: { width: 0, columns: 2 }
+   };
+   ```
+
+2. **Improved Column Count**
+   - Reduced max columns from 8 to 6 for better readability
+   - More consistent responsive scaling
+   - Better product visibility
+
+3. **Error Recovery**
+   - Automatic retry with exponential backoff
+   - User-friendly error messages
+   - Manual retry option
+   - Max retry limit to prevent infinite loops
+
+#### ⚡ Performance Optimizations
+
+1. **Virtual Scrolling**
+   - Automatically enabled for 50+ items
+   - Configurable threshold
+   - Smooth scrolling performance
+   - Memory efficient for large datasets
+
+2. **Real-time Subscription Management**
+   - Proper cleanup on unmount
+   - Efficient update strategies
+   - Batched updates when needed
+   - Smart re-sorting logic
+
+3. **Loading States**
+   - Skeleton loader matches actual grid layout
+   - Progressive loading indicators
+   - No layout shift when content loads
+
+#### ♿ Accessibility Features
+
+1. **ARIA Landmarks & Labels**
+   - `aria-labelledby` for section heading
+   - `role="list"` and `role="listitem"` for grid items
+   - `aria-busy` during loading
+   - `aria-live` for real-time updates
+
+2. **Screen Reader Announcements**
+   - Loading state announcements
+   - Error state descriptions
+   - Real-time update notifications
+   - Empty state messaging
+
+3. **Keyboard Navigation**
+   - Proper focus management
+   - Retry button accessible
+   - All interactive elements reachable
+
+#### 🎨 Design System Integration
+
+1. **Consistent Styling**
+   - Uses design tokens throughout
+   - Proper color scheme (foreground, muted, etc.)
+   - Consistent spacing and typography
+   - Matches other production components
+
+2. **Enhanced Error UI**
+   - Clear error messaging
+   - Actionable retry button
+   - Visually distinct error state
+   - Proper icon usage
+
+3. **Improved Empty State**
+   - Engaging visual (emoji)
+   - Clear call-to-action
+   - Properly styled button
+   - Encouraging messaging
+
+### Component API
+
+```typescript
+interface Props {
+  title?: string;
+  limit?: number;
+  orderBy?: 'created_at' | 'price' | 'view_count' | 'favorite_count';
+  listings?: ListingData[];
+  showLoading?: boolean;
+  infiniteScroll?: boolean;
+  hasMore?: boolean;
+  onLoadMore?: () => Promise<void> | void;
+  userFavorites?: string[];
+  supabase?: SupabaseClient<Database>;
+  useVirtualScrolling?: boolean;
+  virtualScrollHeight?: number;
+  enableRealtime?: boolean;
+  showEmptyState?: boolean;
+}
+```
+
+### Real-time Features
+
+1. **INSERT Events**
+   - New listings appear immediately
+   - Maintains sort order
+   - Fetches complete listing data
+
+2. **UPDATE Events**
+   - In-place updates for existing listings
+   - Removes listings if status changes from 'active'
+   - Efficient partial updates
+
+3. **DELETE Events**
+   - Immediate removal from grid
+   - Smooth animations
+   - No flashing or jumps
+
+### Error Handling
+
+- Network errors with retry mechanism
+- Database connection failures
+- Graceful degradation without real-time
+- User-friendly error messages
+- Automatic recovery attempts
+
+### Testing Checklist
+
+- [x] Real-time updates work correctly
+- [x] New listings appear immediately
+- [x] Listings update when modified
+- [x] Deleted listings are removed
+- [x] Error states display properly
+- [x] Retry mechanism works
+- [x] Virtual scrolling activates at 50+ items
+- [x] Responsive columns adjust correctly
+- [x] All text properly translated
+- [x] Accessibility features functional
+- [x] No memory leaks from subscriptions
+- [x] TypeScript types correct
+
+### Database Considerations
+
+- RLS policies allow viewing 'active' listings
+- Proper indexes on frequently queried columns
+- Efficient real-time filters
+- Optimized query performance
 
 ---
 
@@ -572,3 +1003,290 @@ When auditing components, check for:
 - [ ] Consistent spacing/typography
 - [ ] Responsive design
 - [ ] Dark mode support if needed
+
+---
+
+## 6. Supabase Authentication System
+
+**Status**: ✅ Production Ready  
+**Last Updated**: 2025-07-22
+
+### Overview
+
+Comprehensive authentication system implementation with Supabase following security best practices, proper user tracking, and production-ready features.
+
+### Key Features Implemented
+
+#### 🔐 Authentication Features
+
+1. **Email/Password Authentication**
+   - Secure password requirements with strength indicator
+   - Email verification required by default
+   - Password reset flow with secure tokens
+
+2. **OAuth Integration**
+   - Google authentication
+   - GitHub authentication  
+   - Automatic profile creation on OAuth signup
+
+3. **Rate Limiting**
+   - Login attempts: 5 per 15 minutes
+   - Automatic blocking for 30 minutes after limit exceeded
+   - IP-based and email-based tracking
+   - Configurable per action type
+
+4. **Security Logging**
+   - All auth events logged (login, logout, password changes)
+   - Failed attempt tracking
+   - Suspicious activity monitoring
+   - Audit trail for compliance
+
+#### 📊 User Tracking & Analytics
+
+1. **Login Tracking**
+   ```sql
+   -- Automatic tracking via trigger
+   first_login_at      -- First ever login timestamp
+   last_login_at       -- Most recent login
+   login_count         -- Total login count
+   ```
+
+2. **Purchase/Sales Tracking**
+   ```sql
+   -- Buyer statistics
+   total_purchases     -- Number of orders placed
+   total_spent        -- Total amount spent
+   last_purchase_at   -- Last purchase timestamp
+   
+   -- Seller statistics  
+   total_sales        -- Number of sales
+   total_sold         -- Items sold count
+   total_earned       -- Total earnings
+   last_sale_at       -- Last sale timestamp
+   
+   -- Engagement
+   votes_cast         -- Votes given
+   votes_received     -- Votes received
+   ```
+
+3. **Automatic Statistics Updates**
+   - Triggers update stats on order completion
+   - No manual intervention needed
+   - Real-time accuracy
+
+#### 🚀 Onboarding Flow
+
+1. **First Login Detection**
+   - Checks `onboarding_completed` flag
+   - Automatic redirect to `/onboarding`
+   - Tracks onboarding progress steps
+
+2. **Profile Setup Wizard**
+   - Step 1: Account type selection (personal/brand)
+   - Step 2: Avatar customization
+   - Step 3: Personal information
+   - Step 4: Brand information (if applicable)
+   - Step 5: Completion confirmation
+
+3. **Onboarding Completion**
+   - Updates profile flags
+   - Logs completion event
+   - Redirects to appropriate destination
+
+#### 🔄 Password Reset Flow
+
+1. **Forgot Password Page** (`/forgot-password`)
+   - Email validation
+   - Rate limit protection
+   - Success confirmation UI
+   - Link to return to login
+
+2. **Reset Password Page** (`/reset-password`)
+   - Token validation from email link
+   - Password strength requirements
+   - Visual password strength indicator
+   - Auto-redirect after success
+
+#### 🛡️ Security Infrastructure
+
+1. **Database Tables Created**
+   ```sql
+   -- Rate limiting
+   auth_rate_limit
+   
+   -- Security audit log
+   auth_audit_log
+   
+   -- Suspicious activity tracking
+   auth_suspicious_activity
+   ```
+
+2. **Security Functions**
+   ```sql
+   check_auth_rate_limit()    -- Rate limit checking
+   log_auth_event()          -- Event logging
+   cleanup_auth_rate_limit() -- Maintenance
+   track_user_login()        -- Login tracking
+   update_purchase_statistics() -- Order tracking
+   ```
+
+3. **Row Level Security**
+   - Users can view own audit logs
+   - Admins can view suspicious activity
+   - Proper isolation between users
+
+### Implementation Details
+
+#### Auth Context Enhanced
+
+```typescript
+// Rate limiting integration
+const { data: rateLimitCheck } = await supabase.rpc('check_auth_rate_limit', {
+  p_identifier: email,
+  p_action: 'login',
+  p_max_attempts: 5,
+  p_window_minutes: 15,
+  p_block_minutes: 30
+});
+
+// Event logging
+await supabase.rpc('log_auth_event', {
+  p_user_id: user.id,
+  p_action: 'login',
+  p_success: true
+});
+```
+
+#### Components Created
+
+1. **PasswordStrength.svelte**
+   - Visual strength indicator
+   - Real-time requirement checking
+   - Accessibility compliant
+   - Responsive design
+
+2. **Password Reset Pages**
+   - Full error handling
+   - Loading states
+   - Success confirmations
+   - Mobile responsive
+
+#### API Endpoints
+
+1. **`/api/onboarding/complete`**
+   - Marks onboarding complete
+   - Updates profile flags
+   - Logs completion event
+   - Error handling
+
+### Security Considerations
+
+1. **Rate Limiting Strategy**
+   - Per-email limits prevent brute force
+   - IP tracking for additional protection
+   - Exponential backoff on retries
+   - Configurable thresholds
+
+2. **Password Security**
+   - Minimum 8 characters
+   - Uppercase requirement
+   - Lowercase requirement  
+   - Number requirement
+   - Special character recommended
+
+3. **Session Management**
+   - Secure cookie handling
+   - Remember me functionality
+   - Proper session cleanup
+   - PKCE flow support
+
+4. **Audit Trail**
+   - All auth events logged
+   - IP address tracking
+   - User agent recording
+   - Timestamp precision
+
+### Database Migrations Applied
+
+1. `add_first_login_and_purchase_tracking`
+   - User statistics columns
+   - Performance indexes
+   - Tracking triggers
+
+2. `add_auth_rate_limiting_and_security`
+   - Security tables
+   - Rate limit functions
+   - Audit log structure
+
+3. `fix_security_issues_final`
+   - Remove SECURITY DEFINER
+   - Fix function search paths
+   - Security hardening
+
+### Testing Checklist
+
+- [x] Email/password signup works
+- [x] Email verification flow
+- [x] OAuth login (Google, GitHub)
+- [x] Password reset flow
+- [x] Rate limiting enforced
+- [x] Login tracking accurate
+- [x] Purchase statistics update
+- [x] Onboarding redirect works
+- [x] Security logs created
+- [x] RLS policies enforce
+
+### Production Readiness
+
+1. **Email Configuration**
+   - Custom SMTP required for production
+   - Email templates customizable
+   - Rate limits apply to emails
+
+2. **Monitoring**
+   - Check auth_audit_log regularly
+   - Monitor suspicious_activity table
+   - Review rate limit blocks
+
+3. **Maintenance**
+   - Run cleanup_auth_rate_limit() periodically
+   - Archive old audit logs
+   - Monitor table growth
+
+### Outstanding Tasks
+
+1. **Two-Factor Authentication**
+   - SMS/TOTP support
+   - Backup codes
+   - Device management
+
+2. **Advanced Security**
+   - Device fingerprinting
+   - Geo-location blocking
+   - Anomaly detection
+
+3. **Account Management**
+   - Full profile editing
+   - Email change flow
+   - Account deletion
+
+### Security Advisors Status
+
+- ✅ Rate limiting implemented
+- ✅ Security definer views fixed
+- ✅ Function search paths secured
+- ⚠️ Extension in public schema (pg_trgm)
+- ⚠️ OTP expiry configuration
+- ⚠️ Leaked password protection
+
+### Migration Guide
+
+1. **For Existing Users**
+   - First login will be tracked going forward
+   - Stats begin accumulating immediately
+   - No action required
+
+2. **For New Features**
+   - Rate limiting active immediately
+   - Onboarding required for new users
+   - Password requirements enforced

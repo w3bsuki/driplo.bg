@@ -520,5 +520,22 @@
 	"quick_filter_sale": "Sale",
 	"quick_filter_search_button": "Search",
 	"quick_filter_categories_menu": "Open categories menu",
-	"quick_filter_scroll_hint": "Scroll for more filters"
+	"quick_filter_scroll_hint": "Scroll for more filters",
+	"listing_like": "Add to favorites",
+	"listing_unlike": "Remove from favorites",
+	"listing_favorite_error": "Failed to update favorites",
+	"listing_no_image": "Image not available",
+	"listing_view_details": "View {title} details",
+	"listing_price": "{price}",
+	"listing_size": "Size {size}",
+	"listing_error_no_client": "No database connection",
+	"listing_error_load": "Failed to load listings",
+	"listing_error_title": "Unable to load listings",
+	"listing_retry": "Try again",
+	"listing_loading": "Loading listings...",
+	"listing_virtual_grid": "Virtual scrolling product grid",
+	"listing_empty_title": "No listings yet",
+	"listing_empty_description": "Be the first to sell something amazing!",
+	"listing_start_selling": "Start Selling",
+	"listing_realtime_enabled": "Real-time updates are enabled for this listing grid"
 }

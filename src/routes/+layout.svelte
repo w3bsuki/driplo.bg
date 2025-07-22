@@ -5,7 +5,7 @@
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
-	import { setAuthContext } from '$lib/stores/auth-context.svelte';
+	import { setAuthContext } from '$lib/stores/auth-context.svelte.ts';
 	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
 	import { onMount } from 'svelte';
 	import { invalidate } from '$app/navigation';
@@ -15,7 +15,7 @@
 	import { QueryClientProvider } from '@tanstack/svelte-query'
 	import { createQueryClient } from '$lib/stores/query-client';
 	import NotificationPopup from '$lib/components/NotificationPopup.svelte';
-	import { onboarding } from '$lib/stores/onboarding.svelte';
+	import { onboarding } from '$lib/stores/onboarding.svelte.ts';
 	import { browser, dev } from '$app/environment';
 	import { initWebVitals } from '$lib/utils/web-vitals';
 	import WebVitalsDebug from '$lib/components/debug/WebVitalsDebug.svelte';
