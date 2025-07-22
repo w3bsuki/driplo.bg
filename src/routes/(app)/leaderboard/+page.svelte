@@ -4,7 +4,7 @@
 	import * as m from '$lib/paraglide/messages.js';
 	import type { PageData } from './$types';
 	
-	export let data: PageData;
+	let { data }: { data: PageData } = $props();
 	
 	let activeTab = $state<'personal' | 'brands' | 'reviews'>('personal');
 	let timePeriod = $state<'week' | 'month' | 'year' | 'all'>(data.initialTimePeriod || 'month');
