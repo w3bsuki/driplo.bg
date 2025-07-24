@@ -121,10 +121,15 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			.eq('id', user.id)
 			.single()
 		
-		// Check if user needs to complete onboarding (new users or needs username setup)
+		// Only redirect to onboarding for truly new users who need setup
 		const needsOnboarding = profile && (
-			!(profile as any).onboarding_completed || 
-			(profile as any).needs_username_setup === true
+			// User has a temporary username (ends with numbers)
+			((profile as any).username && (profile as any).username.match(/[0-9]+$/) && (profile as any).username.length < 20) ||
+			// User explicitly needs username setup
+			(profile as any).needs_username_setup === true ||
+			// User is very new (created within last hour) and hasn't completed onboarding
+			(!(profile as any).onboarding_completed && 
+			 new Date((profile as any).created_at).getTime() > Date.now() - 60 * 60 * 1000)
 		)
 		
 		if (needsOnboarding) {

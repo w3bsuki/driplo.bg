@@ -15,9 +15,9 @@
 	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
 	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
-	import ConditionBadge from '$lib/components/Badges/ConditionBadge.svelte';
-	import CategoryBadge from '$lib/components/Badges/CategoryBadge.svelte';
-	import SizeBadge from '$lib/components/Badges/SizeBadge.svelte';
+	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
+	import CategoryBadge from '$lib/components/badges/CategoryBadge.svelte';
+	import SizeBadge from '$lib/components/badges/SizeBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/Tabs';
 	import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
 	import Spinner from '$lib/components/ui/Spinner.svelte';

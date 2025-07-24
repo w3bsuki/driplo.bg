@@ -1528,6 +1528,79 @@ import { List, ListItem, ListCard, ListHeader, ListDescription } from '$lib/comp
 // Types: none, disc, decimal
 ```
 
+### Feedback Components (Phase 3B)
+
+#### 24. Progress
+```svelte
+import Progress from '$lib/components/ui/progress/Progress.svelte';
+
+<Progress value={75} max={100} />
+<Progress value={50} variant="success" showValue />
+<Progress indeterminate variant="primary" />
+
+// Variants: default, primary, success, warning, danger
+// Sizes: sm (h-1), md (h-2), lg (h-3)
+// Props: value, max, showValue, indeterminate
+```
+
+#### 25. Skeleton
+```svelte
+import Skeleton from '$lib/components/ui/skeleton/Skeleton.svelte';
+
+// Text skeleton
+<Skeleton variant="text" />
+
+// Avatar skeleton
+<Skeleton variant="circular" width={40} height={40} />
+
+// Card skeleton
+<Skeleton variant="rectangular" height={200} />
+
+// Variants: text, circular, rectangular, rounded
+// Animations: pulse (default), wave, none
+```
+
+#### 26. Spinner
+```svelte
+import Spinner from '$lib/components/ui/spinner/Spinner.svelte';
+
+<Spinner size="md" />
+<Spinner size="lg" variant="primary" />
+<Spinner size="sm" variant="white" />
+
+// Sizes: xs (h-3), sm (h-4), md (h-6), lg (h-8), xl (h-12)
+// Variants: default (gray), primary (blue), white
+```
+
+#### 27. Toast
+```svelte
+import { Toast, ToastContainer, toast } from '$lib/components/ui/toast';
+
+// In your app layout
+<ToastContainer position="bottom-right">
+  {#each $toast as item}
+    <Toast
+      variant={item.variant}
+      title={item.title}
+      description={item.description}
+      onClose={() => toast.dismiss(item.id)}
+    />
+  {/each}
+</ToastContainer>
+
+// Usage in components
+toast.show({
+  title: 'Success!',
+  description: 'Your changes have been saved.',
+  variant: 'success',
+  duration: 5000
+});
+
+// Variants: default, success, error, warning, info
+// Positions: top-left, top-center, top-right, bottom-left, bottom-center, bottom-right
+// Toast padding: p-4, rounded-md, shadow-md
+```
+
 ### Component Sizing Reference
 
 | Component | Height | Padding | Font Size |
@@ -1543,6 +1616,9 @@ import { List, ListItem, ListCard, ListHeader, ListDescription } from '$lib/comp
 | Table Cell | - | p-3 | text-sm |
 | Badge | - | px-2.5 py-0.5 | text-xs |
 | Tooltip | - | px-3 py-1.5 | text-xs |
+| Progress | h-1/h-2/h-3 | - | text-xs |
+| Spinner | h-3 to h-12 | - | - |
+| Toast | - | p-4 | text-sm |
 
 ---
 
