@@ -127,7 +127,7 @@
 								: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 						)}
 					>
-						{subcategory.icon} {subcategory.name}
+						{subcategory.icon} {subcategory?.name || ''}
 					</button>
 				{/each}
 			</div>
@@ -213,7 +213,7 @@
 				
 				{#if activeFilterCount() > 0}
 					<button
-						onclick={onClearFilters}
+						onclick={handleOnClearFilters}
 						class="text-sm text-gray-600 hover:text-blue-600 font-medium ml-2"
 					>
 						Clear all

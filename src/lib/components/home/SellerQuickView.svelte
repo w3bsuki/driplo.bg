@@ -82,7 +82,7 @@
 	<!-- Modal Backdrop -->
 	<div 
 		class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-4 md:items-center"
-		onclick={close}
+		onclick={handleClose}
 	>
 		<!-- Modal Content -->
 		<div 
@@ -92,7 +92,7 @@
 			<!-- Header -->
 			<div class="relative bg-gradient-to-r from-blue-50 to-blue-100 p-6 pb-4">
 				<button 
-					onclick={close}
+					onclick={handleClose}
 					class="absolute top-4 right-4 p-2 hover:bg-white/50 rounded-full transition-colors"
 				>
 					<X class="h-5 w-5 text-gray-600" />
@@ -214,7 +214,7 @@
 			<!-- Actions -->
 			<div class="p-6 pt-0 space-y-3">
 				<button 
-					onclick={viewStore}
+					onclick={handleViewStore}
 					class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
 				>
 					<ExternalLink class="h-4 w-4" />
@@ -222,7 +222,7 @@
 				</button>
 				
 				<button 
-					onclick={followSeller}
+					onclick={handleFollowSeller}
 					class="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all active:scale-95 flex items-center justify-center gap-2"
 				>
 					<UserPlus class="h-4 w-4" />

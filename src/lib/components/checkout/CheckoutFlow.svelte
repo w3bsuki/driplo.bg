@@ -50,7 +50,7 @@
 		currentStep = step;
 	}
 	
-	function nextStep() {
+	function handleNextStep() {
 		if (currentStep === 1 && validateShipping()) {
 			goToStep(2);
 			initializePayment();
@@ -59,7 +59,7 @@
 		}
 	}
 	
-	function previousStep() {
+	function handlePreviousStep() {
 		if (currentStep > 1) {
 			goToStep(currentStep - 1);
 		}
@@ -521,7 +521,7 @@
 				<div class="flex items-center justify-between">
 					{#if currentStep > 1 && currentStep < 3}
 						<button
-							onclick={previousStep}
+							onclick={handlePreviousStep}
 							class="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
 							disabled={isProcessing}
 						>
@@ -534,7 +534,7 @@
 					
 					{#if currentStep < 3}
 						<button
-							onclick={nextStep}
+							onclick={handleNextStep}
 							disabled={isProcessing}
 							class="px-6 py-3 bg-blue-400 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 						>

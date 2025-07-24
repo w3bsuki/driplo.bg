@@ -74,7 +74,7 @@ export function createMotionSafeAnimation(
     css?: (t: number, u: number) => string
   }
 ) {
-  return (node: HTMLElement, params: any = {}) => {
+  return (_node: HTMLElement, params: any = {}) => {
     let duration = animationConfig.duration || 200
     
     const unsubscribe = motionEnabled.subscribe(value => {

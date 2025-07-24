@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { formatCurrency } from '$lib/utils/currency.js';
+	import { formatCurrency } from '$lib/utils/currency';
 	import { 
 		Heart, Share2, MapPin, Shield, Eye, Star,
 		ShoppingBag, ChevronLeft, ChevronRight, MessageCircle, 
@@ -15,10 +15,10 @@
 	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
 	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
-	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
-	import CategoryBadge from '$lib/components/badges/CategoryBadge.svelte';
-	import SizeBadge from '$lib/components/badges/SizeBadge.svelte';
-	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
+	import ConditionBadge from '$lib/components/Badges/ConditionBadge.svelte';
+	import CategoryBadge from '$lib/components/Badges/CategoryBadge.svelte';
+	import SizeBadge from '$lib/components/Badges/SizeBadge.svelte';
+	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/Tabs';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import Image from '$lib/components/ui/Image.svelte';
 	import { fade, scale } from 'svelte/transition';
@@ -276,14 +276,14 @@
 
 {#if listing}
 	<div class="min-h-screen bg-background">
-		<div class="container mx-auto px-4 py-4 pb-20 max-w-7xl">
-			<div class="grid grid-cols-1 lg:grid-cols-[1fr,480px] gap-6">
+		<div class="container mx-auto px-4 py-2 pb-20 max-w-7xl">
+			<div class="grid grid-cols-1 lg:grid-cols-[1fr,480px] gap-3">
 				<!-- Image Gallery Section -->
-				<div class="space-y-3">
-					<div class="relative bg-white rounded-lg shadow-sm border border-gray-200/60 p-2">
+				<div class="space-y-2">
+					<div class="relative bg-white rounded-sm  border border-gray-200/60 p-2">
 						<button 
 							onclick={() => hasImages && openFullscreenGallery()}
-							class="relative aspect-square overflow-hidden rounded-md bg-gray-50 w-full group cursor-zoom-in"
+							class="relative aspect-square overflow-hidden rounded-sm bg-gray-50 w-full group cursor-zoom-in"
 							disabled={!hasImages}
 						>
 							{#if hasImages && images[currentImageIndex]}
@@ -319,13 +319,13 @@
 							<!-- Navigation buttons -->
 							<button
 								onclick={(e) => { e.stopPropagation(); prevImage(); }}
-								class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-all"
+								class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-fast"
 							>
 								<ChevronLeft class="w-4 h-4" />
 							</button>
 							<button
 								onclick={(e) => { e.stopPropagation(); nextImage(); }}
-								class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow hover:bg-white transition-all"
+								class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-fast"
 							>
 								<ChevronRight class="w-4 h-4" />
 							</button>
@@ -352,7 +352,7 @@
 								<button
 									onclick={() => currentImageIndex = index}
 									class={cn("flex-shrink-0 w-12 h-12 rounded overflow-hidden border transition-all",
-										index === currentImageIndex ? "border-[#87CEEB] shadow-sm" : "border-gray-200 opacity-80 hover:opacity-100"
+										index === currentImageIndex ? "border-primary " : "border-gray-200 opacity-80 hover:opacity-100"
 									)}
 								>
 									{#if image}
@@ -374,17 +374,17 @@
 				</div>
 
 				<!-- Product Details Section -->
-				<div class="space-y-4">
+				<div class="space-y-3">
 					<!-- Header -->
-					<div class="space-y-3">
+					<div class="space-y-2">
 						<div class="flex items-center justify-between gap-2">
-							<h1 class="text-xl font-semibold text-foreground flex-1">
+							<h1 class="text-lg font-semibold text-foreground flex-1">
 								{listing.title}
 							</h1>
 							<div class="flex items-center gap-1">
 								<button
 									onclick={handleLike}
-									class={cn("p-1.5 rounded-md hover:bg-gray-100 transition-colors",
+									class={cn("p-1.5 rounded-sm hover:bg-gray-100 transition-colors duration-fast",
 										isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"
 									)}
 								>
@@ -392,7 +392,7 @@
 								</button>
 								<button 
 									onclick={handleShare}
-									class="p-1.5 rounded-md text-gray-500 hover:bg-gray-100 transition-colors"
+									class="p-1.5 rounded-sm text-gray-500 hover:bg-gray-100 transition-colors duration-fast"
 								>
 									<Share2 class="w-4 h-4" />
 								</button>
@@ -400,7 +400,7 @@
 						</div>
 						
 						<div class="flex items-center gap-3">
-							<span class="text-2xl font-bold text-gray-900">{formatCurrency(listing.price)}</span>
+							<span class="text-xl font-bold text-gray-900">{formatCurrency(listing.price)}</span>
 							{#if listing.original_price && listing.original_price > listing.price}
 								<span class="text-sm text-gray-500 line-through">{formatCurrency(listing.original_price)}</span>
 								<Badge variant="destructive" class="text-xs px-1.5 py-0.5">
@@ -434,7 +434,7 @@
 									{listing.description.slice(0, 100)}...
 									<button 
 										onclick={() => isDescriptionExpanded = true}
-										class="text-[#87CEEB] hover:underline ml-1"
+										class="text-primary hover:underline ml-1"
 									>
 										See more
 									</button>
@@ -444,7 +444,7 @@
 					</div>
 
 					<!-- Compact Seller Card -->
-					<div class="border border-gray-200 rounded-lg p-3">
+					<div class="border border-gray-200 rounded-sm p-3">
 						<div class="flex items-center justify-between">
 							<a href="/profile/{listing.seller.username}" class="flex items-center gap-2 group flex-1">
 								{#if listing.seller.avatar_url}
@@ -462,7 +462,7 @@
 								{/if}
 								<div>
 									<div class="flex items-center gap-1">
-										<span class="text-sm font-medium group-hover:text-[#87CEEB] transition-colors">
+										<span class="text-sm font-medium group-hover:text-primary transition-colors duration-fast">
 											{listing.seller.username}
 										</span>
 										{#if listing.seller.account_type === 'brand'}
@@ -481,10 +481,10 @@
 								<button
 									onclick={handleFollow}
 									disabled={isFollowLoading}
-									class={cn("px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+									class={cn("px-3 py-1.5 rounded-sm text-xs font-medium transition-all",
 										isFollowing 
 											? "bg-gray-100 text-gray-700 hover:bg-gray-200" 
-											: "bg-[#87CEEB] text-white hover:bg-[#87CEEB]/90",
+											: "bg-primary text-white hover:bg-primary/90",
 										isFollowLoading && "opacity-50 cursor-not-allowed"
 									)}
 								>
@@ -530,10 +530,10 @@
 								{#if listing.subcategory}
 									<div class="flex justify-between items-center py-2 border-b border-gray-100">
 										<span class="text-sm text-gray-500">Subcategory</span>
-										<span class="text-sm text-gray-900 font-medium">{listing.subcategory.name}</span>
+										<span class="text-sm text-gray-900 font-medium">{listing.subcategory?.name}</span>
 									</div>
 								{/if}
-								<div class="flex justify-between items-center py-3 border-b border-blue-100/50 hover:bg-white/50 px-2 -mx-2 rounded-lg transition-colors">
+								<div class="flex justify-between items-center py-3 border-b border-blue-100/50 hover:bg-white/50 px-2 -mx-2 rounded-sm transition-colors duration-fast">
 									<span class="text-sm text-gray-500">Listed</span>
 									<span class="text-sm text-gray-900 font-medium">{new Date(listing.created_at).toLocaleDateString()}</span>
 								</div>
@@ -560,8 +560,8 @@
 						</TabsContent>
 						
 						<TabsContent value="shipping" class="mt-4 space-y-4">
-							<div class="space-y-3">
-								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+							<div class="space-y-2">
+								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
 									<Truck class="w-5 h-5 text-gray-600 mt-0.5" />
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">Standard Shipping</p>
@@ -572,7 +572,7 @@
 									</div>
 								</div>
 								
-								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
 									<RotateCcw class="w-5 h-5 text-gray-600 mt-0.5" />
 									<div class="flex-1">
 										<p class="text-sm font-medium text-gray-900">Returns</p>
@@ -582,7 +582,7 @@
 								</div>
 								
 								{#if listing.location_city}
-									<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+									<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
 										<MapPin class="w-5 h-5 text-gray-600 mt-0.5" />
 										<div class="flex-1">
 											<p class="text-sm font-medium text-gray-900">Ships from</p>
@@ -610,7 +610,7 @@
 								{/if}
 								<div class="flex-1">
 									<div class="flex items-center gap-2">
-										<h3 class="text-base font-medium text-gray-900">{listing.seller.username}</h3>
+										<h3 class="text-sm font-medium text-gray-900">{listing.seller.username}</h3>
 										{#if listing.seller.account_type === 'brand'}
 											<BrandBadge size="xs" isVerified={listing.seller.is_verified} showText={false} />
 										{/if}
@@ -628,13 +628,13 @@
 									<div class="flex gap-2 mt-3">
 										<a 
 											href="/profile/{listing.seller.username}" 
-											class="flex-1 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg text-center text-sm font-medium text-gray-700 transition-colors"
+											class="flex-1 py-1.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-fast"
 										>
 											View Profile
 										</a>
 										{#if !isOwner}
 											<button 
-												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-fast"
 												onclick={() => goto(`/messages?user=${listing.seller.username}`)}
 											>
 												<MessageCircle class="w-4 h-4 text-gray-700" />
@@ -651,17 +651,17 @@
 	</div>
 
 	<!-- Compact Bottom Bar -->
-	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 z-50">
+	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
 		<div class="max-w-7xl mx-auto flex items-center gap-2">
 			<div class="flex-1">
-				<div class="text-xl font-bold text-gray-900">{formatCurrency(listing.price)}</div>
+				<div class="text-lg font-bold text-gray-900">{formatCurrency(listing.price)}</div>
 				<div class="text-xs text-gray-500">{listing.shipping_cost > 0 ? `+ ${formatCurrency(listing.shipping_cost)} shipping` : 'Free shipping'}</div>
 			</div>
 			{#if !isOwner}
 				<button
 					onclick={handleLike}
 					class={cn(
-						"p-2.5 rounded-lg transition-all duration-200 transform active:scale-[0.98]",
+						"p-2.5 rounded-sm transition-all duration-200 transform active:scale-[0.98]",
 						isLiked 
 							? "bg-red-50 text-red-600 border border-red-200" 
 							: "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -673,14 +673,14 @@
 					onclick={handleBuyNow}
 					onmouseenter={() => checkoutFlowRef?.preload()}
 					onfocus={() => checkoutFlowRef?.preload()}
-					class="bg-[#87CEEB] text-white rounded-lg px-6 py-2.5 font-medium hover:bg-[#87CEEB]/90 transition-all duration-200 transform active:scale-[0.98]"
+					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-fast transform active:scale-[0.98]"
 				>
 					Buy Now
 				</button>
 			{:else}
 				<button
 					onclick={() => goto(`/listings/${listing.id}/edit`)}
-					class="bg-[#87CEEB] text-white rounded-lg px-6 py-2.5 font-medium hover:bg-[#87CEEB]/90 transition-all duration-200 transform active:scale-[0.98]"
+					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-fast transform active:scale-[0.98]"
 				>
 					Edit Listing
 				</button>
@@ -689,12 +689,12 @@
 	</div>
 {:else}
 	<div class="min-h-screen bg-background">
-		<div class="container mx-auto px-4 py-4 pb-20 max-w-7xl">
-			<div class="grid grid-cols-1 lg:grid-cols-[1fr,480px] gap-6">
+		<div class="container mx-auto px-4 py-2 pb-20 max-w-7xl">
+			<div class="grid grid-cols-1 lg:grid-cols-[1fr,480px] gap-3">
 				<!-- Image skeleton -->
-				<div class="space-y-3">
-					<div class="relative bg-white rounded-lg shadow-sm border border-gray-200/60 p-2">
-						<div class="aspect-square bg-gray-100 rounded-md animate-pulse"></div>
+				<div class="space-y-2">
+					<div class="relative bg-white rounded-sm  border border-gray-200/60 p-2">
+						<div class="aspect-square bg-gray-100 rounded-sm animate-pulse"></div>
 					</div>
 					<div class="flex gap-1.5">
 						{#each Array(4) as _, index (index)}
@@ -704,8 +704,8 @@
 				</div>
 				
 				<!-- Details skeleton -->
-				<div class="space-y-4">
-					<div class="space-y-3">
+				<div class="space-y-3">
+					<div class="space-y-2">
 						<div class="h-6 w-3/4 bg-gray-100 rounded animate-pulse"></div>
 						<div class="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
 						<div class="flex gap-2">
@@ -716,7 +716,7 @@
 						<div class="h-12 w-full bg-gray-100 rounded animate-pulse"></div>
 					</div>
 					
-					<div class="border border-gray-200 rounded-lg p-3">
+					<div class="border border-gray-200 rounded-sm p-3">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 bg-gray-100 rounded-full animate-pulse"></div>
 							<div class="space-y-1 flex-1">
@@ -736,12 +736,12 @@
 	<div 
 		class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
 		transition:fade={{ duration: 200 }}
-		onclick={closeFullscreenGallery}
+		onclick={handleCloseFullscreenGallery}
 	>
 		<div class="relative w-full h-full flex items-center justify-center p-4">
 			<!-- Close button -->
 			<button
-				onclick={closeFullscreenGallery}
+				onclick={handleCloseFullscreenGallery}
 				class="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
 			>
 				<X class="w-6 h-6" />
@@ -761,7 +761,7 @@
 					/>
 				{:else}
 					<div class="w-full h-full flex items-center justify-center">
-						<span class="text-white text-lg">No image available</span>
+						<span class="text-white text-base">No image available</span>
 					</div>
 				{/if}
 
@@ -769,13 +769,13 @@
 					<!-- Navigation buttons -->
 					<button
 						onclick={(e) => { e.stopPropagation(); prevImage(); }}
-						class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+						class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-fast"
 					>
 						<ChevronLeft class="w-6 h-6" />
 					</button>
 					<button
 						onclick={(e) => { e.stopPropagation(); nextImage(); }}
-						class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+						class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-fast"
 					>
 						<ChevronRight class="w-6 h-6" />
 					</button>

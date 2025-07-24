@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/database';
+import type { Database } from '$lib/types/database.types';
 
 // Store for global unread message count
 export const unreadCount = writable<number>(0);
@@ -39,7 +39,7 @@ export function subscribeToUnreadUpdates(userId: string, supabase: SupabaseClien
                 table: 'messages',
                 filter: `sender_id=neq.${userId}`
             },
-            (payload) => {
+            (_payload) => {
                 // New message received (not sent by current user)
                 unreadCount.update(count => count + 1);
             }
@@ -54,10 +54,10 @@ export function subscribeToUnreadUpdates(userId: string, supabase: SupabaseClien
             },
             (payload) => {
                 // Message read status updated
-                if (payload.new.is_read && !payload.old.is_read) {
+                if (payload.new['is_read'] && !payload.old['is_read']) {
                     // Message was marked as read
                     unreadCount.update(count => Math.max(0, count - 1));
-                } else if (!payload.new.is_read && payload.old.is_read) {
+                } else if (!payload.new['is_read'] && payload.old['is_read']) {
                     // Message was marked as unread (rare case)
                     unreadCount.update(count => count + 1);
                 }

@@ -1,4 +1,3 @@
-import { browser } from '$app/environment';
 
 export interface Notification {
 	id: string;

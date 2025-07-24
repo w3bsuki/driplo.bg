@@ -9,6 +9,7 @@
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import { Button, Input, Icon } from '$lib/components/ui'
 	import { onMount } from 'svelte'
+	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 
 	const auth = getAuthContext()
 
@@ -17,10 +18,17 @@
 	let showPassword = false
 	let rememberMe = false
 	let loading = false
+	
+	// CAPTCHA state
+	let captchaToken: string | null = null
+	let showCaptchaError = false
+	let captchaRef: CaptchaWrapper
 
 	// Show error messages based on URL parameters
 	onMount(() => {
 		const error = $page.url.searchParams.get('error')
+		const message = $page.url.searchParams.get('message')
+		
 		if (error) {
 			switch (error) {
 				case 'verification_expired':
@@ -35,9 +43,36 @@
 				case 'missing_token':
 					toast.error('Invalid verification link.')
 					break
+				case 'auth_callback_error':
+					toast.error('Authentication failed. Please try again.')
+					break
+				case 'session_expired':
+					toast.error('Your session has expired. Please log in again.')
+					break
+				case 'unauthorized':
+					toast.error('Please log in to access that page.')
+					break
 				default:
 					toast.error('An error occurred. Please try again.')
 			}
+		}
+		
+		if (message) {
+			switch (message) {
+				case 'logged_out':
+					toast.success('You have been successfully logged out.')
+					break
+				case 'email_verified':
+					toast.success('Your email has been verified. You can now log in.')
+					break
+			}
+		}
+		
+		// Clear any stale auth data on mount
+		if (auth && auth.user && !auth.session) {
+			// User exists but no session - likely stale data
+			auth.user = null
+			auth.profile = null
 		}
 	})
 
@@ -46,15 +81,41 @@
 			toast.error(m.auth_fill_all_fields())
 			return
 		}
+		
+		// Check CAPTCHA in production
+		if (import.meta.env.MODE === 'production' && !captchaToken) {
+			showCaptchaError = true
+			toast.error('Please complete the CAPTCHA verification')
+			return
+		}
 
 		loading = true
 		try {
 			await auth.signIn(email, password, rememberMe)
 			toast.success(m.auth_welcome_back_toast())
+			
+			// Reset CAPTCHA for security
+			if (captchaRef) {
+				captchaRef.reset()
+			}
+			captchaToken = null
+			
 			goto('/')
 		} catch (error) {
 			if (error instanceof Error) {
-				toast.error(error.message || m.auth_login_failed())
+				// Handle specific error cases
+				if (error.message.includes('Email not confirmed')) {
+					toast.error('Please verify your email before logging in. Check your inbox for the confirmation link.')
+					showResendForm = true
+				} else if (error.message.includes('Invalid login credentials')) {
+					toast.error('Invalid email or password. Please try again.')
+				} else if (error.message.includes('Too many login attempts')) {
+					toast.error(error.message)
+				} else if (error.message.includes('rate_limit_exceeded')) {
+					toast.error('Too many login attempts. Please try again later.')
+				} else {
+					toast.error(error.message || m.auth_login_failed())
+				}
 			} else {
 				toast.error(m.auth_login_failed())
 			}
@@ -119,20 +180,20 @@
 
 <div class="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 	<div class="w-full max-w-md">
-		<div class="bg-white rounded-xl shadow-lg p-6">
+		<div class="bg-white rounded-sm border border-gray-200 p-3">
 			<!-- Logo -->
-			<div class="text-center mb-6">
-				<h1 class="text-3xl font-bold text-blue-400">Driplo</h1>
+			<div class="text-center mb-3">
+				<h1 class="text-2xl font-bold text-blue-400">Driplo</h1>
 				<p class="text-gray-600 text-sm mt-1">Welcome back</p>
 			</div>
 			
 			<!-- OAuth Buttons -->
-			<div class="space-y-3 mb-6">
+			<div class="space-y-2 mb-3">
 				<Button
 					variant="outline"
 					size="lg"
 					class="w-full"
-					onclick={() => handleOAuth('google')}
+					on:click={() => handleOAuth('google')}
 					disabled={loading}
 				>
 					<svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -147,7 +208,7 @@
 					variant="outline"
 					size="lg"
 					class="w-full"
-					onclick={() => handleOAuth('github')}
+					on:click={() => handleOAuth('github')}
 					disabled={loading}
 				>
 					<Icon icon={Github} size="sm" />
@@ -156,17 +217,17 @@
 			</div>
 
 			<!-- Divider -->
-			<div class="relative mb-6">
+			<div class="relative mb-3">
 				<div class="absolute inset-0 flex items-center">
 					<div class="w-full border-t border-gray-200"></div>
 				</div>
 				<div class="relative flex justify-center text-xs">
-					<span class="px-3 bg-white text-gray-500">Or</span>
+					<span class="px-2 bg-white text-gray-500">Or</span>
 				</div>
 			</div>
 
 			<!-- Login Form -->
-			<form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="space-y-4">
+			<form on:submit|preventDefault={handleLogin} class="space-y-3">
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
 						Email
@@ -202,7 +263,7 @@
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center touch-safe"
-							onclick={() => showPassword = !showPassword}
+							on:click={() => showPassword = !showPassword}
 						>
 							{#if showPassword}
 								<Icon icon={EyeOff} size="sm" class="text-gray-400" />
@@ -212,13 +273,34 @@
 						</button>
 					</div>
 				</div>
+				
+				<!-- CAPTCHA -->
+				<div>
+					<CaptchaWrapper
+						bind:this={captchaRef}
+						onVerify={(token) => {
+							captchaToken = token
+							showCaptchaError = false
+						}}
+						onExpire={() => {
+							captchaToken = null
+						}}
+						onError={() => {
+							captchaToken = null
+							toast.error('CAPTCHA verification failed. Please try again.')
+						}}
+					/>
+					{#if showCaptchaError && !captchaToken}
+						<p class="text-red-500 text-xs mt-1">Please complete the CAPTCHA verification</p>
+					{/if}
+				</div>
 
 				<div class="flex items-center justify-between text-sm">
 					<label class="flex items-center">
 						<input 
 							type="checkbox" 
 							bind:checked={rememberMe}
-							class="rounded border-gray-300 text-blue-400 focus:ring-blue-400" 
+							class="rounded-sm border-gray-300 text-blue-400 focus:ring-blue-400" 
 						/>
 						<span class="ml-2 text-gray-600">Remember me</span>
 					</label>
@@ -229,8 +311,8 @@
 
 				<button 
 					type="submit" 
-					class="w-full py-2.5 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-					disabled={loading}
+					class="w-full py-2 bg-blue-400 text-white font-medium rounded-sm hover:bg-blue-500 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+					disabled={loading || (import.meta.env.MODE === 'production' && !captchaToken)}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />
@@ -241,7 +323,7 @@
 			</form>
 
 			<!-- Sign up link -->
-			<p class="text-center text-sm text-gray-600 mt-6">
+			<p class="text-center text-sm text-gray-600 mt-3">
 				Don't have an account?
 				<a href="/register" class="text-blue-400 hover:text-blue-500 font-medium">
 					Sign up
@@ -253,7 +335,7 @@
 				Need to verify your email?
 				<button
 					type="button"
-					onclick={() => showResendForm = !showResendForm}
+					on:click={() => showResendForm = !showResendForm}
 					class="text-blue-400 hover:text-blue-500 font-medium"
 				>
 					Resend verification
@@ -262,11 +344,11 @@
 
 			<!-- Resend verification form -->
 			{#if showResendForm}
-				<div class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-					<p class="text-sm text-gray-700 mb-3">
+				<div class="mt-3 p-3 bg-gray-50 rounded-sm border border-gray-200">
+					<p class="text-sm text-gray-700 mb-2">
 						Enter your email to receive a new verification link
 					</p>
-					<form onsubmit={(e) => { e.preventDefault(); handleResendVerification(); }} class="space-y-3">
+					<form on:submit|preventDefault={handleResendVerification} class="space-y-3">
 						<Input
 							type="email"
 							bind:value={resendEmail}
@@ -290,8 +372,8 @@
 							</Button>
 							<button
 								type="button"
-								onclick={() => { showResendForm = false; resendEmail = ''; }}
-								class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+								on:click={() => { showResendForm = false; resendEmail = ''; }}
+								class="px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm"
 							>
 								Cancel
 							</button>

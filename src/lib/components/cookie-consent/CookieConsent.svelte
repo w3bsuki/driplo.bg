@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { cookieConsent } from '$lib/stores/cookie-consent.svelte';
-	import Button from '$lib/components/ui/button.svelte';
-	import Switch from '$lib/components/ui/switch.svelte';
-	import { slide, fly } from 'svelte/transition';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Switch from '$lib/components/ui/Switch.svelte';
+	import { fly } from 'svelte/transition';
 	import { X, Cookie, Shield, BarChart, Heart, Settings, Globe } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import { goto } from '$app/navigation';
-	import { getLocale, setLocale } from '$lib/paraglide/runtime.js';
-	import * as m from '$lib/paraglide/messages.js';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 	import { setCookie } from '$lib/utils/cookies';
 
 	// Local state for preferences editing
@@ -56,7 +54,7 @@
 	];
 
 	function handleLanguageChange(lang: string) {
-		selectedLanguage = lang;
+		selectedLanguage = lang as 'en' | 'bg';
 		// Save language preference in locale cookie (same as LanguageSwitcher)
 		setCookie('locale', lang);
 		// Reload page with new language
@@ -269,7 +267,7 @@
 										<span class="text-sm font-medium text-gray-500">Always On</span>
 									{:else}
 										<Switch
-											bind:checked={localPreferences[category.id]}
+											bind:checked={localPreferences[category.id as keyof typeof localPreferences]}
 											ariaLabel={`Toggle ${category.title}`}
 										/>
 									{/if}

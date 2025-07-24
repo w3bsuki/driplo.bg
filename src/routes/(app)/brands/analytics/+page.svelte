@@ -7,6 +7,8 @@
 	} from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
+	import { formatCurrency } from '$lib/utils/currency';
+	// import { languageTag } from '$lib/paraglide/runtime.js';
 
 	interface Props {
 		data: PageData;
@@ -22,13 +24,6 @@
 
 	let selectedPeriod = $state('30d');
 	let activeTab = $state<'overview' | 'orders' | 'listings' | 'reviews'>('overview');
-
-	function formatCurrency(amount: number): string {
-		return new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD'
-		}).format(amount);
-	}
 
 	function getOrderStatusBadge(status: string) {
 		const statusConfig = {
@@ -101,7 +96,7 @@
 						+12%
 					</span>
 				</div>
-				<h3 class="text-2xl font-bold text-gray-900">{formatCurrency(salesStats.total_revenue)}</h3>
+				<h3 class="text-2xl font-bold text-gray-900">{formatCurrency(salesStats.total_revenue, 'en')}</h3>
 				<p class="text-sm text-gray-600 mt-1">Total Revenue</p>
 			</div>
 
@@ -129,7 +124,7 @@
 						+5%
 					</span>
 				</div>
-				<h3 class="text-2xl font-bold text-gray-900">{formatCurrency(salesStats.avg_order_value)}</h3>
+				<h3 class="text-2xl font-bold text-gray-900">{formatCurrency(salesStats.avg_order_value, 'en')}</h3>
 				<p class="text-sm text-gray-600 mt-1">Avg Order Value</p>
 			</div>
 
@@ -205,7 +200,7 @@
 											<div class="w-12 h-12 bg-gray-200 rounded-lg"></div>
 											<div>
 												<h4 class="font-medium text-gray-900">{listing.title}</h4>
-												<p class="text-sm text-gray-600">{formatCurrency(listing.price)}</p>
+												<p class="text-sm text-gray-600">{formatCurrency(listing.price, 'en')}</p>
 											</div>
 										</div>
 										<div class="text-right text-sm">
@@ -254,7 +249,7 @@
 											</div>
 										</div>
 										<div class="text-right">
-											<p class="font-semibold text-gray-900">{formatCurrency(order.total_amount)}</p>
+											<p class="font-semibold text-gray-900">{formatCurrency(order.total_amount, 'en')}</p>
 											<span class={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${status.color}`}>
 												{status.label}
 											</span>
@@ -283,7 +278,7 @@
 										<td class="py-3 px-4">
 											<div class="font-medium text-gray-900">{listing.title}</div>
 										</td>
-										<td class="py-3 px-4">{formatCurrency(listing.price)}</td>
+										<td class="py-3 px-4">{formatCurrency(listing.price, 'en')}</td>
 										<td class="py-3 px-4">{listing.views}</td>
 										<td class="py-3 px-4">{listing.favorites_count}</td>
 										<td class="py-3 px-4">

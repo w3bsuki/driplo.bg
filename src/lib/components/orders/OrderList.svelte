@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { formatDistanceToNow } from 'date-fns';
-    import type { Database } from '$lib/types/database';
+    import type { Database } from '$lib/types/database.types';
     import { Package, ShoppingBag, Clock, ChevronRight, Check, X, Truck, AlertCircle, MoreVertical } from 'lucide-svelte';
     import Spinner from '$lib/components/ui/Spinner.svelte';
     
@@ -177,11 +177,11 @@
                     <div class="flex items-center gap-3">
                         <input 
                             type="checkbox" 
-                            class="w-5 h-5 sm:w-4 sm:h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2"
+                            class="w-5 h-5 sm:w-4 sm:h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
                             checked={selectedOrders.size === transactions.length}
-                            onchange={toggleAllOrders}
+                            onchange={handleToggleAllOrders}
                         />
-                        <label class="text-sm font-medium text-gray-700 cursor-pointer select-none" onclick={toggleAllOrders}>
+                        <label class="text-sm font-medium text-gray-700 cursor-pointer select-none" onclick={handleToggleAllOrders}>
                             Select All
                             {#if selectedOrders.size > 0}
                                 <span class="text-gray-500 font-normal">({selectedOrders.size} selected)</span>
@@ -191,7 +191,7 @@
                     {#if selectedOrders.size > 0}
                         <div class="flex items-center gap-2 self-end sm:self-auto">
                             <button 
-                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors disabled:opacity-50 min-h-[44px]"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 min-h-11"
                                 onclick={() => bulkAction('mark_shipped')}
                                 disabled={bulkActionLoading}
                             >
@@ -200,7 +200,7 @@
                                 <span class="sm:hidden">{bulkActionLoading ? '...' : 'Ship'}</span>
                             </button>
                             <button 
-                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 min-h-[44px]"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50 min-h-11"
                                 onclick={() => bulkAction('cancel')}
                                 disabled={bulkActionLoading}
                             >
@@ -225,7 +225,7 @@
                                 {#if role === 'seller'}
                                     <input 
                                         type="checkbox" 
-                                        class="mt-1 w-5 h-5 sm:w-4 sm:h-4 text-[#87CEEB] bg-gray-100 border-gray-300 rounded focus:ring-[#87CEEB] focus:ring-2 flex-shrink-0"
+                                        class="mt-1 w-5 h-5 sm:w-4 sm:h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2 flex-shrink-0"
                                         checked={selectedOrders.has(transaction.id)}
                                         onchange={() => toggleOrder(transaction.id)}
                                     />
@@ -306,10 +306,10 @@
                                 {/if}
                             </div>
                             <div class="flex items-center gap-2 self-end sm:self-auto">
-                                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+                                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors min-w-11 min-h-11 flex items-center justify-center">
                                     <MoreVertical class="w-4 h-4" />
                                 </button>
-                                <a href="/orders/{transaction.id}" class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-[#87CEEB] bg-[#87CEEB]/10 rounded-lg hover:bg-[#87CEEB]/20 transition-colors min-h-[44px]">
+                                <a href="/orders/{transaction.id}" class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors min-h-11">
                                     <span class="hidden sm:inline">View Details</span>
                                     <span class="sm:hidden">View</span>
                                     <ChevronRight class="w-4 h-4" />
@@ -325,7 +325,7 @@
             <div class="mt-6 text-center">
                 <button
                     class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                    onclick={loadTransactions}
+                    onclick={handleLoadTransactions}
                     disabled={loading}
                 >
                     {#if loading}

@@ -9,9 +9,9 @@
 	
 	let { data }: Props = $props()
 	
-	let selectedRequest: any = null
-	let showRejectModal = false
-	let rejectingId = ''
+	let selectedRequest = $state<any>(null)
+	let showRejectModal = $state(false)
+	let rejectingId = $state('')
 </script>
 
 <div>

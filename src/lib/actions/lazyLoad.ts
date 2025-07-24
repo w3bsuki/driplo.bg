@@ -16,17 +16,17 @@ export function lazyLoad(node: HTMLImageElement, options: LazyLoadingOptions = {
 	};
 	
 	// Store original src
-	const originalSrc = node.dataset.src || node.src;
-	const originalSrcset = node.dataset.srcset || node.srcset;
+	const originalSrc = node.dataset['src'] || node.src;
+	const originalSrcset = node.dataset['srcset'] || node.srcset;
 	
 	// Check if native lazy loading is supported and enabled
 	if ('loading' in HTMLImageElement.prototype && node.loading === 'lazy') {
 		// Just set the src and let browser handle it
-		if (node.dataset.src) {
-			node.src = node.dataset.src;
+		if (node.dataset['src']) {
+			node.src = node.dataset['src'];
 		}
-		if (node.dataset.srcset) {
-			node.srcset = node.dataset.srcset;
+		if (node.dataset['srcset']) {
+			node.srcset = node.dataset['srcset'];
 		}
 		return;
 	}
@@ -111,7 +111,7 @@ export function lazyLoadBatch(container: HTMLElement, options: LazyLoadingOption
 	
 	images.forEach(img => {
 		const cleanup = lazyLoad(img, options);
-		if (cleanup && cleanup.destroy) {
+		if (cleanup) {
 			observers.push(cleanup as any);
 		}
 	});

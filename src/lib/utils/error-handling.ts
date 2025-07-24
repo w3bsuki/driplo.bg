@@ -69,14 +69,14 @@ export class AppError extends Error {
 export function getErrorMessage(error: any): string {
   // Check if it's our custom AppError
   if (error instanceof AppError) {
-    return ERROR_MESSAGES[error.code] || error.message || ERROR_MESSAGES.unknown;
+    return ERROR_MESSAGES[error.code] || error.message || ERROR_MESSAGES['unknown'];
   }
 
   // Check for mapped error codes
   const errorString = error?.message || error?.code || String(error);
   for (const [key, code] of Object.entries(ERROR_CODE_MAP)) {
     if (errorString.toLowerCase().includes(key.toLowerCase())) {
-      return ERROR_MESSAGES[code] || ERROR_MESSAGES.unknown;
+      return ERROR_MESSAGES[code] || ERROR_MESSAGES['unknown'];
     }
   }
 
@@ -155,7 +155,7 @@ export async function withRetry<T>(
 
 // Global error logger (only in production)
 export function logError(error: any, context?: Record<string, any>) {
-  if (browser && import.meta.env.PROD) {
+  if (browser && import.meta.env['PROD']) {
     // Send to error tracking service (e.g., Sentry)
     console.error('Error:', error, 'Context:', context);
     

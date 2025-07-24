@@ -150,7 +150,7 @@
 {#if isOpen}
 	<div 
 		class="fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300"
-		onclick={onClose}
+		onclick={handleOnClose}
 	></div>
 {/if}
 
@@ -173,14 +173,14 @@
 			<div class="flex items-center gap-2">
 				{#if activeFilterCount > 0}
 					<button
-						onclick={clearAllFilters}
+						onclick={handleClearAllFilters}
 						class="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded-lg hover:bg-blue-50"
 					>
 						{m.filter_clear_all()}
 					</button>
 				{/if}
 				<button
-					onclick={onClose}
+					onclick={handleOnClose}
 					class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
 				>
 					<X class="h-4 w-4 text-gray-500" />
@@ -207,7 +207,7 @@
 							<span class="text-base">{category.icon}</span>
 							<div class="flex-1 min-w-0">
 								<div class="font-medium text-xs">{category.name}</div>
-								<div class="text-[10px] text-gray-500">{category.count}</div>
+								<div class="text-xs text-gray-500">{category.count}</div>
 							</div>
 							{#if selectedFilters.category === category.slug}
 								<Check class="h-3 w-3 text-blue-600 flex-shrink-0" />
@@ -232,7 +232,7 @@
 							)}
 						>
 							<span class="text-sm">{subcategory.icon}</span>
-							<span class="font-medium text-xs flex-1">{subcategory.name}</span>
+							<span class="font-medium text-xs flex-1">{subcategory?.name || ''}</span>
 							{#if selectedFilters.subcategory === subcategory.slug}
 								<Check class="h-3 w-3 text-blue-600 flex-shrink-0" />
 							{/if}
@@ -352,7 +352,7 @@
 		<!-- Footer -->
 		<div class="border-t border-gray-200 p-3 bg-gray-50">
 			<button
-				onclick={applyFilters}
+				onclick={handleApplyFilters}
 				class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 text-sm"
 			>
 				{#if activeFilterCount > 0}

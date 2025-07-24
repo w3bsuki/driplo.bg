@@ -16,7 +16,7 @@
       : `${baseUrl}/${category.slug}`;
     
     const title = subcategory
-      ? `${subcategory.name} - ${category.name} | Driplo`
+      ? `${subcategory?.name || ''} - ${category.name} | Driplo`
       : `${category.name} - Shop Pre-loved Fashion | Driplo`;
     
     const description = subcategory?.description || category.description || 
@@ -67,7 +67,7 @@
     {JSON.stringify({
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      "name": subcategory ? `${subcategory.name} - ${category.name}` : category.name,
+      "name": subcategory ? `${subcategory?.name || ''} - ${category.name}` : category.name,
       "description": subcategory?.description || category.description,
       "url": subcategory 
         ? `https://driplo.com/${category.slug}/${subcategory.slug}`
@@ -90,7 +90,7 @@
           ...(subcategory ? [{
             "@type": "ListItem",
             "position": 3,
-            "name": subcategory.name,
+            "name": subcategory?.name,
             "item": `https://driplo.com/${category.slug}/${subcategory.slug}`
           }] : [])
         ]

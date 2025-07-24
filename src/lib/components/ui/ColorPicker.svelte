@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { cn } from '$lib/utils'
 	import { Check } from 'lucide-svelte'
-	import { formTokens, designTokens } from '$lib/design-tokens'
 	
 	interface Props {
 		value?: string | null
@@ -48,10 +47,10 @@
 
 <div class={cn("space-y-2", className)}>
 	{#if label}
-		<label class={formTokens.label.base}>
+		<label class="block text-sm font-medium text-gray-700">
 			<span class="text-lg">🎨</span>
 			{label}
-			{#if required}<span class={formTokens.label.required}>*</span>{/if}
+			{#if required}<span class="text-red-500 ml-1">*</span>{/if}
 		</label>
 	{/if}
 	

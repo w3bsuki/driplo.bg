@@ -94,7 +94,7 @@
             {#each tabs as tab (tab.id)}
                 <a 
                     href="?tab={tab.id}{statusFilter ? `&status=${statusFilter}` : ''}"
-                    class="flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-fit {activeTab === tab.id ? 'bg-white text-[#87CEEB] shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
+                    class="flex-1 flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-fit {activeTab === tab.id ? 'bg-white text-primary shadow-sm' : 'text-gray-600 hover:text-gray-900'}"
                 >
                     <svelte:component this={tab.icon} class="w-4 h-4" />
                     <span class="hidden sm:inline">{tab.label}</span>
@@ -112,7 +112,7 @@
                     <div class="relative">
                         <Filter class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <select 
-                            class="pl-10 pr-10 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] appearance-none cursor-pointer"
+                            class="pl-10 pr-10 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary appearance-none cursor-pointer"
                             value={statusFilter || ''}
                             onchange={(e) => {
                                 const status = e.currentTarget.value;
@@ -140,7 +140,7 @@
                         <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input 
                             type="date" 
-                            class="pl-10 pr-3 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB]"
+                            class="pl-10 pr-3 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             value={dateFrom}
                             onchange={(e) => {
                                 const from = e.currentTarget.value;
@@ -163,7 +163,7 @@
                         <Calendar class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input 
                             type="date" 
-                            class="pl-10 pr-3 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB]"
+                            class="pl-10 pr-3 py-2 w-full bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                             value={dateTo}
                             onchange={(e) => {
                                 const to = e.currentTarget.value;
@@ -202,7 +202,7 @@
                         <span class="hidden sm:inline md:hidden">Stats</span>
                     </button>
                     <div class="relative dropdown dropdown-end sm:flex-1 md:flex-initial">
-                        <div tabindex="0" role="button" class="w-full px-3 py-2 text-sm font-medium text-white bg-[#87CEEB] rounded-lg hover:bg-[#6BB8DB] transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
+                        <div tabindex="0" role="button" class="w-full px-3 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-[#6BB8DB] transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
                             <Download class="w-4 h-4" />
                             Export
                         </div>
@@ -221,8 +221,8 @@
                 <!-- Summary Cards -->
                 <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-md transition-shadow">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-2 bg-[#87CEEB]/10 rounded-lg">
-                            <Package class="w-6 h-6 text-[#87CEEB]" />
+                        <div class="p-2 bg-primary/10 rounded-lg">
+                            <Package class="w-6 h-6 text-primary" />
                         </div>
                         <span class="text-xs text-gray-500">All Time</span>
                     </div>

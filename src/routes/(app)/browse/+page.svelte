@@ -6,7 +6,7 @@
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
 	import { cn } from '$lib/utils';
-	import { throttle } from '$lib/utils/performance';
+	import { throttle, debounce } from '$lib/utils/performance';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
 	import { createQuery } from '@tanstack/svelte-query';
@@ -17,7 +17,6 @@
 	// Search state
 	let searchFocused = $state(false);
 	let showQuickSearch = $state(false);
-	let searchDebounceTimer: NodeJS.Timeout;
 	let showStickySearch = $state(false);
 
 	// Quick search suggestions
@@ -120,16 +119,14 @@
 		goto(buildFilterUrl({ search: query?.trim() || null }));
 	}
 
+	// Create debounced search handler
+	const debouncedSearch = debounce((query: string) => {
+		handleSearch(query);
+	}, 500);
+
 	function handleSearchInput(query: string) {
 		searchInput = query;
-		// Clear any existing timer
-		if (searchDebounceTimer) {
-			clearTimeout(searchDebounceTimer);
-		}
-		// Set new timer for debounced search
-		searchDebounceTimer = setTimeout(() => {
-			handleSearch(query);
-		}, 500); // 500ms debounce
+		debouncedSearch(query);
 	}
 
 	function handleQuickSearch(suggestion: string) {
@@ -138,12 +135,10 @@
 		showQuickSearch = false;
 	}
 
-	// Clean up timer on unmount
+	// Clean up debounced search on unmount
 	$effect(() => {
 		return () => {
-			if (searchDebounceTimer) {
-				clearTimeout(searchDebounceTimer);
-			}
+			debouncedSearch.cancel();
 		};
 	});
 
@@ -278,17 +273,17 @@
 
 <div class="min-h-screen bg-gray-50">
 	<!-- Hero Section with Emoji Search -->
-	<section class="relative bg-gradient-to-b from-blue-50 to-white py-6 md:py-8">
+	<section class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
 		<div class="container mx-auto px-4">
 			<div class="max-w-3xl mx-auto">
 				
 				<!-- Top Sellers Section -->
-				<div class="mb-6">
+				<div class="mb-3">
 					{#if $topSellersQuery.isLoading}
 						<!-- Loading skeleton -->
 						<div class="text-center">
-							<div class="h-7 w-48 bg-gray-200 rounded-lg mx-auto mb-4 animate-pulse"></div>
-							<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+							<div class="h-7 w-48 bg-gray-200 rounded-sm mx-auto mb-3 animate-pulse"></div>
+							<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
 								{#each Array(6) as _, index (index)}
 									<div class="text-center">
 										<div class="relative">
@@ -306,11 +301,11 @@
 					{:else if $topSellersQuery.error}
 						<!-- Error state - silently fail, don't show section -->
 					{:else if $topSellersQuery.data?.sellers && $topSellersQuery.data.sellers.length > 0}
-						<h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4 text-center flex items-center justify-center gap-2">
+						<h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 text-center flex items-center justify-center gap-2">
 							<span>🏆</span>
 							<span>Top Sellers This Month</span>
 						</h2>
-						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6">
+						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
 							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index (seller.id)}
 								<a href="/profile/{seller.username}" class="text-center group">
 									<div class="relative">
@@ -318,8 +313,8 @@
 											<div class="absolute -top-2 -right-2 text-lg z-10">👑</div>
 										{/if}
 										<div class="relative">
-											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
-											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white shadow-lg group-hover:ring-blue-200 transition-all duration-300">
+											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-fast"></div>
+											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white border border-gray-200 group-hover:ring-blue-200 transition-all duration-fast">
 												{#if seller.avatar_url}
 													<img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
 												{:else}
@@ -331,8 +326,8 @@
 										</div>
 									</div>
 									<div class="mt-2">
-										<p class="text-sm md:text-base font-medium text-gray-800 truncate">{seller.username}</p>
-										<div class="flex items-center justify-center gap-1 text-xs md:text-sm text-gray-600">
+										<p class="text-sm font-medium text-gray-800 truncate">{seller.username}</p>
+										<div class="flex items-center justify-center gap-1 text-xs text-gray-600">
 											<span>⭐</span>
 											<span>{seller.average_rating || '0.0'}</span>
 										</div>
@@ -346,11 +341,11 @@
 				
 				<!-- Search Bar with Emoji -->
 				<div class="relative group">
-					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-2xl blur-xl opacity-20 transition-all duration-300 group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
+					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-sm blur-xl opacity-20 transition-all duration-fast group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
 					
-					<div class="relative bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
+					<div class="relative bg-white rounded-sm border border-gray-200 transition-all duration-fast">
 						<div class="flex items-center">
-							<div class="pl-6 pr-3">
+							<div class="pl-3 pr-2">
 								<span class="text-2xl">🔍</span>
 							</div>
 							
@@ -361,12 +356,12 @@
 								onfocus={() => { searchFocused = true; showQuickSearch = true; }}
 								onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}
 								onkeydown={(e) => { if (e.key === 'Enter') { handleSearch(searchInput); } }}
-								class="flex-1 py-3 md:py-4 pr-4 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+								class="flex-1 py-2 md:py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
 							/>
 							
 							<button
 								onclick={() => handleSearch(searchInput)}
-								class="mr-2 px-4 md:px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg text-sm md:text-base hover:from-blue-600 hover:to-blue-700 transition-all duration-200 active:scale-95"
+								class="mr-2 px-3 md:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-sm text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-fast active:scale-95"
 							>
 								Search
 							</button>
@@ -374,13 +369,13 @@
 						
 						<!-- Quick Search Suggestions -->
 						{#if showQuickSearch}
-							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 p-4 z-50">
-								<p class="text-sm font-medium text-gray-700 mb-3">Quick searches:</p>
+							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-sm shadow-lg border border-gray-200 p-3 z-50">
+								<p class="text-sm font-medium text-gray-700 mb-2">Quick searches:</p>
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
 									{#each quickSearchSuggestions as suggestion (suggestion.text)}
 										<button
 											onmousedown={() => handleQuickSearch(suggestion.text)}
-											class="flex items-center gap-2 px-3 py-2 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm"
+											class="flex items-center gap-2 px-2 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors duration-fast text-sm"
 										>
 											<span class="text-lg">{suggestion.emoji}</span>
 											<span class="text-gray-700">{suggestion.text}</span>
@@ -407,22 +402,22 @@
 		visible={showStickySearch}
 	/>
 
-	<div class="container mx-auto px-4 py-6">
-		<div class="flex gap-6">
+	<div class="container mx-auto px-4 py-3">
+		<div class="flex gap-3">
 			<!-- Desktop Sidebar -->
 			<aside class="hidden md:block w-72 flex-shrink-0">
-				<div class="sticky top-24 space-y-4">
+				<div class="sticky top-24 space-y-3">
 					<!-- Desktop filters are now shown after hero section -->
 
 					<!-- Categories Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_categories()}</h3>
+					<div class="bg-white rounded-sm border border-gray-200 p-3">
+						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_categories()}</h3>
 						<div class="space-y-1">
 							{#each categoriesWithAll as category (category.slug)}
 								<button
 									onclick={() => updateCategory(category.slug)}
 									class={cn(
-										"w-full text-left px-3 py-2.5 rounded-lg text-sm transition-all flex items-center gap-2",
+										"w-full text-left px-2 py-2 rounded-sm text-sm transition-all duration-fast flex items-center gap-2",
 										data.filters.category === category.slug
 											? "bg-blue-50 text-blue-700 font-medium"
 											: "hover:bg-gray-50 text-gray-700"
@@ -436,16 +431,16 @@
 					</div>
 
 					<!-- Price Range Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_price_range()}</h3>
-						<div class="space-y-3">
+					<div class="bg-white rounded-sm border border-gray-200 p-3">
+						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_price_range()}</h3>
+						<div class="space-y-2">
 							<div class="flex gap-2">
 								<input
 									type="number"
 									placeholder={m.browse_price_min()}
 									bind:value={priceRange.min}
 									onblur={updatePriceRange}
-									class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
 								/>
 								<span class="text-gray-400 self-center">-</span>
 								<input
@@ -453,12 +448,12 @@
 									placeholder={m.browse_price_max()}
 									bind:value={priceRange.max}
 									onblur={updatePriceRange}
-									class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
 								/>
 							</div>
 							<button
 								onclick={updatePriceRange}
-								class="w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+								class="w-full px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-sm hover:bg-blue-100 transition-colors duration-fast"
 							>
 								Apply Price Range
 							</button>
@@ -466,16 +461,16 @@
 					</div>
 
 					<!-- Sizes Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_size()}</h3>
+					<div class="bg-white rounded-sm border border-gray-200 p-3">
+						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_size()}</h3>
 						<div class="grid grid-cols-3 gap-2">
 							{#each sizeOptions as size (size)}
 								<button
 									onclick={() => toggleSize(size)}
 									class={cn(
-										"px-3 py-2 rounded-lg text-sm font-medium transition-all",
+										"px-2 py-1.5 rounded-sm text-sm font-medium transition-all duration-fast",
 										selectedSizes.has(size)
-											? "bg-blue-300 text-white shadow-sm"
+											? "bg-blue-300 text-white border border-blue-400"
 											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 									)}
 								>
@@ -486,8 +481,8 @@
 					</div>
 
 					<!-- Conditions Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_condition()}</h3>
+					<div class="bg-white rounded-sm border border-gray-200 p-3">
+						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_condition()}</h3>
 						<div class="space-y-2">
 							{#each conditionOptions as condition (condition.value)}
 								<label class="flex items-center gap-3 py-1 cursor-pointer group">
@@ -504,8 +499,8 @@
 					</div>
 
 					<!-- Brands Card -->
-					<div class="bg-white rounded-xl border border-gray-200 p-4">
-						<h3 class="font-semibold text-gray-900 mb-3">{m.browse_brand()}</h3>
+					<div class="bg-white rounded-sm border border-gray-200 p-3">
+						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_brand()}</h3>
 						<div class="space-y-2 max-h-48 overflow-y-auto">
 							{#each data.popularBrands as brand (brand)}
 								<label class="flex items-center gap-3 py-1 cursor-pointer group">
@@ -525,7 +520,7 @@
 					{#if data.filters.search || data.filters.category || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || data.filters.minPrice || data.filters.maxPrice}
 						<button
 							onclick={clearAllFilters}
-							class="w-full px-4 py-3 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-lg hover:bg-red-50 transition-colors"
+							class="w-full px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-sm hover:bg-red-50 transition-colors duration-fast"
 						>
 							{m.browse_clear_filters()}
 						</button>
@@ -536,10 +531,10 @@
 			<!-- Main Content -->
 			<main class="flex-1">
 				<!-- Results Header with Sort Options -->
-				<div class="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+				<div class="bg-white rounded-sm border border-gray-200 p-3 mb-3">
 					<div class="flex items-center justify-between">
 						<div>
-							<h2 class="text-lg font-semibold text-gray-900">
+							<h2 class="text-base font-semibold text-gray-900">
 								{data.filters.category ? categoriesWithAll.find(c => c.slug === data.filters.category)?.name : 'All Items'}
 							</h2>
 							{#if data.filters.search}
@@ -548,12 +543,12 @@
 								</p>
 							{/if}
 						</div>
-						<div class="flex items-center gap-4">
+						<div class="flex items-center gap-2">
 							<span class="text-sm text-gray-500">{data.totalCount.toLocaleString()} items</span>
 							<select
 								bind:value={sortBy}
 								onchange={(e) => updateSort(e.currentTarget.value)}
-								class="rounded-lg border border-gray-300 px-4 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+								class="rounded-sm border border-gray-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
 							>
 								{#each sortOptions as option (option.value)}
 									<option value={option.value}>{option.label}</option>
@@ -565,8 +560,8 @@
 
 				<!-- Active Filters Display -->
 				{#if data.filters.search || data.filters.category || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || data.filters.minPrice || data.filters.maxPrice}
-					<div class="bg-white rounded-xl border border-gray-200 p-4 mb-6">
-						<div class="flex items-center justify-between mb-3">
+					<div class="bg-white rounded-sm border border-gray-200 p-3 mb-3">
+						<div class="flex items-center justify-between mb-2">
 							<h3 class="text-sm font-semibold text-gray-900">Active Filters</h3>
 							<button
 								onclick={clearAllFilters}
@@ -577,7 +572,7 @@
 						</div>
 						<div class="flex flex-wrap gap-2">
 							{#if data.filters.search}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									Search: "{data.filters.search}"
 									<button onclick={() => goto(buildFilterUrl({ search: null }))} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -585,7 +580,7 @@
 								</span>
 							{/if}
 							{#if data.filters.category}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									{categoriesWithAll.find(c => c.slug === data.filters.category)?.name}
 									<button onclick={() => updateCategory('')} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -593,7 +588,7 @@
 								</span>
 							{/if}
 							{#each Array.from(selectedSizes) as size (size)}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									Size {size}
 									<button onclick={() => toggleSize(size)} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -601,7 +596,7 @@
 								</span>
 							{/each}
 							{#each Array.from(selectedBrands) as brand (brand)}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									{brand}
 									<button onclick={() => toggleBrand(brand)} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -609,7 +604,7 @@
 								</span>
 							{/each}
 							{#each Array.from(selectedConditions) as condition (condition)}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									{conditionOptions.find(c => c.value === condition)?.label}
 									<button onclick={() => toggleCondition(condition)} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -617,7 +612,7 @@
 								</span>
 							{/each}
 							{#if data.filters.minPrice || data.filters.maxPrice}
-								<span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									${data.filters.minPrice || 0} - ${data.filters.maxPrice || '∞'}
 									<button onclick={() => goto(buildFilterUrl({ minPrice: null, maxPrice: null }))} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
@@ -636,7 +631,6 @@
 					hasMore={hasMoreItems}
 					onLoadMore={loadMoreItems}
 					userFavorites={data.userFavorites}
-					supabase={data.supabase}
 				/>
 
 				<!-- Items Counter -->

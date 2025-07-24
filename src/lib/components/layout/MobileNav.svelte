@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import MobileFiltersDrawer from './MobileFiltersDrawer.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { logger } from '$lib/services/logger';
 	
 	interface Props {
 		class?: string;
@@ -43,32 +44,32 @@
 			emoji: '⚙️', 
 			label: m.nav_filters(), 
 			isAction: true,
-			ariaLabel: m.nav_filters_aria ? m.nav_filters_aria() : m.nav_filters()
+			ariaLabel: 'Open filters'
 		},
 		{ 
 			href: '/browse', 
 			emoji: '💰', 
 			label: m.nav_shop(),
-			ariaLabel: m.nav_shop_aria ? m.nav_shop_aria() : m.nav_shop()
+			ariaLabel: 'Go to shop'
 		},
 		{ 
 			href: '/sell', 
 			emoji: '➕', 
 			label: m.nav_sell(), 
 			isPrimary: true,
-			ariaLabel: m.nav_sell_aria ? m.nav_sell_aria() : m.nav_sell()
+			ariaLabel: 'Sell item'
 		},
 		{ 
 			href: '/wishlist', 
 			emoji: '❤️', 
 			label: m.nav_wishlist(),
-			ariaLabel: m.nav_wishlist_aria ? m.nav_wishlist_aria() : m.nav_wishlist()
+			ariaLabel: 'View wishlist'
 		},
 		{ 
 			href: '/leaderboard', 
 			emoji: '⭐', 
 			label: m.nav_sellers(),
-			ariaLabel: m.nav_sellers_aria ? m.nav_sellers_aria() : m.nav_sellers()
+			ariaLabel: 'View sellers'
 		}
 	];
 	
@@ -78,7 +79,7 @@
 				showFilters = true;
 			}
 		} catch (error) {
-			console.error('Navigation error:', error);
+			logger.error('Navigation error:', error);
 		}
 	}
 	
@@ -92,7 +93,7 @@
 <nav 
 	class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg md:hidden safe-area-pb {className}"
 	role="navigation"
-	aria-label={m.nav_mobile_navigation ? m.nav_mobile_navigation() : 'Mobile navigation'}
+	aria-label="Mobile navigation"
 >
 	<div class="grid grid-cols-5">
 		{#each navItems as item (item.href)}
@@ -119,7 +120,7 @@
 					type="button"
 				>
 					<span class="text-xl" aria-hidden="true">{item.emoji}</span>
-					<span class="text-[10px] font-medium">{item.label}</span>
+					<span class="text-xs font-medium">{item.label}</span>
 				</button>
 			{:else}
 				<!-- Regular Navigation -->
@@ -135,7 +136,7 @@
 							<div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" aria-hidden="true"></div>
 						{/if}
 					</div>
-					<span class="text-[10px] font-medium {isActive(item) ? 'font-semibold' : ''}">{item.label}</span>
+					<span class="text-xs font-medium {isActive(item) ? 'font-semibold' : ''}">{item.label}</span>
 				</a>
 			{/if}
 		{/each}

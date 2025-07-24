@@ -18,7 +18,6 @@
 	import { onboarding } from '$lib/stores/onboarding.svelte.ts';
 	import { browser, dev } from '$app/environment';
 	import { initWebVitals } from '$lib/utils/web-vitals';
-	import WebVitalsDebug from '$lib/components/debug/WebVitalsDebug.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
 	export let data;
@@ -158,10 +157,6 @@
 	<Toaster richColors position="top-center" />
 	<NotificationPopup position="top-right" />
 	
-	<!-- Web Vitals Debug Panel (dev only) -->
-	{#if dev}
-		<WebVitalsDebug />
-	{/if}
 	
 	<!-- Page transition loading indicator -->
 	{#if $navigating}

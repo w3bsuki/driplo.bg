@@ -3,9 +3,8 @@ import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
-import { getLocale, setLocale, isLocale } from '$lib/paraglide/runtime.js'
+import { setLocale, isLocale } from '$lib/paraglide/runtime.js'
 import { dev } from '$app/environment'
-import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
 const handleI18n: Handle = async ({ event, resolve }) => {
 	// Get language from cookie or Accept-Language header
@@ -23,7 +22,7 @@ const handleI18n: Handle = async ({ event, resolve }) => {
 	}
 	
 	// Set the language for this request
-	setLocale(locale, { reload: false })
+	setLocale(locale as 'en' | 'bg', { reload: false })
 	
 	// Store locale for use in components
 	event.locals.locale = locale
@@ -72,8 +71,14 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
 					})
 				},
-				remove: (key, options) => {
-					event.cookies.delete(key, { ...options, path: '/' })
+				remove: (key, _options) => {
+					// Ensure complete cookie removal with all necessary options
+					event.cookies.delete(key, { 
+						path: '/',
+						httpOnly: true,
+						secure: !dev,
+						sameSite: 'lax'
+					})
 				}
 			}
 		}
@@ -112,11 +117,11 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		// Check if profile setup is complete
 		const { data: profile } = await event.locals.supabase
 			.from('profiles')
-			.select('setup_completed, account_type')
+			.select('*')
 			.eq('id', user.id)
 			.single()
 		
-		if (profile && !profile.setup_completed) {
+		if (profile && !(profile as any).setup_completed) {
 			// Redirect to onboarding if profile setup is not complete
 			// Skip redirect for auth pages, brand pages (for existing brands), and static assets
 			if (!event.url.pathname.startsWith('/login') && 
@@ -125,7 +130,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 				!event.url.pathname.startsWith('/_app') &&
 				!event.url.pathname.includes('.') &&
 				// Don't redirect brand accounts from brand pages
-				!(profile.account_type === 'brand' && event.url.pathname.startsWith('/brands/'))) {
+				!((profile as any).account_type === 'brand' && event.url.pathname.startsWith('/brands/'))) {
 				return new Response(null, {
 					status: 302,
 					headers: {
@@ -179,7 +184,7 @@ const handleCaching: Handle = async ({ event, resolve }) => {
 	// Apply caching based on route patterns
 	if (path.startsWith('/_app/') || path.startsWith('/images/') || path.endsWith('.js') || path.endsWith('.css')) {
 		// Static assets - long cache
-		response.headers.set('cache-control', cachePresets.static.custom!)
+		response.headers.set('cache-control', 'public, max-age=31536000, immutable')
 	} else if (path.startsWith('/api/')) {
 		// API routes - short cache
 		response.headers.set('cache-control', 'public, max-age=0, s-maxage=60, must-revalidate')

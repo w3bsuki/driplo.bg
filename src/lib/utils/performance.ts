@@ -329,7 +329,7 @@ export function memoizeWeak<
   const cache = new WeakMap<WeakKey, ReturnType<T>>();
   
   return function (this: any, ...args: Parameters<T>): ReturnType<T> {
-    const [firstArg, ...restArgs] = args;
+    const [firstArg] = args;
     
     if (!firstArg || (typeof firstArg !== 'object' && typeof firstArg !== 'function')) {
       // Can't use WeakMap for primitive values
@@ -590,7 +590,7 @@ export function batch<T>(
  * measure.end('render');
  * console.log(measure.getMetrics());
  */
-export function createPerformanceMeasure(name: string) {
+export function createPerformanceMeasure(_name: string) {
   const marks = new Map<string, number>();
   const measures = new Map<string, number[]>();
   

@@ -6,7 +6,7 @@
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
   import type { SupabaseClient } from '@supabase/supabase-js';
-  import type { Database } from '$lib/types/database';
+  import type { Database } from '$lib/types/database.types';
   import { getFiltersForCategory } from '$lib/config/categoryFilters';
   
   interface Props {
@@ -142,7 +142,7 @@
     selectedSubcategory = subcategory;
   }
   
-  function clearFilters() {
+  function handleClearFilters() {
     selectedSubcategory = 'all';
     Object.keys(selectedFilters).forEach(key => {
       selectedFilters[key] = Array.isArray(selectedFilters[key]) ? [] : '';
@@ -316,7 +316,7 @@
       <p class="text-gray-500 text-lg mb-4">No items found</p>
       {#if hasActiveFilters}
         <button
-          onclick={clearFilters}
+          onclick={handleClearFilters}
           class="text-primary hover:text-primary/80 font-medium"
         >
           Clear filters and show all

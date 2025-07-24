@@ -16,6 +16,18 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		error(404, 'Profile not found')
 	}
 	
+	// If it's a brand account, fetch brand profile data
+	let brandProfile = null
+	if (profileData.account_type === 'brand') {
+		const { data: brandData } = await locals.supabase
+			.from('brand_profiles')
+			.select('*')
+			.eq('user_id', profileData.id)
+			.maybeSingle()
+		
+		brandProfile = brandData
+	}
+	
 	// Load user's listings
 	const { data: listings } = await locals.supabase
 		.from('listings')
@@ -60,12 +72,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 			...profileData,
 			achievements: [],
 			member_since: profileData.created_at,
-			seller_rating: 0,
-			seller_rating_count: 0,
+			seller_rating: profileData.seller_rating || 0,
+			seller_rating_count: profileData.seller_rating_count || 0,
 			response_time_hours: 24,
-			total_sales: 0,
-			verification_badges: []
+			total_sales: profileData.total_sales || 0,
+			verification_badges: profileData.badges || []
 		},
+		brandProfile,
 		listings: listings || [],
 		reviews: [],
 		socialAccounts: socialAccounts || [],
@@ -73,7 +86,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 		stats: {
 			totalListings: totalListings || 0,
 			totalLikes: likesData?.length || 0,
-			followers: profileData.follower_count || 0,
+			followers: profileData.followers_count || 0,
 			following: profileData.following_count || 0
 		},
 		isOwnProfile: session?.user?.id === profileData.id,

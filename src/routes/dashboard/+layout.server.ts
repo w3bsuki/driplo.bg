@@ -22,7 +22,7 @@ export const load: LayoutServerLoad = async ({ locals, url }) => {
 	let pendingBrands = 0;
 	if (isAdmin) {
 		const { count } = await locals.supabase
-			.from('brand_verification_requests')
+			.from('brand_verification_requests' as any)
 			.select('*', { count: 'exact', head: true })
 			.eq('verification_status', 'pending');
 		

@@ -208,7 +208,7 @@
 						<!-- Listings Tab -->
 						{#if listings.length > 0}
 							<div class="bg-white rounded-xl p-4 shadow-sm">
-								<ListingGrid listings={listings} title="" {supabase} />
+								<ListingGrid listings={listings} title="" />
 							</div>
 						{:else}
 							<div class="bg-white rounded-xl p-8 text-center shadow-sm">
@@ -371,7 +371,7 @@
 						<div class="bg-white rounded-xl shadow-sm p-4">
 							<h3 class="text-base font-semibold text-gray-900 mb-3">{m.profile_account()}</h3>
 							<div class="space-y-2">
-								{#if profile.account_type !== 'brand'}
+								{#if profile?.account_type !== 'brand'}
 									<button 
 										class="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-md"
 										onclick={() => goto('/brands/onboarding')}

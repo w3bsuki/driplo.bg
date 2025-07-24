@@ -54,7 +54,7 @@
 	<button
 		{onclick}
 		class={cn(
-			'inline-flex items-center rounded-full border font-medium transition-all duration-200',
+			'inline-flex items-center rounded-sm border font-medium transition-all duration-fast',
 			variants[variant],
 			sizes[size],
 			selectedStyles,
@@ -66,7 +66,7 @@
 		{#if dismissible}
 			<button
 				onclick={handleDismiss}
-				class="ml-1.5 -mr-1 p-0.5 rounded-full hover:bg-black/10 transition-colors"
+				class="ml-1.5 -mr-1 p-0.5 rounded-sm hover:bg-black/10 transition-colors duration-fast"
 				aria-label="Remove"
 			>
 				<svg class="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
@@ -78,7 +78,7 @@
 {:else}
 	<span
 		class={cn(
-			'inline-flex items-center rounded-full border font-medium transition-colors',
+			'inline-flex items-center rounded-sm border font-medium transition-colors duration-fast',
 			variants[variant],
 			sizes[size],
 			className
@@ -88,7 +88,7 @@
 		{#if dismissible}
 			<button
 				onclick={handleDismiss}
-				class="ml-1.5 -mr-1 p-0.5 rounded-full hover:bg-black/10 transition-colors touch-safe min-w-[20px] min-h-[20px]"
+				class="ml-1.5 -mr-1 p-0.5 rounded-sm hover:bg-black/10 transition-colors duration-fast touch-safe min-w-[20px] min-h-[20px]"
 				aria-label="Remove"
 			>
 				<svg class="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">

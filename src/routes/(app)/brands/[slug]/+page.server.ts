@@ -7,27 +7,41 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 	// Fetch brand profile
 	const { data: brandProfile, error: brandError } = await supabase
 		.from('brand_profiles')
-		.select(`
-			*,
-			user:profiles!brand_profiles_user_id_fkey (
-				id,
-				username,
-				full_name,
-				avatar_url,
-				bio,
-				location,
-				seller_rating,
-				seller_rating_count,
-				account_type,
-				is_verified
-			)
-		`)
+		.select('*')
 		.eq('brand_slug', slug)
 		.single();
 
 	if (brandError || !brandProfile) {
+		console.error('Brand fetch error:', brandError);
 		error(404, 'Brand not found');
 	}
+
+	// Fetch user profile separately
+	const { data: userProfile, error: userError } = await supabase
+		.from('profiles')
+		.select(`
+			id,
+			username,
+			full_name,
+			avatar_url,
+			bio,
+			location,
+			seller_rating,
+			seller_rating_count,
+			account_type,
+			is_verified,
+			badges
+		`)
+		.eq('id', brandProfile.user_id)
+		.single();
+
+	if (userError || !userProfile) {
+		console.error('User profile fetch error:', userError);
+		error(404, 'User profile not found');
+	}
+
+	// Combine the data
+	brandProfile.user = userProfile;
 
 	// Fetch brand's listings
 	const { data: listings } = await supabase

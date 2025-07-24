@@ -2,7 +2,7 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
 import type { User, Session } from '@supabase/supabase-js'
-import type { Database } from '$lib/types/database'
+import type { Database } from '$lib/types/database.types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 

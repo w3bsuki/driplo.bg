@@ -4,9 +4,10 @@
  */
 
 import type { Database } from './database'
+import type { ExtendedProfile } from './database.extended'
 
 // Core database types
-export type Profile = Database['public']['Tables']['profiles']['Row']
+export type Profile = ExtendedProfile
 export type Listing = Database['public']['Tables']['listings']['Row']
 export type Category = Database['public']['Tables']['categories']['Row']
 export type Transaction = Database['public']['Tables']['transactions']['Row']

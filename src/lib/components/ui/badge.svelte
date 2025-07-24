@@ -20,11 +20,11 @@
 		destructive: 'bg-red-50 text-red-600 border-red-200',
 		outline: 'border-gray-200 text-gray-600 bg-transparent',
 		// Condition variants using CSS variables
-		'condition-new-with-tags': 'bg-[var(--color-condition-new-with-tags)] text-white border-[var(--color-condition-new-with-tags)]',
-		'condition-new-without-tags': 'bg-[var(--color-condition-new-without-tags)] text-white border-[var(--color-condition-new-without-tags)]',
-		'condition-very-good': 'bg-[var(--color-condition-very-good)] text-white border-[var(--color-condition-very-good)]',
-		'condition-good': 'bg-[var(--color-condition-good)] text-gray-950 border-[var(--color-condition-good)]',
-		'condition-fair': 'bg-[var(--color-condition-fair)] text-white border-[var(--color-condition-fair)]'
+		'condition-new-with-tags': 'bg-[hsl(var(--color-condition-new-with-tags))] text-white border-[hsl(var(--color-condition-new-with-tags))]',
+		'condition-new-without-tags': 'bg-[hsl(var(--color-condition-new-without-tags))] text-white border-[hsl(var(--color-condition-new-without-tags))]',
+		'condition-very-good': 'bg-[hsl(var(--color-condition-very-good))] text-gray-950 border-[hsl(var(--color-condition-very-good))]',
+		'condition-good': 'bg-[hsl(var(--color-condition-good))] text-white border-[hsl(var(--color-condition-good))]',
+		'condition-fair': 'bg-[hsl(var(--color-condition-fair))] text-white border-[hsl(var(--color-condition-fair))]'
 	};
 
 	const sizes = {

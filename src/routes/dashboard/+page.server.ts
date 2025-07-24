@@ -36,7 +36,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		
 		// Pending brand verification requests
 		locals.supabase
-			.from('brand_verification_requests')
+			.from('brand_verification_requests' as any)
 			.select('*')
 			.eq('verification_status', 'pending')
 			.order('submitted_at', { ascending: false })

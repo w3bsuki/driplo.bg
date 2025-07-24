@@ -66,13 +66,7 @@ export const load: PageServerLoad = async ({ locals }) => {
           .limit(5)
       ]);
 
-      // Log any errors
-      if (featuredResult.error) {
-        console.error('Featured listings error:', featuredResult.error);
-      }
-      if (popularResult.error) {
-        console.error('Popular listings error:', popularResult.error);
-      }
+      // Handle errors silently - return empty arrays in the result
 
       return {
         categories: categoriesResult.data || [],

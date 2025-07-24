@@ -134,7 +134,7 @@
 						type="radio"
 						name="payout_method"
 						value="bank_transfer"
-						bind:group={payoutMethod}
+						bind:group={selectedPayoutMethod}
 						class="sr-only"
 					/>
 					<div class="flex items-center p-3 border-2 rounded-lg transition-all {payoutMethod === 'bank_transfer' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}">
@@ -154,7 +154,7 @@
 						type="radio"
 						name="payout_method"
 						value="paypal"
-						bind:group={payoutMethod}
+						bind:group={selectedPayoutMethod}
 						class="sr-only"
 					/>
 					<div class="flex items-center p-3 border-2 rounded-lg transition-all {payoutMethod === 'paypal' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}">
@@ -174,7 +174,7 @@
 						type="radio"
 						name="payout_method"
 						value="revolut"
-						bind:group={payoutMethod}
+						bind:group={selectedPayoutMethod}
 						class="sr-only"
 					/>
 					<div class="flex items-center p-3 border-2 rounded-lg transition-all {payoutMethod === 'revolut' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}">

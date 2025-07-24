@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Listing } from '$lib/types';
-	import LoadingSpinner from '$lib/components/ui/LoadingSpinner.svelte';
+	import Spinner from '$lib/components/ui/Spinner.svelte';
 	
 	export let listing: Listing;
 	export let isOpen: boolean;
@@ -42,7 +42,7 @@
 	{#if loading}
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
 			<div class="bg-background p-8 rounded-lg shadow-lg">
-				<LoadingSpinner size="lg" />
+				<Spinner size="lg" />
 				<p class="mt-4 text-sm text-muted-foreground">Loading checkout...</p>
 			</div>
 		</div>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { format } from 'date-fns';
     import ShippingForm from './ShippingForm.svelte';
-    import type { Database } from '$lib/types/database';
+    import type { Database } from '$lib/types/database.types';
     
     type Order = Database['public']['Tables']['orders']['Row'] & {
         buyer: {
@@ -306,7 +306,7 @@
                     {#if canMarkDelivered()}
                         <button 
                             class="btn btn-success"
-                            onclick={completeOrder}
+                            onclick={handleCompleteOrder}
                         >
                             Mark as Delivered
                         </button>
@@ -315,7 +315,7 @@
                     {#if canCancelOrder()}
                         <button 
                             class="btn btn-error btn-outline"
-                            onclick={cancelOrder}
+                            onclick={handleCancelOrder}
                         >
                             Cancel Order
                         </button>

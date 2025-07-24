@@ -24,10 +24,17 @@
 		{#each notifications.all as notification (notification.id)}
 			<div
 				transition:fly={{ y: -20, duration: 300 }}
-				class="notification notification-{notification.type}"
+				class="bg-background border rounded-lg shadow-lg p-4 min-w-[300px] max-w-[400px]
+					{notification.type === 'success' ? 'border-green-500/20 bg-green-50 dark:bg-green-950/20' : ''}
+					{notification.type === 'error' ? 'border-red-500/20 bg-red-50 dark:bg-red-950/20' : ''}
+					{notification.type === 'info' ? 'border-blue-500/20 bg-blue-50 dark:bg-blue-950/20' : ''}
+					{notification.type === 'warning' ? 'border-yellow-500/20 bg-yellow-50 dark:bg-yellow-950/20' : ''}"
 			>
 				<div class="flex items-start gap-3">
-					<div class="notification-icon">
+					<div class="{notification.type === 'success' ? 'text-green-600 dark:text-green-400' : ''}
+						{notification.type === 'error' ? 'text-red-600 dark:text-red-400' : ''}
+						{notification.type === 'info' ? 'text-blue-600 dark:text-blue-400' : ''}
+						{notification.type === 'warning' ? 'text-yellow-600 dark:text-yellow-400' : ''}">
 						<svelte:component this={notificationIcons[notification.type]} class="w-5 h-5" />
 					</div>
 					
@@ -40,7 +47,7 @@
 						{/if}
 						{#if notification.action}
 							<button
-								onclick={notification.action.callback}
+								onclick={handleNotification.action.callback}
 								class="text-sm font-medium mt-2 hover:underline"
 							>
 								{notification.action.label}
@@ -59,42 +66,3 @@
 		{/each}
 	</div>
 </div>
-
-<style>
-	.notification {
-		@apply bg-background border rounded-lg shadow-lg p-4;
-		@apply min-w-[300px] max-w-[400px];
-	}
-	
-	.notification-success {
-		@apply border-green-500/20 bg-green-50 dark:bg-green-950/20;
-	}
-	
-	.notification-success .notification-icon {
-		@apply text-green-600 dark:text-green-400;
-	}
-	
-	.notification-error {
-		@apply border-red-500/20 bg-red-50 dark:bg-red-950/20;
-	}
-	
-	.notification-error .notification-icon {
-		@apply text-red-600 dark:text-red-400;
-	}
-	
-	.notification-info {
-		@apply border-blue-500/20 bg-blue-50 dark:bg-blue-950/20;
-	}
-	
-	.notification-info .notification-icon {
-		@apply text-blue-600 dark:text-blue-400;
-	}
-	
-	.notification-warning {
-		@apply border-yellow-500/20 bg-yellow-50 dark:bg-yellow-950/20;
-	}
-	
-	.notification-warning .notification-icon {
-		@apply text-yellow-600 dark:text-yellow-400;
-	}
-</style>

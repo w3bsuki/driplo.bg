@@ -258,13 +258,13 @@
 		}
 	}
 	
-	function nextStep() {
+	function handleNextStep() {
 		if (canProceed() && currentStep < totalSteps) {
 			currentStep++;
 		}
 	}
 	
-	function prevStep() {
+	function handlePrevStep() {
 		if (currentStep > 1) {
 			currentStep--;
 		}
@@ -713,7 +713,7 @@
 			<!-- Navigation Buttons -->
 			<div class="flex justify-between mt-8">
 				<button
-					onclick={prevStep}
+					onclick={handlePrevStep}
 					disabled={currentStep === 1}
 					class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 				>
@@ -723,7 +723,7 @@
 				
 				{#if currentStep < totalSteps}
 					<button
-						onclick={nextStep}
+						onclick={handleNextStep}
 						disabled={!canProceed()}
 						class="px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 					>

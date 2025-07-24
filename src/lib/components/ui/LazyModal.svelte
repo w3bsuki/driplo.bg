@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { ComponentType, SvelteComponent } from 'svelte';
-	import LoadingSpinner from './LoadingSpinner.svelte';
+	import Spinner from './Spinner.svelte';
 	
 	export let loader: () => Promise<{ default: ComponentType<SvelteComponent> }>;
 	export let show = false;
@@ -52,7 +52,7 @@
 	{#if loading}
 		<div class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
 			<div class="bg-card p-8 rounded-lg shadow-lg">
-				<LoadingSpinner size="lg" />
+				<Spinner size="lg" />
 				<p class="mt-4 text-sm text-muted-foreground">{loadingText}</p>
 			</div>
 		</div>

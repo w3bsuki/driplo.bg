@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Instagram, Globe, Link2, ShoppingBag } from 'lucide-svelte';
-	import type { Database } from '$lib/types/database';
+	import type { Database } from '$lib/types/database.types';
+	import type { ExtendedProfile } from '$lib/types/database.extended';
 
-	type Profile = Database['public']['Tables']['profiles']['Row'];
+	type Profile = ExtendedProfile;
 	type SocialMediaAccount = Database['public']['Tables']['social_media_accounts']['Row'];
 
 	interface Props {
@@ -54,7 +55,7 @@
 
 	// Get brand social links from profile
 	const brandSocialLinks = $derived.by(() => {
-		if (profile.account_type !== 'brand') return [];
+		if (!profile.account_type || profile.account_type !== 'brand') return [];
 		
 		const links = [];
 		

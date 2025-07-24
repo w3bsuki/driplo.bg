@@ -42,7 +42,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	
 	// Get verification status
 	const { data: verificationRequest } = await locals.supabase
-		.from('brand_verification_requests')
+		.from('brand_verification_requests' as any)
 		.select('*')
 		.eq('user_id', user.id)
 		.order('created_at', { ascending: false })
@@ -90,7 +90,7 @@ export const actions = {
 		
 		// Create verification request
 		const { error } = await locals.supabase
-			.from('brand_verification_requests')
+			.from('brand_verification_requests' as any)
 			.insert({
 				user_id: user.id,
 				business_type: formData.get('business_type'),

@@ -52,7 +52,8 @@ export const createListingSchema = z.object({
 	// Images (Step 2)
 	images: z.array(z.string().url())
 		.min(1, 'At least one image is required')
-		.max(10, 'Maximum 10 images allowed'),
+		.max(10, 'Maximum 10 images allowed')
+		.default([]),
 	
 	// Pricing & Details (Step 3)
 	price: z.number()
@@ -100,36 +101,38 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	tags: []
 }
 
-// Client-side validation helpers for each step
-export const validateStep1 = (data: Partial<CreateListingFormData>) => {
-	const step1Schema = z.object({
+// Client-side validation helpers for the new 2-step form
+export const validateProductStep = (data: Partial<CreateListingFormData>) => {
+	const productSchema = z.object({
+		images: createListingSchema.shape.images,
 		title: createListingSchema.shape.title,
+		category_id: createListingSchema.shape.category_id,
 		description: createListingSchema.shape.description,
-		category_id: createListingSchema.shape.category_id
-	})
-	return step1Schema.safeParse(data)
-}
-
-export const validateStep2 = (data: Partial<CreateListingFormData>) => {
-	const step2Schema = z.object({
-		images: createListingSchema.shape.images
-	})
-	return step2Schema.safeParse(data)
-}
-
-export const validateStep3 = (data: Partial<CreateListingFormData>) => {
-	const step3Schema = z.object({
-		price: createListingSchema.shape.price,
 		condition: createListingSchema.shape.condition,
+		price: createListingSchema.shape.price,
 		color: createListingSchema.shape.color
 	})
-	return step3Schema.safeParse(data)
+	return productSchema.safeParse(data)
 }
 
-export const validateStep4 = (data: Partial<CreateListingFormData>) => {
-	const step4Schema = z.object({
+export const validateDeliveryStep = (data: Partial<CreateListingFormData>) => {
+	const deliverySchema = z.object({
 		location_city: createListingSchema.shape.location_city,
 		shipping_type: createListingSchema.shape.shipping_type
 	})
-	return step4Schema.safeParse(data)
+	return deliverySchema.safeParse(data)
 }
+
+// Keep old validators for backward compatibility
+export const validateStep1 = validateProductStep
+export const validateStep2 = (data: Partial<CreateListingFormData>) => {
+	return z.object({ images: createListingSchema.shape.images }).safeParse(data)
+}
+export const validateStep3 = (data: Partial<CreateListingFormData>) => {
+	return z.object({ 
+		price: createListingSchema.shape.price,
+		condition: createListingSchema.shape.condition,
+		color: createListingSchema.shape.color
+	}).safeParse(data)
+}
+export const validateStep4 = validateDeliveryStep

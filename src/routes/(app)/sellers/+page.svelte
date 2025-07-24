@@ -110,7 +110,7 @@
 			{#each ['Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Beauty', 'Books', 'Toys', 'Food'] as category (category)}
 				<a 
 					href="/browse?category={category.toLowerCase()}"
-					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-[#87CEEB]/10 hover:border-[#87CEEB] border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-[#4F9FC5]"
+					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-primary/10 hover:border-primary border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-[#4F9FC5]"
 				>
 					{category}
 				</a>

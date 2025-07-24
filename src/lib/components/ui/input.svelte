@@ -50,9 +50,9 @@
 	}: Props = $props()
 	
 	const sizeClasses = {
-		sm: 'input-size-sm text-sm',
-		md: 'input-size-md',
-		lg: 'input-size-lg text-base'
+		sm: 'h-input-sm px-2 text-sm',
+		md: 'h-input-md px-2.5 text-sm',
+		lg: 'h-input-lg px-3 text-base'
 	}
 </script>
 
@@ -64,7 +64,7 @@
 	{required}
 	bind:value
 	class={cn(
-		'flex w-full rounded-md border border-input bg-background text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [font-size:16px] sm:text-sm',
+		'flex w-full rounded-sm border border-input bg-background text-base ring-offset-background transition-all duration-fast file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
 		sizeClasses[size],
 		className
 	)}

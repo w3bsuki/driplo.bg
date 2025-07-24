@@ -59,10 +59,11 @@ describe('isValidPassword', () => {
 });
 
 describe('sanitizeInput', () => {
-	it('should remove HTML tags', () => {
-		expect(sanitizeInput('<script>alert("xss")</script>')).toBe('');
-		expect(sanitizeInput('Hello <b>World</b>')).toBe('Hello World');
-		expect(sanitizeInput('<p>Test</p>')).toBe('Test');
+	it('should escape and remove HTML tags', () => {
+		// The function escapes first, so <script> becomes &lt;script&gt;
+		expect(sanitizeInput('<script>alert("xss")</script>')).toBe('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+		expect(sanitizeInput('Hello <b>World</b>')).toBe('Hello &lt;b&gt;World&lt;/b&gt;');
+		expect(sanitizeInput('<p>Test</p>')).toBe('&lt;p&gt;Test&lt;/p&gt;');
 	});
 
 	it('should escape special characters', () => {

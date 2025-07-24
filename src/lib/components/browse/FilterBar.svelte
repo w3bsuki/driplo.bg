@@ -60,7 +60,7 @@
     goto(`?${params.toString()}`, { replaceState: true });
   }
   
-  function clearFilters() {
+  function handleClearFilters() {
     goto($page.url.pathname, { replaceState: true });
   }
   
@@ -73,12 +73,12 @@
   });
 </script>
 
-<div class="space-y-6">
+<div class="space-y-3">
   <div>
-    <h3 class="text-sm font-semibold text-gray-900 mb-3">Price Range</h3>
-    <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-900 mb-2">Price Range</h3>
+    <div class="space-y-1">
       {#each priceRanges as range}
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-1 cursor-pointer">
           <input
             type="radio"
             name="price"
@@ -94,10 +94,10 @@
   </div>
 
   <div>
-    <h3 class="text-sm font-semibold text-gray-900 mb-3">Condition</h3>
-    <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-900 mb-2">Condition</h3>
+    <div class="space-y-1">
       {#each conditions as condition}
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-1 cursor-pointer">
           <input
             type="radio"
             name="condition"
@@ -113,10 +113,10 @@
   </div>
 
   <div>
-    <h3 class="text-sm font-semibold text-gray-900 mb-3">Size</h3>
-    <div class="space-y-2">
+    <h3 class="text-sm font-semibold text-gray-900 mb-2">Size</h3>
+    <div class="space-y-1">
       {#each sizes as size}
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-1 cursor-pointer">
           <input
             type="radio"
             name="size"
@@ -132,7 +132,7 @@
   </div>
 
   <Button 
-    onclick={clearFilters}
+    onclick={handleClearFilters}
     variant="outline"
     size="sm"
     class="w-full"

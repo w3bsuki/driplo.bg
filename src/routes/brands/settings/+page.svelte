@@ -78,7 +78,7 @@
 		
 		// If profile is null or not loaded properly, try to fetch it
 		if (!profile) {
-			console.log('Profile not loaded, fetching...');
+			// Fetch profile if not loaded
 			const { data: fetchedProfile } = await supabase
 				.from('profiles')
 				.select('*')
@@ -94,7 +94,7 @@
 		// Load existing verification request if any
 		if (isBrand) {
 			const { data } = await supabase
-				.from('brand_verification_requests')
+				.from('brand_verification_requests' as any)
 				.select('*')
 				.eq('user_id', user.id)
 				.order('created_at', { ascending: false })
@@ -259,7 +259,7 @@
 			
 			// Create verification request
 			const { data, error } = await supabase
-				.from('brand_verification_requests')
+				.from('brand_verification_requests' as any)
 				.insert({
 					user_id: user.id,
 					brand_name: brandName,
@@ -322,7 +322,7 @@
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold text-gray-900 flex items-center gap-3">
-				<Store class="w-8 h-8 text-[#87CEEB]" />
+				<Store class="w-8 h-8 text-primary" />
 				{isBrand ? 'Brand Settings' : 'Upgrade to Brand Account'}
 			</h1>
 			<p class="text-gray-600 mt-2">
@@ -345,8 +345,8 @@
 				<div class="grid md:grid-cols-2 gap-6 mb-8">
 					<div class="space-y-4">
 						<div class="flex gap-3">
-							<div class="w-10 h-10 bg-[#87CEEB]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-								<Shield class="w-5 h-5 text-[#87CEEB]" />
+							<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+								<Shield class="w-5 h-5 text-primary" />
 							</div>
 							<div>
 								<h3 class="font-medium">Verified Badge</h3>
@@ -354,8 +354,8 @@
 							</div>
 						</div>
 						<div class="flex gap-3">
-							<div class="w-10 h-10 bg-[#87CEEB]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-								<Store class="w-5 h-5 text-[#87CEEB]" />
+							<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+								<Store class="w-5 h-5 text-primary" />
 							</div>
 							<div>
 								<h3 class="font-medium">Brand Storefront</h3>
@@ -365,8 +365,8 @@
 					</div>
 					<div class="space-y-4">
 						<div class="flex gap-3">
-							<div class="w-10 h-10 bg-[#87CEEB]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-								<Globe class="w-5 h-5 text-[#87CEEB]" />
+							<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+								<Globe class="w-5 h-5 text-primary" />
 							</div>
 							<div>
 								<h3 class="font-medium">Priority Listing</h3>
@@ -374,8 +374,8 @@
 							</div>
 						</div>
 						<div class="flex gap-3">
-							<div class="w-10 h-10 bg-[#87CEEB]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-								<FileText class="w-5 h-5 text-[#87CEEB]" />
+							<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+								<FileText class="w-5 h-5 text-primary" />
 							</div>
 							<div>
 								<h3 class="font-medium">Analytics & Insights</h3>
@@ -394,7 +394,7 @@
 							type="text"
 							bind:value={brandName}
 							placeholder="Enter your brand name"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 						/>
 					</div>
 					
@@ -406,7 +406,7 @@
 							bind:value={brandDescription}
 							placeholder="Tell us about your brand..."
 							rows="3"
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 						/>
 					</div>
 					
@@ -416,7 +416,7 @@
 						</label>
 						<select
 							bind:value={brandCategory}
-							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+							class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 						>
 							<option value="">Select category</option>
 							<option value="fashion">Fashion & Apparel</option>
@@ -435,7 +435,7 @@
 					<button
 						onclick={handleUpgradeToBrand}
 						disabled={loading || !brandName.trim()}
-						class="w-full py-3 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+						class="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 					>
 						{#if loading}
 							<Spinner size="sm" color="white" />
@@ -456,7 +456,7 @@
 							class={cn(
 								"px-6 py-4 font-medium transition-colors relative",
 								activeTab === 'info' 
-									? "text-[#87CEEB] border-b-2 border-[#87CEEB]" 
+									? "text-primary border-b-2 border-primary" 
 									: "text-gray-500 hover:text-gray-700"
 							)}
 						>
@@ -467,7 +467,7 @@
 							class={cn(
 								"px-6 py-4 font-medium transition-colors relative flex items-center gap-2",
 								activeTab === 'verification' 
-									? "text-[#87CEEB] border-b-2 border-[#87CEEB]" 
+									? "text-primary border-b-2 border-primary" 
 									: "text-gray-500 hover:text-gray-700"
 							)}
 						>
@@ -483,7 +483,7 @@
 							class={cn(
 								"px-6 py-4 font-medium transition-colors relative",
 								activeTab === 'social' 
-									? "text-[#87CEEB] border-b-2 border-[#87CEEB]" 
+									? "text-primary border-b-2 border-primary" 
 									: "text-gray-500 hover:text-gray-700"
 							)}
 						>
@@ -503,7 +503,7 @@
 								<input
 									type="text"
 									bind:value={brandName}
-									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 								/>
 							</div>
 							
@@ -514,7 +514,7 @@
 								<textarea
 									bind:value={brandDescription}
 									rows="3"
-									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 								/>
 							</div>
 							
@@ -526,7 +526,7 @@
 									bind:value={brandStory}
 									rows="5"
 									placeholder="Tell your brand's story..."
-									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 								/>
 							</div>
 							
@@ -537,7 +537,7 @@
 									</label>
 									<select
 										bind:value={brandCategory}
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									>
 										<option value="">Select category</option>
 										<option value="fashion">Fashion & Apparel</option>
@@ -560,7 +560,7 @@
 									<input
 										type="date"
 										bind:value={brandEstablishedDate}
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 							</div>
@@ -573,14 +573,14 @@
 									type="url"
 									bind:value={brandWebsite}
 									placeholder="https://yourbrand.com"
-									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+									class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 								/>
 							</div>
 							
 							<button
 								onclick={handleUpdateBrandInfo}
 								disabled={loading}
-								class="w-full py-3 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+								class="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 							>
 								{#if loading}
 									<Spinner size="sm" color="white" />
@@ -644,7 +644,7 @@
 											type="text"
 											bind:value={businessRegistrationNumber}
 											placeholder="Enter your business registration number"
-											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 										/>
 									</div>
 									
@@ -656,7 +656,7 @@
 											type="text"
 											bind:value={taxId}
 											placeholder="Enter your tax ID"
-											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 										/>
 									</div>
 									
@@ -669,7 +669,7 @@
 											multiple
 											accept=".pdf,.jpg,.jpeg,.png"
 											onchange={handleFileSelect}
-											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+											class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 										/>
 										<p class="text-xs text-gray-500 mt-1">
 											Upload business registration, tax certificates, or other relevant documents
@@ -679,7 +679,7 @@
 									<button
 										onclick={handleSubmitVerification}
 										disabled={loading}
-										class="w-full py-3 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+										class="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 									>
 										{#if loading}
 											<Spinner size="sm" color="white" />
@@ -708,7 +708,7 @@
 										type="text"
 										bind:value={brandInstagram}
 										placeholder="@yourbrand"
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 								
@@ -721,7 +721,7 @@
 										type="text"
 										bind:value={brandFacebook}
 										placeholder="yourbrand"
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 								
@@ -734,7 +734,7 @@
 										type="text"
 										bind:value={brandTwitter}
 										placeholder="@yourbrand"
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 								
@@ -747,7 +747,7 @@
 										type="text"
 										bind:value={brandYoutube}
 										placeholder="@yourbrand"
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 								
@@ -762,7 +762,7 @@
 										type="text"
 										bind:value={brandTiktok}
 										placeholder="@yourbrand"
-										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB]"
+										class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
 									/>
 								</div>
 							</div>
@@ -770,7 +770,7 @@
 							<button
 								onclick={handleUpdateBrandInfo}
 								disabled={loading}
-								class="w-full py-3 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+								class="w-full py-3 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
 							>
 								{#if loading}
 									<Spinner size="sm" color="white" />

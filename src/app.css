@@ -1,6 +1,13 @@
 @import 'tailwindcss';
 
-/* Import modern fonts */
+/* Import our custom token system */
+@import './lib/styles/tokens.css';
+@import './lib/styles/base.css';
+@import './lib/styles/utilities.css';
+@import './lib/styles/animations.css';
+@import './lib/styles/ecommerce.css';
+
+/* Font imports */
 @import '@fontsource/inter/400.css';
 @import '@fontsource/inter/500.css';
 @import '@fontsource/inter/600.css';
@@ -8,53 +15,6 @@
 @import '@fontsource/plus-jakarta-sans/600.css';
 @import '@fontsource/plus-jakarta-sans/700.css';
 @import '@fontsource/jetbrains-mono/400.css';
-
-/* Tailwind v4 alpha compatibility utilities */
-/* Background utilities with opacity support */
-.bg-background {
-	background-color: hsl(var(--background));
-}
-
-.bg-muted {
-	background-color: hsl(var(--muted));
-}
-
-.bg-muted\/50 {
-	background-color: hsl(var(--muted) / 0.5);
-}
-
-/* Space utilities */
-.space-y-1 > :not([hidden]) ~ :not([hidden]) {
-	margin-top: 0.25rem;
-}
-
-.space-y-2 > :not([hidden]) ~ :not([hidden]) {
-	margin-top: 0.5rem;
-}
-
-.space-y-3 > :not([hidden]) ~ :not([hidden]) {
-	margin-top: 0.75rem;
-}
-
-.space-y-4 > :not([hidden]) ~ :not([hidden]) {
-	margin-top: 1rem;
-}
-
-.space-y-6 > :not([hidden]) ~ :not([hidden]) {
-	margin-top: 1.5rem;
-}
-
-.space-x-2 > :not([hidden]) ~ :not([hidden]) {
-	margin-left: 0.5rem;
-}
-
-.space-x-3 > :not([hidden]) ~ :not([hidden]) {
-	margin-left: 0.75rem;
-}
-
-.space-x-4 > :not([hidden]) ~ :not([hidden]) {
-	margin-left: 1rem;
-}
 
 /* Fix for dropdown portals */
 [data-portal] {
@@ -94,189 +54,7 @@
 	pointer-events: auto !important;
 }
 
-/* Simplified Design System Tokens - THESE ACTUALLY WORK */
-@theme {
-	/* Primary Colors - Baby Blue */
-	--color-primary-500: #87ceeb;
-	--color-primary-600: #6bb6d8;
-	--color-primary-700: #4f9fc5;
-
-	/* Semantic Colors */
-	--color-success-500: #22c55e;
-	--color-warning-500: #f59e0b;
-	--color-danger-500: #ef4444;
-
-	/* Neutrals */
-	--color-neutral-50: #fafafa;
-	--color-neutral-100: #f4f4f5;
-	--color-neutral-200: #e4e4e7;
-	--color-neutral-300: #d4d4d8;
-	--color-neutral-400: #a1a1aa;
-	--color-neutral-500: #71717a;
-	--color-neutral-600: #52525b;
-	--color-neutral-700: #3f3f46;
-	--color-neutral-800: #27272a;
-	--color-neutral-900: #18181b;
-
-	/* Spacing & Typography */
-	--radius-sm: 0.25rem;
-	--radius-md: 0.5rem;
-	--radius-lg: 0.75rem;
-	--radius-xl: 1rem;
-
-	/* Motion */
-	--ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-	--duration-fast: 150ms;
-	--duration-normal: 200ms;
-	--duration-slow: 300ms;
-}
-
-/* Simplified Design System CSS Custom Properties */
-:root {
-	/* ========== Color Tokens ========== */
-	/* Primary Brand Colors - Baby Blue */
-	--color-primary-50: #f0f9ff;
-	--color-primary-100: #e0f2fe;
-	--color-primary-200: #bae6fd;
-	--color-primary-300: #7dd3fc;
-	--color-primary-400: #38bdf8;
-	--color-primary-500: #87ceeb;
-	--color-primary-600: #6bb6d8;
-	--color-primary-700: #4f9fc5;
-	--color-primary-800: #3a88ae;
-	--color-primary-900: #1e5a7e;
-
-	/* Neutral Colors */
-	--color-neutral-0: #ffffff;
-	--color-neutral-50: #fafafa;
-	--color-neutral-100: #f4f4f5;
-	--color-neutral-200: #e4e4e7;
-	--color-neutral-300: #d4d4d8;
-	--color-neutral-400: #a1a1aa;
-	--color-neutral-500: #71717a;
-	--color-neutral-600: #52525b;
-	--color-neutral-700: #3f3f46;
-	--color-neutral-800: #27272a;
-	--color-neutral-900: #18181b;
-
-	/* Semantic Colors */
-	--color-success-light: #dcfce7;
-	--color-success-main: #22c55e;
-	--color-success-dark: #16a34a;
-	--color-warning-light: #fef3c7;
-	--color-warning-main: #f59e0b;
-	--color-warning-dark: #d97706;
-	--color-error-light: #fee2e2;
-	--color-error-main: #ef4444;
-	--color-error-dark: #dc2626;
-	--color-info-light: #dbeafe;
-	--color-info-main: #3b82f6;
-	--color-info-dark: #2563eb;
-
-	/* ========== Typography ========== */
-	/* Font Families */
-	--font-sans: Inter, system-ui, -apple-system, sans-serif;
-	--font-display: 'Plus Jakarta Sans', sans-serif;
-	--font-mono: 'JetBrains Mono', monospace;
-
-	/* Compact Typography Scale (Vercel/Stripe style) */
-	--text-xs: 0.75rem;    /* 12px */
-	--text-sm: 0.8125rem;  /* 13px */
-	--text-base: 0.875rem; /* 14px - default body */
-	--text-lg: 1rem;       /* 16px */
-	--text-xl: 1.125rem;   /* 18px */
-	--text-2xl: 1.25rem;   /* 20px */
-	--text-3xl: 1.5rem;    /* 24px */
-	--text-4xl: 1.875rem;  /* 30px */
-	--text-5xl: 2.25rem;   /* 36px */
-
-	/* Font Weights */
-	--font-light: 300;
-	--font-normal: 400;
-	--font-medium: 500;
-	--font-semibold: 600;
-	--font-bold: 700;
-
-	/* Compact Line Heights */
-	--leading-tight: 1.2;
-	--leading-snug: 1.35;
-	--leading-normal: 1.4;
-	--leading-relaxed: 1.5;
-
-	/* Letter Spacing */
-	--tracking-tight: -0.02em;
-	--tracking-normal: 0;
-	--tracking-wide: 0.025em;
-	--tracking-wider: 0.05em;
-
-	/* Compact Spacing (4px Grid) */
-	--space-0: 0;
-	--space-0-5: 0.125rem; /* 2px */
-	--space-1: 0.25rem;    /* 4px */
-	--space-1-5: 0.375rem; /* 6px */
-	--space-2: 0.5rem;     /* 8px */
-	--space-2-5: 0.625rem; /* 10px */
-	--space-3: 0.75rem;    /* 12px */
-	--space-4: 1rem;       /* 16px */
-	--space-5: 1.25rem;    /* 20px */
-	--space-6: 1.5rem;     /* 24px */
-	--space-8: 2rem;       /* 32px */
-	--space-10: 2.5rem;    /* 40px */
-	--space-12: 3rem;      /* 48px */
-
-	/* ========== Component Sizes ========== */
-	/* Compact Button Heights (Vercel/Stripe style) */
-	--button-height-xs: 1.5rem;    /* 24px */
-	--button-height-sm: 1.75rem;   /* 28px */
-	--button-height-md: 2rem;      /* 32px */
-	--button-height-lg: 2.25rem;   /* 36px */
-	--button-height-xl: 2.5rem;    /* 40px */
-
-	/* Compact Input Heights */
-	--input-height-sm: 1.75rem;    /* 28px */
-	--input-height-md: 2rem;       /* 32px */
-	--input-height-lg: 2.25rem;    /* 36px */
-
-	/* Compact Badge Heights (slightly larger for visibility) */
-	--badge-height-sm: 1.125rem;   /* 18px */
-	--badge-height-md: 1.375rem;   /* 22px */
-	--badge-height-lg: 1.625rem;   /* 26px */
-
-	/* ========== Animation ========== */
-	/* Durations */
-	--duration-fast: 150ms;
-	--duration-normal: 200ms;
-	--duration-slow: 300ms;
-
-	/* Easing */
-	--ease-default: cubic-bezier(0.4, 0, 0.2, 1);
-	--ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-	/* Minimal Shadows (Vercel/Stripe style) */
-	--shadow-none: none;
-	--shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
-	--shadow-md: 0 2px 4px 0 rgb(0 0 0 / 0.06);
-	--shadow-lg: 0 4px 8px 0 rgb(0 0 0 / 0.08);
-	--shadow-xl: 0 8px 16px 0 rgb(0 0 0 / 0.1);
-	--shadow-border: 0 0 0 1px rgba(0, 0, 0, 0.08);
-
-	/* Compact Border Radius (Subtle curves) */
-	--radius-none: 0;
-	--radius-sm: 0.1875rem; /* 3px */
-	--radius-md: 0.375rem;  /* 6px */
-	--radius-lg: 0.5rem;    /* 8px */
-	--radius-xl: 0.75rem;   /* 12px */
-	--radius-full: 9999px;
-	
-	/* ========== Condition Colors ========== */
-	--color-condition-new-with-tags: #10b981;
-	--color-condition-new-without-tags: #3b82f6;
-	--color-condition-very-good: #8b5cf6;
-	--color-condition-good: #f59e0b;
-	--color-condition-fair: #ef4444;
-}
-
-/* Light mode (default) */
+/* Legacy shadcn mappings for compatibility */
 @layer base {
 	:root {
 		/* Map to shadcn conventions */
@@ -314,11 +92,22 @@
 		--warning: 61 95% 66%; /* yellow */
 		--warning-foreground: 0 0% 6%;
 
+		/* Condition colors for badges */
+		--color-condition-new: 152 69% 42%; /* green */
+		--color-condition-new-with-tags: 152 69% 38%; /* darker green */
+		--color-condition-new-without-tags: 152 60% 35%; /* darkest green */
+		--color-condition-very-good: 61 95% 66%; /* yellow */
+		--color-condition-good: 35 85% 55%; /* orange */
+		--color-condition-fair: 0 84% 60%; /* red */
+
 		--border: 0 0% 90%;
 		--input: 0 0% 90%;
 		--ring: 197 71% 73%; /* baby blue */
 
 		--radius: 0.5rem;
+		--radius-sm: 0.25rem;
+		--radius-md: 0.375rem;
+		--radius-lg: 0.5rem;
 	}
 
 	/* Dark mode */
@@ -356,84 +145,54 @@
 		--input: 0 0% 15%;
 		--ring: 197 71% 65%;
 	}
-
-	/* Dark mode for modern design system */
-	[data-theme='dark'] {
-		/* Update semantic colors for dark mode */
-		--color-background: var(--color-neutral-950);
-		--color-surface: var(--color-neutral-900);
-		--color-surface-secondary: var(--color-neutral-800);
-		--color-text-primary: var(--color-neutral-50);
-		--color-text-secondary: var(--color-neutral-400);
-		--color-text-tertiary: var(--color-neutral-500);
-		--color-border: var(--color-neutral-800);
-		--color-border-hover: var(--color-neutral-700);
-
-		/* Adjust shadows for dark mode */
-		--shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.2);
-		--shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-		--shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
-		--shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-		--shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.4);
-		--shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.5);
-	}
 }
 
-/* Base styles */
-@layer base {
-	* {
-		border-color: hsl(var(--border));
-	}
-
-	body {
-		background-color: hsl(var(--background));
-		color: hsl(var(--foreground));
-		font-family: var(--font-sans);
-		font-size: var(--text-base);
-		line-height: var(--leading-normal);
-		font-feature-settings:
-			'rlig' 1,
-			'calt' 1;
-		-webkit-font-smoothing: antialiased;
-		-moz-osx-font-smoothing: grayscale;
-	}
-
-	/* Focus styles for accessibility */
-	:focus-visible {
-		outline: 2px solid hsl(var(--ring));
-		outline-offset: 2px;
-	}
-
-	/* Motion preferences */
-	@media (prefers-reduced-motion: reduce) {
-		*,
-		*::before,
-		*::after {
-			animation-duration: 0.01ms !important;
-			animation-iteration-count: 1 !important;
-			transition-duration: 0.01ms !important;
-		}
-	}
-}
-
-/* Custom utilities */
+/* Custom legacy utilities for backward compatibility */
 @layer utilities {
-	/* Smooth animations */
-	.animate-snappy {
-		transition-timing-function: var(--ease-snappy);
+	/* Background utilities with opacity support */
+	.bg-background {
+		background-color: hsl(var(--background));
 	}
 
-	/* Product card shadows */
-	.shadow-product {
-		box-shadow:
-			0 1px 3px 0 rgb(0 0 0 / 0.05),
-			0 1px 2px -1px rgb(0 0 0 / 0.05);
+	.bg-muted {
+		background-color: hsl(var(--muted));
 	}
 
-	.shadow-product-hover {
-		box-shadow:
-			0 10px 15px -3px rgb(0 0 0 / 0.1),
-			0 4px 6px -4px rgb(0 0 0 / 0.1);
+	.bg-muted\/50 {
+		background-color: hsl(var(--muted) / 0.5);
+	}
+
+	/* Space utilities */
+	.space-y-1 > :not([hidden]) ~ :not([hidden]) {
+		margin-top: 0.25rem;
+	}
+
+	.space-y-2 > :not([hidden]) ~ :not([hidden]) {
+		margin-top: 0.5rem;
+	}
+
+	.space-y-3 > :not([hidden]) ~ :not([hidden]) {
+		margin-top: 0.75rem;
+	}
+
+	.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+		margin-top: 1rem;
+	}
+
+	.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+		margin-top: 1.5rem;
+	}
+
+	.space-x-2 > :not([hidden]) ~ :not([hidden]) {
+		margin-left: 0.5rem;
+	}
+
+	.space-x-3 > :not([hidden]) ~ :not([hidden]) {
+		margin-left: 0.75rem;
+	}
+
+	.space-x-4 > :not([hidden]) ~ :not([hidden]) {
+		margin-left: 1rem;
 	}
 
 	/* Semantic color utilities */
@@ -453,14 +212,38 @@
 		color: hsl(var(--warning-foreground));
 	}
 
-	/* Scrollbar hide utility */
-	.scrollbar-hide {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
+	/* Badge size utilities */
+	.badge-size-sm {
+		height: 1.5rem;
+		padding: 0 0.5rem;
+		font-size: 0.75rem;
 	}
 
-	.scrollbar-hide::-webkit-scrollbar {
-		display: none;
+	.badge-size-md {
+		height: 2rem;
+		padding: 0 0.75rem;
+		font-size: 0.875rem;
+	}
+
+	.badge-size-lg {
+		height: 2.5rem;
+		padding: 0 1rem;
+		font-size: 1rem;
+	}
+
+	/* Remove unwanted link underlines */
+	a {
+		text-decoration: none;
+	}
+
+	/* Fix hover animations - only on interactive elements */
+	button, a, [role="button"] {
+		transition: all 0.1s ease;
+	}
+
+	/* Remove double borders */
+	* {
+		border-style: solid;
 	}
 
 	/* iOS form fixes */
@@ -491,258 +274,5 @@
 			min-height: 100vh;
 			min-height: -webkit-fill-available;
 		}
-	}
-
-	/* Modern Design System Utilities */
-	/* Typography utilities */
-	.font-sans {
-		font-family: var(--font-sans);
-	}
-	.font-mono {
-		font-family: var(--font-mono);
-	}
-	.font-display {
-		font-family: var(--font-display);
-	}
-
-	/* Compact touch targets (still accessible) */
-	.touch-min {
-		min-width: 2rem;  /* 32px */
-		min-height: 2rem;
-	}
-	.touch-sm {
-		min-width: 2.25rem;  /* 36px */
-		min-height: 2.25rem;
-	}
-	.touch-md {
-		min-width: 2.5rem;  /* 40px */
-		min-height: 2.5rem;
-	}
-	.touch-lg {
-		min-width: 2.75rem;  /* 44px - WCAG minimum */
-		min-height: 2.75rem;
-	}
-
-	/* Compact button styles */
-	.btn-xs {
-		height: var(--button-height-xs);
-		padding: 0 var(--space-2);
-		font-size: var(--text-xs);
-	}
-	.btn-sm {
-		height: var(--button-height-sm);
-		padding: 0 var(--space-2-5);
-		font-size: var(--text-sm);
-	}
-	.btn-md {
-		height: var(--button-height-md);
-		padding: 0 var(--space-3);
-		font-size: var(--text-sm);
-	}
-	.btn-lg {
-		height: var(--button-height-lg);
-		padding: 0 var(--space-4);
-		font-size: var(--text-base);
-	}
-	.btn-xl {
-		height: var(--button-height-xl);
-		padding: 0 var(--space-5);
-		font-size: var(--text-lg);
-	}
-
-	/* Compact input styles */
-	.input-sm {
-		height: var(--input-height-sm);
-		padding: 0 var(--space-2);
-		font-size: var(--text-sm);
-	}
-	.input-md {
-		height: var(--input-height-md);
-		padding: 0 var(--space-2-5);
-		font-size: var(--text-sm);
-	}
-	.input-lg {
-		height: var(--input-height-lg);
-		padding: 0 var(--space-3);
-		font-size: var(--text-base);
-	}
-
-	/* Modern shadow utilities */
-	.shadow-xs {
-		box-shadow: var(--shadow-xs);
-	}
-	.shadow-sm {
-		box-shadow: var(--shadow-sm);
-	}
-	.shadow-md {
-		box-shadow: var(--shadow-md);
-	}
-	.shadow-lg {
-		box-shadow: var(--shadow-lg);
-	}
-	.shadow-xl {
-		box-shadow: var(--shadow-xl);
-	}
-	.shadow-2xl {
-		box-shadow: var(--shadow-2xl);
-	}
-	.shadow-inner {
-		box-shadow: var(--shadow-inner);
-	}
-
-	/* Animation utilities */
-	.transition-fast {
-		transition: all var(--transition-fast);
-	}
-	.transition-normal {
-		transition: all var(--transition-normal);
-	}
-	.transition-slow {
-		transition: all var(--transition-slow);
-	}
-
-	/* Micro-interaction utilities */
-	.hover-lift {
-		transition:
-			transform var(--transition-normal),
-			box-shadow var(--transition-normal);
-	}
-	.hover-lift:hover {
-		transform: translateY(-2px);
-		box-shadow: var(--shadow-lg);
-	}
-
-	.hover-grow {
-		transition: transform var(--transition-normal);
-	}
-	.hover-grow:hover {
-		transform: scale(1.02);
-	}
-
-	.active-scale {
-		transition: transform var(--transition-fast);
-	}
-	.active-scale:active {
-		transform: scale(0.97);
-	}
-}
-
-/* ========== CUSTOM TAILWIND V4 UTILITIES ========== */
-@utility button-size-xs {
-	height: var(--button-height-xs);
-	min-height: var(--button-height-xs);
-	padding-inline: var(--space-2);
-	font-size: var(--text-xs);
-}
-
-@utility button-size-sm {
-	height: var(--button-height-sm);
-	min-height: var(--button-height-sm);
-	padding-inline: var(--space-2-5);
-	font-size: var(--text-sm);
-}
-
-@utility button-size-md {
-	height: var(--button-height-md);
-	min-height: var(--button-height-md);
-	padding-inline: var(--space-3);
-	font-size: var(--text-sm);
-}
-
-@utility button-size-lg {
-	height: var(--button-height-lg);
-	min-height: var(--button-height-lg);
-	padding-inline: var(--space-4);
-	font-size: var(--text-base);
-}
-
-@utility button-size-xl {
-	height: var(--button-height-xl);
-	min-height: var(--button-height-xl);
-	padding-inline: var(--space-5);
-	font-size: var(--text-lg);
-}
-
-@utility input-size-sm {
-	height: var(--input-height-sm);
-	min-height: var(--input-height-sm);
-	padding-inline: var(--space-2);
-	font-size: var(--text-sm);
-}
-
-@utility input-size-md {
-	height: var(--input-height-md);
-	min-height: var(--input-height-md);
-	padding-inline: var(--space-2-5);
-	font-size: var(--text-sm);
-}
-
-@utility input-size-lg {
-	height: var(--input-height-lg);
-	min-height: var(--input-height-lg);
-	padding-inline: var(--space-3);
-	font-size: var(--text-base);
-}
-
-@utility touch-safe {
-	min-width: 2.75rem; /* 44px - WCAG AA minimum */
-	min-height: 2.75rem;
-}
-
-@utility badge-size-sm {
-	height: var(--badge-height-sm);
-	padding-inline: var(--space-2);
-	font-size: 0.6875rem; /* 11px */
-	line-height: var(--badge-height-sm);
-	font-weight: var(--font-medium);
-}
-
-@utility badge-size-md {
-	height: var(--badge-height-md);
-	padding-inline: var(--space-2-5);
-	font-size: var(--text-xs);
-	line-height: var(--badge-height-md);
-	font-weight: var(--font-medium);
-}
-
-@utility badge-size-lg {
-	height: var(--badge-height-lg);
-	padding-inline: var(--space-3);
-	font-size: var(--text-sm);
-	line-height: var(--badge-height-lg);
-	font-weight: var(--font-medium);
-}
-
-@utility chip-size-sm {
-	height: var(--badge-height-sm);
-	padding-inline: var(--spacing-2);
-	font-size: var(--text-xs);
-	line-height: var(--badge-height-sm);
-}
-
-@utility chip-size-md {
-	height: var(--badge-height-md);
-	padding-inline: var(--spacing-3);
-	font-size: var(--text-xs);
-	line-height: var(--badge-height-md);
-}
-
-@utility chip-size-lg {
-	height: var(--badge-height-lg);
-	padding-inline: var(--spacing-3-5);
-	font-size: var(--text-sm);
-	line-height: var(--badge-height-lg);
-}
-
-/* Custom Variants for Tailwind v4 */
-@variant reduce-motion {
-	@media (prefers-reduced-motion: reduce) {
-		@slot;
-	}
-}
-
-@variant high-contrast {
-	@media (prefers-contrast: high) {
-		@slot;
 	}
 }

@@ -23,7 +23,7 @@ export interface VitalsConfig {
 }
 
 const DEFAULT_CONFIG: VitalsConfig = {
-	logToConsole: import.meta.env.DEV,
+	logToConsole: import.meta.env['DEV'],
 	sampleRate: 1,
 	metadata: {}
 };
@@ -35,7 +35,7 @@ export async function initWebVitals(config: VitalsConfig = {}) {
 	const options = { ...DEFAULT_CONFIG, ...config };
 	
 	// Only load web-vitals library when needed
-	const { onCLS, onFID, onLCP, onFCP, onTTFB, onINP } = await import('web-vitals');
+	const { onCLS, onLCP, onFCP, onTTFB, onINP } = await import('web-vitals');
 	
 	const handleMetric = (metric: Metric) => {
 		// Sample rate check
@@ -72,11 +72,10 @@ export async function initWebVitals(config: VitalsConfig = {}) {
 	
 	// Register all metrics
 	onCLS(handleMetric);
-	onFID(handleMetric);
 	onLCP(handleMetric);
 	onFCP(handleMetric);
 	onTTFB(handleMetric);
-	onINP(handleMetric);
+	onINP(handleMetric); // INP replaces FID in web-vitals v5
 }
 
 /**
@@ -186,7 +185,7 @@ export function markPerformance(name: string, metadata?: any) {
 	});
 	
 	// Log in dev
-	if (import.meta.env.DEV) {
+	if (import.meta.env['DEV']) {
 		console.log(`[Performance Mark] ${name}`, metadata);
 	}
 }
@@ -205,7 +204,7 @@ export function measurePerformance(
 		performance.measure(name, startMark, endMark);
 		
 		const measure = performance.getEntriesByName(name, 'measure')[0];
-		if (measure && import.meta.env.DEV) {
+		if (measure && import.meta.env['DEV']) {
 			console.log(`[Performance Measure] ${name}: ${measure.duration.toFixed(2)}ms`);
 		}
 		

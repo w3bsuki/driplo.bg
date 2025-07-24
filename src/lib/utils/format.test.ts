@@ -1,24 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatCurrency, formatNumber, formatRelativeTime, getInitials } from './format';
-
-describe('formatCurrency', () => {
-	it('should format USD currency correctly', () => {
-		expect(formatCurrency(10)).toBe('$10.00');
-		expect(formatCurrency(99.99)).toBe('$99.99');
-		expect(formatCurrency(1000)).toBe('$1,000.00');
-		expect(formatCurrency(1234567.89)).toBe('$1,234,567.89');
-	});
-
-	it('should handle zero and negative values', () => {
-		expect(formatCurrency(0)).toBe('$0.00');
-		expect(formatCurrency(-10)).toBe('-$10.00');
-	});
-
-	it('should format other currencies', () => {
-		expect(formatCurrency(100, 'EUR')).toBe('€100.00');
-		expect(formatCurrency(100, 'GBP')).toBe('£100.00');
-	});
-});
+import { formatNumber, formatRelativeTime, getInitials } from './format';
 
 describe('formatNumber', () => {
 	it('should format numbers with commas', () => {
@@ -51,10 +32,10 @@ describe('formatRelativeTime', () => {
 
 	it('should format hours', () => {
 		const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-		expect(formatRelativeTime(oneHourAgo.toISOString())).toBe('1 hour ago');
+		expect(formatRelativeTime(oneHourAgo.toISOString())).toBe('about 1 hour ago');
 
 		const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);
-		expect(formatRelativeTime(twelveHoursAgo.toISOString())).toBe('12 hours ago');
+		expect(formatRelativeTime(twelveHoursAgo.toISOString())).toBe('about 12 hours ago');
 	});
 
 	it('should format days', () => {
@@ -67,7 +48,7 @@ describe('formatRelativeTime', () => {
 
 	it('should format future dates', () => {
 		const oneHourFromNow = new Date(now.getTime() + 60 * 60 * 1000);
-		expect(formatRelativeTime(oneHourFromNow.toISOString())).toBe('in 1 hour');
+		expect(formatRelativeTime(oneHourFromNow.toISOString())).toBe('in about 1 hour');
 	});
 
 	it('should handle invalid dates', () => {

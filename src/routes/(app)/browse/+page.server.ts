@@ -1,10 +1,10 @@
-import { error, type RequestEvent } from '@sveltejs/kit'
+import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 import { browseListings, getBrowseFilters } from '$lib/server/browse'
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache'
 import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
 
-export const load: PageServerLoad = async ({ url, locals, setHeaders }) => {
+export const load: PageServerLoad = async ({ url, locals }) => {
 	const session = await locals.safeGetSession()
 	const { supabase } = locals
 	

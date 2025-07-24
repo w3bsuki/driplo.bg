@@ -1,7 +1,7 @@
 <script lang="ts">
     import { formatDistanceToNow } from 'date-fns';
     import { createEventDispatcher } from 'svelte';
-    import type { Database } from '$lib/types/database';
+    import type { Database } from '$lib/types/database.types';
     
     type Message = Database['public']['Tables']['messages']['Row'] & {
         sender: {

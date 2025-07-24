@@ -2,8 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { onboarding } from '$lib/stores/onboarding.svelte';
-	import { Dialog, DialogContent } from '$lib/components/ui/dialog';
-	import Button from '$lib/components/ui/button.svelte';
+	import { Dialog, DialogContent } from '$lib/components/ui/Dialog';
+	import Button from '$lib/components/ui/Button.svelte';
 	import * as m from '$lib/paraglide/messages';
 	import type { User } from '@supabase/supabase-js';
 	
@@ -83,17 +83,17 @@
 			<!-- Actions -->
 			<div class="flex gap-2">
 				{#if currentSlide === 0}
-					<Button variant="ghost" class="flex-1 hover:bg-blue-50" onclick={skip}>
+					<Button variant="ghost" class="flex-1 hover:bg-blue-50" onclick={handleSkip}>
 						Skip
 					</Button>
 				{:else}
-					<Button variant="ghost" class="flex-1 hover:bg-blue-50" onclick={previousSlide}>
+					<Button variant="ghost" class="flex-1 hover:bg-blue-50" onclick={handlePreviousSlide}>
 						Back
 					</Button>
 				{/if}
 				<Button 
 					class="flex-1 bg-blue-400 hover:bg-blue-500 text-white" 
-					onclick={nextSlide}
+					onclick={handleNextSlide}
 				>
 					{currentSlide === slides.length - 1 ? "Get Started" : "Next"}
 				</Button>

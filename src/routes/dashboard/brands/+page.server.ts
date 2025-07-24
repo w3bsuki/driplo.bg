@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 	
 	// Get all brand verification requests with user info
 	const { data: requests, error: requestsError } = await locals.supabase
-		.from('brand_verification_requests')
+		.from('brand_verification_requests' as any)
 		.select(`
 			*,
 			profiles!inner(username, full_name, avatar_url)
@@ -31,12 +31,12 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		{ count: approved }
 	] = await Promise.all([
 		locals.supabase
-			.from('brand_verification_requests')
+			.from('brand_verification_requests' as any)
 			.select('*', { count: 'exact', head: true })
 			.eq('verification_status', 'pending'),
 		
 		locals.supabase
-			.from('brand_verification_requests')
+			.from('brand_verification_requests' as any)
 			.select('*', { count: 'exact', head: true })
 			.eq('verification_status', 'approved')
 			.gte('reviewed_at', thirtyDaysAgo.toISOString())

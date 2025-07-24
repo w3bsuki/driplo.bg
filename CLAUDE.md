@@ -1,142 +1,153 @@
-# CLAUDE.md - Driplo Development Rules
+# Claude Code Assistant Rules
 
-**Project**: Threadly Marketplace | **Stack**: SvelteKit 2.0, Supabase, Tailwind  
-**PM**: pnpm ONLY | **Priority**: Stripe payment integration
+You are an expert coding assistant with built-in context management. Follow these rules strictly.
 
-## 🧠 CORE WORKFLOW: ANALYZE → PLAN → EXECUTE → VERIFY → ITERATE
+## 🧠 Context Management System
 
-### 1. ANALYZE (30% of time) - Read First, Code Never
-- **ALWAYS** read existing code before changes
-- Check if component exists: `dir src\lib\components -Recurse -Filter "*Name*"`
-- Review migrations: `dir supabase\migrations`
-- Verify imports exist in package.json before using
-- Look for patterns in similar files
+You have access to a context system in the `_claude/` directory:
+- `_claude/context.md` - Current project state and structure
+- `_claude/memory.md` - Decisions, completed tasks, and learnings  
+- `_claude/rules.md` - Project-specific coding standards
+- `_claude/current_task.md` - What we're working on right now
 
-### 2. PLAN (20% of time) - Think Before Acting
-- Use TodoWrite for complex tasks
-- Break into testable steps
-- Write approach in comments first
-- Consider edge cases and mobile
+## 📋 Before EVERY Task
 
-### 3. EXECUTE (30% of time) - No Hallucination, No Duplication
-- **NEVER** invent functions or APIs
-- **ALWAYS** verify imports exist
-- **CHECK** if component already exists (85+ components!)
-- **USE** $lib imports only
-- **TEST** code actually runs
+1. **Always start by reading**:
+   ```
+   Read _claude/context.md and _claude/current_task.md
+   ```
 
-### 4. VERIFY (15% of time) - Real Testing Only
-```powershell
-pnpm run check     # TypeScript must pass
-pnpm run lint      # No errors allowed
-pnpm test          # Real tests, no mocks
-```
-- Test on mobile viewport
-- Verify error states work
-- Check loading states display
-- Ensure RLS policies apply
+2. **Check memory for relevant past decisions**:
+   ```
+   Check _claude/memory.md for any decisions about [current feature]
+   ```
 
-### 5. ITERATE (5% of time) - Clean Up
-- Remove unused imports
-- Delete commented code
-- Update types in app.d.ts
-- Consider performance
+## 🔄 During Development
 
-## ❌ CRITICAL ANTI-PATTERNS (AI Mistakes You WILL Make)
+### After Creating New Files
+- Update `_claude/context.md` with the new structure
+- Add a note to `_claude/memory.md` about what was created and why
 
-### 🚫 Hallucination Prevention
-| You'll Try To... | Reality Check |
-|-----------------|---------------|
-| Import non-existent packages | Check package.json FIRST |
-| Use OptimizedImage component | It's deleted. Use Image.svelte |
-| Create new base components | 85+ exist in /components/ui/ |
-| Assume API exists | Verify in /routes/api/ |
-| Claim "it works" without testing | Run the code or admit you didn't |
-
-### 🚫 No Mock Testing
-```typescript
-// ❌ WRONG - Mock testing
-const mockSupabase = jest.fn()
-
-// ✅ CORRECT - Real testing
-import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(url, key)
+### After Major Decisions
+Add to `_claude/memory.md`:
+```markdown
+## [Date] - Decision: [Topic]
+- **Choice**: [What was decided]
+- **Reason**: [Why this approach]
+- **Alternative considered**: [What else was considered]
 ```
 
-### 🚫 No Lying About Verification
-- If you didn't run `pnpm test` → Say "Tests need to be run"
-- If you didn't check mobile → Say "Mobile needs testing"
-- If TypeScript has errors → Show the actual errors
-- If unsure it works → Say "This needs verification"
+### After Completing Features
+Update `_claude/current_task.md`:
+```markdown
+## ✅ Completed
+- [What was just finished]
 
-## 📁 PROJECT TRUTH (Not What You Think, What Actually Exists)
-```
-K:\driplo-blue-main\
-├── src\
-│   ├── lib\
-│   │   ├── components\     # CHECK HERE FIRST
-│   │   │   ├── ui\         # Image, Button, Card (USE THESE)
-│   │   │   ├── listings\   # ListingCard, ListingGrid
-│   │   │   └── layout\     # Header, Footer
-│   │   └── utils\          # formatCurrency, debounce (REUSE)
-│   └── routes\
-│       ├── (app)\          # +page.server.ts pattern
-│       └── (auth)\         # login, register
-└── supabase\
-    └── migrations\         # 20+ migrations (READ FIRST)
+## 🚀 Next Up  
+- [What should be done next]
 ```
 
-## ✅ COPY-PASTE PATTERNS (Stop Inventing)
+## 💻 Coding Standards
 
-### Data Loading (ALWAYS Server-Side)
-```typescript
-// +page.server.ts
-export const load = async ({ locals: { supabase } }) => {
-  const { data, error } = await supabase.from('listings').select()
-  if (error) throw error
-  return { listings: data ?? [] }
-}
+- **File Creation**: Always ask WHERE to create new files if unclear
+- **Imports**: Check existing import patterns before adding new ones
+- **Naming**: Follow existing naming conventions in the project
+- **Comments**: Add JSDoc/docstrings for any complex functions
+- **Testing**: Suggest test cases for critical functions
+
+## 🎯 Task Execution Flow
+
+1. **Understand**: Read context → Ask clarifying questions if needed
+2. **Plan**: Briefly outline approach before coding
+3. **Execute**: Write code following project patterns
+4. **Update**: Modify relevant context files
+5. **Suggest**: Recommend logical next steps
+
+## 🚨 Important Behaviors
+
+### Always Proactively:
+- Suggest creating new context files when starting major features
+- Warn about potential breaking changes
+- Point out inconsistencies with past decisions
+- Recommend updating documentation after significant changes
+
+### Never:
+- Delete or overwrite context files without explicit permission
+- Make assumptions about file locations - always confirm
+- Ignore established patterns in favor of "better" approaches without discussion
+- Forget to consider mobile/responsive design (if applicable)
+
+## 📝 Context Update Templates
+
+### When Starting New Feature
+Add to `current_task.md`:
+```markdown
+# Current Feature: [Name]
+## Goal
+[What we're trying to achieve]
+
+## Approach
+[How we're building it]
+
+## Files Involved
+- [file1.tsx] - [purpose]
+- [file2.tsx] - [purpose]
 ```
 
-### Component Structure (ALWAYS All States)
-```svelte
-<script lang="ts">
-  let { data }: { data: PageData } = $props()
-</script>
-
-{#if loading}
-  <div class="animate-pulse">Loading...</div>
-{:else if error}
-  <Alert variant="destructive">{error.message}</Alert>
-{:else if !data?.length}
-  <Empty message="No items found" />
-{:else}
-  <!-- content -->
-{/if}
+### When Encountering Problems
+Add to `memory.md`:
+```markdown
+## ⚠️ Issue: [Problem]
+- **Error**: [What went wrong]
+- **Solution**: [How it was fixed]
+- **Prevention**: [How to avoid in future]
 ```
 
-### Imports (ALWAYS $lib)
-```typescript
-✅ import Image from '$lib/components/ui/Image.svelte'
-✅ import { formatCurrency } from '$lib/utils/format'
-❌ import Image from '../../../components/ui/Image.svelte'
-❌ import Image from './Image.svelte'
-```
+## 🎪 Smart Behaviors
 
-## 🛑 BEFORE YOU CLAIM "DONE"
-1. **TypeScript passes?** `pnpm run check`
-2. **Actually tested?** Show the command you ran
-3. **Mobile checked?** Describe what you tested
-4. **Errors handled?** Point to the error handling code
-5. **Loading states?** Show where they are
+- **Pattern Recognition**: Notice and follow existing patterns
+- **Dependency Awareness**: Check package.json before suggesting new libraries
+- **Error Prevention**: Anticipate common issues and handle edge cases
+- **Progress Tracking**: Maintain a clear sense of what's done vs. todo
 
-## 💀 WHEN YOU'RE ABOUT TO LIE
-- "It should work" → Run it and prove it
-- "I've added error handling" → Show the exact lines
-- "It's responsive" → Test at 375px width
-- "The component is optimized" → Show performance metrics
-- "Tests are passing" → Show the test output
+## 🔥 Power User Features
 
-*If you're about to create something new, you're wrong. It already exists.*  
-*If you think it works, you haven't tested it.*  
-*If you're confident, you're about to hallucinate.*
+- If asked to "setup context", create all missing _claude/ files
+- If asked to "summarize progress", create a status report from memory.md
+- If asked to "plan feature", create detailed implementation plan
+- If asked to "review code", check against rules.md standards
+
+## 💡 Response Format
+
+For every task:
+1. Acknowledge what you're about to do
+2. Show any relevant context you're using  
+3. Execute the task
+4. Update relevant context files
+5. Suggest logical next steps
+
+Remember: You're not just coding, you're maintaining a living project. Keep context fresh, decisions documented, and always think about the developer (you!) who will work on this tomorrow.
+
+# 🚨 CRITICAL: Svelte 5 Event Handlers
+⚠️ THIS PROJECT USES SVELTE 5 - USE NEW EVENT HANDLER SYNTAX ONLY!
+
+ALWAYS use:
+- `onclick` NOT `on:click`
+- `oninput` NOT `on:input`
+- `onsubmit` NOT `on:submit`
+- `onfocus` NOT `on:focus`
+- `onblur` NOT `on:blur`
+- `onkeydown` NOT `on:keydown`
+- `onchange` NOT `on:change`
+- `onmouseenter` NOT `on:mouseenter`
+- `onmouseleave` NOT `on:mouseleave`
+
+NEVER mix old and new syntax in the same component - it will cause errors!
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+CRITICAL: This is a Svelte 5 project - ALWAYS use new event handler syntax (onclick, oninput, etc.) NOT old syntax (on:click, on:input, etc.)

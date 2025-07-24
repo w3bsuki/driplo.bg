@@ -3,7 +3,7 @@
 	import { cn, type WithElementRef } from "$lib/utils.js";
 
 	let {
-		ref = $bindable(null),
+		ref = $bindable(null as HTMLDivElement | null),
 		class: className,
 		children,
 		...restProps
@@ -14,7 +14,7 @@
 	bind:this={ref}
 	data-slot="card"
 	class={cn(
-		"bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+		"bg-card text-card-foreground flex flex-col gap-2 rounded-sm border border-gray-200 p-3 transition-all duration-fast",
 		className
 	)}
 	{...restProps}

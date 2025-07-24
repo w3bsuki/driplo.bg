@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		.eq('id', user.id)
 		.single();
 
-	if (!profile || profile.account_type !== 'brand') {
+	if (!profile || profile?.account_type !== 'brand') {
 		error(403, 'Access denied. Brand account required.');
 	}
 

@@ -108,7 +108,7 @@
 		reader.readAsDataURL(file)
 	}
 
-	function removeImage() {
+	function handleRemoveImage() {
 		previewUrl = ''
 		currentImage = ''
 		if (fileInput) {
@@ -166,7 +166,7 @@
 			previewUrl ? "border-solid border-border" : "",
 			!(disabled || loading || processing) && "cursor-pointer"
 		)}
-		onclick={disabled || loading || processing ? undefined : triggerFileInput}
+		onclick={handleDisabled || loading || processing ? undefined : triggerFileInput}
 		ondragover={disabled || loading || processing ? undefined : handleDragOver}
 		ondragleave={disabled || loading || processing ? undefined : handleDragLeave}
 		ondrop={disabled || loading || processing ? undefined : handleDrop}
@@ -185,7 +185,7 @@
 					<button
 						onclick={(e) => {
 							e.stopPropagation()
-							removeImage()
+							handleRemoveImage()
 						}}
 						class="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors"
 					>

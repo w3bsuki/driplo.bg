@@ -6,6 +6,25 @@ interface CompressionOptions {
 }
 
 /**
+ * Validate image file before upload
+ */
+export function validateImageFile(file: File): string | null {
+	// Check file type
+	const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+	if (!validTypes.includes(file.type)) {
+		return 'Please upload a valid image file (JPG, PNG, GIF, or WebP)'
+	}
+	
+	// Check file size (10MB max)
+	const maxSize = 10 * 1024 * 1024
+	if (file.size > maxSize) {
+		return 'Image size must be less than 10MB'
+	}
+	
+	return null
+}
+
+/**
  * Compress images efficiently for mobile devices
  * Uses Canvas API with Web Workers when available
  */

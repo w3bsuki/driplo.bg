@@ -22,7 +22,7 @@
 		xs: {
 			container: 'px-1.5 py-0.5 gap-1',
 			icon: 'w-3 h-3',
-			text: 'text-[10px]'
+			text: 'text-xs'
 		},
 		sm: {
 			container: 'px-2 py-1 gap-1.5',

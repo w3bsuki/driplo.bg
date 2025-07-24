@@ -14,7 +14,7 @@
 <div class="container mx-auto px-4 py-8">
     <div class="max-w-6xl mx-auto">
         <div class="bg-white rounded-lg shadow-sm border">
-            <div class="grid grid-cols-1 lg:grid-cols-3 h-[600px]">
+            <div class="grid grid-cols-1 lg:grid-cols-3 h-[75vh] max-h-[600px]">
                 <!-- Conversation list -->
                 <div class="hidden lg:block border-r overflow-y-auto p-6">
                     <ConversationList userId={data.session?.user.id || ''} />

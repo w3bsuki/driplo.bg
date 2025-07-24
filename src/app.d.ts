@@ -19,6 +19,25 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+	
+	// reCAPTCHA types
+	interface Window {
+		grecaptcha?: {
+			render: (container: HTMLElement, options: {
+				sitekey: string
+				callback?: (token: string) => void
+				'expired-callback'?: () => void
+				'error-callback'?: () => void
+				theme?: 'light' | 'dark'
+				size?: 'normal' | 'compact'
+			}) => number
+			reset: (widgetId?: number) => void
+			getResponse: (widgetId?: number) => string
+			execute: (widgetId?: number) => void
+		}
+		onRecaptchaLoad?: () => void
+		hcaptcha?: any // In case we switch to hCaptcha later
+	}
 }
 
 export {}

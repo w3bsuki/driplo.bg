@@ -1,18 +1,10 @@
 import { getContext, setContext } from 'svelte'
 import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '$lib/types/database'
+import type { Database } from '$lib/types/database.types'
 import { goto, invalidateAll } from '$app/navigation'
 import { browser } from '$app/environment'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
-
-interface AuthState {
-	user: User | null
-	session: Session | null
-	profile: Profile | null
-	loading: boolean
-	error: Error | null
-}
 
 class AuthContext {
 	private supabase: SupabaseClient<Database>
@@ -58,7 +50,7 @@ class AuthContext {
 			this.profile = data
 			this.notifyStateChange()
 		} catch (error) {
-			console.error('Error loading profile:', error)
+			// console.error('Error loading profile:', error)
 			this.profile = null
 			this.notifyStateChange()
 		}
@@ -71,6 +63,9 @@ class AuthContext {
 		this.notifyStateChange()
 		
 		try {
+			// Extract captcha token from metadata if present
+			const { captcha_token, ...userMetadata } = metadata || {}
+			
 			const { data, error } = await this.supabase.auth.signUp({
 				email,
 				password,
@@ -78,14 +73,15 @@ class AuthContext {
 					data: {
 						username,
 						full_name: fullName,
-						...metadata
+						...userMetadata
 					},
-					emailRedirectTo: `${window.location.origin}/onboarding?new=true`
+					emailRedirectTo: `${window.location.origin}/auth/confirm`,
+					...(captcha_token && { captchaToken: captcha_token })
 				}
 			})
 			
 			if (error) {
-				console.error('Supabase signUp error:', error);
+				// console.error('Supabase signUp error:', error);
 				// Check for specific error types
 				if (error.message?.includes('duplicate key') || error.message?.includes('already registered')) {
 					throw new Error('An account with this email already exists');
@@ -101,25 +97,26 @@ class AuthContext {
 				this.user = data.user
 				this.session = data.session
 				
-				// Send custom confirmation email via Resend
-				if (browser && !data.session) { // No session means email confirmation is required
-					try {
-						const response = await fetch('/api/auth/send-confirmation', {
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ 
-								email: data.user.email,
-								userId: data.user.id 
-							})
-						})
-						
-						if (!response.ok) {
-							console.error('Failed to send confirmation email via Resend');
-						}
-					} catch (err) {
-						console.error('Error sending confirmation email:', err);
-					}
-				}
+				// Let Supabase handle confirmation emails by default
+				// Only use custom email service if RESEND_API_KEY is configured
+				// if (browser && !data.session) { // No session means email confirmation is required
+				// 	try {
+				// 		const response = await fetch('/api/auth/send-confirmation', {
+				// 			method: 'POST',
+				// 			headers: { 'Content-Type': 'application/json' },
+				// 			body: JSON.stringify({ 
+				// 				email: data.user.email,
+				// 				userId: data.user.id 
+				// 			})
+				// 		})
+				// 		
+				// 		if (!response.ok) {
+				// 			console.error('Failed to send confirmation email via Resend');
+				// 		}
+				// 	} catch (err) {
+				// 		console.error('Error sending confirmation email:', err);
+				// 	}
+				// }
 			}
 			
 			return data
@@ -163,10 +160,12 @@ class AuthContext {
 			})
 			
 			if (error) {
-				// Log failed login attempt
+				// Log failed login attempt (using IP/user agent version to avoid ambiguity)
 				await this.supabase.rpc('log_auth_event', {
 					p_user_id: null,
 					p_action: 'login_failed',
+					p_ip_address: null, // Would need to be passed from server
+					p_user_agent: browser ? navigator.userAgent : null,
 					p_success: false,
 					p_error_message: error.message,
 					p_metadata: { email }
@@ -181,11 +180,15 @@ class AuthContext {
 				this.session = data.session
 				await this.loadProfile(data.user.id)
 				
-				// Log successful login
+				// Log successful login (using IP/user agent version to avoid ambiguity)
 				await this.supabase.rpc('log_auth_event', {
 					p_user_id: data.user.id,
 					p_action: 'login',
-					p_success: true
+					p_ip_address: null, // Would need to be passed from server
+					p_user_agent: browser ? navigator.userAgent : null,
+					p_success: true,
+					p_error_message: null,
+					p_metadata: null
 				}).catch(console.error)
 				
 				// Store remember me preference
@@ -213,7 +216,11 @@ class AuthContext {
 			const { data, error } = await this.supabase.auth.signInWithOAuth({
 				provider,
 				options: {
-					redirectTo: `${window.location.origin}/callback`
+					redirectTo: `${window.location.origin}/callback`,
+					queryParams: {
+						access_type: 'offline',
+						prompt: 'consent'
+					}
 				}
 			})
 			
@@ -233,22 +240,81 @@ class AuthContext {
 		this.notifyStateChange()
 		
 		try {
-			const { error } = await this.supabase.auth.signOut()
-			if (error) throw error
+			// Store user id for logging before clearing
+			const userId = this.user?.id
 			
-			// Clear local state
+			// Clear local state first
 			this.user = null
 			this.session = null
 			this.profile = null
 			
-			// Invalidate all supabase:auth dependencies
-			await invalidateAll()
+			// Clear any browser storage that might persist
+			if (browser) {
+				// Clear remember me preference
+				localStorage.removeItem('remember_me')
+				// Clear any pending account type for OAuth
+				localStorage.removeItem('pending_account_type')
+				
+				// Clear all supabase-related items from localStorage
+				const keysToRemove: string[] = []
+				for (let i = 0; i < localStorage.length; i++) {
+					const key = localStorage.key(i)
+					if (key && (key.includes('supabase') || key.includes('sb-'))) {
+						keysToRemove.push(key)
+					}
+				}
+				keysToRemove.forEach(key => localStorage.removeItem(key))
+			}
 			
-			// Redirect to home
-			await goto('/', { replaceState: true, invalidateAll: true })
+			// Sign out from Supabase with global scope to ensure all sessions are cleared
+			const { error } = await this.supabase.auth.signOut({
+				scope: 'global' // Changed to global to ensure complete logout
+			})
+			
+			if (error) {
+				console.error('Supabase signOut error:', error)
+				// Continue with cleanup even if signOut fails
+			}
+			
+			// Log the sign out event (using IP/user agent version to avoid ambiguity)
+			if (userId) {
+				try {
+					await this.supabase.rpc('log_auth_event', {
+						p_user_id: userId,
+						p_action: 'logout',
+						p_ip_address: null, // Would need to be passed from server
+						p_user_agent: browser ? navigator.userAgent : null,
+						p_success: true,
+						p_error_message: null,
+						p_metadata: null
+					})
+				} catch (logError) {
+					console.error('Failed to log sign out event:', logError)
+				}
+			}
+			
+			// Ensure we wait for invalidateAll to complete
+			try {
+				await invalidateAll()
+			} catch (e) {
+				console.error('Error invalidating all:', e)
+			}
+			
+			// Add a delay to ensure all async operations complete
+			if (browser) {
+				await new Promise(resolve => setTimeout(resolve, 200))
+			}
+			
+			// Navigate to login page with success message
+			await goto('/login?message=logged_out', { replaceState: true, invalidateAll: false })
 		} catch (error) {
+			console.error('Error during sign out process:', error)
 			this.error = error instanceof Error ? error : new Error('Sign out failed')
-			throw error
+			
+			// Force navigation even on error
+			if (browser) {
+				await goto('/login?message=logged_out', { replaceState: true, invalidateAll: false })
+			}
 		} finally {
 			this.loading = false
 			this.notifyStateChange()
@@ -324,6 +390,56 @@ class AuthContext {
 			this.loading = false
 			this.notifyStateChange()
 		}
+	}
+	
+	async refreshSession() {
+		try {
+			const { data, error } = await this.supabase.auth.refreshSession()
+			
+			if (error) {
+				console.error('Session refresh error:', error)
+				// If refresh fails, clear the session
+				this.user = null
+				this.session = null
+				this.profile = null
+				this.notifyStateChange()
+				throw error
+			}
+			
+			if (data.session) {
+				this.session = data.session
+				this.user = data.user
+				this.notifyStateChange()
+			}
+			
+			return data
+		} catch (error) {
+			console.error('Failed to refresh session:', error)
+			throw error
+		}
+	}
+	
+	// Check if session needs refresh (called before API requests)
+	async ensureValidSession() {
+		if (!this.session) return false
+		
+		// Check if token is about to expire (within 5 minutes)
+		const expiresAt = this.session.expires_at
+		if (!expiresAt) return false
+		
+		const expiresIn = expiresAt - Math.floor(Date.now() / 1000)
+		
+		// Refresh if less than 5 minutes remaining
+		if (expiresIn < 300) {
+			try {
+				await this.refreshSession()
+				return true
+			} catch (error) {
+				return false
+			}
+		}
+		
+		return true
 	}
 }
 

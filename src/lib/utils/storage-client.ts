@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from 'uuid'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '$lib/types/database'
+import type { Database } from '$lib/types/database.types'
 import { compressImages } from './image-compression'
 
 export type UploadResult = {
@@ -39,8 +38,8 @@ export function validateImageFile(file: File): string | null {
 export async function uploadImage(
 	file: File,
 	bucket: 'avatars' | 'covers' | 'listings',
-	supabase: SupabaseClient<Database>,
-	userId?: string,
+	_supabase: SupabaseClient<Database>,
+	_userId?: string,
 	maxRetries: number = 3
 ): Promise<UploadResult> {
 	// Validate file first

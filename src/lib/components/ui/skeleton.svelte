@@ -10,9 +10,9 @@
 	let { class: className, variant = 'default', animation = 'pulse' }: Props = $props()
 	
 	const variantClasses = {
-		default: 'rounded-md',
-		text: 'rounded h-4',
-		circular: 'rounded-full aspect-square',
+		default: 'rounded-sm',
+		text: 'rounded-sm h-4',
+		circular: 'rounded-sm aspect-square',
 		rectangular: 'rounded-none'
 	}
 	
@@ -49,20 +49,11 @@
 	.animate-shimmer {
 		background: linear-gradient(
 			90deg,
-			rgb(229 229 229) 0%,
-			rgb(245 245 245) 50%,
-			rgb(229 229 229) 100%
+			hsl(var(--muted)) 0%,
+			hsl(var(--muted) / 0.5) 50%,
+			hsl(var(--muted)) 100%
 		);
 		background-size: 200% 100%;
 		animation: shimmer 1.5s ease-in-out infinite;
-	}
-	
-	:global(.dark) .animate-shimmer {
-		background: linear-gradient(
-			90deg,
-			rgb(38 38 38) 0%,
-			rgb(64 64 64) 50%,
-			rgb(38 38 38) 100%
-		);
 	}
 </style>

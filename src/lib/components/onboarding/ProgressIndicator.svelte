@@ -40,26 +40,27 @@
 </script>
 
 {#if showProgress}
-	<div class="onboarding-progress">
-		<div class="progress-header">
+	<div class="bg-muted/50 border rounded-lg p-4 mb-4">
+		<div class="flex justify-between items-center mb-3">
 			<span class="text-sm font-medium">Getting Started</span>
 			<span class="text-sm text-muted-foreground">
 				{onboarding.progress.completed}/{onboarding.progress.total} completed
 			</span>
 		</div>
 		
-		<div class="progress-bar">
+		<div class="h-2 bg-muted rounded-full overflow-hidden mb-4">
 			<div 
-				class="progress-fill" 
+				class="h-full bg-primary transition-all duration-500" 
 				style="width: {onboarding.progress.percentage}%"
 			/>
 		</div>
 		
-		<div class="progress-steps">
+		<div class="flex flex-col gap-2">
 			{#each steps as step}
 				<button 
-					class="step-item"
-					class:completed={step.completed}
+					class="flex items-center gap-2 text-sm p-2 rounded hover:bg-muted transition-colors text-left disabled:cursor-not-allowed"
+					class:text-muted-foreground={step.completed}
+					class:opacity-75={step.completed}
 					onclick={() => goto(step.href)}
 					disabled={step.completed}
 				>
@@ -73,39 +74,3 @@
 		</div>
 	</div>
 {/if}
-
-<style>
-	.onboarding-progress {
-		@apply bg-muted/50 border rounded-lg p-4 mb-4;
-	}
-	
-	.progress-header {
-		@apply flex justify-between items-center mb-3;
-	}
-	
-	.progress-bar {
-		@apply h-2 bg-muted rounded-full overflow-hidden mb-4;
-	}
-	
-	.progress-fill {
-		@apply h-full bg-primary transition-all duration-500;
-	}
-	
-	.progress-steps {
-		@apply flex flex-col gap-2;
-	}
-	
-	.step-item {
-		@apply flex items-center gap-2 text-sm p-2 rounded;
-		@apply hover:bg-muted transition-colors text-left;
-		@apply disabled:cursor-not-allowed;
-	}
-	
-	.step-item.completed {
-		@apply text-muted-foreground opacity-75;
-	}
-	
-	.step-item:not(.completed):hover {
-		@apply bg-muted;
-	}
-</style>

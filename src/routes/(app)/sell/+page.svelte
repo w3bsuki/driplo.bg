@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { getAuthContext } from '$lib/stores/auth-context.svelte'
-	import CreateListingForm from '$lib/components/listings/CreateListingForm.svelte'
+	import CreateListingForm from '$lib/components/listings/CreateListingForm/CreateListingForm.svelte'
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
 	import { page } from '$app/stores'
@@ -25,11 +25,11 @@
 	<meta name="description" content={m.sell_page_description()} />
 </svelte:head>
 
-{#if authContext?.user}
+{#if authContext?.user && data.user}
 	<CreateListingForm 
 		data={data.form} 
-		supabase={$page.data.supabase} 
-		userId={authContext.user.id}
+		categories={data.categories}
+		hasPaymentAccount={data.hasPaymentAccount}
 	/>
 {:else}
 	<div class="min-h-screen flex items-center justify-center bg-gray-50">

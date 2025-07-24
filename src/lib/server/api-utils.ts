@@ -1,7 +1,7 @@
-import { json, error } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import type { SupabaseClient, Session, User } from '@supabase/supabase-js';
-import type { Database, Tables } from '$lib/types/database.types';
+import type { Session } from '@supabase/supabase-js';
+import type { Tables } from '$lib/types/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
 
@@ -40,7 +40,7 @@ export enum ApiErrorType {
 
 export class ApiError extends Error {
   constructor(
-    public message: string,
+    public override message: string,
     public status: number,
     public type: ApiErrorType,
     public details?: Record<string, unknown>
@@ -91,7 +91,7 @@ export function apiError(
   };
   
   // Only include safe details in development
-  if (dev && details && !details.stack && !details.password && !details.token) {
+  if (dev && details && !details['stack'] && !details['password'] && !details['token']) {
     response.details = details;
   }
   
@@ -179,14 +179,14 @@ export async function requireAdmin(
   locals: RequestEvent['locals']
 ): Promise<{ userId: string; session: Session; profile: Tables<'profiles'> } | null> {
   const auth = await requireAuth(locals, { requireProfile: true });
-  if (!auth) return null;
+  if (!auth || !auth.profile) return null;
   
-  if (auth.profile?.role !== 'admin' && !auth.profile?.is_admin) {
+  if (auth.profile.role !== 'admin') {
     console.warn(`User ${auth.userId} attempted admin access without permission`);
     return null;
   }
   
-  return auth;
+  return auth as { userId: string; session: Session; profile: Tables<'profiles'> };
 }
 
 // Zod-based request validation

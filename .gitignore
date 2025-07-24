@@ -65,3 +65,6 @@ lerna-debug.log*
 
 # Build artifacts
 dist
+
+*storybook.log
+storybook-static

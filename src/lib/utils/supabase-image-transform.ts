@@ -102,8 +102,8 @@ export function parseStorageUrl(url: string): { bucket: string; path: string } |
 	if (!match) return null;
 	
 	return {
-		bucket: match[1],
-		path: match[2]
+		bucket: match[1] ?? '',
+		path: match[2] ?? ''
 	};
 }
 

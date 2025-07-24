@@ -19,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
             type: 'signup',
             email,
             options: {
-                redirectTo: `${process.env.PUBLIC_APP_URL || 'https://driplo.com'}/auth/confirm`
+                redirectTo: `${process.env['PUBLIC_APP_URL'] || 'https://driplo.com'}/auth/confirm`
             }
         });
         

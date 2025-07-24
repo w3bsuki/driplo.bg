@@ -5,7 +5,7 @@ export class FocusTrap {
   private focusableElements: HTMLElement[] = []
   private firstFocusableElement: HTMLElement | null = null
   private lastFocusableElement: HTMLElement | null = null
-  private handleKeyDown: (e: KeyboardEvent) => void
+  private _onKeyDown: (e: KeyboardEvent) => void
   
   constructor(element: HTMLElement, options: {
     initialFocus?: HTMLElement | string

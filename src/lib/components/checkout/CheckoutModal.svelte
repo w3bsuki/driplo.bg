@@ -6,6 +6,7 @@
 	import { toast } from 'svelte-sonner';
 	import { getStripe } from '$lib/stores/stripe';
 	import * as m from '$lib/paraglide/messages.js';
+	import { logger } from '$lib/services/logger';
 
 	interface Props {
 		listing: any;
@@ -40,7 +41,7 @@
 	// Initialize Stripe when modal opens and Stripe is selected  
 	$effect(() => {
 		if (isOpen && paymentProvider === 'stripe' && !clientSecret && !isInitializing) {
-			console.log('🔄 Triggering Stripe initialization...', { isOpen, paymentProvider, clientSecret: !!clientSecret, isInitializing });
+			logger.debug('🔄 Triggering Stripe initialization...', { isOpen, paymentProvider, clientSecret: !!clientSecret, isInitializing });
 			initializeStripePayment();
 		}
 	});
@@ -65,11 +66,11 @@
 		// Clean up existing Stripe elements only if switching away from Stripe
 		if (provider !== 'stripe' && cardElement) {
 			try {
-				console.log('🧹 Destroying existing card element...');
+				logger.debug('🧹 Destroying existing card element...');
 				cardElement.destroy();
-				console.log('✅ Card element destroyed successfully');
+				logger.debug('✅ Card element destroyed successfully');
 			} catch (error) {
-				console.error('❌ Error destroying card element:', error);
+				logger.error('❌ Error destroying card element:', error);
 			}
 			cardElement = null;
 			cardElementMounted = false;
@@ -82,7 +83,10 @@
 		if (provider !== 'stripe') {
 			const element = document.getElementById('card-element');
 			if (element) {
-				element.innerHTML = '';
+				// Safely clear the element content
+				while (element.firstChild) {
+					element.removeChild(element.firstChild);
+				}
 			}
 		}
 		
@@ -94,7 +98,7 @@
 		
 		try {
 			isInitializing = true;
-			console.log('🔄 Initializing Stripe payment...');
+			logger.debug('🔄 Initializing Stripe payment...');
 			
 			// Create payment intent
 			const response = await fetch('/api/payment/create-intent', {
@@ -112,23 +116,23 @@
 			const data = await response.json();
 
 			if (!response.ok) {
-				console.error('❌ Payment intent failed:', data);
+				logger.error('❌ Payment intent failed:', data);
 				toast.error(data.error || m.checkout_failed_initialize());
 				return;
 			}
 
 			clientSecret = data.data?.client_secret || data.client_secret;
-			console.log('✅ Payment intent created successfully', { clientSecret, fullResponse: data });
+			logger.debug('✅ Payment intent created successfully', { clientSecret, fullResponse: data });
 
 			// Initialize Stripe Elements
 			const stripeInstance = await getStripe();
 			if (!stripeInstance) {
-				console.error('❌ Failed to load Stripe instance');
+				logger.error('❌ Failed to load Stripe instance');
 				toast.error(m.checkout_failed_load_payment());
 				return;
 			}
 
-			console.log('✅ Stripe instance loaded successfully');
+			logger.debug('✅ Stripe instance loaded successfully');
 
 			elements = stripeInstance.elements({
 				clientSecret: clientSecret,
@@ -143,7 +147,7 @@
 				},
 			});
 
-			console.log('✅ Stripe Elements created successfully');
+			logger.debug('✅ Stripe Elements created successfully');
 
 			// Create card element
 			cardElement = elements.create('card', {
@@ -160,18 +164,18 @@
 				},
 			});
 
-			console.log('✅ Card element created successfully');
+			logger.debug('✅ Card element created successfully');
 			
 			// Add event listeners for better debugging
 			cardElement.on('ready', () => {
-				console.log('✅ Card element ready for input');
+				logger.debug('✅ Card element ready for input');
 			});
 
 			cardElement.on('change', (event) => {
 				if (event.error) {
-					console.warn('⚠️ Card element error:', event.error.message);
+					logger.warn('⚠️ Card element error:', event.error.message);
 				} else {
-					console.log('✅ Card element input valid');
+					logger.debug('✅ Card element input valid');
 				}
 			});
 
@@ -179,15 +183,18 @@
 			setTimeout(() => {
 				const container = document.getElementById('card-element');
 				if (container && cardElement) {
-					container.innerHTML = '';
+					// Safely clear the container content
+					while (container.firstChild) {
+						container.removeChild(container.firstChild);
+					}
 					cardElement.mount('#card-element');
 					cardElementMounted = true;
-					console.log('✅ Card element mounted successfully');
+					logger.debug('✅ Card element mounted successfully');
 				}
 			}, 100);
 
 		} catch (error) {
-			console.error('❌ Payment initialization error:', error);
+			logger.error('❌ Payment initialization error:', error);
 			toast.error(m.checkout_failed_initialize());
 		} finally {
 			isInitializing = false;
@@ -208,7 +215,7 @@
 
 	async function handleStripePayment() {
 		if (!cardElement || !clientSecret) {
-			console.error('❌ Missing required elements:', { cardElement: !!cardElement, clientSecret: !!clientSecret });
+			logger.error('❌ Missing required elements:', { cardElement: !!cardElement, clientSecret: !!clientSecret });
 			toast.error('Payment system not ready. Please try again.');
 			return;
 		}
@@ -216,7 +223,7 @@
 		// Verify card element is still mounted
 		const cardContainer = document.getElementById('card-element');
 		if (!cardContainer || !cardContainer.querySelector('iframe')) {
-			console.error('❌ Card element not properly mounted');
+			logger.error('❌ Card element not properly mounted');
 			toast.error('Payment form not ready. Please refresh and try again.');
 			cardElementMounted = false;
 			return;
@@ -231,7 +238,7 @@
 				return;
 			}
 
-			console.log('🔄 Confirming payment with Stripe...');
+			logger.debug('🔄 Confirming payment with Stripe...');
 			// Confirm payment
 			const { error } = await stripeInstance.confirmCardPayment(clientSecret, {
 				payment_method: {
@@ -258,7 +265,7 @@
 				window.location.href = '/orders';
 			}
 		} catch (error) {
-			console.error('Payment error:', error);
+			logger.error('Payment error:', error);
 			toast.error(m.checkout_payment_failed());
 		} finally {
 			isProcessing = false;
@@ -335,7 +342,7 @@
 				window.location.href = '/orders';
 			}
 		} catch (error) {
-			console.error('Revolut payment error:', error);
+			logger.error('Revolut payment error:', error);
 			toast.error(m.checkout_payment_failed());
 		} finally {
 			isProcessing = false;
@@ -344,7 +351,7 @@
 
 	async function handleManualRevolutPayment() {
 		isProcessing = true;
-		console.log('🔥 Starting manual Revolut payment for listing:', listing.id);
+		logger.debug('🔥 Starting manual Revolut payment for listing:', listing.id);
 
 		try {
 			const response = await fetch('/api/payment/revolut/manual-payment', {
@@ -359,30 +366,30 @@
 				}),
 			});
 
-			console.log('📡 Response status:', response.status);
+			logger.debug('📡 Response status:', response.status);
 			const data = await response.json();
-			console.log('📋 Response data:', data);
+			logger.debug('📋 Response data:', data);
 
 			if (!response.ok) {
-				console.error('❌ API Error:', data);
+				logger.error('❌ API Error:', data);
 				toast.error(data.error || m.checkout_failed_create_order());
 				return;
 			}
 
-			console.log('✅ Payment order created successfully');
+			logger.debug('✅ Payment order created successfully');
 			manualPaymentData = data;
 			showPaymentInstructions = true;
-			console.log('🎯 UI state updated - showPaymentInstructions:', showPaymentInstructions);
+			logger.debug('🎯 UI state updated - showPaymentInstructions:', showPaymentInstructions);
 			
 		} catch (error) {
-			console.error('💥 Manual Revolut payment error:', error);
+			logger.error('💥 Manual Revolut payment error:', error);
 			toast.error(m.checkout_failed_create_order());
 		} finally {
 			isProcessing = false;
 		}
 	}
 
-	function openRevolutPaymentLink() {
+	function handleOpenRevolutPaymentLink() {
 		if (!manualPaymentData) return;
 		
 		// Create Revolut payment link with pre-filled amount and reference
@@ -390,7 +397,7 @@
 		const reference = manualPaymentData.order_reference;
 		const revolutUrl = `https://revolut.me/tin1017?amount=${amount}&reference=${encodeURIComponent(reference)}&currency=USD`;
 		
-		console.log('🔗 Opening Revolut payment link:', revolutUrl);
+		logger.debug('🔗 Opening Revolut payment link:', revolutUrl);
 		
 		// Open in new tab so user doesn't lose checkout page
 		window.open(revolutUrl, '_blank');
@@ -426,7 +433,7 @@
 			window.location.href = '/orders';
 			
 		} catch (error) {
-			console.error('Payment confirmation error:', error);
+			logger.error('Payment confirmation error:', error);
 			toast.error(m.checkout_failed_confirm_payment());
 		} finally {
 			isProcessing = false;
@@ -438,11 +445,11 @@
 		clientSecret = '';
 		if (cardElement) {
 			try {
-				console.log('🧹 Cleaning up card element on close...');
+				logger.debug('🧹 Cleaning up card element on close...');
 				cardElement.destroy();
-				console.log('✅ Card element destroyed successfully on close');
+				logger.debug('✅ Card element destroyed successfully on close');
 			} catch (error) {
-				console.error('❌ Error destroying card element on close:', error);
+				logger.error('❌ Error destroying card element on close:', error);
 			}
 			cardElement = null;
 			cardElementMounted = false;
@@ -454,7 +461,10 @@
 		// Clear the card element container
 		const element = document.getElementById('card-element');
 		if (element) {
-			element.innerHTML = '';
+			// Safely clear the element content
+			while (element.firstChild) {
+				element.removeChild(element.firstChild);
+			}
 		}
 	}
 </script>
@@ -694,7 +704,7 @@
 								<!-- Quick Pay Button -->
 								<div class="mb-4">
 									<button
-										onclick={openRevolutPaymentLink}
+										onclick={handleOpenRevolutPaymentLink}
 										class="w-full bg-black text-white py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
 									>
 										<div class="w-6 h-6 bg-white rounded-full flex items-center justify-center">
@@ -718,7 +728,7 @@
 								</div>
 								
 								<button
-									onclick={confirmManualPayment}
+									onclick={handleConfirmManualPayment}
 									disabled={isProcessing}
 									class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
 								>

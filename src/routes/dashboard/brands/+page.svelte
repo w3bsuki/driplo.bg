@@ -162,7 +162,7 @@
 						<input
 							type="checkbox"
 							checked={selectedRequests.size === filteredRequests.length && filteredRequests.length > 0}
-							onchange={toggleAll}
+							onchange={handleToggleAll}
 							class="rounded"
 						/>
 					</th>

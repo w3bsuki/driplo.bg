@@ -537,5 +537,16 @@
 	"listing_empty_title": "No listings yet",
 	"listing_empty_description": "Be the first to sell something amazing!",
 	"listing_start_selling": "Start Selling",
-	"listing_realtime_enabled": "Real-time updates are enabled for this listing grid"
+	"listing_realtime_enabled": "Real-time updates are enabled for this listing grid",
+	"nav_home_aria": "Navigate to home",
+	"nav_browse_aria": "Browse all items",
+	"nav_sell_aria": "Create a new listing",
+	"nav_wishlist_aria": "View your wishlist",
+	"nav_sellers_aria": "Browse all sellers",
+	"nav_mobile_navigation": "Mobile navigation",
+	"condition_like_new": "Like New",
+	"condition_excellent": "Excellent",
+	"condition_worn": "Worn",
+	"condition_poor": "Poor",
+	"settings_required_fields": "* Required fields"
 }

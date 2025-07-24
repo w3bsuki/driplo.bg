@@ -12,7 +12,7 @@ export const loading = stores.loading
 
 // Initialize auth state - kept for backward compatibility
 // The actual initialization now happens in the auth context
-export function initializeAuth(initialUser: User | null, initialSession: Session | null) {
+export function initializeAuth(_initialUser: User | null, _initialSession: Session | null) {
 	// This function is now a no-op as initialization happens in the context
 	// Kept for backward compatibility
 }

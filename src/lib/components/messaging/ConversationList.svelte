@@ -3,7 +3,7 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { formatDistanceToNow } from 'date-fns';
-    import type { Database } from '$lib/types/database';
+    import type { Database } from '$lib/types/database.types';
     import Spinner from '$lib/components/ui/Spinner.svelte';
     
     type Conversation = Database['public']['Tables']['conversations']['Row'] & {
@@ -226,7 +226,7 @@
         {#if hasMore}
             <button
                 class="btn btn-outline btn-sm w-full mt-4 flex items-center justify-center"
-                onclick={loadConversations}
+                onclick={handleLoadConversations}
                 disabled={loading}
             >
                 {#if loading}

@@ -84,7 +84,7 @@
 				toast.error('Failed to remove item')
 			}
 		} catch (error) {
-			console.error('Error removing favorite:', error)
+			// Error already handled with toast
 			toast.error('Something went wrong')
 		} finally {
 			loading = false
@@ -125,7 +125,7 @@
 			selectedItems = new Set()
 			toast.success(`Removed ${promises.length} items`)
 		} catch (error) {
-			console.error('Bulk remove failed:', error)
+			// Error already handled with toast
 			toast.error('Failed to remove some items')
 		} finally {
 			bulkActionLoading = false
@@ -289,7 +289,7 @@
 								type="checkbox" 
 								class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
 								checked={selectedItems.size === favorites.length && favorites.length > 0}
-								onchange={toggleAllItems}
+								onchange={handleToggleAllItems}
 							/>
 							<span class="text-sm font-medium text-gray-700">
 								Select all
@@ -302,7 +302,7 @@
 						{#if selectedItems.size > 0}
 							<button 
 								class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-								onclick={bulkRemove}
+								onclick={handleBulkRemove}
 								disabled={bulkActionLoading}
 							>
 								{#if bulkActionLoading}

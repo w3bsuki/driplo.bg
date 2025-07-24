@@ -102,7 +102,7 @@ export function getOptimizedImageUrl(
 		const match = imageUrl.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.+)/)
 		if (match) {
 			const [, bucket, path] = match
-			return getTransformedImageUrl(bucket, path, {
+			return getTransformedImageUrl(bucket ?? '', path ?? '', {
 				...imageSizes[size],
 				...customOptions
 			})
@@ -138,10 +138,10 @@ export function getResponsiveImageProps(
 	
 	// Generate multiple sizes for srcset
 	const widths = [200, 300, 400, 600, 800, 1200]
-	const srcset = generateSrcSet(bucket, path, widths, { quality: 80 })
+	const srcset = generateSrcSet(bucket ?? '', path ?? '', widths, { quality: 80 })
 	
 	// Use medium size as default src
-	const src = getTransformedImageUrl(bucket, path, { width: 600, quality: 80 })
+	const src = getTransformedImageUrl(bucket ?? '', path ?? '', { width: 600, quality: 80 })
 	
 	return {
 		src,

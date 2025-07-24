@@ -1,5 +1,4 @@
 import { withRetry, AppError, getErrorMessage } from '$lib/utils/error-handling';
-import { browser } from '$app/environment';
 
 interface ApiOptions extends RequestInit {
   retry?: boolean;

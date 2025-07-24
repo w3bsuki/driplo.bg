@@ -11,35 +11,65 @@ export const load: PageServerLoad = async ({ locals }) => {
 		throw redirect(303, '/login?redirect=/sell')
 	}
 	
-	// Initialize form with superforms
-	const form = await superValidate(createListingDefaults, zod(createListingSchema))
+	// Initialize form with superforms - ensure all fields have proper defaults
+	const formDefaults = {
+		...createListingDefaults,
+		condition: createListingDefaults.condition || 'new_with_tags',
+		shipping_type: createListingDefaults.shipping_type || 'standard',
+		color: createListingDefaults.color || '',
+		images: createListingDefaults.images || [],
+		tags: createListingDefaults.tags || [],
+		materials: createListingDefaults.materials || []
+	}
+	const form = await superValidate(formDefaults, zod(createListingSchema))
+	
+	// Fetch categories
+	const { data: categories } = await locals.supabase
+		.from('categories')
+		.select('*')
+		.is('parent_id', null)
+		.eq('is_active', true)
+		.order('display_order')
+	
+	// Check payment account
+	let hasPaymentAccount = false
+	try {
+		const { data: paymentAccount } = await locals.supabase
+			.from('payment_accounts')
+			.select('*')
+			.eq('user_id', user.id)
+			.single()
+		
+		hasPaymentAccount = !!paymentAccount
+	} catch (error) {
+		// If error is "no rows returned", that's fine
+		if (error.code !== 'PGRST116') {
+			console.error('Failed to check payment account:', error)
+		}
+	}
 	
 	return {
-		form
+		form,
+		user, // Return user data explicitly
+		categories: categories || [],
+		hasPaymentAccount
 	}
 }
 
 export const actions: Actions = {
-	createListing: async ({ request, locals }) => {
+	create: async ({ request, locals }) => {
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
 		if (authError || !user) {
 			return fail(401, { error: 'Unauthorized' })
 		}
 
-		const formData = await request.formData()
-		const jsonData = formData.get('formData')
-		
-		let parsedData
-		try {
-			parsedData = jsonData ? JSON.parse(jsonData as string) : {}
-		} catch (e) {
-			return fail(400, { error: 'Invalid form data' })
-		}
-
-		const form = await superValidate(parsedData, zod(createListingSchema))
+		// Use superValidate to parse the request directly
+		const form = await superValidate(request, zod(createListingSchema))
 		
 		if (!form.valid) {
-			return fail(400, { form })
+			console.error('Form validation failed:', form.errors)
+			console.error('Form data received:', form.data)
+			return fail(400, { form, error: 'Validation failed. Please check all fields.' })
 		}
 		
 		const supabase = locals.supabase
@@ -86,6 +116,22 @@ export const actions: Actions = {
 
 			if (error) {
 				console.error('Database error:', error)
+				console.error('Database error details:', {
+					message: error.message,
+					details: error.details,
+					hint: error.hint,
+					code: error.code
+				})
+				console.error('Data attempted to insert:', {
+					seller_id: user.id,
+					title,
+					category_id,
+					subcategory_id,
+					price,
+					condition,
+					shipping_type,
+					images_count: images?.length || 0
+				})
 				return fail(500, { 
 					form, 
 					error: error.message || 'Failed to create listing' 

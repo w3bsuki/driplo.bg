@@ -8,5 +8,5 @@
 </script>
 
 <HeroSearch categories={data.categories} />
-<ListingGrid title={m.home_featured_title()} listings={data.featuredListings} showLoading={false} supabase={data.supabase} />
-<ListingGrid title={m.home_most_viewed_title()} listings={data.popularListings} showLoading={false} supabase={data.supabase} />
+<ListingGrid title={m.home_featured_title()} listings={data.featuredListings} />
+<ListingGrid title={m.home_most_viewed_title()} listings={data.popularListings} />

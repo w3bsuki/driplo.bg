@@ -21,12 +21,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		const { metrics } = await request.json() as { metrics: WebVitalMetric[] };
 		
 		// Log metrics in development
-		if (import.meta.env.DEV) {
-			console.log('[Metrics API] Received metrics:', metrics);
-		}
+		// if (import.meta.env['DEV']) {
+		// 	console.log('[Metrics API] Received metrics:', metrics);
+		// }
 		
 		// In production, send to analytics service
-		if (import.meta.env.PROD) {
+		if (import.meta.env['PROD']) {
 			// Example: Send to Google Analytics 4
 			// metrics.forEach(metric => {
 			//   gtag('event', metric.name, {

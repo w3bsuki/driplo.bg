@@ -1,20 +1,6 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
 
 /**
- * Formats a number as currency
- */
-export function formatCurrency(amount: number, currency = 'USD'): string {
-	const formatter = new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency,
-		minimumFractionDigits: 2,
-		maximumFractionDigits: 2
-	});
-	
-	return formatter.format(amount);
-}
-
-/**
  * Formats a number with commas
  */
 export function formatNumber(num: number): string {

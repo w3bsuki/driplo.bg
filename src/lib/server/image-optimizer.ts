@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/database';
+import type { Database } from '$lib/types/database.types';
 
 export interface ImageSize {
 	width: number;
@@ -161,7 +161,7 @@ export class ImageOptimizer {
 	 */
 	private getFilePath(
 		fileName: string,
-		bucket: 'avatars' | 'covers' | 'listings' | 'brand-logos',
+		_bucket: 'avatars' | 'covers' | 'listings' | 'brand-logos',
 		userId?: string
 	): string {
 		if (userId) {
@@ -181,10 +181,10 @@ export class ImageOptimizer {
 		// If it's already a WebP, generate responsive URLs
 		if (baseUrl.includes('.webp')) {
 			const baseWithoutExt = baseUrl.replace('.webp', '');
-			urls.thumb = `${baseWithoutExt}_thumb.webp`;
-			urls.small = `${baseWithoutExt}_small.webp`;
-			urls.medium = `${baseWithoutExt}_medium.webp`;
-			urls.large = `${baseWithoutExt}_large.webp`;
+			urls['thumb'] = `${baseWithoutExt}_thumb.webp`;
+			urls['small'] = `${baseWithoutExt}_small.webp`;
+			urls['medium'] = `${baseWithoutExt}_medium.webp`;
+			urls['large'] = `${baseWithoutExt}_large.webp`;
 		}
 
 		return urls;

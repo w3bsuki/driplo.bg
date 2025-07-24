@@ -1,7 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ locals, parent }) => {
+export const load: PageServerLoad = async ({ locals }) => {
 	const { supabase, safeGetSession } = locals;
 	const { session } = await safeGetSession();
 	
@@ -21,7 +21,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 	}
 
 	// Check if already a brand
-	if (profile.account_type === 'brand') {
+	if (profile?.account_type === 'brand') {
 		// Check if brand profile exists
 		const { data: brandProfile } = await supabase
 			.from('brand_profiles')

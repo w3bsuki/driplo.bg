@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from 'vitest';
-import { json } from '@sveltejs/kit';
 import { 
 	apiSuccess, 
 	apiError, 

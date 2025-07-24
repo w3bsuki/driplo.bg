@@ -151,11 +151,11 @@
 	);
 </script>
 
-<section class="bg-white border-t border-b mb-3">
-	<div class="container px-4 py-3">
+<section class="bg-white border-t border-b border-gray-200 mb-3">
+	<div class="container px-2 py-2">
 		<!-- Mobile Layout -->
 		<div class="md:hidden">
-			<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+			<div class="flex items-center gap-1 overflow-x-auto scrollbar-hide">
 				
 				<!-- Quick Filter Pills -->
 				{#each quickFilters as filter}
@@ -164,10 +164,10 @@
 							value={selectedFilters[filter.type]}
 							onchange={(e) => applyFilter(filter.type, e.currentTarget.value)}
 							class={cn(
-								"filter-select appearance-none pl-3 pr-7 py-2 rounded-lg text-xs font-medium border cursor-pointer transition-all duration-200 min-w-[80px] outline-none",
+								"filter-select appearance-none pl-3 pr-7 py-2 rounded-sm text-xs font-medium border cursor-pointer transition-all duration-fast min-w-[80px] outline-none",
 								selectedFilters[filter.type]
 									? "bg-blue-50 border-blue-200 text-blue-500"
-									: "bg-white border-gray-300 hover:border-blue-200 hover:bg-blue-50"
+									: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"
 							)}
 						>
 							<option value="">{filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}</option>
@@ -190,7 +190,7 @@
 				<select
 					value={selectedFilters.sort}
 					onchange={(e) => { selectedFilters.sort = e.currentTarget.value; updateUrl(); }}
-					class="filter-select appearance-none pl-3 pr-7 py-2 rounded-lg text-xs font-medium border bg-white border-gray-300 hover:border-blue-200 hover:bg-blue-50 min-w-[90px] outline-none"
+					class="filter-select appearance-none pl-3 pr-7 py-2 rounded-sm text-xs font-medium border bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50 min-w-[90px] outline-none"
 				>
 					{#each sortOptions as option}
 						<option value={option.value}>{option.label}</option>
@@ -201,13 +201,13 @@
 		
 		<!-- Desktop Layout -->
 		<div class="hidden md:flex items-center justify-between">
-			<div class="flex items-center gap-3">
+			<div class="flex items-center gap-2">
 				{#each quickFilters as filter}
 					<div class="relative group">
 						<button
 							onclick={() => showAllFilters = !showAllFilters}
 							class={cn(
-								"flex items-center gap-1.5 px-3 py-2 rounded-lg border font-medium transition-all duration-200",
+								"flex items-center gap-1.5 px-3 py-2 rounded-sm border font-medium transition-all duration-fast",
 								selectedFilters[filter.type]
 									? "bg-blue-100 border-blue-200 text-blue-500 hover:bg-blue-100"
 									: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"
@@ -221,12 +221,12 @@
 						</button>
 						
 						<!-- Dropdown -->
-						<div class="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 min-w-[150px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+						<div class="absolute top-full left-0 mt-2 bg-white rounded-sm border border-gray-200 p-2 min-w-[150px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-fast z-10">
 							{#each filter.options as option}
 								<button
 									onclick={() => applyFilter(filter.type, option.value)}
 									class={cn(
-										"w-full text-left px-3 py-2 rounded-md text-sm transition-colors duration-150",
+										"w-full text-left px-3 py-2 rounded-sm text-sm transition-colors duration-fast",
 										selectedFilters[filter.type] === option.value
 											? "bg-blue-100 text-blue-500"
 											: "hover:bg-gray-100"
@@ -250,12 +250,12 @@
 			</div>
 			
 			<!-- Sort Dropdown -->
-			<div class="flex items-center gap-2">
+			<div class="flex items-center gap-1">
 				<Sparkles class="h-4 w-4 text-gray-400" />
 				<select
 					value={selectedFilters.sort}
 					onchange={(e) => { selectedFilters.sort = e.currentTarget.value; updateUrl(); }}
-					class="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300/20"
+					class="bg-white border border-gray-200 rounded-sm px-3 py-2 text-sm font-medium hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300/20"
 				>
 					{#each sortOptions as option}
 						<option value={option.value}>{option.icon} {option.label}</option>
@@ -267,19 +267,19 @@
 	
 	<!-- Expanded Filters (Mobile) -->
 	{#if showAllFilters}
-		<div class="md:hidden border-t bg-white px-4 py-4">
+		<div class="md:hidden border-t border-gray-200 bg-white px-2 py-3">
 			<div class="space-y-4">
 				{#each quickFilters as filter}
 					<div>
 						<h3 class="text-sm font-semibold text-gray-700 mb-2">
 							{filter.type.charAt(0).toUpperCase() + filter.type.slice(1)}
 						</h3>
-						<div class="flex flex-wrap gap-2">
+						<div class="flex flex-wrap gap-1">
 							{#each filter.options as option}
 								<button
 									onclick={() => applyFilter(filter.type, option.value)}
 									class={cn(
-										"px-3 py-1.5 rounded-full text-sm font-medium border transition-all duration-200",
+										"px-3 py-1.5 rounded-sm text-sm font-medium border transition-all duration-fast",
 										selectedFilters[filter.type] === option.value
 											? "bg-blue-300 text-white border-blue-300"
 											: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"

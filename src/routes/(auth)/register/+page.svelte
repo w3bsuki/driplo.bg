@@ -9,8 +9,34 @@
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import { cn } from '$lib/utils'
 	import { onMount } from 'svelte'
+	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
+	import { createBrowserClient } from '@supabase/ssr'
+	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 
 	const auth = getAuthContext()
+	
+	// Create a direct Supabase client as fallback
+	const supabaseClient = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY)
+	
+	// Add debug logging
+	$effect(() => {
+		console.log('[REGISTER DEBUG] Auth context:', auth);
+		console.log('[REGISTER DEBUG] Supabase client:', supabaseClient);
+		if (!auth) {
+			console.error('[REGISTER DEBUG] ⚠️ Auth context not available, will use direct Supabase client');
+		}
+	});
+	
+	// Debug form state changes
+	$effect(() => {
+		console.log('[REGISTER DEBUG] Form state updated:', {
+			email,
+			username,
+			agreedToTerms,
+			loading,
+			accountType
+		});
+	});
 
 	let email = $state('')
 	let password = $state('')
@@ -28,6 +54,11 @@
 	let brandCategory = $state('')
 	let brandWebsite = $state('')
 	
+	// CAPTCHA state
+	let captchaToken = $state<string | null>(null)
+	let showCaptchaError = $state(false)
+	let captchaRef: CaptchaWrapper
+	
 	// Check if showing success message
 	let showSuccess = $derived($page.url.searchParams.get('success') === 'true')
 
@@ -44,7 +75,10 @@
 		accountType: z.enum(['personal', 'brand']),
 		brandName: z.string().optional(),
 		brandCategory: z.string().optional(),
-		brandWebsite: z.string().url().optional().or(z.literal(''))
+		brandWebsite: z.string().optional().refine(
+			(val) => !val || val === '' || z.string().url().safeParse(val).success,
+			{ message: 'Must be a valid URL' }
+		)
 	}).refine(data => data.password === data.confirmPassword, {
 		message: "Passwords don't match",
 		path: ["confirmPassword"]
@@ -58,7 +92,38 @@
 		path: ["brandName"]
 	})
 
-	async function handleRegister() {
+	async function handleRegister(e?: Event) {
+		console.log('[REGISTER DEBUG] 🔵 handleRegister called', {
+			event: e,
+			formData: {
+				email,
+				username,
+				fullName,
+				agreedToTerms,
+				accountType,
+				captchaToken: captchaToken ? 'present' : 'missing'
+			}
+		});
+		
+		// Prevent default form submission
+		if (e && e.preventDefault) {
+			e.preventDefault();
+		}
+		
+		// Check CAPTCHA
+		if (!captchaToken) {
+			showCaptchaError = true
+			toast.error('Please complete the CAPTCHA verification')
+			return
+		}
+		
+		// Double check auth context
+		if (!auth && !supabaseClient) {
+			console.error('[REGISTER DEBUG] ❌ No auth context or supabase client available');
+			toast.error('Authentication service not available. Please refresh the page.');
+			return;
+		}
+		
 		try {
 			const validatedData = registerSchema.parse({
 				email,
@@ -75,26 +140,88 @@
 
 			loading = true
 			
-			// Sign up with additional metadata
-			await auth.signUp(email, password, username, fullName || undefined, {
-				account_type: accountType,
-				brand_name: accountType === 'brand' ? brandName : undefined,
-				brand_category: accountType === 'brand' ? brandCategory : undefined,
-				brand_website: accountType === 'brand' ? brandWebsite : undefined
-			})
+			console.log('[REGISTER DEBUG] 🚀 Calling signUp with:', { 
+				email, 
+				username, 
+				accountType,
+				usingAuth: !!auth,
+				usingDirectClient: !auth
+			});
+			
+			// Try to use auth context first, fallback to direct client
+			if (auth) {
+				// Sign up with additional metadata and CAPTCHA token
+				await auth.signUp(email, password, username, fullName || undefined, {
+					account_type: accountType,
+					brand_name: accountType === 'brand' ? brandName : undefined,
+					brand_category: accountType === 'brand' ? brandCategory : undefined,
+					brand_website: accountType === 'brand' ? brandWebsite : undefined,
+					captcha_token: captchaToken
+				})
+			} else {
+				console.warn('Using direct Supabase client for signup');
+				// Use direct Supabase client
+				const { data, error } = await supabaseClient.auth.signUp({
+					email,
+					password,
+					options: {
+						data: {
+							username,
+							full_name: fullName,
+							account_type: accountType,
+							brand_name: accountType === 'brand' ? brandName : undefined,
+							brand_category: accountType === 'brand' ? brandCategory : undefined,
+							brand_website: accountType === 'brand' ? brandWebsite : undefined
+						},
+						emailRedirectTo: `${window.location.origin}/auth/confirm`,
+						captchaToken: captchaToken
+					}
+				})
+				
+				console.log('[REGISTER DEBUG] Supabase response:', { data, error });
+				
+				if (error) {
+					console.error('[REGISTER DEBUG] ❌ Supabase error:', error);
+					throw error;
+				}
+			}
 			
 			// Show success message
 			toast.success('Account created! Please check your email to verify your account.')
+			
+			// Reset CAPTCHA for security
+			if (captchaRef) {
+				captchaRef.reset()
+			}
+			captchaToken = null
+			
 			goto('/register?success=true')
 		} catch (error) {
-			console.error('Registration error:', error);
+			console.error('[REGISTER DEBUG] ❌ Registration error:', error, {
+				errorType: error?.constructor?.name,
+				errorMessage: error?.message,
+				errorStack: error?.stack
+			});
 			if (error instanceof z.ZodError) {
 				// Zod validation errors
 				error.issues.forEach((issue) => {
 					toast.error(issue.message)
 				})
 			} else if (error instanceof Error) {
-				toast.error(error.message || 'Registration failed')
+				// Handle specific Supabase auth errors
+				if (error.message.includes('duplicate key') || error.message.includes('already registered')) {
+					toast.error('An account with this email already exists. Please login instead.')
+				} else if (error.message.includes('username') && error.message.includes('unique')) {
+					toast.error('This username is already taken. Please choose another.')
+				} else if (error.message.includes('rate limit')) {
+					toast.error('Too many signup attempts. Please try again later.')
+				} else if (error.message.includes('invalid email')) {
+					toast.error('Please enter a valid email address.')
+				} else if (error.message.includes('weak password')) {
+					toast.error('Password is too weak. Please use a stronger password.')
+				} else {
+					toast.error(error.message || 'Registration failed')
+				}
 			} else {
 				toast.error('Registration failed')
 			}
@@ -120,6 +247,43 @@
 			loading = false
 		}
 	}
+	
+	// Add test function
+	async function testDirectSignup() {
+		console.log('[TEST] Testing direct signup with hardcoded values');
+		try {
+			// Use a more realistic email that won't be blocked
+			const randomNum = Math.floor(Math.random() * 100000);
+			const testData = {
+				email: `testuser${randomNum}@gmail.com`,
+				password: 'TestPassword123!'
+			};
+			
+			console.log('[TEST] Attempting signup with:', testData.email);
+			
+			const { data, error } = await supabaseClient.auth.signUp({
+				email: testData.email,
+				password: testData.password,
+				options: {
+					data: {
+						username: `testuser${randomNum}`,
+						full_name: 'Test User'
+					}
+				}
+			});
+			
+			console.log('[TEST] Direct signup result:', { data, error });
+			
+			if (error) {
+				alert('Direct signup error: ' + error.message);
+			} else {
+				alert('Direct signup success! User created: ' + data.user?.email);
+			}
+		} catch (err) {
+			console.error('[TEST] Exception:', err);
+			alert('Exception: ' + err);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -127,64 +291,64 @@
 	<meta name="description" content="Create your Driplo account - Personal or Brand" />
 </svelte:head>
 
-<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-4">
+<div class="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-2">
 	<div class="w-full max-w-md">
 		{#if showSuccess}
 			<!-- Success message after signup -->
-			<div class="bg-white rounded-xl shadow-lg p-8 text-center">
-				<div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+			<div class="bg-white rounded-sm border border-gray-200 p-3 text-center">
+				<div class="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
 					<CheckCircle class="w-8 h-8 text-green-600" />
 				</div>
-				<h2 class="text-2xl font-bold text-gray-900 mb-2">Check your email!</h2>
-				<p class="text-gray-600 mb-6">
+				<h2 class="text-xl font-bold text-gray-900 mb-2">Check your email!</h2>
+				<p class="text-gray-600 text-sm mb-3">
 					We've sent a verification link to your email address. 
 					Click the link to activate your account and get started.
 				</p>
 				{#if accountType === 'brand'}
-					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+					<div class="bg-blue-50 border border-blue-200 rounded-sm p-3 mb-3">
 						<p class="text-sm text-blue-700">
 							<strong>Next steps for brand accounts:</strong> After verifying your email, 
 							you'll need to complete brand verification to access all features.
 						</p>
 					</div>
 				{:else}
-					<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+					<div class="bg-blue-50 border border-blue-200 rounded-sm p-3 mb-3">
 						<p class="text-sm text-blue-700">
 							<strong>Tip:</strong> If you don't see the email, check your spam folder or wait a few minutes.
 						</p>
 					</div>
 				{/if}
-				<a href="/login" class="text-[#87CEEB] hover:text-[#87CEEB]/80 font-medium">
+				<a href="/login" class="text-primary hover:text-primary/80 font-medium">
 					Return to login
 				</a>
 			</div>
 		{:else}
-		<div class="bg-white rounded-xl shadow-lg p-6">
+		<div class="bg-white rounded-sm border border-gray-200 p-3">
 			<!-- Logo -->
-			<div class="text-center mb-4">
-				<h1 class="text-3xl font-bold text-[#87CEEB]">Driplo</h1>
+			<div class="text-center mb-3">
+				<h1 class="text-2xl font-bold text-primary">Driplo</h1>
 				<p class="text-gray-600 text-sm mt-1">Create your account</p>
 			</div>
 			
 			<!-- Account Type Selection -->
-			<div class="mb-4">
+			<div class="mb-3">
 				<label class="block text-xs font-medium text-gray-700 mb-2">
 					Account Type
 				</label>
 				<div class="grid grid-cols-2 gap-2">
 					<button
 						type="button"
-						onclick={() => accountType = 'personal'}
+						on:click={() => accountType = 'personal'}
 						class={cn(
-							"relative p-3 rounded-lg border-2 transition-all",
+							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'personal' 
-								? "border-[#87CEEB] bg-[#87CEEB]/5" 
+								? "border-primary bg-primary/5" 
 								: "border-gray-200 hover:border-gray-300"
 						)}
 					>
 						<div class="text-center">
 							<User class={cn("w-6 h-6 mx-auto mb-1", 
-								accountType === 'personal' ? "text-[#87CEEB]" : "text-gray-400"
+								accountType === 'personal' ? "text-primary" : "text-gray-400"
 							)} />
 							<div class="font-medium text-sm">Personal</div>
 							<div class="text-xs text-gray-500">Buy & sell fashion</div>
@@ -192,22 +356,22 @@
 					</button>
 					<button
 						type="button"
-						onclick={() => accountType = 'brand'}
+						on:click={() => accountType = 'brand'}
 						class={cn(
-							"relative p-3 rounded-lg border-2 transition-all",
+							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'brand' 
-								? "border-[#87CEEB] bg-[#87CEEB]/5" 
+								? "border-primary bg-primary/5" 
 								: "border-gray-200 hover:border-gray-300"
 						)}
 					>
 						<div class="text-center">
 							<Store class={cn("w-6 h-6 mx-auto mb-1", 
-								accountType === 'brand' ? "text-[#87CEEB]" : "text-gray-400"
+								accountType === 'brand' ? "text-primary" : "text-gray-400"
 							)} />
 							<div class="font-medium text-sm">Brand</div>
 							<div class="text-xs text-gray-500">Sell as a business</div>
 						</div>
-						<div class="absolute -top-2 -right-2 bg-[#87CEEB] text-white text-[10px] px-1.5 py-0.5 rounded-full">
+						<div class="absolute -top-2 -right-2 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full">
 							Pro
 						</div>
 					</button>
@@ -218,8 +382,8 @@
 			<div class="space-y-2 mb-4">
 				<button
 					type="button"
-					class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-					onclick={() => handleOAuth('google')}
+					class="w-full flex items-center justify-center gap-3 px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm font-medium"
+					on:click={() => handleOAuth('google')}
 					disabled={loading}
 				>
 					<svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -232,8 +396,8 @@
 				</button>
 				<button
 					type="button"
-					class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-					onclick={() => handleOAuth('github')}
+					class="w-full flex items-center justify-center gap-3 px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm font-medium"
+					on:click={() => handleOAuth('github')}
 					disabled={loading}
 				>
 					<Github class="w-4 h-4" />
@@ -252,7 +416,19 @@
 			</div>
 
 			<!-- Registration Form -->
-			<form onsubmit={(e) => { e.preventDefault(); handleRegister(); }} class="space-y-3">
+			<form 
+				method="POST"
+				on:submit={(e) => {
+					console.log('[REGISTER DEBUG] 📝 Form submit event fired');
+					// In production, require CAPTCHA
+					if (import.meta.env.MODE === 'production' && !captchaToken) {
+						e.preventDefault();
+						showCaptchaError = true;
+						toast.error('Please complete the CAPTCHA verification');
+					}
+				}}
+				class="space-y-3"
+			>
 				<div class="grid grid-cols-2 gap-3">
 					<div>
 						<label for="fullName" class="block text-xs font-medium text-gray-700 mb-1">
@@ -260,12 +436,13 @@
 						</label>
 						<input
 							id="fullName"
+							name="fullName"
 							type="text"
 							bind:value={fullName}
 							placeholder="John Doe"
 							disabled={loading}
 							autocomplete="name"
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
+							class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
 						/>
 					</div>
 					<div>
@@ -274,13 +451,14 @@
 						</label>
 						<input
 							id="username"
+							name="username"
 							type="text"
 							bind:value={username}
 							placeholder="johndoe"
 							required
 							disabled={loading}
 							autocomplete="username"
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
+							class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
 						/>
 					</div>
 				</div>
@@ -291,30 +469,32 @@
 					</label>
 					<input
 						id="email"
+						name="email"
 						type="email"
 						bind:value={email}
 						placeholder="Enter your email"
 						required
 						disabled={loading}
 						autocomplete="email"
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
+						class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
 					/>
 				</div>
 
 				{#if accountType === 'brand'}
-					<div class="space-y-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+					<div class="space-y-2 p-2 bg-blue-50 rounded-sm border border-blue-100">
 						<div>
 							<label for="brandName" class="block text-xs font-medium text-gray-700 mb-1">
 								Brand Name *
 							</label>
 							<input
 								id="brandName"
+								name="brandName"
 								type="text"
 								bind:value={brandName}
 								placeholder="Your brand name"
 								required
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
 							/>
 						</div>
 						<div>
@@ -323,9 +503,10 @@
 							</label>
 							<select
 								id="brandCategory"
+								name="brandCategory"
 								bind:value={brandCategory}
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
 							>
 								<option value="">Select category</option>
 								<option value="fashion">Fashion & Apparel</option>
@@ -346,11 +527,12 @@
 							</label>
 							<input
 								id="brandWebsite"
+								name="brandWebsite"
 								type="url"
 								bind:value={brandWebsite}
 								placeholder="https://yourbrand.com"
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
 							/>
 						</div>
 						<p class="text-xs text-blue-700">
@@ -366,18 +548,19 @@
 					<div class="relative">
 						<input
 							id="password"
+							name="password"
 							type={showPassword ? 'text' : 'password'}
 							bind:value={password}
 							placeholder="Min 8 characters"
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
 						/>
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center"
-							onclick={() => showPassword = !showPassword}
+							on:click={() => showPassword = !showPassword}
 						>
 							{#if showPassword}
 								<EyeOff class="h-4 w-4 text-gray-400" />
@@ -395,18 +578,19 @@
 					<div class="relative">
 						<input
 							id="confirmPassword"
+							name="confirmPassword"
 							type={showConfirmPassword ? 'text' : 'password'}
 							bind:value={confirmPassword}
 							placeholder="Confirm password"
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#87CEEB] focus:border-[#87CEEB] text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
 						/>
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center"
-							onclick={() => showConfirmPassword = !showConfirmPassword}
+							on:click={() => showConfirmPassword = !showConfirmPassword}
 						>
 							{#if showConfirmPassword}
 								<EyeOff class="h-4 w-4 text-gray-400" />
@@ -421,22 +605,58 @@
 					<input
 						type="checkbox"
 						id="terms"
+						name="agreedToTerms"
 						bind:checked={agreedToTerms}
-						class="mt-0.5 rounded border-gray-300 text-[#87CEEB] focus:ring-2 focus:ring-[#87CEEB]/30"
+						class="mt-0.5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary/30"
 						required
 					/>
 					<label for="terms" class="ml-2 text-xs text-gray-600">
 						I agree to the
-						<a href="/terms" class="text-[#87CEEB] hover:text-[#87CEEB]/80">Terms of Service</a>
+						<a href="/terms" class="text-primary hover:text-primary/80">Terms of Service</a>
 						and
-						<a href="/privacy" class="text-[#87CEEB] hover:text-[#87CEEB]/80">Privacy Policy</a>
+						<a href="/privacy" class="text-primary hover:text-primary/80">Privacy Policy</a>
 					</label>
 				</div>
+				
+				<!-- CAPTCHA -->
+				<div class="mb-4">
+					<CaptchaWrapper
+						bind:this={captchaRef}
+						onVerify={(token) => {
+							captchaToken = token
+							showCaptchaError = false
+						}}
+						onExpire={() => {
+							captchaToken = null
+						}}
+						onError={() => {
+							captchaToken = null
+							toast.error('CAPTCHA verification failed. Please try again.')
+						}}
+					/>
+					{#if showCaptchaError && !captchaToken}
+						<p class="text-red-500 text-xs mt-1">Please complete the CAPTCHA verification</p>
+					{/if}
+				</div>
+				
+				<!-- Hidden fields -->
+				<input type="hidden" name="accountType" value={accountType} />
+				<input type="hidden" name="captchaToken" value={captchaToken || ''} />
 
 				<button 
 					type="submit" 
-					class="w-full py-2.5 bg-[#87CEEB] text-white font-medium rounded-lg hover:bg-[#87CEEB]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-					disabled={loading || !agreedToTerms}
+					style="background-color: #87CEEB; color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: 500; margin-top: 10px;"
+					class="w-full py-2 bg-primary text-white font-medium rounded-sm hover:bg-primary/90 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+					disabled={loading || !agreedToTerms || (import.meta.env.MODE === 'production' && !captchaToken)}
+					on:click={(e) => {
+						console.log('[REGISTER DEBUG] 🔴 Submit button clicked', {
+							loading,
+							agreedToTerms,
+							isDisabled: loading || !agreedToTerms,
+							eventType: e.type,
+							formValues: { email, username, password: '***' }
+						});
+					}}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />
@@ -450,7 +670,7 @@
 			<!-- Sign in link -->
 			<p class="text-center text-sm text-gray-600 mt-4">
 				Already have an account?
-				<a href="/login" class="text-[#87CEEB] hover:text-[#87CEEB]/80 font-medium">
+				<a href="/login" class="text-primary hover:text-primary/80 font-medium">
 					Sign in
 				</a>
 			</p>

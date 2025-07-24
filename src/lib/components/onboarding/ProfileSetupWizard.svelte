@@ -11,10 +11,11 @@
 	import SetupComplete from './SetupComplete.svelte';
 	import type { User, SupabaseClient } from '@supabase/supabase-js';
 	import type { Tables } from '$lib/types/database.types';
+	import type { ExtendedProfile } from '$lib/types/database.extended';
 
 	interface Props {
 		user: User;
-		profile: Tables<'profiles'>;
+		profile: ExtendedProfile;
 		onComplete: () => void;
 		initialStep?: number;
 		supabase?: SupabaseClient; // Optional supabase client

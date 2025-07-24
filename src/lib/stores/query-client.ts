@@ -1,5 +1,4 @@
 import { QueryClient } from '@tanstack/svelte-query'
-import { browser } from '$app/environment'
 
 // Create a singleton query client
 let queryClient: QueryClient

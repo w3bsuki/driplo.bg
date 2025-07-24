@@ -89,7 +89,7 @@
 		return AVATAR_GRADIENT_COLORS[index];
 	}
 
-	async function toggleLike(e: MouseEvent) {
+	async function handleToggleLike(e: MouseEvent) {
 		e.preventDefault();
 		if (likeLoading) return;
 		
@@ -147,13 +147,13 @@
 	}
 </script>
 
-<article class="relative bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 group">
+<article class="relative bg-background rounded-sm border border-gray-200 hover:border-gray-300 transition-all duration-100 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 group product-card">
 	<a 
 		href="/listings/{id}" 
-		class="block focus:outline-none rounded-xl"
+		class="block focus:outline-none rounded-sm no-underline"
 		aria-label={m.listing_view_details({ title })}
 	>
-		<div class="relative aspect-[3/4] overflow-hidden rounded-t-xl bg-muted">
+		<div class="relative aspect-[3/4] overflow-hidden rounded-t-sm bg-muted">
 			{#if !imageError && primaryImageUrl()}
 				<img
 					src={primaryImageUrl()}
@@ -166,7 +166,7 @@
 			{:else}
 				<div class="h-full w-full flex items-center justify-center bg-muted" role="img" aria-label={m.listing_no_image()}>
 					<div class="text-center">
-						<div class="w-16 h-16 mx-auto mb-2 bg-muted-foreground/20 rounded-full flex items-center justify-center">
+						<div class="w-16 h-16 mx-auto mb-2 bg-muted-foreground/20 rounded-sm flex items-center justify-center">
 							<span class="text-2xl" aria-hidden="true">📷</span>
 						</div>
 						<p class="text-sm text-muted-foreground">{m.listing_no_image()}</p>
@@ -175,9 +175,9 @@
 			{/if}
 			
 			<button
-				onclick={toggleLike}
+				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-2 right-2 w-9 h-9 rounded-full bg-background/90 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center",
+					"absolute top-2 right-2 w-8 h-8 rounded-sm bg-background/90 backdrop-blur-sm border border-gray-200 hover:border-gray-300 transition-all duration-100 flex items-center justify-center active:scale-95",
 					"focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
@@ -199,12 +199,12 @@
 			{/if}
 		</div>
 		
-		<div class="p-3 space-y-1">
+		<div class="p-2 space-y-1">
 			<div class="flex items-start justify-between gap-2">
 				<div class="flex-1 min-w-0">
-					<h3 class="text-sm font-medium text-foreground truncate">{title}</h3>
+					<h3 class="text-sm font-medium text-foreground truncate no-underline">{title}</h3>
 					{#if brand}
-						<p class="text-xs text-muted-foreground">{brand}</p>
+						<p class="text-xs text-muted-foreground no-underline">{brand}</p>
 					{/if}
 				</div>
 				<p class="text-sm font-semibold text-primary" aria-label={m.listing_price({ price: formattedPrice })}>
@@ -221,15 +221,15 @@
 					<img
 						src={seller.avatar}
 						alt=""
-						class="h-5 w-5 rounded-full object-cover"
+						class="h-5 w-5 rounded-sm object-cover"
 						aria-hidden="true"
 					/>
 				{:else}
 					<div 
-						class="h-5 w-5 rounded-full bg-gradient-to-br {avatarGradient} flex items-center justify-center"
+						class="h-5 w-5 rounded-sm bg-gradient-to-br {avatarGradient} flex items-center justify-center"
 						aria-hidden="true"
 					>
-						<span class="text-[10px] font-medium text-white">
+						<span class="text-xs font-medium text-white">
 							{seller.username.charAt(0).toUpperCase()}
 						</span>
 					</div>
@@ -249,7 +249,7 @@
 	</a>
 	
 	{#if apiError}
-		<div class="absolute bottom-0 left-0 right-0 bg-destructive/90 text-destructive-foreground text-xs p-2 rounded-b-xl" role="alert">
+		<div class="absolute bottom-0 left-0 right-0 bg-destructive/90 text-destructive-foreground text-xs p-2 rounded-b-sm" role="alert">
 			{apiError}
 		</div>
 	{/if}

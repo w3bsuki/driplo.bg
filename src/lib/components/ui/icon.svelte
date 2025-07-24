@@ -1,11 +1,12 @@
 <script lang="ts" generics="T extends import('svelte').Component">
 	import { cn } from '$lib/utils';
-	import type { Snippet, ComponentProps } from 'svelte';
+	import type { ComponentProps } from 'svelte';
 	
-	interface Props extends ComponentProps<T> {
+	interface Props {
 		icon: T;
 		size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 		class?: string;
+		strokeWidth?: number;
 		[key: string]: any;
 	}
 	
@@ -37,6 +38,6 @@
 
 <IconComponent 
 	class={cn(sizes[size], className)}
-	strokeWidth={restProps.strokeWidth ?? strokeWidths[size]}
+	strokeWidth={restProps['strokeWidth'] ?? strokeWidths[size]}
 	{...restProps}
 />

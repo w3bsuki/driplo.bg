@@ -111,7 +111,7 @@
 				<div class="relative flex-shrink-0">
 					<button
 						data-categories-button
-						onclick={toggleCategoryDropdown}
+						onclick={handleToggleCategoryDropdown}
 						class={cn(
 							"p-2 rounded-lg transition-all focus:outline-none h-[38px] w-[38px] flex items-center justify-center",
 							isCategoryDropdownOpen 

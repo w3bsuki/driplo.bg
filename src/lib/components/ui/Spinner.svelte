@@ -2,12 +2,23 @@
 	import { Loader2 } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 
-	export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
-	export let color: 'primary' | 'white' | 'current' = 'primary';
-	export let className = '';
-	export let text = '';
-	export let fullScreen = false;
-	export let overlay = false;
+	interface Props {
+		size?: 'sm' | 'md' | 'lg' | 'xl';
+		color?: 'primary' | 'white' | 'current';
+		class?: string;
+		text?: string;
+		fullScreen?: boolean;
+		overlay?: boolean;
+	}
+
+	let { 
+		size = 'md',
+		color = 'primary',
+		class: className = '',
+		text = '',
+		fullScreen = false,
+		overlay = false
+	}: Props = $props();
 
 	const sizeClasses = {
 		sm: 'w-4 h-4',

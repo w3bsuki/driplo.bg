@@ -235,7 +235,7 @@
 	<div class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100 shadow-sm">
 		<div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center">
 			<button
-				onclick={goBack}
+				onclick={handleGoBack}
 				class="p-2 -ml-2 hover:bg-gray-100 rounded-xl transition-all duration-200 group"
 			>
 				<ArrowLeft class="w-5 h-5 text-gray-600 group-hover:text-gray-900 transition-colors" />
@@ -249,7 +249,7 @@
 		<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
 			<!-- Cover Image -->
 			<div class="relative">
-				<div class="h-32 sm:h-48 bg-gradient-to-br from-[#87CEEB]/20 to-[#87CEEB]/10 overflow-hidden">
+				<div class="h-32 sm:h-48 bg-gradient-to-br from-primary/20 to-primary/10 overflow-hidden">
 					{#if profile.cover_url}
 						<img src={profile.cover_url} alt="Cover" class="w-full h-full object-cover" />
 					{/if}
@@ -292,7 +292,7 @@
 								aspectRatio="square"
 								disabled={uploadingAvatar}
 								onupload={handleAvatarUpload}
-								class="!w-10 !h-10 !rounded-full bg-[#87CEEB] hover:bg-[#87CEEB]/90 shadow-lg"
+								class="!w-10 !h-10 !rounded-full bg-primary hover:bg-primary/90 shadow-lg"
 								buttonClass="!p-2"
 								iconClass="!w-5 !h-5 text-white"
 							/>
@@ -310,7 +310,7 @@
 		<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
 			<div class="p-6 sm:p-8">
 				<h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-					<User class="w-5 h-5 text-[#87CEEB]" />
+					<User class="w-5 h-5 text-primary" />
 					{m.settings_profile_info()}
 				</h2>
 				
@@ -329,7 +329,7 @@
 								type="text"
 								bind:value={fullName}
 								placeholder={m.settings_full_name_placeholder()}
-								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 							/>
 						</div>
 					</div>
@@ -349,7 +349,7 @@
 								bind:value={username}
 								placeholder={m.settings_username_placeholder()}
 								required
-								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 							/>
 						</div>
 						<p class="text-xs text-gray-500 mt-1">driplo.com/profile/{username || 'username'}</p>
@@ -369,7 +369,7 @@
 								bind:value={bio}
 								placeholder={m.settings_bio_placeholder()}
 								rows="4"
-								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 resize-none placeholder-gray-400"
+								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 resize-none placeholder-gray-400"
 							></textarea>
 						</div>
 						<p class="text-xs text-gray-500">{bio.length}/500 characters</p>
@@ -389,7 +389,7 @@
 								type="text"
 								bind:value={location}
 								placeholder={m.settings_location_placeholder()}
-								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 							/>
 						</div>
 					</div>
@@ -408,7 +408,7 @@
 								type="url"
 								bind:value={website}
 								placeholder={m.settings_website_placeholder()}
-								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+								class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 							/>
 						</div>
 					</div>
@@ -417,7 +417,7 @@
 				<!-- Social Media Section -->
 				<div class="mt-8 pt-8 border-t border-gray-100">
 					<h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-						<Link class="w-5 h-5 text-[#87CEEB]" />
+						<Link class="w-5 h-5 text-primary" />
 						Social Media Accounts
 					</h3>
 					
@@ -436,7 +436,7 @@
 									type="text"
 									bind:value={socialMedia.instagram}
 									placeholder="@username"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -455,7 +455,7 @@
 									type="text"
 									bind:value={socialMedia.tiktok}
 									placeholder="@username"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -474,7 +474,7 @@
 									type="text"
 									bind:value={socialMedia.facebook}
 									placeholder="username or page"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -493,7 +493,7 @@
 									type="text"
 									bind:value={socialMedia.twitter}
 									placeholder="@username"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -512,7 +512,7 @@
 									type="text"
 									bind:value={socialMedia.youtube}
 									placeholder="@channel"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -533,7 +533,7 @@
 									type="text"
 									bind:value={socialMedia.pinterest}
 									placeholder="username"
-									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#87CEEB] focus:ring-1 focus:ring-[#87CEEB] transition-all duration-200 placeholder-gray-400"
+									class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all duration-200 placeholder-gray-400"
 								/>
 							</div>
 						</div>
@@ -551,15 +551,15 @@
 					</p>
 					<div class="flex gap-3">
 						<button
-							onclick={goBack}
+							onclick={handleGoBack}
 							class="flex-1 sm:flex-initial px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-all duration-200 hover:shadow-sm"
 						>
 							Cancel
 						</button>
 						<button
-							onclick={saveProfile}
+							onclick={handleSaveProfile}
 							disabled={saving || !username.trim()}
-							class="flex-1 sm:flex-initial bg-[#87CEEB] text-white py-3 px-8 rounded-xl font-medium hover:bg-[#87CEEB]/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-[#87CEEB]/20 flex items-center justify-center gap-2 min-w-[140px]"
+							class="flex-1 sm:flex-initial bg-primary text-white py-3 px-8 rounded-xl font-medium hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-primary/20 flex items-center justify-center gap-2 min-w-[140px]"
 						>
 							{#if saving}
 								<Loader2 class="w-4 h-4 animate-spin" />
@@ -580,7 +580,7 @@
 			<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
 				<h3 class="text-lg font-semibold text-gray-900 mb-2">Account Settings</h3>
 				<p class="text-sm text-gray-500 mb-4">Manage your account security and preferences</p>
-				<a href="/profile/settings/account" class="text-[#87CEEB] hover:text-[#87CEEB]/80 text-sm font-medium transition-colors">
+				<a href="/profile/settings/account" class="text-primary hover:text-primary/80 text-sm font-medium transition-colors">
 					Manage Account →
 				</a>
 			</div>
@@ -589,7 +589,7 @@
 			<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
 				<h3 class="text-lg font-semibold text-gray-900 mb-2">Notifications</h3>
 				<p class="text-sm text-gray-500 mb-4">Control how you receive updates and alerts</p>
-				<a href="/profile/settings/notifications" class="text-[#87CEEB] hover:text-[#87CEEB]/80 text-sm font-medium transition-colors">
+				<a href="/profile/settings/notifications" class="text-primary hover:text-primary/80 text-sm font-medium transition-colors">
 					Configure Notifications →
 				</a>
 			</div>
@@ -598,7 +598,7 @@
 			<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
 				<h3 class="text-lg font-semibold text-gray-900 mb-2">Privacy</h3>
 				<p class="text-sm text-gray-500 mb-4">Manage your data and privacy preferences</p>
-				<a href="/profile/settings/privacy" class="text-[#87CEEB] hover:text-[#87CEEB]/80 text-sm font-medium transition-colors">
+				<a href="/profile/settings/privacy" class="text-primary hover:text-primary/80 text-sm font-medium transition-colors">
 					Privacy Settings →
 				</a>
 			</div>
@@ -607,7 +607,7 @@
 		<!-- Help Section -->
 		<div class="mt-8 text-center">
 			<p class="text-sm text-gray-500">
-				Need help? <a href="/help" class="text-[#87CEEB] hover:underline">Contact support</a>
+				Need help? <a href="/help" class="text-primary hover:underline">Contact support</a>
 			</p>
 		</div>
 	</div>
@@ -622,11 +622,11 @@
 	}
 	
 	:global(.image-upload-button) {
-		background-color: #87CEEB;
+		background-color: primary;
 		border: 0;
 	}
 	
 	:global(.image-upload-button:hover) {
-		background-color: rgb(135 206 235 / 0.9);
+		background-color: hsl(var(--primary) / 0.9);
 	}
 </style>

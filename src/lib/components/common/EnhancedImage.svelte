@@ -130,7 +130,7 @@
 	.image-wrapper {
 		position: relative;
 		overflow: hidden;
-		background-color: var(--color-surface-200, #f5f5f5);
+		background-color: rgb(var(--color-gray-100));
 	}
 	
 	.placeholder {
@@ -139,7 +139,7 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		filter: blur(20px);
+		filter: blur(1.25rem);
 		transform: scale(1.1);
 		object-fit: cover;
 	}
@@ -160,7 +160,7 @@
 	}
 	
 	.image-wrapper.has-error {
-		background-color: var(--color-surface-300, #e0e0e0);
+		background-color: rgb(var(--color-gray-200));
 	}
 	
 	.image-wrapper.has-error::after {

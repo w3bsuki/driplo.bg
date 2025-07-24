@@ -1,9 +1,11 @@
-import type { Database } from '$lib/types/database';
+import type { Database } from '$lib/types/database.types';
+import { truncateText } from '$lib/utils/format';
+import { logger } from '$lib/services/logger';
 
 // Environment variable import with fallback
 let RESEND_API_KEY = '';
-if (typeof process !== 'undefined' && process.env.RESEND_API_KEY) {
-  RESEND_API_KEY = process.env.RESEND_API_KEY;
+if (typeof process !== 'undefined' && process.env['RESEND_API_KEY']) {
+  RESEND_API_KEY = process.env['RESEND_API_KEY'];
 }
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -31,7 +33,7 @@ class EmailService {
 
   async send(options: EmailOptions): Promise<boolean> {
     if (!this.apiKey) {
-      console.error('Email service not configured: Missing RESEND_API_KEY');
+      logger.error('Email service not configured: Missing RESEND_API_KEY');
       return false;
     }
 
@@ -52,13 +54,13 @@ class EmailService {
 
       if (!response.ok) {
         const error = await response.text();
-        console.error('Failed to send email:', error);
+        logger.error('Failed to send email:', error);
         return false;
       }
 
       return true;
     } catch (error) {
-      console.error('Email send error:', error);
+      logger.error('Email send error:', error);
       return false;
     }
   }
@@ -419,9 +421,7 @@ class EmailService {
     conversationId: string
   ): Promise<boolean> {
     const subject = `New Message from ${sender.username} about ${listing.title}`;
-    const truncatedMessage = messageText.length > 100 
-      ? messageText.substring(0, 100) + '...' 
-      : messageText;
+    const truncatedMessage = truncateText(messageText, 103);
     
     const html = `
       <html>

@@ -4,12 +4,10 @@
 	import { 
 		parseStorageUrl, 
 		generatePictureSources,
-		getTransformedImageUrl,
-		transformStorageUrl 
+		getTransformedImageUrl
 	} from '$lib/utils/supabase-image-transform';
 	import { 
 		getOptimizedImageUrl, 
-		getResponsiveImageProps, 
 		imageSizes,
 		type ImageTransformOptions 
 	} from '$lib/utils/supabase-images';
@@ -85,7 +83,7 @@
 	let isLoaded = $state(false);
 	let hasError = $state(false);
 	let isIntersecting = $state(priority || loading === 'eager');
-	let imgElement: HTMLImageElement;
+	let imgElement: HTMLImageElement | HTMLDivElement;
 
 	// Determine if this is a Supabase storage URL
 	const isSupabaseUrl = $derived(() => {
@@ -173,7 +171,7 @@
 	});
 
 	// Placeholder for lazy loading
-	const placeholder = $derived(() => {
+	const placeholderUrl = $derived(() => {
 		if (!usePlaceholder || isIntersecting) return imageUrl();
 		
 		// Generate a small blurred placeholder for Supabase images
@@ -246,6 +244,7 @@
 				document.head.removeChild(link);
 			};
 		}
+		return;
 	});
 
 	// Computed loading and priority attributes

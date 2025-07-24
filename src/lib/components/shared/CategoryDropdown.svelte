@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ChevronDown, ChevronRight, X } from 'lucide-svelte';
+	import { ChevronDown, ChevronRight, ChevronLeft, X } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
 	import { clickOutside } from '$lib/actions';
@@ -13,6 +13,7 @@
 		onToggle?: () => void;
 		onClose?: () => void;
 		class?: string;
+		initialCategory?: string | null;
 	}
 
 	let { 
@@ -20,11 +21,45 @@
 		isOpen = false, 
 		onToggle = () => {}, 
 		onClose = () => {},
-		class: className = ''
+		class: className = '',
+		initialCategory = null
 	}: Props = $props();
 
-	let activeMainCategory = $state('');
+	let activeMainCategory = $state(initialCategory || '');
 	let hoveredCategory = $state('');
+	let activeSection = $state<'categories' | 'brands' | 'filters'>('categories');
+	
+	// Update active category when initialCategory changes
+	$effect(() => {
+		if (initialCategory) {
+			activeMainCategory = initialCategory;
+		}
+	});
+	
+	// Popular brands
+	const popularBrands = [
+		{ name: 'Nike', emoji: '👟' },
+		{ name: 'Adidas', emoji: '⚡' },
+		{ name: 'Zara', emoji: '👗' },
+		{ name: 'H&M', emoji: '🛍️' },
+		{ name: 'Gucci', emoji: '💎' },
+		{ name: 'Prada', emoji: '👜' },
+		{ name: 'Versace', emoji: '✨' },
+		{ name: 'Balenciaga', emoji: '🔥' },
+		{ name: 'Louis Vuitton', emoji: '💼' },
+		{ name: 'Chanel', emoji: '🌹' },
+		{ name: 'Dior', emoji: '💐' },
+		{ name: 'Burberry', emoji: '🧥' }
+	];
+	
+	// Condition options with translations
+	const conditionOptions = [
+		{ value: 'new_with_tags', label: getLocale() === 'bg' ? 'Нови с етикети' : 'New with tags', emoji: '🏷️' },
+		{ value: 'like_new', label: getLocale() === 'bg' ? 'Като нови' : 'Like new', emoji: '✨' },
+		{ value: 'good', label: getLocale() === 'bg' ? 'Добро' : 'Good', emoji: '👍' },
+		{ value: 'fair', label: getLocale() === 'bg' ? 'Задоволително' : 'Fair', emoji: '👌' },
+		{ value: 'poor', label: getLocale() === 'bg' ? 'Лошо' : 'Poor', emoji: '🔧' }
+	];
 
 	// Category hierarchy with subcategories
 	const categoryHierarchy = $derived([
@@ -154,106 +189,283 @@
 			"md:mt-2",
 			className
 		)}
-		use:clickOutside={onClose}
 	>
 		<!-- Mobile Layout -->
 		<div class="md:hidden max-h-[60vh] flex flex-col">
-			<!-- Header with Close Button -->
-			<div class="flex items-center justify-between px-3 py-3 border-b border-gray-200">
-				<h3 class="text-sm font-semibold text-gray-900">{m.header_categories()}</h3>
-				<button
-					onclick={onClose}
-					class="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
-				>
-					<X class="w-5 h-5 text-gray-500" />
-				</button>
-			</div>
-			
-			<!-- Quick Filters -->
-			<div class="px-3 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
-				<div class="grid grid-cols-2 gap-2">
-					<button
-						onclick={() => {
-							onClose();
-							goto('/browse?filter=new-with-tags');
-						}}
-						class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white border border-gray-200 hover:border-blue-300 transition-colors"
-					>
-						<span class="text-base">🏷️</span>
-						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Нови с етикети' : 'New Tags'}</div>
-							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Чисто нови' : 'Brand new'}</div>
-						</div>
-					</button>
-					
-					<button
-						onclick={() => {
-							onClose();
-							goto('/browse?filter=sale');
-						}}
-						class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white border border-gray-200 hover:border-blue-300 transition-colors"
-					>
-						<span class="text-base">💸</span>
-						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Намаление' : 'On Sale'}</div>
-							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Оферти' : 'Deals'}</div>
-						</div>
-					</button>
-					
-					<button
-						onclick={() => {
-							onClose();
-							goto('/browse?sort=favorites_count&order=desc');
-						}}
-						class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white border border-gray-200 hover:border-blue-300 transition-colors"
-					>
-						<span class="text-base">❤️</span>
-						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Най-харесвани' : 'Most Liked'}</div>
-							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Популярни' : 'Popular'}</div>
-						</div>
-					</button>
-					
-					<button
-						onclick={() => {
-							onClose();
-							goto('/browse?sort=created_at&order=desc');
-						}}
-						class="flex items-center gap-2 px-2.5 py-2 rounded-lg bg-white border border-gray-200 hover:border-blue-300 transition-colors"
-					>
-						<span class="text-base">✨</span>
-						<div class="text-left">
-							<div class="text-xs font-medium text-gray-900">{getLocale() === 'bg' ? 'Най-нови' : 'Latest'}</div>
-							<div class="text-[10px] text-gray-500">{getLocale() === 'bg' ? 'Току-що добавени' : 'Just in'}</div>
-						</div>
-					</button>
-				</div>
-			</div>
-			
-			<!-- Categories List -->
-			<div class="flex-1 overflow-y-auto">
-				<div class="px-3 py-2">
-					<div class="grid grid-cols-2 gap-2">
-						{#each categoryHierarchy as category}
-							<button
-								onclick={() => handleCategoryNavigation(category.slug)}
-								class="flex items-center gap-2 px-2 py-2 text-left transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-lg"
-							>
-								<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0">
-									<span class="text-base">{category.icon}</span>
-								</div>
-								<div class="min-w-0 flex-1">
-									<div class="font-medium text-sm text-gray-900 truncate">
-										{category.name}
-									</div>
-									<div class="text-xs text-gray-500">
-										{category.subcategories.length} items
-									</div>
-								</div>
-							</button>
-						{/each}
+			<!-- Header with Tabs -->
+			<div class="border-b border-gray-200" onclick={(e) => e.stopPropagation()}>
+				<div class="flex items-center justify-between px-3 py-2">
+					<div class="flex gap-2 overflow-x-auto">
+						<button
+							type="button"
+							onclick={(e) => { 
+								e.preventDefault();
+								e.stopPropagation();
+								activeSection = 'categories'; 
+							}}
+							class={cn(
+								"px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap",
+								activeSection === 'categories' 
+									? "bg-blue-500 text-white" 
+									: "bg-gray-100 text-gray-700"
+							)}
+						>
+							📦 Categories
+						</button>
+						<button
+							type="button"
+							onclick={(e) => { 
+								e.preventDefault();
+								e.stopPropagation();
+								activeSection = 'brands'; 
+							}}
+							class={cn(
+								"px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap",
+								activeSection === 'brands' 
+									? "bg-blue-500 text-white" 
+									: "bg-gray-100 text-gray-700"
+							)}
+						>
+							🏷️ Brands
+						</button>
+						<button
+							type="button"
+							onclick={(e) => { 
+								e.preventDefault();
+								e.stopPropagation();
+								activeSection = 'filters'; 
+							}}
+							class={cn(
+								"px-3 py-1.5 text-xs font-medium rounded-full transition-colors whitespace-nowrap",
+								activeSection === 'filters' 
+									? "bg-blue-500 text-white" 
+									: "bg-gray-100 text-gray-700"
+							)}
+						>
+							🎯 Filters
+						</button>
 					</div>
+					<button
+						type="button"
+						onclick={(e) => {
+							e.stopPropagation();
+							onClose();
+						}}
+						class="p-1.5 hover:bg-gray-100 rounded-full transition-colors ml-2"
+					>
+						<X class="w-4 h-4 text-gray-500" />
+					</button>
 				</div>
+			</div>
+			
+			
+			<!-- Content based on active section -->
+			<div class="flex-1 overflow-y-auto">
+				{#if activeSection === 'categories'}
+					<!-- Categories List -->
+					<div class="px-3 py-2">
+						{#if initialCategory && activeMainCategory}
+							<!-- Show subcategories for selected gender -->
+							{@const selectedCategory = categoryHierarchy.find(cat => cat.slug === activeMainCategory)}
+							{#if selectedCategory}
+								<div class="mb-3">
+									<button
+										onclick={() => {
+											activeMainCategory = '';
+											activeSection = 'categories';
+										}}
+										class="flex items-center gap-1 text-xs text-gray-500 mb-2"
+									>
+										<ChevronLeft class="h-3 w-3" />
+										<span>{getLocale() === 'bg' ? 'Назад' : 'Back'}</span>
+									</button>
+									<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+										<span>{selectedCategory.icon}</span>
+										<span>{selectedCategory.name}</span>
+									</h3>
+								</div>
+								<div class="grid grid-cols-2 gap-2">
+									{#each selectedCategory.subcategories as subcat}
+										<button
+											onclick={() => handleSubcategoryClick(selectedCategory.slug, subcat.slug)}
+											class="flex items-center gap-2 px-3 py-2.5 text-left bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+										>
+											<span class="text-lg">{subcat.icon}</span>
+											<span class="text-sm font-medium text-gray-700">{subcat.name}</span>
+										</button>
+									{/each}
+								</div>
+							{/if}
+						{:else}
+							<!-- Show main categories -->
+							<div class="grid grid-cols-2 gap-2">
+								{#each categoryHierarchy as category}
+									<button
+										onclick={() => handleMainCategoryClick(category.slug)}
+										class="flex items-center gap-2 px-2 py-2 text-left transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-lg"
+									>
+										<div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center flex-shrink-0">
+											<span class="text-base">{category.icon}</span>
+										</div>
+										<div class="min-w-0 flex-1">
+											<div class="font-medium text-sm text-gray-900 truncate">
+												{category.name}
+											</div>
+											<div class="text-xs text-gray-500">
+												{category.subcategories.length} items
+											</div>
+										</div>
+									</button>
+								{/each}
+							</div>
+						{/if}
+					</div>
+				{:else if activeSection === 'brands'}
+					<!-- Brands List -->
+					<div class="px-3 py-2">
+						<div class="grid grid-cols-3 gap-2">
+							{#each popularBrands as brand}
+								<button
+									onclick={() => {
+										onClose();
+										goto(`/browse?brand=${encodeURIComponent(brand.name)}`);
+									}}
+									class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-lg"
+								>
+									<span class="text-xl">{brand.emoji}</span>
+									<span class="text-xs font-medium text-gray-700">{brand.name}</span>
+								</button>
+							{/each}
+						</div>
+						<div class="mt-3 px-2">
+							<button
+								onclick={() => {
+									onClose();
+									goto('/brands');
+								}}
+								class="w-full py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
+							>
+								View all brands →
+							</button>
+						</div>
+					</div>
+				{:else if activeSection === 'filters'}
+					<!-- Filters Section -->
+					<div class="px-2 py-2 space-y-2">
+						<!-- Condition -->
+						<div>
+							<h4 class="text-xs font-medium text-gray-500 mb-1.5 px-1">{getLocale() === 'bg' ? 'Състояние' : 'Condition'}</h4>
+							<div class="grid grid-cols-3 gap-1.5">
+								{#each conditionOptions as condition}
+									<button
+										onclick={() => {
+											onClose();
+											goto(`/browse?condition=${condition.value}`);
+										}}
+										class="flex flex-col items-center gap-0.5 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-lg border border-gray-200"
+									>
+										<span class="text-base">{condition.emoji}</span>
+										<span class="text-xs font-medium text-gray-700 leading-tight">{condition.label}</span>
+									</button>
+								{/each}
+							</div>
+						</div>
+						
+						<!-- Price Ranges -->
+						<div>
+							<h4 class="text-xs font-medium text-gray-500 mb-1.5 px-1">{getLocale() === 'bg' ? 'Ценови диапазон' : 'Price Range'}</h4>
+							<div class="grid grid-cols-4 gap-1.5">
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?price=0-20');
+									}}
+									class="flex flex-col items-center p-2 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">💰</span>
+									<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? '<20лв' : '<$20'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?price=20-50');
+									}}
+									class="flex flex-col items-center p-2 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">💵</span>
+									<span class="text-xs font-medium text-gray-700">20-50</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?price=50-100');
+									}}
+									class="flex flex-col items-center p-2 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">💸</span>
+									<span class="text-xs font-medium text-gray-700">50-100</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?price=100+');
+									}}
+									class="flex flex-col items-center p-2 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">🤑</span>
+									<span class="text-xs font-medium text-gray-700">100+</span>
+								</button>
+							</div>
+						</div>
+						
+						<!-- Special Filters -->
+						<div>
+							<h4 class="text-xs font-medium text-gray-500 mb-1.5 px-1">{getLocale() === 'bg' ? 'Специални' : 'Special'}</h4>
+							<div class="grid grid-cols-4 gap-1.5">
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?near=me');
+									}}
+									class="flex flex-col items-center p-2 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">📍</span>
+									<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Близо' : 'Near'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?filter=free-shipping');
+									}}
+									class="flex flex-col items-center p-2 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">🚚</span>
+									<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Безпл.' : 'Free'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?filter=sale');
+									}}
+									class="flex flex-col items-center p-2 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">🔥</span>
+									<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Намал.' : 'Sale'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?sort=created_at&order=desc');
+									}}
+									class="flex flex-col items-center p-2 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors"
+								>
+									<span class="text-sm">✨</span>
+									<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Нови' : 'New'}</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				{/if}
 			</div>
 		</div>
 		
@@ -420,7 +632,7 @@
 	/* Custom scrollbar for the dropdown */
 	.overflow-y-auto {
 		scrollbar-width: thin;
-		scrollbar-color: #e5e7eb transparent;
+		scrollbar-color: rgb(var(--color-gray-300)) transparent;
 	}
 	
 	.overflow-y-auto::-webkit-scrollbar {
@@ -432,12 +644,12 @@
 	}
 	
 	.overflow-y-auto::-webkit-scrollbar-thumb {
-		background-color: #e5e7eb;
-		border-radius: 3px;
+		background-color: rgb(var(--color-gray-300));
+		border-radius: var(--radius-sm);
 	}
 	
 	.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-		background-color: #d1d5db;
+		background-color: rgb(var(--color-gray-400));
 	}
 	
 	/* Mobile slide up animation */

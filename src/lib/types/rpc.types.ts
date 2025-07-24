@@ -114,15 +114,21 @@ export interface RPCFunctions {
 
   get_category_top_sellers: {
     Args: {
-      category_id: string;
-      limit_count?: number;
+      category_slug: string;
+      time_period?: 'day' | 'week' | 'month' | 'year' | 'all';
+      result_limit?: number;
     };
     Returns: Array<{
-      user_id: string;
+      id: string;
       username: string;
+      full_name: string;
       avatar_url: string | null;
-      total_sales: number;
-      average_rating: number | null;
+      account_type: string;
+      is_verified: boolean;
+      category_sales: number;
+      category_revenue: number;
+      category_rating: number;
+      category_rating_count: number;
     }>;
   };
 
@@ -278,19 +284,6 @@ export interface RPCFunctions {
     };
   };
 
-  // The one already in database.ts
-  get_top_category_sellers: {
-    Args: {
-      category_uuid: string;
-    };
-    Returns: Array<{
-      user_id: string;
-      username: string;
-      avatar_url: string | null;
-      total_sales: number;
-      average_rating: number | null;
-    }>;
-  };
 }
 
 // Helper type to extract RPC function names

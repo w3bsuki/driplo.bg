@@ -10,27 +10,27 @@ export class RevolutClient {
 	}
 
 	// These methods are placeholders for future API integration
-	async createOrder(orderData: any) {
+	async createOrder(_orderData: any) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 
-	async getOrder(orderId: string) {
+	async getOrder(_orderId: string) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 
-	async createPayment(orderId: string, paymentData: any) {
+	async createPayment(_orderId: string, _paymentData: any) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 
-	async getPayment(paymentId: string) {
+	async getPayment(_paymentId: string) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 
-	async capturePayment(paymentId: string, amount?: number) {
+	async capturePayment(_paymentId: string, _amount?: number) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 
-	async refundPayment(paymentId: string, amount?: number, reason?: string) {
+	async refundPayment(_paymentId: string, _amount?: number, _reason?: string) {
 		throw new Error('Revolut API not implemented - using manual payments');
 	}
 }

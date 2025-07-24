@@ -1,8 +1,8 @@
-import Dialog from './dialog.svelte';
-import DialogContent from './dialog-content.svelte';
-import DialogHeader from './dialog-header.svelte';
-import DialogTitle from './dialog-title.svelte';
-import DialogDescription from './dialog-description.svelte';
+import Dialog from './Dialog.svelte';
+import DialogContent from './DialogContent.svelte';
+import DialogHeader from './DialogHeader.svelte';
+import DialogTitle from './DialogTitle.svelte';
+import DialogDescription from './DialogDescription.svelte';
 
 export {
 	Dialog,

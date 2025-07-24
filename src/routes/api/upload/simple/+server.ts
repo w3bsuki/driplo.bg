@@ -12,10 +12,14 @@ export const POST: RequestHandler = async (event) => {
 		return rateLimitResponse
 	}
 	
-	const { user } = await safeGetSession()
+	const { session } = await safeGetSession()
 	
-	if (!user) {
-		throw error(401, 'Unauthorized')
+	console.log('Upload endpoint - Session:', session ? 'exists' : 'missing')
+	console.log('Upload endpoint - User ID:', session?.user?.id)
+	
+	if (!session?.user) {
+		console.error('Upload authentication failed - no session')
+		throw error(401, 'Unauthorized - Please log in again')
 	}
 
 	try {
@@ -38,11 +42,11 @@ export const POST: RequestHandler = async (event) => {
 			throw error(400, `Invalid file type: ${file.type || 'unknown'}`)
 		}
 
-		// Validate file size (5MB max)
-		const maxSize = 5 * 1024 * 1024
+		// Validate file size (10MB max)
+		const maxSize = 10 * 1024 * 1024
 		if (file.size > maxSize) {
 			console.log(`File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
-			throw error(400, `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max 5MB)`)
+			throw error(400, `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max 10MB)`)
 		}
 
 		// Generate unique filename (convert HEIC to JPG extension for consistency)
@@ -50,7 +54,7 @@ export const POST: RequestHandler = async (event) => {
 		if (fileExtension === 'heic' || fileExtension === 'heif') {
 			fileExtension = 'jpg' // Will be converted to JPEG by client
 		}
-		const fileName = `${user.id}/${uuidv4()}.${fileExtension}`
+		const fileName = `${session.user.id}/${uuidv4()}.${fileExtension}`
 
 		// Convert File to ArrayBuffer for Supabase
 		const arrayBuffer = await file.arrayBuffer()

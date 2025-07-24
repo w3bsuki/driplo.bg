@@ -62,11 +62,11 @@
 		}
 	}
 
-	function applyFilters() {
+	function handleApplyFilters() {
 		handleSearch();
 	}
 
-	function clearFilters() {
+	function handleClearFilters() {
 		searchQuery = '';
 		selectedPriceRange = '';
 		selectedSize = '';
@@ -195,7 +195,7 @@
 		{#if hasActiveFilters}
 			<div class="flex justify-end mb-3">
 				<button
-					onclick={clearFilters}
+					onclick={handleClearFilters}
 					class="text-sm text-muted-foreground hover:text-foreground"
 				>
 					Clear all
@@ -208,8 +208,8 @@
 			<!-- Price -->
 			<select
 				bind:value={selectedPriceRange}
-				onchange={applyFilters}
-				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-[75px]"
+				onchange={handleApplyFilters}
+				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-20"
 			>
 				<option value="">Price</option>
 				{#each priceRanges as range}
@@ -220,8 +220,8 @@
 			<!-- Size -->
 			<select
 				bind:value={selectedSize}
-				onchange={applyFilters}
-				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-[60px]"
+				onchange={handleApplyFilters}
+				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-16"
 			>
 				<option value="">Size</option>
 				{#each sizes as size}
@@ -232,8 +232,8 @@
 			<!-- Brand -->
 			<select
 				bind:value={selectedBrand}
-				onchange={applyFilters}
-				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-[70px]"
+				onchange={handleApplyFilters}
+				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-20"
 			>
 				<option value="">Brand</option>
 				{#each brands as brand}
@@ -244,8 +244,8 @@
 			<!-- Condition -->
 			<select
 				bind:value={selectedCondition}
-				onchange={applyFilters}
-				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-[80px]"
+				onchange={handleApplyFilters}
+				class="rounded-full border border-input bg-background px-2.5 py-1.5 text-xs flex-shrink-0 min-w-20"
 			>
 				<option value="">Condition</option>
 				{#each conditions as condition}
@@ -259,7 +259,7 @@
 			<!-- Price -->
 			<select
 				bind:value={selectedPriceRange}
-				onchange={applyFilters}
+				onchange={handleApplyFilters}
 				class="rounded-lg border border-input bg-background px-3 py-2 text-sm"
 			>
 				<option value="">Price</option>
@@ -271,7 +271,7 @@
 			<!-- Size -->
 			<select
 				bind:value={selectedSize}
-				onchange={applyFilters}
+				onchange={handleApplyFilters}
 				class="rounded-lg border border-input bg-background px-3 py-2 text-sm"
 			>
 				<option value="">Size</option>
@@ -283,7 +283,7 @@
 			<!-- Brand -->
 			<select
 				bind:value={selectedBrand}
-				onchange={applyFilters}
+				onchange={handleApplyFilters}
 				class="rounded-lg border border-input bg-background px-3 py-2 text-sm"
 			>
 				<option value="">Brand</option>
@@ -295,7 +295,7 @@
 			<!-- Condition -->
 			<select
 				bind:value={selectedCondition}
-				onchange={applyFilters}
+				onchange={handleApplyFilters}
 				class="rounded-lg border border-input bg-background px-3 py-2 text-sm"
 			>
 				<option value="">Condition</option>

@@ -71,7 +71,7 @@
         </p>
       </div>
 
-      {#if import.meta.env.DEV && error}
+      {#if import.meta.env['DEV'] && error}
         <div class="mt-4">
           <button
             on:click={() => showDetails = !showDetails}

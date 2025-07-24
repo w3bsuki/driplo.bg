@@ -39,23 +39,23 @@
 	];
 </script>
 
-<section class="py-4">
-	<div class="container px-4">
-		<h2 class="text-lg font-semibold mb-4">Browse by style</h2>
+<section class="py-3">
+	<div class="container px-2">
+		<h2 class="text-base font-semibold mb-3">Browse by style</h2>
 		
 		<!-- Desktop: Horizontal scrollable categories -->
 		<div class="hidden md:block">
-			<div class="flex items-center space-x-4 overflow-x-auto pb-2">
+			<div class="flex items-center space-x-2 overflow-x-auto pb-2">
 				{#each categories as category}
 					<a 
 						href={category.href}
 						class="group flex-shrink-0 text-center"
 					>
-						<div class="w-12 h-12 mx-auto mb-1 overflow-hidden rounded-full bg-muted">
+						<div class="w-10 h-10 mx-auto mb-1 overflow-hidden rounded-sm bg-muted">
 							<img
 								src={category.image}
 								alt={category.name}
-								class="h-full w-full object-cover transition-transform group-hover:scale-110"
+								class="h-full w-full object-cover transition-transform duration-fast group-hover:scale-110"
 								loading="lazy"
 							/>
 						</div>
@@ -67,17 +67,17 @@
 
 		<!-- Mobile: Horizontal scroll (like main categories) -->
 		<div class="md:hidden">
-			<div class="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
+			<div class="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
 				{#each categories as category}
 					<a 
 						href={category.href}
 						class="group flex-shrink-0 text-center"
 					>
-						<div class="w-12 h-12 mx-auto mb-1 overflow-hidden rounded-full bg-muted">
+						<div class="w-10 h-10 mx-auto mb-1 overflow-hidden rounded-sm bg-muted">
 							<img
 								src={category.image}
 								alt={category.name}
-								class="h-full w-full object-cover transition-transform group-hover:scale-110"
+								class="h-full w-full object-cover transition-transform duration-fast group-hover:scale-110"
 								loading="lazy"
 							/>
 						</div>

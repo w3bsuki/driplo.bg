@@ -235,18 +235,18 @@ export function checkAchievementEligibility(
   switch (type) {
     case 'first_sale':
       return {
-        eligible: userStats.total_sales >= 1,
+        eligible: userStats['total_sales'] >= 1,
         level: 1
       }
       
     case 'power_seller':
-      if (userStats.total_sales >= 100) return { eligible: true, level: 3 }
-      if (userStats.total_sales >= 50) return { eligible: true, level: 2 }
-      if (userStats.total_sales >= 10) return { eligible: true, level: 1 }
+      if (userStats['total_sales'] >= 100) return { eligible: true, level: 3 }
+      if (userStats['total_sales'] >= 50) return { eligible: true, level: 2 }
+      if (userStats['total_sales'] >= 10) return { eligible: true, level: 1 }
       return { 
         eligible: false, 
         level: 0, 
-        progress: Math.min(userStats.total_sales / 10 * 100, 100) 
+        progress: Math.min(userStats['total_sales'] / 10 * 100, 100) 
       }
       
     case 'top_rated':
@@ -257,13 +257,13 @@ export function checkAchievementEligibility(
       return { eligible: false, level: 0 }
       
     case 'social_butterfly':
-      if (userStats.followers_count >= 5000) return { eligible: true, level: 3 }
-      if (userStats.followers_count >= 500) return { eligible: true, level: 2 }
-      if (userStats.followers_count >= 50) return { eligible: true, level: 1 }
+      if (userStats['followers_count'] >= 5000) return { eligible: true, level: 3 }
+      if (userStats['followers_count'] >= 500) return { eligible: true, level: 2 }
+      if (userStats['followers_count'] >= 50) return { eligible: true, level: 1 }
       return { 
         eligible: false, 
         level: 0, 
-        progress: Math.min(userStats.followers_count / 50 * 100, 100) 
+        progress: Math.min(userStats['followers_count'] / 50 * 100, 100) 
       }
       
     default:

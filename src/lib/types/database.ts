@@ -262,6 +262,8 @@ export type Database = {
           username: string
           verification_badges: Json | null
           website: string | null
+          account_type: 'personal' | 'brand' | null
+          setup_completed: boolean | null
         }
         Insert: {
           avatar_url?: string | null
@@ -294,6 +296,8 @@ export type Database = {
           username: string
           verification_badges?: Json | null
           website?: string | null
+          account_type?: 'personal' | 'brand' | null
+          setup_completed?: boolean | null
         }
         Update: {
           avatar_url?: string | null
@@ -326,6 +330,8 @@ export type Database = {
           username?: string
           verification_badges?: Json | null
           website?: string | null
+          account_type?: 'personal' | 'brand' | null
+          setup_completed?: boolean | null
         }
         Relationships: []
       }
@@ -1086,6 +1092,105 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      brand_verification_requests: {
+        Row: {
+          id: string
+          brand_id: string
+          requester_id: string
+          status: 'pending' | 'approved' | 'rejected'
+          documents: Json | null
+          notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          brand_id: string
+          requester_id: string
+          status?: 'pending' | 'approved' | 'rejected'
+          documents?: Json | null
+          notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          brand_id?: string
+          requester_id?: string
+          status?: 'pending' | 'approved' | 'rejected'
+          documents?: Json | null
+          notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_verification_requests_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_verification_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_verification_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      admin_approvals: {
+        Row: {
+          id: string
+          request_type: string
+          request_id: string
+          admin_id: string
+          action: 'approved' | 'rejected'
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          request_type: string
+          request_id: string
+          admin_id: string
+          action: 'approved' | 'rejected'
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          request_type?: string
+          request_id?: string
+          admin_id?: string
+          action?: 'approved' | 'rejected'
+          notes?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_approvals_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
         ]
       }
     }

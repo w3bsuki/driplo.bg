@@ -4,159 +4,181 @@
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
-	import { DropdownMenu } from '$lib/components/ui';
+	import { DropdownMenu, Button } from '$lib/components/ui';
 	
 	interface Props {
 		authContext: ReturnType<typeof getAuthContext>;
 		brandSlug?: string | null;
 		onSignOut: () => void;
+		open?: boolean;
 	}
 	
-	let { authContext, brandSlug = null, onSignOut }: Props = $props();
+	let { authContext, brandSlug = null, onSignOut, open }: Props = $props();
 	
-	function navigateTo(path: string) {
-		goto(path);
-	}
+	// Badge mapping
+	const badgeConfig: Record<string, { emoji: string; label: string }> = {
+		brand: { emoji: '🏪', label: 'Brand' },
+		top_seller: { emoji: '⭐', label: 'Top Seller' },
+		verified: { emoji: '✅', label: 'Verified' },
+		power_seller: { emoji: '🔥', label: 'Power Seller' },
+		rising_star: { emoji: '🌟', label: 'Rising Star' },
+		admin: { emoji: '👑', label: 'Admin' }
+	};
 </script>
 
 {#if authContext?.user}
-	<!-- Compact Profile Header -->
-	<div class="px-2 py-2 mb-2">
-		<DropdownMenu.Item
-			onSelect={() => navigateTo(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
-			class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-		>
+	<!-- Profile Header -->
+	<DropdownMenu.Item
+		onSelect={() => goto(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
+		class="flex items-center gap-2 p-3 mb-2 rounded-lg hover:bg-gray-50"
+	>
+		<div class="relative">
 			<img 
 				src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
 				alt="Profile" 
-				class="h-12 w-12 rounded-xl object-cover" 
+				class="h-8 w-8 rounded-full object-cover" 
 			/>
-			<div class="flex-1 text-left">
-				<p class="font-semibold text-foreground">{authContext.profile?.full_name || authContext.profile?.username || 'My Profile'}</p>
-				<p class="text-xs text-muted-foreground">@{authContext.profile?.username || 'user'}</p>
+			{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
+				<div class="absolute -bottom-1 -right-1 flex">
+					{#each authContext.profile.badges.slice(0, 2) as badge}
+						{#if badgeConfig[badge]}
+							<span 
+								class="text-xs -ml-1 first:ml-0" 
+								title={badgeConfig[badge].label}
+							>
+								{badgeConfig[badge].emoji}
+							</span>
+						{/if}
+					{/each}
+				</div>
+			{/if}
+		</div>
+		<div class="flex-1">
+			<div class="flex items-center gap-1">
+				<p class="text-sm font-medium">{authContext.profile?.username || 'user'}</p>
+				{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 2}
+					{#each authContext.profile.badges.slice(2) as badge}
+						{#if badgeConfig[badge]}
+							<span 
+								class="text-xs" 
+								title={badgeConfig[badge].label}
+							>
+								{badgeConfig[badge].emoji}
+							</span>
+						{/if}
+					{/each}
+				{/if}
 			</div>
-		</DropdownMenu.Item>
-	</div>
+			<p class="text-xs text-gray-500">View profile</p>
+		</div>
+	</DropdownMenu.Item>
 
-	<!-- Quick Actions Grid -->
-	<div class="grid grid-cols-2 gap-2 mb-3">
+	<!-- Grid Menu -->
+	<div class="grid grid-cols-2 gap-1.5 p-2">
 		<DropdownMenu.Item
-			onSelect={() => navigateTo('/orders?type=bought')}
-			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer"
+			onSelect={() => goto('/orders?type=bought')}
+			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
 		>
-			<span class="text-lg">🛒</span>
-			<span class="text-xs text-foreground">Bought</span>
+			<span class="text-lg">🛍️</span>
+			<span class="text-xs">Orders</span>
 		</DropdownMenu.Item>
 		
 		<DropdownMenu.Item
-			onSelect={() => navigateTo('/orders?type=sold')}
-			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors cursor-pointer"
+			onSelect={() => goto('/orders?type=sold')}
+			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
 		>
 			<span class="text-lg">💰</span>
-			<span class="text-xs text-foreground">Sold</span>
+			<span class="text-xs">Sales</span>
 		</DropdownMenu.Item>
-	</div>
-
-	<div class="border-t border-border pt-2 space-y-1">
-		<!-- Admin Dashboard -->
-		{#if authContext.profile?.is_admin}
-			<DropdownMenu.Item
-				onSelect={() => navigateTo('/admin')}
-				class="w-full flex items-center gap-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-colors text-left cursor-pointer"
-			>
-				<span class="text-lg">👑</span>
-				<span class="text-sm font-medium text-purple-700">Admin Dashboard</span>
-			</DropdownMenu.Item>
-		{/if}
 		
-		<!-- Settings -->
 		<DropdownMenu.Item
-			onSelect={() => navigateTo('/profile/settings')}
-			class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left cursor-pointer"
+			onSelect={() => goto('/profile/settings')}
+			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
 		>
 			<span class="text-lg">⚙️</span>
-			<span class="text-sm text-foreground">{m.header_settings()}</span>
+			<span class="text-xs">Settings</span>
 		</DropdownMenu.Item>
 		
-		<!-- Brand Profile & Analytics (for brand accounts) -->
+		<DropdownMenu.Item
+			onSelect={() => goto('/wishlist')}
+			class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
+		>
+			<span class="text-lg">❤️</span>
+			<span class="text-xs">Wishlist</span>
+		</DropdownMenu.Item>
+		
 		{#if authContext.profile?.account_type === 'brand' && brandSlug}
 			<DropdownMenu.Item
-				onSelect={() => navigateTo(`/brands/${brandSlug}`)}
-				class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left cursor-pointer"
+				onSelect={() => goto(`/brands/${brandSlug}`)}
+				class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
 			>
 				<span class="text-lg">🏪</span>
-				<span class="text-sm text-foreground">View Brand Profile</span>
+				<span class="text-xs">Brand</span>
 			</DropdownMenu.Item>
+			
 			<DropdownMenu.Item
-				onSelect={() => navigateTo('/brands/analytics')}
-				class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left cursor-pointer"
+				onSelect={() => goto('/brands/analytics')}
+				class="flex flex-col items-center gap-1 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 text-center"
 			>
 				<span class="text-lg">📊</span>
-				<span class="text-sm text-foreground">Brand Analytics</span>
+				<span class="text-xs">Analytics</span>
+			</DropdownMenu.Item>
+		{:else}
+			<DropdownMenu.Item
+				onSelect={() => goto('/brands/settings')}
+				class="flex flex-col items-center gap-1 p-3 rounded-lg bg-amber-50 hover:bg-amber-100 text-center col-span-2"
+			>
+				<span class="text-lg">✨</span>
+				<span class="text-xs">Upgrade to Brand</span>
 			</DropdownMenu.Item>
 		{/if}
 		
-		<!-- Brand Settings -->
-		<DropdownMenu.Item
-			onSelect={() => navigateTo('/brands/settings')}
-			class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted transition-colors text-left cursor-pointer"
-		>
-			<span class="text-lg">🏪</span>
-			<span class="text-sm text-foreground">
-				{authContext.profile?.account_type === 'brand' ? 'Brand Settings' : 'Upgrade to Brand'}
-			</span>
-			{#if authContext.profile?.is_verified}
-				<span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Verified</span>
-			{/if}
-		</DropdownMenu.Item>
-		
-		<!-- Language -->
-		<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted">
-			<div class="flex items-center gap-3">
-				<span class="text-lg">🌐</span>
-				<span class="text-sm text-foreground">Language</span>
-			</div>
+		{#if authContext.profile?.is_admin}
+			<DropdownMenu.Item
+				onSelect={() => goto('/admin')}
+				class="flex flex-col items-center gap-1 p-3 rounded-lg bg-purple-50 hover:bg-purple-100 text-center col-span-2"
+			>
+				<span class="text-lg">👑</span>
+				<span class="text-xs text-purple-700">Admin Dashboard</span>
+			</DropdownMenu.Item>
+		{/if}
+	</div>
+	
+	<!-- Footer -->
+	<div class="border-t p-2 space-y-1.5">
+		<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-50">
+			<span class="text-sm">🌐 Language</span>
 			<LanguageSwitcher />
 		</div>
 		
-		<!-- Sign Out -->
 		<DropdownMenu.Item
 			onSelect={onSignOut}
-			class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors cursor-pointer"
+			class="flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-red-50 text-red-600"
 		>
-			<span class="text-lg">🚪</span>
-			<span class="text-sm font-medium">Sign out</span>
+			<span>🚪</span>
+			<span class="text-sm">Sign out</span>
 		</DropdownMenu.Item>
 	</div>
 {:else}
-	<!-- Not logged in state -->
+	<!-- Not logged in -->
 	<div class="p-4 text-center">
-		<div class="h-16 w-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-			<User class="h-8 w-8 text-muted-foreground" />
-		</div>
-		<p class="text-sm text-muted-foreground mb-4">Sign in to access your account</p>
-		<DropdownMenu.ItemCustom 
-			onSelect={() => navigateTo('/login')}
-			class="w-full px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg font-medium transition-colors cursor-pointer justify-center text-center"
-		>
-			{m.header_sign_in()}
-		</DropdownMenu.ItemCustom>
-		<DropdownMenu.ItemCustom 
-			onSelect={() => navigateTo('/register')}
-			class="w-full mt-2 px-4 py-2.5 border border-border hover:bg-muted text-foreground rounded-lg font-medium transition-colors cursor-pointer justify-center text-center"
-		>
-			Create account
-		</DropdownMenu.ItemCustom>
-	</div>
-	
-	<!-- Language at bottom when not logged in -->
-	<div class="border-t border-border pt-2 mt-4">
-		<div class="flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted">
-			<div class="flex items-center gap-3">
-				<span class="text-lg">🌐</span>
-				<span class="text-sm text-foreground">Language</span>
-			</div>
-			<LanguageSwitcher />
+		<span class="text-3xl mb-3 block">👋</span>
+		<p class="text-sm font-medium mb-1">Welcome!</p>
+		<p class="text-xs text-gray-500 mb-4">Sign in to start shopping</p>
+		
+		<div class="space-y-2">
+			<DropdownMenu.Item
+				onSelect={() => goto('/login')}
+				class="flex items-center justify-center py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium cursor-pointer w-full"
+			>
+				Sign in
+			</DropdownMenu.Item>
+			<DropdownMenu.Item
+				onSelect={() => goto('/register')}
+				class="flex items-center justify-center py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-sm cursor-pointer w-full"
+			>
+				Create account
+			</DropdownMenu.Item>
 		</div>
 	</div>
 {/if}
