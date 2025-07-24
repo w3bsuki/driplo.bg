@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { cookieConsent } from '$lib/stores/cookie-consent.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
-	import Switch from '$lib/components/ui/Switch.svelte';
+	import Button from '$lib/components/ui/button.svelte';
+	import Switch from '$lib/components/ui/switch.svelte';
 	import { fly } from 'svelte/transition';
 	import { X, Cookie, Shield, BarChart, Heart, Settings, Globe } from 'lucide-svelte';
 	import { cn } from '$lib/utils';

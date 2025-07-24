@@ -68,6 +68,8 @@ export const serverCache = new ServerCache()
 // Cache key builders
 export const cacheKeys = {
 	homepage: 'homepage-data',
+	homepage_critical: 'homepage-critical', // Categories + featured listings only
+	homepage_secondary: 'homepage-secondary', // Popular + top sellers
 	categories: 'categories-nav',
 	categoryPage: (slug: string) => `category-page-${slug}`,
 	browseResults: (filters: any) => `browse-${JSON.stringify(filters)}`,

@@ -1,5 +1,5 @@
 <script>
-  import Badge from '$lib/components/ui/Badge.svelte';
+  import Badge from '$lib/components/ui/badge.svelte';
   import { Check, X, AlertCircle, Clock, TrendingUp, Star, Heart } from 'lucide-svelte';
   
   const variants = ['default', 'secondary', 'destructive', 'outline'];

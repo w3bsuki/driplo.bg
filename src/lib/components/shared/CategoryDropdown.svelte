@@ -205,7 +205,7 @@
 			<!-- Header with Tabs -->
 			<div class="border-b border-gray-200" onclick={(e) => e.stopPropagation()}>
 				<div class="flex items-center justify-between px-3 py-2">
-					<div class="flex gap-2 overflow-x-auto">
+					<div class="flex gap-1 overflow-x-auto bg-gray-100 p-1 rounded-sm">
 						<button
 							type="button"
 							onclick={(e) => { 
@@ -214,13 +214,13 @@
 								activeSection = 'categories';
 							}}
 							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap",
+								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
 								activeSection === 'categories' 
-									? "bg-blue-500 text-white" 
-									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									? "bg-white shadow-sm text-gray-900" 
+									: "text-gray-600 hover:text-gray-900"
 							)}
 						>
-							📦 Categories
+							📦 {getLocale() === 'bg' ? 'Категории' : 'Categories'}
 						</button>
 						<button
 							type="button"
@@ -236,7 +236,7 @@
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							)}
 						>
-							🏷️ Brands
+							🏷️ {getLocale() === 'bg' ? 'Марки' : 'Brands'}
 						</button>
 						<button
 							type="button"
@@ -252,7 +252,7 @@
 									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
 							)}
 						>
-							🎯 Filters
+							🎯 {getLocale() === 'bg' ? 'Филтри' : 'Filters'}
 						</button>
 					</div>
 					<button
@@ -489,7 +489,7 @@
 								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
 							>
 								<span class="text-xl">🔥</span>
-								<span class="text-xs font-medium text-gray-700">Hot Items</span>
+								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Горещи' : 'Hot Items'}</span>
 							</button>
 						</div>
 					</div>
@@ -539,7 +539,7 @@
 				<!-- Trending Section -->
 				<div class="mb-6">
 					<h3 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-						<span class="text-base">🔥</span> Trending Now
+						<span class="text-base">🔥</span> {getLocale() === 'bg' ? 'Популярни сега' : 'Trending Now'}
 					</h3>
 					<div class="space-y-2">
 						<button

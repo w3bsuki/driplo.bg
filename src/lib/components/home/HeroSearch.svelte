@@ -4,11 +4,52 @@
 	import { cn } from '$lib/utils';
 	import { debounce } from '$lib/utils/performance';
 	import CategoryDropdown from '$lib/components/shared/CategoryDropdown.svelte';
-	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
+	// Lazy load non-critical components
+	let StickySearchBar: any = null;
 	import QuickFilterPills from '$lib/components/search/QuickFilterPills.svelte';
 	import TrendingSearches from '$lib/components/search/TrendingSearches.svelte';
 	import type { Category } from '$lib/types';
-	import * as m from '$lib/paraglide/messages.js';
+	import { onMount } from 'svelte';
+	// Only import the messages we actually use
+	import {
+		header_categories,
+		browse_search_placeholder,
+		quick_filter_search_button,
+		search_trending,
+		search_vintage_levis,
+		search_designer_bags,
+		search_nike_trainers,
+		search_zara_dress,
+		search_north_face_jacket,
+		quick_filter_top_sellers,
+		quick_filter_men,
+		quick_filter_women,
+		quick_filter_newest,
+		quick_filter_hot,
+		quick_filter_with_tags,
+		quick_filter_shoes,
+		quick_filter_tshirts,
+		quick_filter_accessories,
+		quick_filter_jeans,
+		quick_filter_dresses,
+		quick_filter_jackets,
+		quick_filter_bags,
+		quick_filter_sale,
+		category_men,
+		category_women,
+		category_kids,
+		condition_new_with_tags,
+		subcategory_shoes,
+		subcategory_tshirts,
+		subcategory_accessories,
+		subcategory_jeans,
+		subcategory_dresses,
+		subcategory_jackets,
+		subcategory_bags,
+		filter_browse_all,
+		filter_categories,
+		quick_filter_categories_menu
+	} from '$lib/paraglide/messages.js';
 	
 	interface Props {
 		categories?: Category[];
@@ -28,30 +69,30 @@
 	let activeCategory = $state('');
 	
 	const trendingSearches = [
-		m.search_vintage_levis(),
-		m.search_designer_bags(),
-		m.search_nike_trainers(),
-		m.search_zara_dress(),
-		m.search_north_face_jacket()
+		search_vintage_levis(),
+		search_designer_bags(),
+		search_nike_trainers(),
+		search_zara_dress(),
+		search_north_face_jacket()
 	];
 	
-	// Quick filters with i18n support
-	const quickFilters = $derived([
-		{ icon: '⭐', name: m.quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: m.quick_filter_top_sellers(), color: 'golden' },
-		{ icon: '👨', name: m.quick_filter_men(), action: 'men', ariaLabel: m.category_men(), color: 'blue' },
-		{ icon: '👩', name: m.quick_filter_women(), action: 'women', ariaLabel: m.category_women(), color: 'pink' },
-		{ icon: '✨', name: m.quick_filter_newest(), action: 'newest', ariaLabel: m.quick_filter_newest() },
-		{ icon: '🔥', name: m.quick_filter_hot(), action: 'hot', ariaLabel: m.quick_filter_hot() },
-		{ icon: '🏷️', name: m.quick_filter_with_tags(), action: 'with-tags', ariaLabel: m.condition_new_with_tags() },
-		{ icon: '👟', name: m.quick_filter_shoes(), action: 'shoes', ariaLabel: m.subcategory_shoes() },
-		{ icon: '👕', name: m.quick_filter_tshirts(), action: 't-shirts', ariaLabel: m.subcategory_tshirts() },
-		{ icon: '💍', name: m.quick_filter_accessories(), action: 'accessories', ariaLabel: m.subcategory_accessories() },
-		{ icon: '👖', name: m.quick_filter_jeans(), action: 'jeans', ariaLabel: m.subcategory_jeans() },
-		{ icon: '👗', name: m.quick_filter_dresses(), action: 'dresses', ariaLabel: m.subcategory_dresses() },
-		{ icon: '🧥', name: m.quick_filter_jackets(), action: 'jackets', ariaLabel: m.subcategory_jackets() },
-		{ icon: '👜', name: m.quick_filter_bags(), action: 'bags', ariaLabel: m.subcategory_bags() },
-		{ icon: '💸', name: m.quick_filter_sale(), action: 'sale', ariaLabel: m.filter_browse_all() }
-	]);
+	// Pre-computed quick filters for better performance
+	const quickFilters = [
+		{ icon: '⭐', name: quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: quick_filter_top_sellers(), color: 'golden' },
+		{ icon: '👨', name: quick_filter_men(), action: 'men', ariaLabel: category_men(), color: 'blue' },
+		{ icon: '👩', name: quick_filter_women(), action: 'women', ariaLabel: category_women(), color: 'pink' },
+		{ icon: '✨', name: quick_filter_newest(), action: 'newest', ariaLabel: quick_filter_newest() },
+		{ icon: '🔥', name: quick_filter_hot(), action: 'hot', ariaLabel: quick_filter_hot() },
+		{ icon: '🏷️', name: quick_filter_with_tags(), action: 'with-tags', ariaLabel: condition_new_with_tags() },
+		{ icon: '👟', name: quick_filter_shoes(), action: 'shoes', ariaLabel: subcategory_shoes() },
+		{ icon: '👕', name: quick_filter_tshirts(), action: 't-shirts', ariaLabel: subcategory_tshirts() },
+		{ icon: '💍', name: quick_filter_accessories(), action: 'accessories', ariaLabel: subcategory_accessories() },
+		{ icon: '👖', name: quick_filter_jeans(), action: 'jeans', ariaLabel: subcategory_jeans() },
+		{ icon: '👗', name: quick_filter_dresses(), action: 'dresses', ariaLabel: subcategory_dresses() },
+		{ icon: '🧥', name: quick_filter_jackets(), action: 'jackets', ariaLabel: subcategory_jackets() },
+		{ icon: '👜', name: quick_filter_bags(), action: 'bags', ariaLabel: subcategory_bags() },
+		{ icon: '💸', name: quick_filter_sale(), action: 'sale', ariaLabel: filter_browse_all() }
+	];
 	
 	// Get localized category name
 	function getCategoryName(category: Category): string {
@@ -63,8 +104,22 @@
 	let isSticky = $state(false);
 	let heroRef: HTMLElement;
 	
-	$effect(() => {
-		if (typeof window === 'undefined') return;
+	// Lazy load non-critical components
+	onMount(async () => {
+		// Load sticky search bar after initial render
+		const stickyModule = await import('$lib/components/search/StickySearchBar.svelte');
+		StickySearchBar = stickyModule.default;
+		
+		// Defer intersection observer setup
+		if ('requestIdleCallback' in window) {
+			requestIdleCallback(() => setupIntersectionObserver());
+		} else {
+			setTimeout(() => setupIntersectionObserver(), 100);
+		}
+	});
+	
+	function setupIntersectionObserver() {
+		if (typeof window === 'undefined' || !heroRef) return;
 		
 		const observer = new IntersectionObserver(
 			([entry]) => {
@@ -73,12 +128,14 @@
 			{ threshold: 0, rootMargin: INTERSECTION_ROOT_MARGIN }
 		);
 		
-		if (heroRef) observer.observe(heroRef);
+		observer.observe(heroRef);
+		
+		// Cleanup function
 		return () => {
 			if (heroRef) observer.unobserve(heroRef);
 			observer.disconnect();
 		};
-	});
+	}
 
 	
 	// Debounced search handler for performance
@@ -193,7 +250,7 @@
 											: "bg-gray-900 text-white hover:bg-gray-800"
 									)}
 								>
-									<span>{m.header_categories()}</span>
+									<span>{header_categories()}</span>
 									<ChevronDown class={cn(
 										"h-4 w-4 transition-transform duration-fast",
 										isCategoryDropdownOpen && "rotate-180"
@@ -216,19 +273,19 @@
 							<div class="flex-1 min-w-0 flex items-center px-3">
 								<input
 									type="search"
-									placeholder={m.browse_search_placeholder()}
+									placeholder={browse_search_placeholder()}
 									bind:value={searchQuery}
 									onfocus={() => isFocused = true}
 									onblur={() => isFocused = false}
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
-									aria-label={m.browse_search_placeholder()}
+									aria-label={browse_search_placeholder()}
 									class="w-full py-4 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
 									class="p-2 hover:scale-110 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-sm"
-									aria-label={m.quick_filter_search_button()}
+									aria-label={quick_filter_search_button()}
 								>
 									<span class="text-lg" aria-hidden="true">🔍</span>
 								</button>
@@ -239,7 +296,7 @@
 						<!-- Trending Category Links -->
 						<div class="border-t border-blue-50 py-3 relative overflow-hidden rounded-b-lg">
 							<div class="px-3 flex items-center gap-2">
-								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
+								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{search_trending()}:</span>
 								
 								<!-- Quick Filters Component -->
 								<QuickFilterPills
@@ -266,7 +323,7 @@
 									{#each categories.slice(0, 3) as category}
 										<button
 											onclick={() => handleCategorySelect(category.slug)}
-											aria-label="{m.filter_categories()}: {getCategoryName(category)}"
+											aria-label="{filter_categories()}: {getCategoryName(category)}"
 											class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400"
 										>
 											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
@@ -290,118 +347,112 @@
 					<!-- Main Search Row -->
 					<div class="flex items-center">
 						<!-- Categories Icon Button -->
-						<button
-							data-categories-button
-							onclick={toggleCategoryDropdown}
-							class={cn(
-								"ml-3 p-2.5 rounded-md transition-colors duration-fast",
-								isCategoryDropdownOpen 
-									? "bg-blue-500 text-white hover:bg-blue-600" 
-									: "bg-gray-900 text-white hover:bg-gray-800"
-							)}
-							aria-label={m.quick_filter_categories_menu()}
-							aria-expanded={isCategoryDropdownOpen}
-						>
-							<Menu class="h-5 w-5" />
-						</button>
-						<!-- Divider -->
-						<div class="w-px h-6 bg-gray-200 mx-2"></div>
-						<!-- Search Input -->
-						<input
-							type="search"
-							placeholder={m.browse_search_placeholder()}
-							bind:value={searchQuery}
-							onfocus={() => isFocused = true}
-							onblur={() => isFocused = false}
-							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-							oninput={handleSearch}
-							aria-label={m.browse_search_placeholder()}
-							class="flex-1 py-3.5 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
-						/>
-						<button
-							onclick={handleSearch}
-							class="p-3 mr-2 hover:scale-110 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-sm"
-							aria-label={m.quick_filter_search_button()}
-						>
-							<span class="text-xl" aria-hidden="true">🔍</span>
-						</button>
-					</div>
-					
-					<!-- Pills Section OR Category Dropdown -->
-					<div class="border-t border-gray-100">
-						{#if !isCategoryDropdownOpen}
-							<!-- Pills Section -->
-							<div class="pt-2 pb-3 px-3 relative">
-								<!-- Pills Container aligned with search input area -->
-								<div class="ml-1 mr-1">
-									<!-- Quick Filters -->
-									<div class="overflow-x-auto relative">
-										<div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-											{#each quickFilters.slice(0, 4) as filter}
-												<button
-													onclick={() => handleQuickFilter(filter.action)}
-													class={cn(
-														"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
-														filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
-														filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
-														filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
-														!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
-													)}
-												>
-													<span class="text-sm">{filter.icon}</span>
-													<span>{filter.name}</span>
-												</button>
-											{/each}
-											
-											<!-- Divider -->
-											<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
-											
-											<!-- More quick filters -->
-											{#each quickFilters.slice(4) as filter}
-												<button
-													onclick={() => handleQuickFilter(filter.action)}
-													class={cn(
-														"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
-														filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
-														filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
-														filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
-														!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
-													)}
-												>
-													<span class="text-sm">{filter.icon}</span>
-													<span>{filter.name}</span>
-												</button>
-											{/each}
-											
-											<!-- Divider -->
-											<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
-											
-											<!-- Category Quick Links -->
-											{#each categories.slice(0, 2) as category}
-												<button
-													onclick={() => handleCategorySelect(category.slug)}
-													class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
-												>
-													<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
-													<span>{getCategoryName(category)}</span>
-												</button>
-											{/each}
-										</div>
-									</div>
-								</div>
-							</div>
-						{:else}
-							<!-- Category Dropdown replaces pills -->
+						<div class="relative">
+							<button
+								data-categories-button
+								onclick={toggleCategoryDropdown}
+								class="ml-3 p-2.5 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-fast"
+								aria-label={quick_filter_categories_menu()}
+							>
+								<Menu class="h-5 w-5" />
+							</button>
+							
+							<!-- Mobile Category Dropdown - positioned relative to button -->
 							<CategoryDropdown
 								{categories}
 								isOpen={isCategoryDropdownOpen}
 								onToggle={toggleCategoryDropdown}
 								onClose={closeCategoryDropdown}
-								class="!static !mt-0 !w-full !rounded-none !rounded-b-lg !border-0"
+								class="!left-0 !mt-2"
 							/>
-						{/if}
+						</div>
+						<!-- Divider -->
+						<div class="w-px h-6 bg-gray-200 mx-2"></div>
+						<!-- Search Input -->
+						<input
+							type="search"
+							placeholder={browse_search_placeholder()}
+							bind:value={searchQuery}
+							onfocus={() => isFocused = true}
+							onblur={() => isFocused = false}
+							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
+							oninput={handleSearch}
+							aria-label={browse_search_placeholder()}
+							class="flex-1 py-3.5 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+						/>
+						<button
+							onclick={handleSearch}
+							class="p-3 mr-2 hover:scale-110 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-sm"
+							aria-label={quick_filter_search_button()}
+						>
+							<span class="text-xl" aria-hidden="true">🔍</span>
+						</button>
+					</div>
+					
+					<!-- Pills Section -->
+					<div class="border-t border-gray-100">
+						<div class="pt-2 pb-3 px-3 relative">
+							<!-- Pills Container aligned with search input area -->
+							<div class="ml-1 mr-1">
+								<!-- Quick Filters -->
+								<div class="overflow-x-auto relative">
+									<div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+										{#each quickFilters.slice(0, 4) as filter}
+											<button
+												onclick={() => handleQuickFilter(filter.action)}
+												class={cn(
+													"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
+													!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
+												)}
+											>
+												<span class="text-sm">{filter.icon}</span>
+												<span>{filter.name}</span>
+											</button>
+										{/each}
+										
+										<!-- Divider -->
+										<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
+										
+										<!-- More quick filters -->
+										{#each quickFilters.slice(4) as filter}
+											<button
+												onclick={() => handleQuickFilter(filter.action)}
+												class={cn(
+													"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
+													!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
+												)}
+											>
+												<span class="text-sm">{filter.icon}</span>
+												<span>{filter.name}</span>
+											</button>
+										{/each}
+										
+										<!-- Divider -->
+										<div class="w-px h-4 bg-gray-300 flex-shrink-0"></div>
+										
+										<!-- Category Quick Links -->
+										{#each categories.slice(0, 2) as category}
+											<button
+												onclick={() => handleCategorySelect(category.slug)}
+												class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
+											>
+												<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
+												<span>{getCategoryName(category)}</span>
+											</button>
+										{/each}
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
+				
 			</div>
 			
 			<!-- Trending Searches - Compact -->
@@ -416,15 +467,18 @@
 </section>
 
 <!-- Sticky Search Bar (Reusable Component) -->
-<StickySearchBar
-	bind:value={searchQuery}
-	placeholder={m.browse_search_placeholder()}
-	onSearch={handleSearch}
-	onCategorySelect={handleCategorySelect}
-	{categories}
-	{activeCategory}
-	visible={isSticky}
-/>
+{#if StickySearchBar}
+	<StickySearchBar
+		bind:value={searchQuery}
+		placeholder={browse_search_placeholder()}
+		onSearch={handleSearch}
+		onCategorySelect={handleCategorySelect}
+		{categories}
+		{activeCategory}
+		visible={isSticky}
+	/>
+{/if}
+
 
 <style>
 	/* Hide scrollbar for quick categories */

@@ -1,5 +1,5 @@
 <script>
-  import Button from '$lib/components/ui/Button.svelte';
+  import Button from '$lib/components/ui/button.svelte';
   import { ChevronRight, Download, Heart, Plus, Settings, Trash2 } from 'lucide-svelte';
   
   const variants = ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'];

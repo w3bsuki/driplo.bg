@@ -454,3 +454,14 @@
 - Add server-side actions for login with rate limiting
 - Begin implementing password strength requirements
 - Set up email verification reminder system
+
+## [2025-07-24] - Fixed UI Component Import Casing
+- **Issue**: Import statements using uppercase names for lowercase component files
+- **Components Fixed**:
+  - Button.svelte → button.svelte (14 imports fixed)
+  - Badge.svelte → badge.svelte (7 imports fixed)
+- **Note**: Other components (Alert, Spinner, etc.) actually have uppercase filenames and are correct
+- **Files Updated**: 
+  - Story files, auth pages, component files, badges, onboarding components
+  - Also fixed undefined event handlers in WelcomeModal.svelte
+- **Result**: All component imports now match actual filenames to prevent build errors

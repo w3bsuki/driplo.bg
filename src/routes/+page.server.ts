@@ -2,12 +2,12 @@ import type { PageServerLoad } from './$types';
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache';
 
 export const load: PageServerLoad = async ({ locals }) => {
-  // Cache the entire homepage data as a single request
-  const homepageData = await getCachedData(
-    cacheKeys.homepage,
+  // Load critical data first, stream the rest
+  const criticalData = await getCachedData(
+    cacheKeys.homepage_critical,
     async () => {
-      // Execute all queries in parallel for better performance
-      const [categoriesResult, featuredResult, popularResult, topSellersResult] = await Promise.all([
+      // Load only categories and featured listings first (critical for FCP)
+      const [categoriesResult, featuredResult] = await Promise.all([
         // Get main categories with product counts
         locals.supabase
           .from('categories')
@@ -30,8 +30,22 @@ export const load: PageServerLoad = async ({ locals }) => {
           `)
           .eq('status', 'active')
           .order('created_at', { ascending: false })
-          .limit(16),
+          .limit(8) // Reduced for faster initial load
+      ]);
 
+      return {
+        categories: categoriesResult.data || [],
+        featuredListings: featuredResult.data || []
+      };
+    },
+    cacheTTL.homepage
+  );
+
+  // Load non-critical data asynchronously
+  const nonCriticalData = getCachedData(
+    cacheKeys.homepage_secondary,
+    async () => {
+      const [popularResult, topSellersResult] = await Promise.all([
         // Get most viewed listings
         locals.supabase
           .from('listings')
@@ -66,11 +80,7 @@ export const load: PageServerLoad = async ({ locals }) => {
           .limit(5)
       ]);
 
-      // Handle errors silently - return empty arrays in the result
-
       return {
-        categories: categoriesResult.data || [],
-        featuredListings: featuredResult.data || [],
         popularListings: popularResult.data || [],
         topSellers: topSellersResult.data || []
       };
@@ -78,5 +88,10 @@ export const load: PageServerLoad = async ({ locals }) => {
     cacheTTL.homepage
   );
 
-  return homepageData;
+  // Return critical data immediately, non-critical will stream
+  return {
+    ...criticalData,
+    popularListings: (await nonCriticalData).popularListings,
+    topSellers: (await nonCriticalData).topSellers
+  };
 };
