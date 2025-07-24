@@ -24,7 +24,7 @@
   <!-- Breadcrumb -->
   <nav class="bg-white border-b">
     <div class="container mx-auto px-4 py-3">
-      <ol class="flex items-center space-x-2 text-sm">
+      <ol class="flex items-center gap-2 text-sm">
         <li><a href="/" class="text-gray-500 hover:text-gray-900">Home</a></li>
         <li><ChevronRight class="w-4 h-4 text-gray-400" /></li>
         <li><a href="/{category.slug}" class="text-gray-500 hover:text-gray-900">{category.name}</a></li>
@@ -39,7 +39,7 @@
     <div class="container mx-auto px-4 py-6">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+          <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
             {subcategory?.name || ''}
           </h1>
           <p class="text-gray-600 mt-1">
@@ -59,7 +59,7 @@
 
   <!-- Main Content -->
   <div class="container mx-auto px-4 py-6">
-    <div class="flex gap-6">
+    <div class="flex gap-3">
       <!-- Filters Sidebar -->
       <aside class="hidden sm:block w-64 flex-shrink-0">
         <FilterBar 
@@ -79,7 +79,7 @@
           />
         {:else}
           <div class="text-center py-12">
-            <p class="text-gray-500 text-lg mb-4">
+            <p class="text-gray-500 text-sm mb-4">
               No items found in {subcategory?.name || ''}
             </p>
             <Button href="/{category.slug}" variant="outline">
@@ -96,7 +96,7 @@
     <div class="sm:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onclick={() => showFilters = false}>
       <div class="absolute right-0 top-0 h-full w-80 bg-white p-4" onclick={(e) => e.stopPropagation()}>
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Filters</h2>
+          <h2 class="text-sm font-semibold">Filters</h2>
           <Button variant="ghost" size="sm" onclick={() => showFilters = false}>
             Close
           </Button>

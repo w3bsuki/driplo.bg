@@ -295,7 +295,7 @@
 				<button
 					type="button"
 					class="w-full flex items-center justify-center gap-3 px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm font-medium"
-					on:click={() => handleOAuth('google')}
+					onclick={() => handleOAuth('google')}
 					disabled={loading}
 				>
 					<svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -309,7 +309,7 @@
 				<button
 					type="button"
 					class="w-full flex items-center justify-center gap-3 px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm font-medium"
-					on:click={() => handleOAuth('github')}
+					onclick={() => handleOAuth('github')}
 					disabled={loading}
 				>
 					<Github class="w-4 h-4" />
@@ -330,7 +330,7 @@
 			<!-- Registration Form -->
 			<form 
 				method="POST"
-				on:submit={(e) => {
+				onsubmit={(e) => {
 					// In production, require CAPTCHA
 					if (import.meta.env.MODE === 'production' && !captchaToken) {
 						e.preventDefault();
@@ -438,7 +438,7 @@
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center"
-							on:click={() => showPassword = !showPassword}
+							onclick={() => showPassword = !showPassword}
 						>
 							{#if showPassword}
 								<EyeOff class="h-4 w-4 text-gray-400" />
@@ -468,7 +468,7 @@
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center"
-							on:click={() => showConfirmPassword = !showConfirmPassword}
+							onclick={() => showConfirmPassword = !showConfirmPassword}
 						>
 							{#if showConfirmPassword}
 								<EyeOff class="h-4 w-4 text-gray-400" />

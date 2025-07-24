@@ -77,18 +77,18 @@
     --font-display: 'Plus Jakarta Sans', var(--font-sans);
     --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
 
-    /* Font Sizes - Ultra compact */
-    --text-2xs: 0.625rem;    /* 10px - labels/badges */
-    --text-xs: 0.6875rem;    /* 11px - micro info */
-    --text-sm: 0.75rem;      /* 12px - secondary */
-    --text-base: 0.8125rem;  /* 13px - body default */
-    --text-md: 0.875rem;     /* 14px - emphasis */
-    --text-lg: 1rem;         /* 16px - headings */
-    --text-xl: 1.125rem;     /* 18px - section titles */
-    --text-2xl: 1.25rem;     /* 20px - page titles */
-    --text-3xl: 1.5rem;      /* 24px - hero */
-    --text-4xl: 1.75rem;     /* 28px - display */
-    --text-5xl: 2rem;        /* 32px - big numbers */
+    /* Font Sizes - Comfortable compact */
+    --text-2xs: 0.6875rem;   /* 11px - tiny labels only */
+    --text-xs: 0.75rem;      /* 12px - secondary micro text */
+    --text-sm: 0.8125rem;    /* 13px - secondary text */
+    --text-base: 0.875rem;   /* 14px - body default */
+    --text-md: 0.9375rem;    /* 15px - emphasis */
+    --text-lg: 1.125rem;     /* 18px - headings */
+    --text-xl: 1.25rem;      /* 20px - section titles */
+    --text-2xl: 1.5rem;      /* 24px - page titles */
+    --text-3xl: 1.875rem;    /* 30px - hero */
+    --text-4xl: 2.25rem;     /* 36px - display */
+    --text-5xl: 2.5rem;      /* 40px - big numbers */
 
     /* Line Heights - Tighter for density */
     --leading-none: 1;
@@ -172,21 +172,21 @@
     --space-12: 3rem;       /* 48px - page margins */
 
     /* ===== Component Sizing ===== */
-    /* Buttons - Compact (Vercel/Linear style) */
-    --button-height-xs: 1.5rem;     /* 24px - micro actions */
-    --button-height-sm: 2rem;       /* 32px - small */
-    --button-height-md: 2.25rem;    /* 36px - default */
-    --button-height-lg: 2.5rem;     /* 40px - primary CTAs */
-    --button-height-xl: 2.75rem;    /* 44px - hero actions */
+    /* Buttons - Comfortable compact */
+    --button-height-xs: 1.75rem;    /* 28px - micro actions */
+    --button-height-sm: 2.25rem;    /* 36px - small */
+    --button-height-md: 2.5rem;     /* 40px - default */
+    --button-height-lg: 2.75rem;    /* 44px - primary CTAs */
+    --button-height-xl: 3rem;       /* 48px - hero actions */
 
-    /* Inputs - Compact sizing */
-    --input-height-sm: 2rem;        /* 32px */
-    --input-height-md: 2.25rem;     /* 36px - default */
-    --input-height-lg: 2.5rem;      /* 40px */
+    /* Inputs - Comfortable compact */
+    --input-height-sm: 2.25rem;     /* 36px */
+    --input-height-md: 2.5rem;      /* 40px - default */
+    --input-height-lg: 2.75rem;     /* 44px */
 
-    /* Mobile adjustments (optional - for critical CTAs only) */
-    --button-height-mobile-lg: 2.5rem;  /* 40px - mobile primary CTAs */
-    --button-height-mobile-xl: 2.75rem; /* 44px - mobile hero only */
+    /* Mobile adjustments (for critical CTAs) */
+    --button-height-mobile-lg: 2.75rem; /* 44px - mobile primary CTAs */
+    --button-height-mobile-xl: 3rem;    /* 48px - mobile hero */
 
     /* Minimum tap areas (invisible expansion) */
     --tap-area-min: 2.75rem;        /* 44px - expand via padding/pseudo-elements */

@@ -347,13 +347,13 @@
 							<!-- Navigation buttons -->
 							<button
 								onclick={(e) => { e.stopPropagation(); prevImage(); }}
-								class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-fast"
+								class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-100"
 							>
 								<ChevronLeft class="w-4 h-4" />
 							</button>
 							<button
 								onclick={(e) => { e.stopPropagation(); nextImage(); }}
-								class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-fast"
+								class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-100"
 							>
 								<ChevronRight class="w-4 h-4" />
 							</button>
@@ -406,13 +406,13 @@
 					<!-- Header -->
 					<div class="space-y-2">
 						<div class="flex items-center justify-between gap-2">
-							<h1 class="text-lg font-semibold text-foreground flex-1">
+							<h1 class="text-base font-semibold text-foreground flex-1">
 								{listing.title}
 							</h1>
 							<div class="flex items-center gap-1">
 								<button
 									onclick={handleLike}
-									class={cn("p-1.5 rounded-sm hover:bg-gray-100 transition-colors duration-fast",
+									class={cn("p-1.5 rounded-sm hover:bg-gray-100 transition-colors duration-100",
 										isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"
 									)}
 								>
@@ -420,7 +420,7 @@
 								</button>
 								<button 
 									onclick={handleShare}
-									class="p-1.5 rounded-sm text-gray-500 hover:bg-gray-100 transition-colors duration-fast"
+									class="p-1.5 rounded-sm text-gray-500 hover:bg-gray-100 transition-colors duration-100"
 								>
 									<Share2 class="w-4 h-4" />
 								</button>
@@ -490,7 +490,7 @@
 								{/if}
 								<div>
 									<div class="flex items-center gap-1">
-										<span class="text-sm font-medium group-hover:text-primary transition-colors duration-fast">
+										<span class="text-sm font-medium group-hover:text-primary transition-colors duration-100">
 											{listing.seller.username}
 										</span>
 										{#if listing.seller.account_type === 'brand'}
@@ -561,7 +561,7 @@
 										<span class="text-sm text-gray-900 font-medium">{listing.subcategory?.name}</span>
 									</div>
 								{/if}
-								<div class="flex justify-between items-center py-3 border-b border-blue-100/50 hover:bg-white/50 px-2 -mx-2 rounded-sm transition-colors duration-fast">
+								<div class="flex justify-between items-center py-2 border-b border-gray-100">
 									<span class="text-sm text-gray-500">Listed</span>
 									<span class="text-sm text-gray-900 font-medium">{new Date(listing.created_at).toLocaleDateString()}</span>
 								</div>
@@ -656,13 +656,13 @@
 									<div class="flex gap-2 mt-3">
 										<a 
 											href="/profile/{listing.seller.username}" 
-											class="flex-1 py-1.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-fast"
+											class="flex-1 py-1.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-100"
 										>
 											View Profile
 										</a>
 										{#if !isOwner}
 											<button 
-												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-fast"
+												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-100"
 												onclick={() => goto(`/messages?user=${listing.seller.username}`)}
 											>
 												<MessageCircle class="w-4 h-4 text-gray-700" />
@@ -682,7 +682,7 @@
 	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
 		<div class="max-w-7xl mx-auto flex items-center gap-2">
 			<div class="flex-1">
-				<div class="text-lg font-bold text-gray-900">{formatCurrency(listing.price)}</div>
+				<div class="text-base font-bold text-gray-900">{formatCurrency(listing.price)}</div>
 				<div class="text-xs text-gray-500">{listing.shipping_cost > 0 ? `+ ${formatCurrency(listing.shipping_cost)} shipping` : 'Free shipping'}</div>
 			</div>
 			{#if !isOwner}
@@ -701,14 +701,14 @@
 					onclick={handleBuyNow}
 					onmouseenter={() => checkoutFlowRef?.preload()}
 					onfocus={() => checkoutFlowRef?.preload()}
-					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-fast transform active:scale-[0.98]"
+					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-100 transform active:scale-[0.98]"
 				>
 					Buy Now
 				</button>
 			{:else}
 				<button
 					onclick={() => goto(`/listings/${listing.id}/edit`)}
-					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-fast transform active:scale-[0.98]"
+					class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-100 transform active:scale-[0.98]"
 				>
 					Edit Listing
 				</button>
@@ -726,7 +726,7 @@
 					</div>
 					<div class="flex gap-1.5">
 						{#each Array(4) as _, index (index)}
-							<div class="w-12 h-12 bg-gray-100 rounded animate-pulse"></div>
+							<div class="w-12 h-12 bg-gray-100 rounded-sm animate-pulse"></div>
 						{/each}
 					</div>
 				</div>
@@ -734,22 +734,22 @@
 				<!-- Details skeleton -->
 				<div class="space-y-3">
 					<div class="space-y-2">
-						<div class="h-6 w-3/4 bg-gray-100 rounded animate-pulse"></div>
-						<div class="h-8 w-24 bg-gray-100 rounded animate-pulse"></div>
+						<div class="h-6 w-3/4 bg-gray-100 rounded-sm animate-pulse"></div>
+						<div class="h-8 w-24 bg-gray-100 rounded-sm animate-pulse"></div>
 						<div class="flex gap-2">
-							<div class="h-6 w-16 bg-gray-100 rounded animate-pulse"></div>
-							<div class="h-6 w-20 bg-gray-100 rounded animate-pulse"></div>
-							<div class="h-6 w-16 bg-gray-100 rounded animate-pulse"></div>
+							<div class="h-6 w-16 bg-gray-100 rounded-sm animate-pulse"></div>
+							<div class="h-6 w-20 bg-gray-100 rounded-sm animate-pulse"></div>
+							<div class="h-6 w-16 bg-gray-100 rounded-sm animate-pulse"></div>
 						</div>
-						<div class="h-12 w-full bg-gray-100 rounded animate-pulse"></div>
+						<div class="h-12 w-full bg-gray-100 rounded-sm animate-pulse"></div>
 					</div>
 					
 					<div class="border border-gray-200 rounded-sm p-3">
 						<div class="flex items-center gap-2">
 							<div class="w-8 h-8 bg-gray-100 rounded-full animate-pulse"></div>
 							<div class="space-y-1 flex-1">
-								<div class="h-3 w-20 bg-gray-100 rounded animate-pulse"></div>
-								<div class="h-2 w-16 bg-gray-100 rounded animate-pulse"></div>
+								<div class="h-3 w-20 bg-gray-100 rounded-sm animate-pulse"></div>
+								<div class="h-2 w-16 bg-gray-100 rounded-sm animate-pulse"></div>
 							</div>
 						</div>
 					</div>
@@ -764,13 +764,13 @@
 	<div 
 		class="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center"
 		transition:fade={{ duration: 200 }}
-		onclick={handleCloseFullscreenGallery}
+		onclick={closeFullscreenGallery}
 	>
-		<div class="relative w-full h-full flex items-center justify-center p-4">
+		<div class="relative w-full h-full flex items-center justify-center p-3">
 			<!-- Close button -->
 			<button
-				onclick={handleCloseFullscreenGallery}
-				class="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
+				onclick={closeFullscreenGallery}
+				class="absolute top-3 right-3 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-10"
 			>
 				<X class="w-6 h-6" />
 			</button>
@@ -789,7 +789,7 @@
 					/>
 				{:else}
 					<div class="w-full h-full flex items-center justify-center">
-						<span class="text-white text-base">No image available</span>
+						<span class="text-white text-sm">No image available</span>
 					</div>
 				{/if}
 
@@ -797,13 +797,13 @@
 					<!-- Navigation buttons -->
 					<button
 						onclick={(e) => { e.stopPropagation(); prevImage(); }}
-						class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-fast"
+						class="absolute left-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-100"
 					>
 						<ChevronLeft class="w-6 h-6" />
 					</button>
 					<button
 						onclick={(e) => { e.stopPropagation(); nextImage(); }}
-						class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-fast"
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-100"
 					>
 						<ChevronRight class="w-6 h-6" />
 					</button>
@@ -812,11 +812,11 @@
 
 			<!-- Thumbnail strip -->
 			{#if hasMultipleImages}
-				<div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+				<div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
 					{#each images as _, index (index)}
 						<button
 							onclick={(e) => { e.stopPropagation(); currentImageIndex = index; }}
-							class={cn("w-12 h-12 rounded overflow-hidden border-2 transition-all",
+							class={cn("w-12 h-12 rounded-sm overflow-hidden border-2 transition-all",
 								index === currentImageIndex ? "border-white" : "border-white/30 opacity-60 hover:opacity-100"
 							)}
 						>

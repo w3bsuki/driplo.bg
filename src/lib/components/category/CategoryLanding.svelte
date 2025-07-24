@@ -174,7 +174,7 @@
       {#if topSellers.length > 0}
         <div class="mb-4">
           <p class="text-sm text-gray-600 mb-2 text-center">Top sellers in {category.name}</p>
-          <div class="flex justify-center gap-4 md:gap-6">
+          <div class="flex justify-center gap-3">
             {#each topSellers.slice(0, 3) as seller, index}
               <a href="/profile/{seller.username}" class="group relative">
                 <div class="relative">
@@ -182,8 +182,8 @@
                     <div class="absolute -top-1 -right-1 text-sm z-10">👑</div>
                   {/if}
                   <div class={cn(
-                    "relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-white shadow-md transition-all duration-300",
-                    "group-hover:scale-105 group-hover:shadow-lg",
+                    "relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-white transition-all duration-100",
+                    "group-hover:scale-105",
                     theme === 'pink' ? "group-hover:ring-pink-300" : "group-hover:ring-blue-300"
                   )}>
                     <img 
@@ -193,7 +193,7 @@
                     />
                   </div>
                   {#if seller.is_verified}
-                    <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white w-4 h-4 rounded-full flex items-center justify-center">
+                    <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white w-4 h-4 rounded-sm flex items-center justify-center">
                       <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                       </svg>
@@ -201,8 +201,8 @@
                   {/if}
                 </div>
                 <!-- Tooltip on hover -->
-                <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20">
-                  <div class="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 whitespace-nowrap">
+                <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-20">
+                  <div class="bg-gray-900 text-white text-xs rounded-sm px-3 py-2 whitespace-nowrap shadow-md">
                     <p class="font-medium">{seller.full_name || seller.username}</p>
                     <div class="flex items-center gap-2 mt-0.5">
                       <span class="flex items-center gap-0.5">
@@ -223,11 +223,11 @@
       <!-- Search Bar -->
       <div class="relative group">
         <div class={cn(
-          "absolute inset-0 rounded-2xl blur-xl opacity-20 transition-all duration-300 group-focus-within:opacity-30 group-focus-within:blur-2xl",
+          "absolute inset-0 rounded-sm blur-xl opacity-20 transition-all duration-100 group-focus-within:opacity-30 group-focus-within:blur-2xl",
           theme === 'pink' ? "bg-gradient-to-r from-pink-400 to-pink-600" : "bg-gradient-to-r from-blue-400 to-blue-600"
         )}></div>
         
-        <div class="relative bg-white rounded-2xl shadow-lg border border-gray-100 transition-all duration-300 hover:shadow-xl">
+        <div class="relative bg-white rounded-sm border border-gray-100 transition-all duration-100">
           <div class="flex items-center">
             <div class="pl-6 pr-3">
               <span class="text-lg">🔍</span>
@@ -237,13 +237,13 @@
               type="search"
               placeholder="Search {category.name.toLowerCase()} fashion..."
               bind:value={searchQuery}
-              class="flex-1 py-3 md:py-3.5 pr-4 text-sm md:text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+              class="flex-1 py-3 md:py-3.5 pr-4 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
             />
             
             <button
               onclick={() => {}}
               class={cn(
-                "mr-2 px-4 md:px-5 py-2 text-white font-medium rounded-lg text-sm md:text-base transition-all duration-200 active:scale-95",
+                "mr-2 px-4 md:px-5 py-2 text-white font-medium rounded-sm text-sm transition-all duration-100 active:scale-95",
                 theme === 'pink' 
                   ? "bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700" 
                   : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
@@ -268,7 +268,7 @@
   {selectedSubcategory}
   onFilterChange={handleFilterChange}
   onSubcategoryChange={handleSubcategoryChange}
-  onClearFilters={clearFilters}
+  onClearFilters={handleClearFilters}
   {theme}
 />
 
@@ -284,7 +284,7 @@
         <div class="relative">
           <select
             bind:value={sortBy}
-            class="w-full text-sm border border-gray-200 rounded-lg pl-3 pr-8 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white shadow-sm hover:border-gray-300 hover:shadow-md transition-all duration-200 font-medium text-gray-700"
+            class="w-full text-sm border border-gray-200 rounded-sm pl-3 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-blue-200 bg-white hover:border-gray-300 transition-all duration-100 font-medium text-gray-700"
             style="appearance: none; -webkit-appearance: none; -moz-appearance: none;"
           >
             {#each sortOptions as option}
@@ -313,7 +313,7 @@
     />
   {:else}
     <div class="text-center py-12">
-      <p class="text-gray-500 text-lg mb-4">No items found</p>
+      <p class="text-gray-500 text-sm mb-4">No items found</p>
       {#if hasActiveFilters}
         <button
           onclick={handleClearFilters}

@@ -301,7 +301,7 @@
 					{:else if $topSellersQuery.error}
 						<!-- Error state - silently fail, don't show section -->
 					{:else if $topSellersQuery.data?.sellers && $topSellersQuery.data.sellers.length > 0}
-						<h2 class="text-base md:text-lg font-semibold text-gray-800 mb-3 text-center flex items-center justify-center gap-2">
+						<h2 class="text-sm md:text-base font-semibold text-gray-800 mb-3 text-center flex items-center justify-center gap-2">
 							<span>🏆</span>
 							<span>Top Sellers This Month</span>
 						</h2>
@@ -313,13 +313,13 @@
 											<div class="absolute -top-2 -right-2 text-lg z-10">👑</div>
 										{/if}
 										<div class="relative">
-											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-fast"></div>
-											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-3 ring-white border border-gray-200 group-hover:ring-blue-200 transition-all duration-fast">
+											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-100"></div>
+											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-1 ring-white border border-gray-200 group-hover:ring-blue-200 transition-all duration-100">
 												{#if seller.avatar_url}
 													<img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
 												{:else}
 													<div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-														<span class="text-white font-bold text-lg md:text-xl">{seller.username[0].toUpperCase()}</span>
+														<span class="text-white font-bold text-sm md:text-base">{seller.username[0].toUpperCase()}</span>
 													</div>
 												{/if}
 											</div>
@@ -341,9 +341,9 @@
 				
 				<!-- Search Bar with Emoji -->
 				<div class="relative group">
-					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-sm blur-xl opacity-20 transition-all duration-fast group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
+					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-sm blur-xl opacity-20 transition-all duration-100 group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
 					
-					<div class="relative bg-white rounded-sm border border-gray-200 transition-all duration-fast">
+					<div class="relative bg-white rounded-sm border border-gray-200 transition-all duration-100">
 						<div class="flex items-center">
 							<div class="pl-3 pr-2">
 								<span class="text-2xl">🔍</span>
@@ -361,7 +361,7 @@
 							
 							<button
 								onclick={() => handleSearch(searchInput)}
-								class="mr-2 px-3 md:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-sm text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-fast active:scale-95"
+								class="mr-2 px-3 md:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-sm text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-100 active:scale-95"
 							>
 								Search
 							</button>
@@ -369,13 +369,13 @@
 						
 						<!-- Quick Search Suggestions -->
 						{#if showQuickSearch}
-							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-sm shadow-lg border border-gray-200 p-3 z-50">
+							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-sm shadow-md border border-gray-200 p-3 z-50">
 								<p class="text-sm font-medium text-gray-700 mb-2">Quick searches:</p>
 								<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
 									{#each quickSearchSuggestions as suggestion (suggestion.text)}
 										<button
 											onmousedown={() => handleQuickSearch(suggestion.text)}
-											class="flex items-center gap-2 px-2 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors duration-fast text-sm"
+											class="flex items-center gap-2 px-2 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors duration-100 text-sm"
 										>
 											<span class="text-lg">{suggestion.emoji}</span>
 											<span class="text-gray-700">{suggestion.text}</span>
@@ -417,13 +417,13 @@
 								<button
 									onclick={() => updateCategory(category.slug)}
 									class={cn(
-										"w-full text-left px-2 py-2 rounded-sm text-sm transition-all duration-fast flex items-center gap-2",
+										"w-full text-left px-2 py-2 rounded-sm text-sm transition-all duration-100 flex items-center gap-2",
 										data.filters.category === category.slug
 											? "bg-blue-50 text-blue-700 font-medium"
 											: "hover:bg-gray-50 text-gray-700"
 									)}
 								>
-									<span class="text-base">{category.icon_url || '📦'}</span>
+									<span class="text-sm">{category.icon_url || '📦'}</span>
 									<span>{category.name}</span>
 								</button>
 							{/each}
@@ -440,7 +440,7 @@
 									placeholder={m.browse_price_min()}
 									bind:value={priceRange.min}
 									onblur={updatePriceRange}
-									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
 								/>
 								<span class="text-gray-400 self-center">-</span>
 								<input
@@ -448,12 +448,12 @@
 									placeholder={m.browse_price_max()}
 									bind:value={priceRange.max}
 									onblur={updatePriceRange}
-									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
 								/>
 							</div>
 							<button
 								onclick={updatePriceRange}
-								class="w-full px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-sm hover:bg-blue-100 transition-colors duration-fast"
+								class="w-full px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-sm hover:bg-blue-100 transition-colors duration-100"
 							>
 								Apply Price Range
 							</button>
@@ -468,7 +468,7 @@
 								<button
 									onclick={() => toggleSize(size)}
 									class={cn(
-										"px-2 py-1.5 rounded-sm text-sm font-medium transition-all duration-fast",
+										"px-2 py-1.5 rounded-sm text-sm font-medium transition-all duration-100",
 										selectedSizes.has(size)
 											? "bg-blue-300 text-white border border-blue-400"
 											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -490,7 +490,7 @@
 										type="checkbox"
 										checked={selectedConditions.has(condition.value)}
 										onchange={() => toggleCondition(condition.value)}
-										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-2"
+										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-1"
 									/>
 									<span class="text-sm text-gray-700 group-hover:text-gray-900">{condition.label}</span>
 								</label>
@@ -508,7 +508,7 @@
 										type="checkbox"
 										checked={selectedBrands.has(brand)}
 										onchange={() => toggleBrand(brand)}
-										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-2"
+										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-1"
 									/>
 									<span class="text-sm text-gray-700 group-hover:text-gray-900">{brand}</span>
 								</label>
@@ -520,7 +520,7 @@
 					{#if data.filters.search || data.filters.category || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || data.filters.minPrice || data.filters.maxPrice}
 						<button
 							onclick={clearAllFilters}
-							class="w-full px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-sm hover:bg-red-50 transition-colors duration-fast"
+							class="w-full px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-sm hover:bg-red-50 transition-colors duration-100"
 						>
 							{m.browse_clear_filters()}
 						</button>
@@ -534,7 +534,7 @@
 				<div class="bg-white rounded-sm border border-gray-200 p-3 mb-3">
 					<div class="flex items-center justify-between">
 						<div>
-							<h2 class="text-base font-semibold text-gray-900">
+							<h2 class="text-sm font-semibold text-gray-900">
 								{data.filters.category ? categoriesWithAll.find(c => c.slug === data.filters.category)?.name : 'All Items'}
 							</h2>
 							{#if data.filters.search}
@@ -548,7 +548,7 @@
 							<select
 								bind:value={sortBy}
 								onchange={(e) => updateSort(e.currentTarget.value)}
-								class="rounded-sm border border-gray-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+								class="rounded-sm border border-gray-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
 							>
 								{#each sortOptions as option (option.value)}
 									<option value={option.value}>{option.label}</option>
