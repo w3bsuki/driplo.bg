@@ -1,5 +1,25 @@
 # Memory - Driplo Project
 
+## [2025-07-24] - Design System Fixes Applied to Existing Components
+- **Status**: In Progress - Fixed Priority 1 and core UI components
+- **What Was Done**:
+  - Fixed ListingCard.svelte: Changed all rounded-md/full to rounded-sm, kept p-2 spacing
+  - Fixed ListingGrid.svelte: Updated spacing (py-3→py-2, gap-3→gap-2), text sizes (text-base→text-sm), all rounded-lg→rounded-sm, removed shadows
+  - Fixed core UI components:
+    - Button.svelte: Updated all sizes to use rounded-sm and text-sm, duration-fast→duration-100
+    - Input.svelte: Changed rounded-md→rounded-sm, removed text-base from lg size, duration-fast→duration-100
+    - Textarea.svelte: Changed rounded-md→rounded-sm, duration-fast→duration-100
+    - SelectTrigger.svelte: Changed rounded-md→rounded-sm, duration-fast→duration-100
+    - SelectContent.svelte: Changed rounded-md→rounded-sm (kept shadow-md as it's a dropdown)
+  - Fixed HeroSearch.svelte: Updated all spacing (py-4→py-2, px-4→px-3, p-3→p-2), rounded-lg/md→rounded-sm, text-base→text-sm, removed shadow-sm
+- **Key Changes**:
+  - Consistent rounded-sm across all components
+  - Tighter spacing with p-2/p-3 and gap-2/gap-3
+  - All body text using text-sm (no text-base)
+  - All transitions using duration-100
+  - Shadows removed except for dropdowns/modals
+- **Remaining**: Need to fix Header, QuickFilters, and other high-traffic components
+
 ## [2025-07-24] - Design System FAILED Approach - Created 46 Useless Components
 - **Status**: FAILED - Created new components instead of fixing existing ones
 - **What We Did Wrong**:

@@ -38,7 +38,7 @@
 
 <SelectPrimitive.Content
 	class={cn(
-		'relative z-50 min-w-[8rem] overflow-hidden rounded-md border bg-white text-gray-900 shadow-md',
+		'relative z-50 min-w-[8rem] overflow-hidden rounded-sm border bg-white text-gray-900 shadow-md',
 		className
 	)}
 	{side}

@@ -52,7 +52,7 @@
 	const sizeClasses = {
 		sm: 'h-8 px-3 text-sm',
 		md: 'h-9 px-3 text-sm',
-		lg: 'h-10 px-4 text-base'
+		lg: 'h-9 px-3 text-sm'
 	}
 </script>
 
@@ -64,7 +64,7 @@
 	{required}
 	bind:value
 	class={cn(
-		'flex w-full rounded-md border border-input bg-background ring-offset-background transition-all duration-fast file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+		'flex w-full rounded-sm border border-input bg-background ring-offset-background transition-all duration-100 file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50',
 		sizeClasses[size],
 		className
 	)}

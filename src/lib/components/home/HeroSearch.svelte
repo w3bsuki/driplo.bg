@@ -226,7 +226,7 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6 pb-0">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-2 md:py-3 pb-0">
 	<div class="container px-4">
 		<div class="max-w-3xl mx-auto">
 			
@@ -234,7 +234,7 @@
 			<div class="hidden md:block">
 				<div class="relative overflow-visible">
 					<div class={cn(
-						"relative bg-white rounded-lg border border-gray-200 transition-all duration-200 shadow-sm",
+						"relative bg-white rounded-sm border border-gray-200 transition-all duration-100",
 						isFocused ? "border-blue-400 ring-1 ring-blue-400" : "border-gray-200"
 					)}>
 						<div class="flex items-center min-w-0">
@@ -244,7 +244,7 @@
 									data-categories-button
 									onclick={toggleCategoryDropdown}
 									class={cn(
-										"flex items-center gap-2 px-4 py-2.5 rounded-md font-medium text-sm focus:outline-none transition-all duration-fast",
+										"flex items-center gap-2 px-3 py-2 rounded-sm font-medium text-sm focus:outline-none transition-all duration-100",
 										isCategoryDropdownOpen 
 											? "bg-blue-500 text-white hover:bg-blue-600" 
 											: "bg-gray-900 text-white hover:bg-gray-800"
@@ -252,7 +252,7 @@
 								>
 									<span>{header_categories()}</span>
 									<ChevronDown class={cn(
-										"h-4 w-4 transition-transform duration-fast",
+										"h-4 w-4 transition-transform duration-100",
 										isCategoryDropdownOpen && "rotate-180"
 									)} />
 								</button>
@@ -280,11 +280,11 @@
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
 									aria-label={browse_search_placeholder()}
-									class="w-full py-4 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+									class="w-full py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 hover:scale-110 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-md"
+									class="p-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-sm"
 									aria-label={quick_filter_search_button()}
 								>
 									<span class="text-lg" aria-hidden="true">🔍</span>
@@ -294,7 +294,7 @@
 						
 						
 						<!-- Trending Category Links -->
-						<div class="border-t border-blue-50 py-3 relative overflow-hidden rounded-b-lg">
+						<div class="border-t border-blue-50 py-2 relative overflow-hidden rounded-b-sm">
 							<div class="px-3 flex items-center gap-2">
 								<span class="text-xs text-gray-700/50 flex-shrink-0 hidden md:block font-medium">{search_trending()}:</span>
 								
@@ -324,7 +324,7 @@
 										<button
 											onclick={() => handleCategorySelect(category.slug)}
 											aria-label="{filter_categories()}: {getCategoryName(category)}"
-											class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-background border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-brand-400"
+											class="flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-background border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400"
 										>
 											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
 											<span>{getCategoryName(category)}</span>
@@ -341,7 +341,7 @@
 			<div class="block md:hidden">
 				<!-- Search Bar Container -->
 				<div class={cn(
-					"relative bg-background rounded-md border border-gray-200 transition-all duration-fast",
+					"relative bg-background rounded-sm border border-gray-200 transition-all duration-100",
 					isFocused ? "border-brand-400 ring-1 ring-brand-400" : "border-gray-200"
 				)}>
 					<!-- Main Search Row -->
@@ -351,7 +351,7 @@
 							<button
 								data-categories-button
 								onclick={toggleCategoryDropdown}
-								class="ml-3 p-2.5 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors duration-fast"
+								class="ml-3 p-2 rounded-sm bg-foreground text-background hover:bg-foreground/90 transition-colors duration-100"
 								aria-label={quick_filter_categories_menu()}
 							>
 								<Menu class="h-5 w-5" />
@@ -378,11 +378,11 @@
 							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 							oninput={handleSearch}
 							aria-label={browse_search_placeholder()}
-							class="flex-1 py-3.5 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+							class="flex-1 py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
 						/>
 						<button
 							onclick={handleSearch}
-							class="p-3 mr-2 hover:scale-110 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-md"
+							class="p-2 mr-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-sm"
 							aria-label={quick_filter_search_button()}
 						>
 							<span class="text-xl" aria-hidden="true">🔍</span>
@@ -401,7 +401,7 @@
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 flex-shrink-0",
 													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
 													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-brand-400",
 													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
@@ -421,7 +421,7 @@
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 flex-shrink-0",
 													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
 													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-brand-400",
 													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
@@ -440,7 +440,7 @@
 										{#each categories.slice(0, 2) as category}
 											<button
 												onclick={() => handleCategorySelect(category.slug)}
-												class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-background border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
+												class="flex items-center gap-1 px-2 py-1.5 rounded-sm bg-background border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
 											>
 												<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
 												<span>{getCategoryName(category)}</span>

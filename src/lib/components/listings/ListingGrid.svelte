@@ -130,26 +130,26 @@
 <section class="py-2 md:py-3" aria-labelledby={title ? 'listing-grid-title' : undefined}>
 	<div class="container px-4">
 		{#if title}
-			<h2 id="listing-grid-title" class="mb-2 text-sm md:text-base font-semibold text-foreground">
+			<h2 id="listing-grid-title" class="mb-2 text-sm font-semibold text-foreground">
 				{title}
 			</h2>
 		{/if}
 		
 		{#if error && !loading}
 			<!-- Error state -->
-			<div class="rounded-sm border border-destructive/20 bg-destructive/10 p-3" role="alert">
-				<div class="flex items-start gap-3">
+			<div class="rounded-sm border border-destructive/20 bg-destructive/10 p-2" role="alert">
+				<div class="flex items-start gap-2">
 					<span class="text-2xl" aria-hidden="true">⚠️</span>
 					<div class="flex-1">
 						<h3 class="font-medium text-destructive">{m.listing_error_title()}</h3>
-						<p class="text-sm text-destructive/80 mt-1">{error}</p>
+						<p class="text-xs text-destructive/80 mt-1">{error}</p>
 					</div>
 				</div>
 			</div>
 		{:else if loading}
 			<!-- Skeleton loader with proper grid -->
 			<div 
-				class="grid gap-2 md:gap-3"
+				class="grid gap-2"
 				style="grid-template-columns: repeat({columns}, minmax(0, 1fr));"
 				aria-busy="true"
 				aria-label={m.listing_loading()}
@@ -157,10 +157,10 @@
 				{#each Array(SKELETON_COUNT) as _, i (i)}
 					<div class="animate-pulse">
 						<div class="aspect-[3/4] bg-muted rounded-t-sm"></div>
-						<div class="p-2 bg-background rounded-b-sm space-y-2">
+						<div class="p-2 bg-background rounded-b-sm space-y-1">
 							<div class="h-4 bg-muted rounded w-3/4"></div>
 							<div class="h-3 bg-muted rounded w-1/2"></div>
-							<div class="flex items-center gap-2 mt-3">
+							<div class="flex items-center gap-1 mt-2">
 								<div class="h-5 w-5 bg-muted rounded-sm"></div>
 								<div class="h-3 bg-muted rounded w-16"></div>
 							</div>
@@ -196,13 +196,13 @@
 			{/if}
 		{:else if showEmptyState}
 			<!-- Empty state -->
-			<div class="text-center py-12">
-				<div class="text-6xl mb-4" aria-hidden="true">🛍️</div>
-				<h3 class="text-base font-medium text-foreground mb-2">{m.listing_empty_title()}</h3>
-				<p class="text-muted-foreground mb-4">{m.listing_empty_description()}</p>
+			<div class="text-center py-8">
+				<div class="text-5xl mb-3" aria-hidden="true">🛍️</div>
+				<h3 class="text-sm font-medium text-foreground mb-2">{m.listing_empty_title()}</h3>
+				<p class="text-xs text-muted-foreground mb-3">{m.listing_empty_description()}</p>
 				<a 
 					href="/sell" 
-					class="inline-flex items-center px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-sm transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+					class="inline-flex items-center px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-sm transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
 				>
 					{m.listing_start_selling()}
 				</a>

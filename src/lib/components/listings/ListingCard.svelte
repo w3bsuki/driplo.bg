@@ -147,13 +147,13 @@
 	}
 </script>
 
-<article class="relative bg-white rounded-md border border-gray-200 hover:border-gray-400 transition-all duration-100 group product-card">
+<article class="relative bg-white rounded-sm border border-gray-200 hover:border-gray-400 transition-all duration-100 group product-card">
 	<a 
 		href="/listings/{id}" 
-		class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 rounded-md no-underline"
+		class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 rounded-sm no-underline"
 		aria-label={m.listing_view_details({ title })}
 	>
-		<div class="relative aspect-[3/4] overflow-hidden rounded-t-md bg-gray-100">
+		<div class="relative aspect-[3/4] overflow-hidden rounded-t-sm bg-gray-100">
 			{#if !imageError && primaryImageUrl()}
 				<img
 					src={primaryImageUrl()}
@@ -166,7 +166,7 @@
 			{:else}
 				<div class="h-full w-full flex items-center justify-center bg-gray-100" role="img" aria-label={m.listing_no_image()}>
 					<div class="text-center">
-						<div class="w-12 h-12 mx-auto mb-1 bg-gray-200 rounded-md flex items-center justify-center">
+						<div class="w-12 h-12 mx-auto mb-1 bg-gray-200 rounded-sm flex items-center justify-center">
 							<span class="text-lg" aria-hidden="true">📷</span>
 						</div>
 						<p class="text-xs text-gray-500">{m.listing_no_image()}</p>
@@ -177,7 +177,7 @@
 			<button
 				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-1.5 right-1.5 w-7 h-7 rounded-md bg-white/95 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-100 flex items-center justify-center active:scale-95",
+					"absolute top-1.5 right-1.5 w-7 h-7 rounded-sm bg-white/95 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-100 flex items-center justify-center active:scale-95",
 					"focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
@@ -221,12 +221,12 @@
 					<img
 						src={seller.avatar}
 						alt=""
-						class="h-4 w-4 rounded-md object-cover"
+						class="h-4 w-4 rounded-sm object-cover"
 						aria-hidden="true"
 					/>
 				{:else}
 					<div 
-						class="h-4 w-4 rounded-md bg-gradient-to-br {avatarGradient} flex items-center justify-center"
+						class="h-4 w-4 rounded-sm bg-gradient-to-br {avatarGradient} flex items-center justify-center"
 						aria-hidden="true"
 					>
 						<span class="text-[10px] font-medium text-white">
@@ -249,7 +249,7 @@
 	</a>
 	
 	{#if apiError}
-		<div class="absolute bottom-0 left-0 right-0 bg-red-500/95 text-white text-xs p-1.5 rounded-b-md" role="alert">
+		<div class="absolute bottom-0 left-0 right-0 bg-red-500/95 text-white text-xs p-1.5 rounded-b-sm" role="alert">
 			{apiError}
 		</div>
 	{/if}
