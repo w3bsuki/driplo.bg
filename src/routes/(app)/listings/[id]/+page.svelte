@@ -19,6 +19,7 @@
 	import CategoryBadge from '$lib/components/Badges/CategoryBadge.svelte';
 	import SizeBadge from '$lib/components/Badges/SizeBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/Tabs';
+	import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import Image from '$lib/components/ui/Image.svelte';
 	import { fade, scale } from 'svelte/transition';
@@ -277,6 +278,33 @@
 {#if listing}
 	<div class="min-h-screen bg-background">
 		<div class="container mx-auto px-4 py-2 pb-20 max-w-7xl">
+			<!-- Breadcrumb Navigation -->
+			<Breadcrumb class="mb-4">
+				<BreadcrumbItem>
+					<BreadcrumbLink href="/">{m.home()}</BreadcrumbLink>
+				</BreadcrumbItem>
+				<BreadcrumbSeparator />
+				<BreadcrumbItem>
+					<BreadcrumbLink href="/browse">{m.browse()}</BreadcrumbLink>
+				</BreadcrumbItem>
+				{#if listing.category}
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbLink href="/browse?category={listing.category}">{listing.category}</BreadcrumbLink>
+					</BreadcrumbItem>
+				{/if}
+				{#if listing.subcategory}
+					<BreadcrumbSeparator />
+					<BreadcrumbItem>
+						<BreadcrumbLink href="/browse?category={listing.category}&subcategory={listing.subcategory}">{listing.subcategory}</BreadcrumbLink>
+					</BreadcrumbItem>
+				{/if}
+				<BreadcrumbSeparator />
+				<BreadcrumbItem>
+					<BreadcrumbLink>{listing.title}</BreadcrumbLink>
+				</BreadcrumbItem>
+			</Breadcrumb>
+			
 			<div class="grid grid-cols-1 lg:grid-cols-[1fr,480px] gap-3">
 				<!-- Image Gallery Section -->
 				<div class="space-y-2">

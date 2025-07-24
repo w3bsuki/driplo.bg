@@ -18,31 +18,10 @@
 	// Create a direct Supabase client as fallback
 	const supabaseClient = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY)
 	
-	// Add debug logging
-	$effect(() => {
-		console.log('[REGISTER DEBUG] Auth context:', auth);
-		console.log('[REGISTER DEBUG] Supabase client:', supabaseClient);
-		if (!auth) {
-			console.error('[REGISTER DEBUG] ⚠️ Auth context not available, will use direct Supabase client');
-		}
-	});
-	
-	// Debug form state changes
-	$effect(() => {
-		console.log('[REGISTER DEBUG] Form state updated:', {
-			email,
-			username,
-			agreedToTerms,
-			loading,
-			accountType
-		});
-	});
 
 	let email = $state('')
 	let password = $state('')
 	let confirmPassword = $state('')
-	let username = $state('')
-	let fullName = $state('')
 	let showPassword = $state(false)
 	let showConfirmPassword = $state(false)
 	let loading = $state(false)
@@ -66,11 +45,6 @@
 		email: z.string().email('Please enter a valid email address'),
 		password: z.string().min(8, 'Password must be at least 8 characters'),
 		confirmPassword: z.string(),
-		username: z.string()
-			.min(3, 'Username must be at least 3 characters')
-			.max(30, 'Username must be less than 30 characters')
-			.regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-		fullName: z.string().optional(),
 		agreedToTerms: z.boolean().refine(val => val === true, 'You must agree to the terms of service'),
 		accountType: z.enum(['personal', 'brand']),
 		brandName: z.string().optional(),
@@ -93,17 +67,6 @@
 	})
 
 	async function handleRegister(e?: Event) {
-		console.log('[REGISTER DEBUG] 🔵 handleRegister called', {
-			event: e,
-			formData: {
-				email,
-				username,
-				fullName,
-				agreedToTerms,
-				accountType,
-				captchaToken: captchaToken ? 'present' : 'missing'
-			}
-		});
 		
 		// Prevent default form submission
 		if (e && e.preventDefault) {
@@ -119,7 +82,6 @@
 		
 		// Double check auth context
 		if (!auth && !supabaseClient) {
-			console.error('[REGISTER DEBUG] ❌ No auth context or supabase client available');
 			toast.error('Authentication service not available. Please refresh the page.');
 			return;
 		}
@@ -129,8 +91,6 @@
 				email,
 				password,
 				confirmPassword,
-				username,
-				fullName: fullName || undefined,
 				agreedToTerms,
 				accountType,
 				brandName: brandName || undefined,
@@ -140,48 +100,41 @@
 
 			loading = true
 			
-			console.log('[REGISTER DEBUG] 🚀 Calling signUp with:', { 
-				email, 
-				username, 
-				accountType,
-				usingAuth: !!auth,
-				usingDirectClient: !auth
-			});
-			
 			// Try to use auth context first, fallback to direct client
 			if (auth) {
 				// Sign up with additional metadata and CAPTCHA token
-				await auth.signUp(email, password, username, fullName || undefined, {
+				// Generate a temporary username based on email
+				const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
+				await auth.signUp(email, password, tempUsername, undefined, {
 					account_type: accountType,
 					brand_name: accountType === 'brand' ? brandName : undefined,
 					brand_category: accountType === 'brand' ? brandCategory : undefined,
 					brand_website: accountType === 'brand' ? brandWebsite : undefined,
-					captcha_token: captchaToken
+					captcha_token: captchaToken,
+					needs_username_setup: true
 				})
 			} else {
-				console.warn('Using direct Supabase client for signup');
 				// Use direct Supabase client
+				const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
 				const { data, error } = await supabaseClient.auth.signUp({
 					email,
 					password,
 					options: {
 						data: {
-							username,
-							full_name: fullName,
+							username: tempUsername,
+							full_name: undefined,
 							account_type: accountType,
 							brand_name: accountType === 'brand' ? brandName : undefined,
 							brand_category: accountType === 'brand' ? brandCategory : undefined,
-							brand_website: accountType === 'brand' ? brandWebsite : undefined
+							brand_website: accountType === 'brand' ? brandWebsite : undefined,
+							needs_username_setup: true
 						},
 						emailRedirectTo: `${window.location.origin}/auth/confirm`,
 						captchaToken: captchaToken
 					}
 				})
 				
-				console.log('[REGISTER DEBUG] Supabase response:', { data, error });
-				
 				if (error) {
-					console.error('[REGISTER DEBUG] ❌ Supabase error:', error);
 					throw error;
 				}
 			}
@@ -197,11 +150,6 @@
 			
 			goto('/register?success=true')
 		} catch (error) {
-			console.error('[REGISTER DEBUG] ❌ Registration error:', error, {
-				errorType: error?.constructor?.name,
-				errorMessage: error?.message,
-				errorStack: error?.stack
-			});
 			if (error instanceof z.ZodError) {
 				// Zod validation errors
 				error.issues.forEach((issue) => {
@@ -248,42 +196,6 @@
 		}
 	}
 	
-	// Add test function
-	async function testDirectSignup() {
-		console.log('[TEST] Testing direct signup with hardcoded values');
-		try {
-			// Use a more realistic email that won't be blocked
-			const randomNum = Math.floor(Math.random() * 100000);
-			const testData = {
-				email: `testuser${randomNum}@gmail.com`,
-				password: 'TestPassword123!'
-			};
-			
-			console.log('[TEST] Attempting signup with:', testData.email);
-			
-			const { data, error } = await supabaseClient.auth.signUp({
-				email: testData.email,
-				password: testData.password,
-				options: {
-					data: {
-						username: `testuser${randomNum}`,
-						full_name: 'Test User'
-					}
-				}
-			});
-			
-			console.log('[TEST] Direct signup result:', { data, error });
-			
-			if (error) {
-				alert('Direct signup error: ' + error.message);
-			} else {
-				alert('Direct signup success! User created: ' + data.user?.email);
-			}
-		} catch (err) {
-			console.error('[TEST] Exception:', err);
-			alert('Exception: ' + err);
-		}
-	}
 </script>
 
 <svelte:head>
@@ -419,7 +331,6 @@
 			<form 
 				method="POST"
 				on:submit={(e) => {
-					console.log('[REGISTER DEBUG] 📝 Form submit event fired');
 					// In production, require CAPTCHA
 					if (import.meta.env.MODE === 'production' && !captchaToken) {
 						e.preventDefault();
@@ -429,39 +340,6 @@
 				}}
 				class="space-y-3"
 			>
-				<div class="grid grid-cols-2 gap-3">
-					<div>
-						<label for="fullName" class="block text-xs font-medium text-gray-700 mb-1">
-							Full name
-						</label>
-						<input
-							id="fullName"
-							name="fullName"
-							type="text"
-							bind:value={fullName}
-							placeholder="John Doe"
-							disabled={loading}
-							autocomplete="name"
-							class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
-						/>
-					</div>
-					<div>
-						<label for="username" class="block text-xs font-medium text-gray-700 mb-1">
-							Username *
-						</label>
-						<input
-							id="username"
-							name="username"
-							type="text"
-							bind:value={username}
-							placeholder="johndoe"
-							required
-							disabled={loading}
-							autocomplete="username"
-							class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
-						/>
-					</div>
-				</div>
 
 				<div>
 					<label for="email" class="block text-xs font-medium text-gray-700 mb-1">
@@ -648,15 +526,6 @@
 					style="background-color: #87CEEB; color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: 500; margin-top: 10px;"
 					class="w-full py-2 bg-primary text-white font-medium rounded-sm hover:bg-primary/90 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 					disabled={loading || !agreedToTerms || (import.meta.env.MODE === 'production' && !captchaToken)}
-					on:click={(e) => {
-						console.log('[REGISTER DEBUG] 🔴 Submit button clicked', {
-							loading,
-							agreedToTerms,
-							isDisabled: loading || !agreedToTerms,
-							eventType: e.type,
-							formValues: { email, username, password: '***' }
-						});
-					}}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />

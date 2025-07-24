@@ -8,6 +8,7 @@
 		name: string;
 		action: string;
 		ariaLabel?: string;
+		color?: 'golden' | 'blue' | 'pink';
 	}
 
 	interface Props {
@@ -70,12 +71,31 @@
 				aria-pressed="false"
 				class={cn(
 					"flex items-center gap-1.5 px-3 py-2",
-					"rounded-lg bg-white border border-gray-200",
-					"hover:border-gray-300 hover:bg-gray-50",
-					"focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1",
-					"text-gray-700 text-xs font-medium whitespace-nowrap",
+					"rounded-lg border",
+					"focus:outline-none focus:ring-2 focus:ring-offset-1",
+					"text-xs font-medium whitespace-nowrap",
 					"transition-all duration-200",
-					"active:scale-95 flex-shrink-0"
+					"active:scale-95 flex-shrink-0",
+					filter.color === 'golden' && [
+						"bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300",
+						"hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400",
+						"text-amber-800 focus:ring-amber-400"
+					],
+					filter.color === 'blue' && [
+						"bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300",
+						"hover:from-blue-100 hover:to-sky-100 hover:border-blue-400",
+						"text-blue-800 focus:ring-blue-400"
+					],
+					filter.color === 'pink' && [
+						"bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300",
+						"hover:from-pink-100 hover:to-rose-100 hover:border-pink-400",
+						"text-pink-800 focus:ring-pink-400"
+					],
+					!filter.color && [
+						"bg-white border-gray-200",
+						"hover:border-gray-300 hover:bg-gray-50",
+						"text-gray-700 focus:ring-blue-400"
+					]
 				)}
 			>
 				<span class="text-sm" aria-hidden="true">{filter.icon}</span>

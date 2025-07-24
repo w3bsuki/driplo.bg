@@ -121,7 +121,13 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			.eq('id', user.id)
 			.single()
 		
-		if (profile && !(profile as any).setup_completed) {
+		// Check if user needs to complete onboarding (new users or needs username setup)
+		const needsOnboarding = profile && (
+			!(profile as any).onboarding_completed || 
+			(profile as any).needs_username_setup === true
+		)
+		
+		if (needsOnboarding) {
 			// Redirect to onboarding if profile setup is not complete
 			// Skip redirect for auth pages, brand pages (for existing brands), and static assets
 			if (!event.url.pathname.startsWith('/login') && 
@@ -157,6 +163,17 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-XSS-Protection', '1; mode=block')
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 	response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+	
+	// Add CSP header for reCAPTCHA and Stripe
+	response.headers.set('Content-Security-Policy', 
+		"default-src 'self'; " +
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com; " +
+		"frame-src 'self' https://www.google.com https://checkout.stripe.com; " +
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+		"font-src 'self' https://fonts.gstatic.com; " +
+		"img-src 'self' data: https: blob:; " +
+		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com"
+	)
 	
 	// Only set HSTS in production
 	if (event.url.protocol === 'https:') {

@@ -12,7 +12,7 @@
 
 <div
 	class={cn(
-		'inline-flex h-10 items-center justify-center rounded-lg bg-gray-50 p-1 text-gray-600 border border-gray-200',
+		'inline-flex h-8 items-center justify-center rounded-md bg-gray-50 p-0.5 text-gray-600 border border-gray-200',
 		className
 	)}
 >

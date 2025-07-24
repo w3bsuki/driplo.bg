@@ -80,7 +80,7 @@
 </script>
 
 <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
-	<div class="container flex h-12 items-center px-2 md:h-14 md:px-3">
+	<div class="container flex h-14 items-center px-4 md:h-16 md:px-6">
 		<!-- Logo -->
 		<a href="/" class="flex items-center mr-auto no-underline" aria-label="Driplo Home">
 			<DriploLogo size="sm" className="md:hidden" />
@@ -92,7 +92,7 @@
 			{#if authContext?.user}
 				<a 
 					href="/messages" 
-					class="relative h-8 w-8 flex items-center justify-center rounded-sm hover:bg-gray-50 transition-colors duration-100"
+					class="relative h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-100"
 					aria-label="Messages"
 				>
 					<span class="text-xl">💬</span>
@@ -116,28 +116,28 @@
 							alt="Profile" 
 							width="36"
 							height="36"
-							class="h-8 w-8 rounded-sm object-cover border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100" 
+							class="h-9 w-9 rounded-md object-cover border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100" 
 						/>
 						{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
-							<div class="absolute -top-1 -right-1 bg-white rounded-sm px-0.5 border border-gray-200">
+							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
 								<span class="text-xs" title={badgeConfig[authContext.profile.badges[0]]?.label}>
 									{badgeConfig[authContext.profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
 					{:else}
-						<div class="h-8 w-8 rounded-sm bg-gray-100 flex items-center justify-center border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100">
+						<div class="h-9 w-9 rounded-md bg-gray-100 flex items-center justify-center border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100">
 							<User class="h-4 w-4 text-gray-600" />
 						</div>
 					{/if}
-					<div class="absolute -bottom-1 -right-1 bg-white rounded-sm p-0.5 border border-gray-200">
+					<div class="absolute -bottom-1 -right-1 bg-white rounded-md p-0.5 border border-gray-200">
 						<ChevronDown class="h-3 w-3 text-gray-600" />
 					</div>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content 
 					align="end" 
 					sideOffset={8}
-					class="w-64 rounded-sm border border-gray-200 bg-white p-2"
+					class="w-72 rounded-md border border-gray-200 bg-white p-2 shadow-md"
 				>
 					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
@@ -153,7 +153,7 @@
 					placeholder={m.header_search_placeholder()}
 					bind:value={searchQuery}
 					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-					class="w-full rounded-sm border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					class="w-full rounded-md border border-gray-200 bg-white pl-10 pr-4 h-10 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 				/>
 			</div>
 		</div>
@@ -161,15 +161,15 @@
 		<!-- Desktop Actions -->
 		<div class="hidden md:flex items-center gap-1">
 			<LanguageSwitcher />
-			<a href="/wishlist" class="p-2 rounded-sm hover:bg-gray-50 transition-colors duration-100">
+			<a href="/wishlist" class="p-2.5 rounded-md hover:bg-gray-50 transition-colors duration-100">
 				<span class="text-xl">❤️</span>
 				<span class="sr-only">{m.header_favorites()}</span>
 			</a>
-			<a href="/orders" class="p-2 rounded-sm hover:bg-gray-50 transition-colors duration-100">
+			<a href="/orders" class="p-2.5 rounded-md hover:bg-gray-50 transition-colors duration-100">
 				<span class="text-xl">🛍️</span>
 				<span class="sr-only">Orders</span>
 			</a>
-			<a href="/messages" class="relative p-2 rounded-sm hover:bg-gray-50 transition-colors duration-100">
+			<a href="/messages" class="relative p-2.5 rounded-md hover:bg-gray-50 transition-colors duration-100">
 				<span class="text-xl">💬</span>
 				{#if $unreadCount > 0}
 					<span class="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
@@ -189,28 +189,28 @@
 						<img 
 							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
 							alt="Profile" 
-							class="h-8 w-8 rounded-sm object-cover border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100" 
+							class="h-9 w-9 rounded-md object-cover border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100" 
 						/>
 						{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
-							<div class="absolute -top-1 -right-1 bg-white rounded-sm px-0.5 border border-gray-200">
+							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
 								<span class="text-sm" title={badgeConfig[authContext.profile.badges[0]]?.label}>
 									{badgeConfig[authContext.profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
 					{:else}
-						<div class="h-8 w-8 rounded-sm bg-gray-100 flex items-center justify-center border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100">
+						<div class="h-9 w-9 rounded-md bg-gray-100 flex items-center justify-center border-2 border-gray-200 hover:border-gray-300 transition-colors duration-100">
 							<User class="h-5 w-5 text-gray-600" />
 						</div>
 					{/if}
-					<div class="absolute -bottom-1 -right-1 bg-white rounded-sm p-0.5 border border-gray-200">
+					<div class="absolute -bottom-1 -right-1 bg-white rounded-md p-0.5 border border-gray-200">
 						<ChevronDown class="h-3 w-3 text-gray-600" />
 					</div>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content 
 					align="end" 
 					sideOffset={8}
-					class="w-64 rounded-sm border border-gray-200 bg-white p-2"
+					class="w-72 rounded-md border border-gray-200 bg-white p-2 shadow-md"
 				>
 					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>

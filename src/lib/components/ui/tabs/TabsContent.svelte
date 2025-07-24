@@ -24,7 +24,7 @@
 {#if isActive}
 	<div
 		class={cn(
-			'mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2',
+			'mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-1',
 			className
 		)}
 	>

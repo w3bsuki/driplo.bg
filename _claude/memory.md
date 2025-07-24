@@ -1,21 +1,37 @@
 # Memory - Driplo Project
 
 ## [2025-07-24] - Design System Component Refactoring Progress
-- **Status**: In progress (3 of 14 phases completed)
+- **Status**: In progress (8 of 14 phases completed)
 - **Approach**: Systematic fix of all components to follow design tokens
-- **Design Standards Enforced**:
-  1. Border radius: Only `rounded-sm`
-  2. Shadows: Only `shadow-sm` for modals/dropdowns
-  3. Heights: Compact (h-7 to h-9 for buttons/inputs)
-  4. Spacing: Tight (p-2/p-3, gap-2)
-  5. Text: text-sm for body
-  6. Transitions: duration-fast or duration-100
+- **Design Standards Updated to Proper Compact (not Ultra-Compact)**:
+  1. Border radius: `rounded-md` (4px) to `rounded-lg` (6px) - matching Vercel
+  2. Shadows: `shadow-md` for dropdowns, `shadow-lg` for modals
+  3. Heights: Compact (h-8 to h-10 for buttons/inputs) - 32px to 40px
+  4. Spacing: Comfortable (p-3/p-4/p-6, gap-3/gap-4)
+  5. Text: text-sm (14px) for body, text-base (16px) for larger elements
+  6. Transitions: duration-fast (50ms) to duration-300 for modals
 - **Completed Phases**:
   - Phase 1A: Core UI primitives (button, input, textarea, select) ✅
   - Phase 1B: Card components (card, header, content, footer) ✅
   - Phase 1C: Dialog/modal components (dialog, sheet, alert) ✅
-- **Next Up**: Phase 1D - Dropdown components
-- **Files Updated So Far**: 11 core UI components
+  - Phase 1D: Dropdown components (dropdown-menu content, subcontent, itemcustom) ✅
+  - Phase 2A: Form components (switch, radio, label, price-range-slider) ✅
+  - Phase 2B: Navigation components (tabs, breadcrumb, pagination) ✅
+  - Phase 2C: Modal overlays (alert-dialog, popover, tooltip) ✅
+  - Phase 3A: Data display (table, data-table, list) ✅
+- **Compact Sizing Adjustment**: Reverted from ultra-compact to proper compact ✅
+- **Next Up**: Phase 3B - Feedback components (progress, skeleton, spinner, toast)
+- **Files Updated So Far**: 65 core UI components (50 + 15 new data display)
+- **Compact Adjustment Details**:
+  - Buttons: h-8 (32px) sm, h-9 (36px) default, h-10 (40px) lg, px-3/px-4/px-5
+  - Inputs: h-8 to h-10, px-3 to px-4, rounded-md
+  - Cards: p-6, gap-4, rounded-lg (more spacious)
+  - Dialogs: p-6, rounded-lg, shadow-lg
+  - Dropdowns: rounded-md, shadow-md, px-3 py-2 for items
+  - Switches: Back to rounded-full (pills), h-6 w-11
+  - Radios: Back to rounded-full (circles)
+  - Navbar: h-14 to h-16, px-4 to px-6, icons h-9 w-9
+  - HeroSearch: rounded-lg, shadow-sm, py-4, text-base input
 
 ## [2025-07-24] - Fixed Styling System Issues
 - **Issue**: Multiple styling problems after partial implementation of new design system

@@ -167,18 +167,18 @@
 		<p class="text-xs text-gray-500 mb-4">Sign in to start shopping</p>
 		
 		<div class="space-y-2">
-			<DropdownMenu.Item
-				onSelect={() => goto('/login')}
-				class="flex items-center justify-center py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium cursor-pointer w-full"
+			<a
+				href="/login"
+				class="flex items-center justify-center py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium cursor-pointer w-full no-underline"
 			>
 				Sign in
-			</DropdownMenu.Item>
-			<DropdownMenu.Item
-				onSelect={() => goto('/register')}
-				class="flex items-center justify-center py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-sm cursor-pointer w-full"
+			</a>
+			<a
+				href="/register"
+				class="flex items-center justify-center py-2 border border-gray-300 hover:bg-gray-50 rounded-lg text-sm cursor-pointer w-full no-underline"
 			>
 				Create account
-			</DropdownMenu.Item>
+			</a>
 		</div>
 	</div>
 {/if}

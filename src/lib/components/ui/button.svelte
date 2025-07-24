@@ -17,12 +17,12 @@
 					link: 'text-primary underline-offset-4 hover:underline p-0 h-auto'
 				},
 				size: {
-					xs: 'h-button-xs px-2 text-xs rounded-xs',
-					sm: 'h-button-sm px-2.5 text-sm rounded-sm',
-					default: 'h-button-md px-3 text-sm rounded-sm',
-					lg: 'h-button-lg px-4 text-base rounded-sm',
-					xl: 'h-button-xl px-5 text-lg rounded-sm',
-					icon: 'w-8 h-8 p-0 rounded-sm'
+					xs: 'h-6 px-2 text-xs rounded-md',
+					sm: 'h-8 px-3 text-sm rounded-md',
+					default: 'h-9 px-4 text-sm rounded-md',
+					lg: 'h-10 px-5 text-base rounded-md',
+					xl: 'h-11 px-6 text-lg rounded-md',
+					icon: 'w-9 h-9 p-0 rounded-md'
 				}
 			},
 			defaultVariants: {

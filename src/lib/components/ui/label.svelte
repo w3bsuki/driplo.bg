@@ -13,7 +13,7 @@
 
 <label 
 	class={cn(
-		"text-base font-medium leading-relaxed peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700",
+		"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700",
 		className
 	)}
 	{...restProps}

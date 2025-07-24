@@ -6,11 +6,6 @@ const registerSchema = z.object({
 	email: z.string().email('Invalid email address'),
 	password: z.string().min(8, 'Password must be at least 8 characters'),
 	confirmPassword: z.string(),
-	username: z.string()
-		.min(3, 'Username must be at least 3 characters')
-		.max(30, 'Username must be less than 30 characters')
-		.regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-	fullName: z.string().optional(),
 	accountType: z.enum(['personal', 'brand']),
 	brandName: z.string().optional(),
 	brandCategory: z.string().optional(),
@@ -58,8 +53,6 @@ export const actions = {
 		const { 
 			email, 
 			password, 
-			username, 
-			fullName, 
 			accountType, 
 			brandName, 
 			brandCategory, 
@@ -69,7 +62,11 @@ export const actions = {
 		
 		// Verify CAPTCHA with Google (skip in development if not configured)
 		const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY
-		if (recaptchaSecret && captchaToken) {
+		
+		// In development, skip CAPTCHA if not configured
+		if (process.env.NODE_ENV !== 'production' && !recaptchaSecret) {
+			// Skip CAPTCHA verification in development
+		} else if (recaptchaSecret && captchaToken) {
 			try {
 				const verifyResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
 					method: 'POST',
@@ -97,7 +94,7 @@ export const actions = {
 					})
 				}
 			}
-		} else if (process.env.NODE_ENV === 'production') {
+		} else if (process.env.NODE_ENV === 'production' && !captchaToken) {
 			// In production, CAPTCHA is required
 			return fail(400, {
 				error: 'CAPTCHA verification is required'
@@ -124,18 +121,22 @@ export const actions = {
 			})
 		}
 		
+		// Generate a temporary username from email
+		const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
+		
 		// Sign up user through Supabase Auth
 		const { data: signUpData, error: signUpError } = await locals.supabase.auth.signUp({
 			email,
 			password,
 			options: {
 				data: {
-					username,
-					full_name: fullName,
+					username: tempUsername,
+					full_name: undefined,
 					account_type: accountType,
 					brand_name: accountType === 'brand' ? brandName : undefined,
 					brand_category: accountType === 'brand' ? brandCategory : undefined,
-					brand_website: accountType === 'brand' ? brandWebsite : undefined
+					brand_website: accountType === 'brand' ? brandWebsite : undefined,
+					needs_username_setup: true
 				},
 				emailRedirectTo: `${request.headers.get('origin')}/auth/callback`
 			}

@@ -1,7 +1,8 @@
-# 🎨 DRIPLO Design System & Styling Guide v2.0
+# 🎨 DRIPLO Design System & Styling Guide v2.1 (Compact Edition)
 
-> **Status**: Production-Ready | **Updated**: 2025-07-23
+> **Status**: Production-Ready | **Updated**: 2025-07-24
 > **Stack**: SvelteKit 2 + TypeScript + TailwindCSS + Radix Svelte
+> **Design Approach**: Compact (Vercel/Linear style) - NOT Ultra-Compact
 
 ## 📋 Table of Contents
 - [Design Philosophy](#design-philosophy)
@@ -17,17 +18,17 @@
 ## 🎯 Design Philosophy
 
 ### Core Principles
-1. **Ultra-Tight UI** - Maximum density, zero waste
-2. **Instant Feedback** - No animations over 100ms
+1. **Compact UI** - Dense but comfortable (Vercel/Linear style)
+2. **Instant Feedback** - Smooth animations under 300ms
 3. **Performance First** - 60fps always, zero jank
-4. **Sharp & Crisp** - Pixel-perfect precision
+4. **Modern & Clean** - Professional appearance
 5. **E-commerce Optimized** - Fast checkout, quick browse
 
 ### Visual Language
-- **No shadows** - Flat, clean, fast
-- **Tight spacing** - 4-8px gaps, dense grids
+- **Subtle shadows** - For depth on floating elements (shadow-md/lg)
+- **Comfortable spacing** - 8-16px gaps, readable content
 - **High contrast** - Clear hierarchy, instant readability
-- **Sharp corners** - 2-4px radius only
+- **Rounded corners** - 4-6px radius (rounded-md/lg)
 - **System fonts** - Zero font loading delay
 
 ---
@@ -171,17 +172,17 @@
     --space-12: 3rem;       /* 48px - page margins */
 
     /* ===== Component Sizing ===== */
-    /* Buttons - Compact everywhere (Vercel/Linear style) */
+    /* Buttons - Compact (Vercel/Linear style) */
     --button-height-xs: 1.5rem;     /* 24px - micro actions */
-    --button-height-sm: 1.75rem;    /* 28px - small */
-    --button-height-md: 2rem;       /* 32px - default */
-    --button-height-lg: 2.25rem;    /* 36px - primary CTAs */
-    --button-height-xl: 2.5rem;     /* 40px - hero actions */
+    --button-height-sm: 2rem;       /* 32px - small */
+    --button-height-md: 2.25rem;    /* 36px - default */
+    --button-height-lg: 2.5rem;     /* 40px - primary CTAs */
+    --button-height-xl: 2.75rem;    /* 44px - hero actions */
 
     /* Inputs - Compact sizing */
-    --input-height-sm: 1.75rem;     /* 28px */
-    --input-height-md: 2rem;        /* 32px - default */
-    --input-height-lg: 2.25rem;     /* 36px */
+    --input-height-sm: 2rem;        /* 32px */
+    --input-height-md: 2.25rem;     /* 36px - default */
+    --input-height-lg: 2.5rem;      /* 40px */
 
     /* Mobile adjustments (optional - for critical CTAs only) */
     --button-height-mobile-lg: 2.5rem;  /* 40px - mobile primary CTAs */
@@ -1121,7 +1122,7 @@ module.exports = {
 ## 📚 Resources
 
 - [Radix Svelte Docs](https://radix-svelte.com)
-- [Tailwind CSS v3](https://tailwindcss.com)
+- [Tailwind CSS v4](https://tailwindcss.com/blog/tailwindcss-v4-alpha)
 - [Design Tokens W3C](https://www.w3.org/community/design-tokens/)
 - [Web.dev Performance](https://web.dev/performance/)
 
@@ -1137,6 +1138,411 @@ module.exports = {
 - [ ] Lighthouse CI passing
 - [ ] Component migration started
 - [ ] Documentation complete
+
+---
+
+## 📦 Component Library
+
+### Core UI Components (Phase 1)
+
+#### 1. Button
+```svelte
+import Button from '$lib/components/ui/button.svelte';
+
+<Button variant="default" size="md">Click me</Button>
+
+// Variants: default, secondary, outline, ghost, destructive, link
+// Sizes: xs (h-8), sm (h-9), md (h-9), lg (h-10)
+```
+
+#### 2. Input
+```svelte
+import Input from '$lib/components/ui/input.svelte';
+
+<Input type="text" placeholder="Enter text..." />
+// Height: h-9 (36px), rounded-md, px-3
+```
+
+#### 3. Textarea
+```svelte
+import Textarea from '$lib/components/ui/textarea.svelte';
+
+<Textarea placeholder="Enter description..." rows={4} />
+// Min height: min-h-[80px], rounded-md, px-3 py-2
+```
+
+#### 4. Select
+```svelte
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '$lib/components/ui/select';
+
+<Select value={selected} onValueChange={handleChange}>
+  <SelectTrigger class="w-[180px]">
+    <SelectValue placeholder="Select option" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="option1">Option 1</SelectItem>
+    <SelectItem value="option2">Option 2</SelectItem>
+  </SelectContent>
+</Select>
+```
+
+#### 5. Card
+```svelte
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '$lib/components/ui/card';
+
+<Card>
+  <CardHeader>
+    <CardTitle>Card Title</CardTitle>
+    <CardDescription>Card description</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <p>Card content</p>
+  </CardContent>
+  <CardFooter>
+    <Button>Action</Button>
+  </CardFooter>
+</Card>
+// Padding: p-6, gap-4, rounded-lg, border
+```
+
+#### 6. Dialog
+```svelte
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '$lib/components/ui/dialog';
+
+<Dialog>
+  <DialogTrigger>
+    <Button>Open Dialog</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Dialog Title</DialogTitle>
+      <DialogDescription>Dialog description</DialogDescription>
+    </DialogHeader>
+    <div>Content here</div>
+  </DialogContent>
+</Dialog>
+// Padding: p-6, rounded-lg, shadow-lg, max-w-[425px]
+```
+
+#### 7. Sheet (Drawer)
+```svelte
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '$lib/components/ui/sheet';
+
+<Sheet>
+  <SheetTrigger>
+    <Button>Open Sheet</Button>
+  </SheetTrigger>
+  <SheetContent side="right">
+    <SheetHeader>
+      <SheetTitle>Sheet Title</SheetTitle>
+      <SheetDescription>Sheet description</SheetDescription>
+    </SheetHeader>
+    <div>Content here</div>
+  </SheetContent>
+</Sheet>
+// Sides: top, right, bottom, left
+// Padding: p-6, w-[400px] or w-full
+```
+
+#### 8. Alert
+```svelte
+import { Alert, AlertDescription, AlertTitle } from '$lib/components/ui/alert';
+
+<Alert variant="default">
+  <AlertTitle>Alert Title</AlertTitle>
+  <AlertDescription>Alert description</AlertDescription>
+</Alert>
+// Variants: default, destructive
+// Padding: p-4, rounded-lg, border
+```
+
+#### 9. Badge
+```svelte
+import Badge from '$lib/components/ui/badge.svelte';
+
+<Badge variant="default">Badge</Badge>
+// Variants: default, secondary, outline, destructive
+// Size: text-xs, px-2.5 py-0.5, rounded-full
+```
+
+#### 10. Dropdown Menu
+```svelte
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '$lib/components/ui/dropdown-menu';
+
+<DropdownMenu>
+  <DropdownMenuTrigger>
+    <Button variant="outline">Options</Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+    <DropdownMenuSeparator />
+    <DropdownMenuItem>Profile</DropdownMenuItem>
+    <DropdownMenuItem>Settings</DropdownMenuItem>
+    <DropdownMenuItem>Logout</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>
+// Padding: px-3 py-2, rounded-md, shadow-md, min-w-[8rem]
+```
+
+### Form Components (Phase 2A)
+
+#### 11. Switch
+```svelte
+import Switch from '$lib/components/ui/switch.svelte';
+
+<Switch checked={isEnabled} onCheckedChange={handleToggle} />
+// Size: h-6 w-11, rounded-full (pill shape)
+```
+
+#### 12. Radio Group
+```svelte
+import { RadioGroup, RadioGroupItem } from '$lib/components/ui/radio-group';
+import Label from '$lib/components/ui/label.svelte';
+
+<RadioGroup value={selected} onValueChange={handleChange}>
+  <div class="flex items-center space-x-2">
+    <RadioGroupItem value="option1" id="r1" />
+    <Label for="r1">Option 1</Label>
+  </div>
+  <div class="flex items-center space-x-2">
+    <RadioGroupItem value="option2" id="r2" />
+    <Label for="r2">Option 2</Label>
+  </div>
+</RadioGroup>
+// Size: h-4 w-4, rounded-full (circles)
+```
+
+#### 13. Label
+```svelte
+import Label from '$lib/components/ui/label.svelte';
+
+<Label for="email">Email</Label>
+<Input id="email" type="email" />
+// Font: text-sm font-medium
+```
+
+#### 14. Price Range Slider
+```svelte
+import PriceRangeSlider from '$lib/components/ui/PriceRangeSlider.svelte';
+
+<PriceRangeSlider
+  min={0}
+  max={1000}
+  values={[100, 500]}
+  onValuesChange={handleRangeChange}
+/>
+// Track: h-2 rounded-full, Thumb: h-5 w-5 rounded-full with shadow
+```
+
+### Navigation Components (Phase 2B)
+
+#### 15. Tabs
+```svelte
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
+
+<Tabs value={activeTab} onValueChange={setActiveTab}>
+  <TabsList>
+    <TabsTrigger value="tab1">Tab 1</TabsTrigger>
+    <TabsTrigger value="tab2">Tab 2</TabsTrigger>
+  </TabsList>
+  <TabsContent value="tab1">
+    <div>Tab 1 content</div>
+  </TabsContent>
+  <TabsContent value="tab2">
+    <div>Tab 2 content</div>
+  </TabsContent>
+</Tabs>
+// TabsList: h-8, p-0.5, rounded-md, bg-gray-50
+// TabsTrigger: px-3 py-1.5, text-sm
+```
+
+#### 16. Breadcrumb
+```svelte
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
+
+<Breadcrumb>
+  <BreadcrumbItem>
+    <BreadcrumbLink href="/">Home</BreadcrumbLink>
+  </BreadcrumbItem>
+  <BreadcrumbSeparator />
+  <BreadcrumbItem>
+    <BreadcrumbLink href="/products">Products</BreadcrumbLink>
+  </BreadcrumbItem>
+  <BreadcrumbSeparator />
+  <BreadcrumbItem>
+    <BreadcrumbLink>Current Page</BreadcrumbLink>
+  </BreadcrumbItem>
+</Breadcrumb>
+// Gap: gap-1.5, text-sm, ChevronRight separator (h-3.5 w-3.5)
+```
+
+#### 17. Pagination
+```svelte
+import { Pagination, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext, PaginationEllipsis } from '$lib/components/ui/pagination';
+
+<Pagination>
+  <PaginationItem>
+    <PaginationPrevious href="#" />
+  </PaginationItem>
+  <PaginationItem>
+    <PaginationLink href="#" isActive>1</PaginationLink>
+  </PaginationItem>
+  <PaginationItem>
+    <PaginationLink href="#">2</PaginationLink>
+  </PaginationItem>
+  <PaginationItem>
+    <PaginationEllipsis />
+  </PaginationItem>
+  <PaginationItem>
+    <PaginationNext href="#" />
+  </PaginationItem>
+</Pagination>
+// Button size: h-8 w-8, text-sm, rounded-md
+```
+
+### Modal Overlays (Phase 2C)
+
+#### 18. Alert Dialog
+```svelte
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '$lib/components/ui/alert-dialog';
+
+<AlertDialog>
+  <AlertDialogTrigger>
+    <Button variant="destructive">Delete</Button>
+  </AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction>Continue</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+// Padding: p-6, rounded-lg, shadow-lg, max-w-lg
+```
+
+#### 19. Popover
+```svelte
+import { Popover, PopoverContent, PopoverTrigger } from '$lib/components/ui/popover';
+
+<Popover>
+  <PopoverTrigger>
+    <Button variant="outline">Open popover</Button>
+  </PopoverTrigger>
+  <PopoverContent>
+    <div class="grid gap-4">
+      <h4 class="font-medium leading-none">Dimensions</h4>
+      <p class="text-sm text-gray-600">Set the dimensions for the layer.</p>
+    </div>
+  </PopoverContent>
+</Popover>
+// Padding: p-4, rounded-md, shadow-md, w-72
+```
+
+#### 20. Tooltip
+```svelte
+import { Tooltip, TooltipContent, TooltipTrigger } from '$lib/components/ui/tooltip';
+
+<Tooltip>
+  <TooltipTrigger>
+    <Button variant="outline">Hover me</Button>
+  </TooltipTrigger>
+  <TooltipContent>
+    <p>Add to library</p>
+  </TooltipContent>
+</Tooltip>
+// Padding: px-3 py-1.5, text-xs, bg-gray-900, text-white
+// Delay: 500ms default
+```
+
+### Data Display (Phase 3A)
+
+#### 21. Table
+```svelte
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '$lib/components/ui/table';
+
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>Name</TableHead>
+      <TableHead>Email</TableHead>
+      <TableHead>Role</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>John Doe</TableCell>
+      <TableCell>john@example.com</TableCell>
+      <TableCell>Admin</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+// TableHead: h-10 px-3, TableCell: p-3
+```
+
+#### 22. Data Table
+```svelte
+import { DataTable, DataTablePagination } from '$lib/components/ui/data-table';
+
+<DataTable
+  data={users}
+  columns={[
+    { key: 'name', header: 'Name' },
+    { key: 'email', header: 'Email' },
+    { 
+      key: 'role', 
+      header: 'Role',
+      cell: (user) => user.role.toUpperCase()
+    }
+  ]}
+  onRowClick={handleRowClick}
+/>
+
+<DataTablePagination
+  page={currentPage}
+  pageSize={pageSize}
+  totalItems={totalItems}
+  onPageChange={setPage}
+  onPageSizeChange={setPageSize}
+/>
+```
+
+#### 23. List
+```svelte
+import { List, ListItem, ListCard, ListHeader, ListDescription } from '$lib/components/ui/list';
+
+<List spacing="normal" type="none">
+  <ListItem>
+    <ListCard hoverable onclick={handleClick}>
+      <ListHeader>Item Title</ListHeader>
+      <ListDescription>Item description text</ListDescription>
+    </ListCard>
+  </ListItem>
+</List>
+// Spacing: tight (gap-1), normal (gap-2), loose (gap-4)
+// Types: none, disc, decimal
+```
+
+### Component Sizing Reference
+
+| Component | Height | Padding | Font Size |
+|-----------|---------|---------|-----------|
+| Button (sm) | h-8 (32px) | px-3 | text-sm |
+| Button (default) | h-9 (36px) | px-4 | text-sm |
+| Button (lg) | h-10 (40px) | px-5 | text-base |
+| Input | h-9 (36px) | px-3 | text-sm |
+| Select | h-9 (36px) | px-3 | text-sm |
+| Card | - | p-6 | - |
+| Dialog | - | p-6 | - |
+| Dropdown Item | - | px-3 py-2 | text-sm |
+| Table Cell | - | p-3 | text-sm |
+| Badge | - | px-2.5 py-0.5 | text-xs |
+| Tooltip | - | px-3 py-1.5 | text-xs |
 
 ---
 

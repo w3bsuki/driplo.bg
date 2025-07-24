@@ -37,11 +37,11 @@
 	
 	// Quick filters with i18n support
 	const quickFilters = $derived([
-		{ icon: '⭐', name: m.quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: m.quick_filter_top_sellers() },
+		{ icon: '⭐', name: m.quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: m.quick_filter_top_sellers(), color: 'golden' },
+		{ icon: '👨', name: m.quick_filter_men(), action: 'men', ariaLabel: m.category_men(), color: 'blue' },
+		{ icon: '👩', name: m.quick_filter_women(), action: 'women', ariaLabel: m.category_women(), color: 'pink' },
 		{ icon: '✨', name: m.quick_filter_newest(), action: 'newest', ariaLabel: m.quick_filter_newest() },
 		{ icon: '🔥', name: m.quick_filter_hot(), action: 'hot', ariaLabel: m.quick_filter_hot() },
-		{ icon: '👨', name: m.quick_filter_men(), action: 'men', ariaLabel: m.category_men() },
-		{ icon: '👩', name: m.quick_filter_women(), action: 'women', ariaLabel: m.category_women() },
 		{ icon: '🏷️', name: m.quick_filter_with_tags(), action: 'with-tags', ariaLabel: m.condition_new_with_tags() },
 		{ icon: '👟', name: m.quick_filter_shoes(), action: 'shoes', ariaLabel: m.subcategory_shoes() },
 		{ icon: '👕', name: m.quick_filter_tshirts(), action: 't-shirts', ariaLabel: m.subcategory_tshirts() },
@@ -169,7 +169,7 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4 pb-0">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6 pb-0">
 	<div class="container px-4">
 		<div class="max-w-3xl mx-auto">
 			
@@ -177,7 +177,7 @@
 			<div class="hidden md:block">
 				<div class="relative overflow-visible">
 					<div class={cn(
-						"relative bg-white rounded-sm border border-gray-200 transition-all duration-fast",
+						"relative bg-white rounded-lg border border-gray-200 transition-all duration-fast shadow-sm",
 						isFocused ? "border-blue-400 ring-1 ring-blue-400" : "border-gray-200"
 					)}>
 						<div class="flex items-center min-w-0">
@@ -187,7 +187,7 @@
 									data-categories-button
 									onclick={toggleCategoryDropdown}
 									class={cn(
-										"flex items-center gap-1.5 px-3 py-2 rounded-sm font-medium text-sm focus:outline-none transition-all duration-fast",
+										"flex items-center gap-2 px-4 py-2.5 rounded-md font-medium text-sm focus:outline-none transition-all duration-fast",
 										isCategoryDropdownOpen 
 											? "bg-blue-500 text-white hover:bg-blue-600" 
 											: "bg-gray-900 text-white hover:bg-gray-800"
@@ -223,7 +223,7 @@
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
 									aria-label={m.browse_search_placeholder()}
-									class="w-full py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+									class="w-full py-4 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
@@ -237,7 +237,7 @@
 						
 						
 						<!-- Trending Category Links -->
-						<div class="border-t border-blue-50 py-2 relative overflow-hidden rounded-b-sm">
+						<div class="border-t border-blue-50 py-3 relative overflow-hidden rounded-b-lg">
 							<div class="px-3 flex items-center gap-2">
 								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block font-medium">{m.search_trending()}:</span>
 								
@@ -267,7 +267,7 @@
 										<button
 											onclick={() => handleCategorySelect(category.slug)}
 											aria-label="{m.filter_categories()}: {getCategoryName(category)}"
-											class="flex items-center gap-1.5 px-3 py-2 rounded-sm bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400"
+											class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400"
 										>
 											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
 											<span>{getCategoryName(category)}</span>
@@ -294,7 +294,7 @@
 							data-categories-button
 							onclick={toggleCategoryDropdown}
 							class={cn(
-								"ml-3 p-2 rounded-sm transition-colors duration-fast",
+								"ml-3 p-2.5 rounded-md transition-colors duration-fast",
 								isCategoryDropdownOpen 
 									? "bg-blue-500 text-white hover:bg-blue-600" 
 									: "bg-gray-900 text-white hover:bg-gray-800"
@@ -316,7 +316,7 @@
 							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 							oninput={handleSearch}
 							aria-label={m.browse_search_placeholder()}
-							class="flex-1 py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+							class="flex-1 py-3.5 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 						/>
 						<button
 							onclick={handleSearch}
@@ -340,7 +340,13 @@
 											{#each quickFilters.slice(0, 4) as filter}
 												<button
 													onclick={() => handleQuickFilter(filter.action)}
-													class="flex items-center gap-1 px-3 py-1.5 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+													class={cn(
+														"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+														filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
+														filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
+														filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
+														!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
+													)}
 												>
 													<span class="text-sm">{filter.icon}</span>
 													<span>{filter.name}</span>
@@ -354,7 +360,13 @@
 											{#each quickFilters.slice(4) as filter}
 												<button
 													onclick={() => handleQuickFilter(filter.action)}
-													class="flex items-center gap-1 px-3 py-1.5 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-400 flex-shrink-0"
+													class={cn(
+														"flex items-center gap-1.5 px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap transition-colors duration-fast focus:outline-none focus:ring-2 flex-shrink-0",
+														filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
+														filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-blue-400",
+														filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
+														!filter.color && "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 focus:ring-blue-400"
+													)}
 												>
 													<span class="text-sm">{filter.icon}</span>
 													<span>{filter.name}</span>
@@ -368,7 +380,7 @@
 											{#each categories.slice(0, 2) as category}
 												<button
 													onclick={() => handleCategorySelect(category.slug)}
-													class="flex items-center gap-1 px-3 py-1.5 rounded-sm bg-white border border-gray-200 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0"
+													class="flex items-center gap-1.5 px-3 py-2 rounded-md bg-white border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
 												>
 													<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
 													<span>{getCategoryName(category)}</span>
@@ -385,7 +397,7 @@
 								isOpen={isCategoryDropdownOpen}
 								onToggle={toggleCategoryDropdown}
 								onClose={closeCategoryDropdown}
-								class="!static !mt-0 !w-full !rounded-none !rounded-b-sm !border-0"
+								class="!static !mt-0 !w-full !rounded-none !rounded-b-lg !border-0"
 							/>
 						{/if}
 					</div>
