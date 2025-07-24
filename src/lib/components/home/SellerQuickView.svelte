@@ -82,18 +82,18 @@
 	<!-- Modal Backdrop -->
 	<div 
 		class="fixed inset-0 bg-black/50 z-50 flex items-end justify-center p-4 md:items-center"
-		onclick={handleClose}
+		onclick={close}
 	>
 		<!-- Modal Content -->
 		<div 
-			class="bg-white rounded-t-3xl md:rounded-3xl w-full max-w-md max-h-[80vh] overflow-hidden shadow-2xl"
+			class="bg-white rounded-t-sm md:rounded-sm w-full max-w-md max-h-[80vh] overflow-hidden shadow-lg"
 			onclick={(e) => e.stopPropagation()}
 		>
 			<!-- Header -->
 			<div class="relative bg-gradient-to-r from-blue-50 to-blue-100 p-6 pb-4">
 				<button 
-					onclick={handleClose}
-					class="absolute top-4 right-4 p-2 hover:bg-white/50 rounded-full transition-colors"
+					onclick={close}
+					class="absolute top-4 right-4 p-2 hover:bg-white/50 rounded-sm transition-colors"
 				>
 					<X class="h-5 w-5 text-gray-600" />
 				</button>
@@ -101,16 +101,16 @@
 				<!-- Seller Avatar & Basic Info -->
 				<div class="flex items-center gap-4">
 					<div class="relative">
-						<div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 p-[2px]">
+						<div class="w-16 h-16 rounded-sm bg-gradient-to-br from-blue-400 to-blue-600 p-[2px]">
 							<img 
 								src={seller.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(seller.username)}&background=f97316&color=fff&size=64`}
 								alt={seller.username}
-								class="w-full h-full rounded-full object-cover"
+								class="w-full h-full rounded-sm object-cover"
 							/>
 						</div>
 						
 						{#if seller.is_verified}
-							<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-200">
+							<div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-sm flex items-center justify-center border border-gray-200">
 								<Award class="h-4 w-4 text-blue-500" />
 							</div>
 						{/if}
@@ -121,7 +121,7 @@
 							<h2 class="text-lg font-semibold text-gray-900 truncate">{seller.username}</h2>
 							{#if seller}
 								{@const level = getSellerLevel(seller)}
-								<span class="text-xs px-2 py-1 rounded-full bg-white/70 {level.color} font-medium">
+								<span class="text-xs px-2 py-1 rounded-sm bg-white/70 {level.color} font-medium">
 									{level.level}
 								</span>
 							{/if}
@@ -154,7 +154,7 @@
 				<!-- Achievements -->
 				<div class="grid grid-cols-3 gap-4">
 					<div class="text-center">
-						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full mb-2 mx-auto">
+						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-sm mb-2 mx-auto">
 							<ShoppingBag class="h-5 w-5 text-blue-600" />
 						</div>
 						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.total_sales)}</div>
@@ -162,7 +162,7 @@
 					</div>
 					
 					<div class="text-center">
-						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full mb-2 mx-auto">
+						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-sm mb-2 mx-auto">
 							<Users class="h-5 w-5 text-blue-600" />
 						</div>
 						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.followers_count || 0)}</div>
@@ -170,7 +170,7 @@
 					</div>
 					
 					<div class="text-center">
-						<div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-full mb-2 mx-auto">
+						<div class="flex items-center justify-center w-10 h-10 bg-green-100 rounded-sm mb-2 mx-auto">
 							<TrendingUp class="h-5 w-5 text-green-600" />
 						</div>
 						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.profile_views || 0)}</div>
@@ -192,8 +192,8 @@
 						<h3 class="text-sm font-medium text-gray-900 mb-3">Featured Items</h3>
 						<div class="grid grid-cols-2 gap-3">
 							{#each topListings.slice(0, 3) as listing}
-								<div class="bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition-colors cursor-pointer">
-									<div class="aspect-square bg-gray-200 rounded-lg mb-2 overflow-hidden">
+								<div class="bg-gray-50 rounded-sm p-3 hover:bg-gray-100 transition-colors cursor-pointer">
+									<div class="aspect-square bg-gray-200 rounded-sm mb-2 overflow-hidden">
 										{#if listing.images && Array.isArray(listing.images) && listing.images.length > 0}
 											<img 
 												src={listing.images[0]} 
@@ -214,16 +214,16 @@
 			<!-- Actions -->
 			<div class="p-6 pt-0 space-y-3">
 				<button 
-					onclick={handleViewStore}
-					class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
+					onclick={viewStore}
+					class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
 				>
 					<ExternalLink class="h-4 w-4" />
 					{m.seller_view_store()}
 				</button>
 				
 				<button 
-					onclick={handleFollowSeller}
-					class="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-xl font-medium hover:bg-blue-50 transition-all active:scale-95 flex items-center justify-center gap-2"
+					onclick={followSeller}
+					class="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-sm font-medium hover:bg-blue-50 transition-all active:scale-95 flex items-center justify-center gap-2"
 				>
 					<UserPlus class="h-4 w-4" />
 					{m.seller_follow()}

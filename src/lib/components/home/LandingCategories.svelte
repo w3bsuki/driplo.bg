@@ -86,7 +86,7 @@
 						onclick={() => selectCategory(category.value)}
 						onmouseenter={() => hoveredCategory = category.value}
 						onmouseleave={() => hoveredCategory = ''}
-						class="group flex-shrink-0 text-center transition-all duration-300 snap-center rounded-lg p-2"
+						class="group flex-shrink-0 text-center transition-all duration-100 snap-center rounded-sm p-2"
 						style="outline: none !important; -webkit-tap-highlight-color: transparent !important; box-shadow: none !important;"
 					>
 						<!-- Category Emoji Container -->
@@ -94,16 +94,16 @@
 							
 							<!-- Emoji Circle -->
 							<div class={cn(
-								"relative w-16 h-16 md:w-24 md:h-24 mx-auto rounded-full transition-all duration-300 border-2 flex items-center justify-center",
+								"relative w-16 h-16 md:w-24 md:h-24 mx-auto rounded-sm transition-all duration-100 border-2 flex items-center justify-center",
 								`bg-gradient-to-br ${category.color}`,
 								selectedCategory === category.value 
-									? "border-blue-300 shadow-lg scale-105" 
+									? "border-blue-300 scale-105" 
 									: hoveredCategory === category.value
-										? "border-blue-200 shadow-md scale-105"
-										: "border-white/30 shadow-sm hover:shadow-md"
+										? "border-blue-200 scale-105"
+										: "border-white/30"
 							)}>
 								<span class={cn(
-									"text-2xl md:text-4xl transition-transform duration-300",
+									"text-2xl md:text-4xl transition-transform duration-100",
 									hoveredCategory === category.value && "scale-110"
 								)}>
 									{category.emoji}
@@ -114,7 +114,7 @@
 						<!-- Category Info -->
 						<div class="min-w-[64px] md:min-w-[96px]">
 							<h3 class={cn(
-								"text-sm md:text-base font-medium transition-colors duration-200 mb-1",
+								"text-sm md:text-sm font-medium transition-colors duration-100 mb-1",
 								selectedCategory === category.value 
 									? "text-blue-400" 
 									: hoveredCategory === category.value
@@ -122,7 +122,7 @@
 										: "text-gray-900"
 							)}>{category.name}</h3>
 							<p class={cn(
-								"text-xs md:text-sm transition-colors duration-200",
+								"text-xs md:text-sm transition-colors duration-100",
 								hoveredCategory === category.value ? "text-gray-600" : "text-gray-400"
 							)}>{category.count}</p>
 						</div>
