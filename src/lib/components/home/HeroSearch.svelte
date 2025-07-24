@@ -226,7 +226,7 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-2 md:py-3 pb-0">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6 pb-0">
 	<div class="container px-4">
 		<div class="max-w-3xl mx-auto">
 			
@@ -234,8 +234,8 @@
 			<div class="hidden md:block">
 				<div class="relative overflow-visible">
 					<div class={cn(
-						"relative bg-white rounded-sm border border-gray-200 transition-all duration-100",
-						isFocused ? "border-blue-400" : "border-gray-200"
+						"relative bg-white rounded-md border border-gray-200 transition-all duration-fast shadow-sm",
+						isFocused ? "border-blue-500 shadow-md" : "border-gray-200"
 					)}>
 						<div class="flex items-center min-w-0">
 							<!-- Category Dropdown Button -->
@@ -244,7 +244,7 @@
 									data-categories-button
 									onclick={toggleCategoryDropdown}
 									class={cn(
-										"flex items-center gap-2 px-3 py-2 rounded-sm font-medium text-sm focus:outline-none transition-all duration-100",
+										"flex items-center gap-2 px-4 py-2.5 rounded-md font-medium text-base focus:outline-none transition-all duration-fast",
 										isCategoryDropdownOpen 
 											? "bg-blue-500 text-white hover:bg-blue-600" 
 											: "bg-gray-900 text-white hover:bg-gray-800"
@@ -252,7 +252,7 @@
 								>
 									<span>{header_categories()}</span>
 									<ChevronDown class={cn(
-										"h-4 w-4 transition-transform duration-100",
+										"h-4 w-4 transition-transform duration-fast",
 										isCategoryDropdownOpen && "rotate-180"
 									)} />
 								</button>
@@ -280,11 +280,11 @@
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
 									aria-label={browse_search_placeholder()}
-									class="w-full py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+									class="w-full py-3 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400 rounded-sm"
+									class="p-2 hover:scale-105 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
 									aria-label={quick_filter_search_button()}
 								>
 									<span class="text-lg" aria-hidden="true">🔍</span>
@@ -294,9 +294,9 @@
 						
 						
 						<!-- Trending Category Links -->
-						<div class="border-t border-blue-50 py-2 relative overflow-hidden rounded-b-sm">
-							<div class="px-3 flex items-center gap-2">
-								<span class="text-xs text-gray-700/50 flex-shrink-0 hidden md:block font-medium">{search_trending()}:</span>
+						<div class="border-t border-gray-100 py-3 relative overflow-hidden rounded-b-md">
+							<div class="px-4 flex items-center gap-3">
+								<span class="text-sm text-gray-600 flex-shrink-0 hidden md:block font-medium">{search_trending()}:</span>
 								
 								<!-- Quick Filters Component -->
 								<QuickFilterPills

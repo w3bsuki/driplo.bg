@@ -1,8 +1,8 @@
-# 🎨 DRIPLO Design System & Styling Guide v2.1 (Compact Edition)
+# 🎨 DRIPLO Design System & Styling Guide v3.0 (Comfortable Compact)
 
 > **Status**: Production-Ready | **Updated**: 2025-07-24
 > **Stack**: SvelteKit 2 + TypeScript + TailwindCSS + Radix Svelte
-> **Design Approach**: Compact (Vercel/Linear style) - NOT Ultra-Compact
+> **Design Approach**: Comfortable Compact - Perfect balance of density and usability
 
 ## 📋 Table of Contents
 - [Design Philosophy](#design-philosophy)
@@ -18,18 +18,19 @@
 ## 🎯 Design Philosophy
 
 ### Core Principles
-1. **Compact UI** - Dense but comfortable (Vercel/Linear style)
-2. **Instant Feedback** - Smooth animations under 300ms
+1. **Comfortable Compact** - Dense but readable, following modern standards
+2. **Smooth Interactions** - Natural animations under 200ms
 3. **Performance First** - 60fps always, zero jank
-4. **Modern & Clean** - Professional appearance
-5. **E-commerce Optimized** - Fast checkout, quick browse
+4. **Modern & Refined** - Professional appearance with subtle depth
+5. **E-commerce Optimized** - Fast checkout, easy browsing
 
 ### Visual Language
-- **Subtle shadows** - For depth on floating elements (shadow-md/lg)
-- **Comfortable spacing** - 8-16px gaps, readable content
-- **High contrast** - Clear hierarchy, instant readability
-- **Rounded corners** - 4-6px radius (rounded-md/lg)
+- **Subtle shadows** - Layer depth with light shadows (shadow-sm/md)
+- **Balanced spacing** - 12-16px default gaps, comfortable touch targets
+- **High contrast** - Clear hierarchy, excellent readability
+- **Modern radius** - 6-8px default (rounded-md/lg)
 - **System fonts** - Zero font loading delay
+- **14px base font** - Optimal readability while maintaining density
 
 ---
 
@@ -90,12 +91,13 @@
     --text-4xl: 2.25rem;     /* 36px - display */
     --text-5xl: 2.5rem;      /* 40px - big numbers */
 
-    /* Line Heights - Tighter for density */
+    /* Line Heights - Readable but compact */
     --leading-none: 1;
-    --leading-tight: 1.2;
-    --leading-snug: 1.325;
-    --leading-normal: 1.4;
-    --leading-relaxed: 1.5;
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+    --leading-loose: 1.75;
 
     /* Letter Spacing */
     --tracking-tighter: -0.04em;
@@ -155,21 +157,25 @@
     --color-info-500: #3b82f6;
     --color-info-600: #2563eb;
 
-    /* ===== Spacing Scale (Tight 4px base) ===== */
+    /* ===== Spacing Scale (Comfortable 4px base) ===== */
     --space-0: 0;
     --space-px: 1px;
     --space-0-5: 0.125rem;  /* 2px */
     --space-1: 0.25rem;     /* 4px - base unit */
     --space-1-5: 0.375rem;  /* 6px */
-    --space-2: 0.5rem;      /* 8px - default gap */
+    --space-2: 0.5rem;      /* 8px - tight */
     --space-2-5: 0.625rem;  /* 10px */
-    --space-3: 0.75rem;     /* 12px - comfortable */
-    --space-4: 1rem;        /* 16px - section spacing */
-    --space-5: 1.25rem;     /* 20px */
+    --space-3: 0.75rem;     /* 12px - default gap */
+    --space-4: 1rem;        /* 16px - comfortable */
+    --space-5: 1.25rem;     /* 20px - section spacing */
     --space-6: 1.5rem;      /* 24px - card padding */
+    --space-7: 1.75rem;     /* 28px */
     --space-8: 2rem;        /* 32px - major sections */
+    --space-9: 2.25rem;     /* 36px */
     --space-10: 2.5rem;     /* 40px */
-    --space-12: 3rem;       /* 48px - page margins */
+    --space-12: 3rem;       /* 48px - page sections */
+    --space-16: 4rem;       /* 64px - hero sections */
+    --space-20: 5rem;       /* 80px - large sections */
 
     /* ===== Component Sizing ===== */
     /* Buttons - Comfortable compact */
@@ -197,38 +203,50 @@
     --border-width-default: 1px;
     --border-width-thick: 2px;
 
-    /* Border Radius - Sharp edges */
+    /* Border Radius - Modern subtle curves */
     --radius-none: 0;
-    --radius-xs: 0.125rem;   /* 2px - ultra sharp */
-    --radius-sm: 0.1875rem;  /* 3px - default */
-    --radius-md: 0.25rem;    /* 4px - cards */
-    --radius-lg: 0.375rem;   /* 6px - modals */
-    --radius-xl: 0.5rem;     /* 8px - max */
-    --radius-full: 9999px;   /* pills only */
+    --radius-xs: 0.125rem;   /* 2px - minimal */
+    --radius-sm: 0.25rem;    /* 4px - subtle */
+    --radius-md: 0.375rem;   /* 6px - default */
+    --radius-lg: 0.5rem;     /* 8px - cards/modals */
+    --radius-xl: 0.75rem;    /* 12px - large elements */
+    --radius-2xl: 1rem;      /* 16px - extra large */
+    --radius-full: 9999px;   /* pills/circles */
 
-    /* ===== Shadows (None - use borders) ===== */
+    /* ===== Shadows - Subtle depth ===== */
     --shadow-none: none;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.04);
+    
+    /* Borders as shadows for flat design */
     --shadow-border: 0 0 0 1px var(--color-border-primary);
     --shadow-border-strong: 0 0 0 1px var(--color-border-secondary);
     
-    /* Only for critical floating elements */
-    --shadow-dropdown: 0 2px 8px rgb(0 0 0 / 0.08);
-    --shadow-modal: 0 4px 16px rgb(0 0 0 / 0.12);
+    /* Critical floating elements */
+    --shadow-dropdown: 0 4px 12px rgb(0 0 0 / 0.08);
+    --shadow-modal: 0 8px 24px rgb(0 0 0 / 0.12);
+    --shadow-popover: var(--shadow-lg);
 
     /* Focus Ring */
     --shadow-focus: 0 0 0 2px var(--color-gray-0), 0 0 0 4px var(--color-brand-500);
 
     /* ===== Animation Tokens ===== */
-    /* Durations - FAST only */
+    /* Durations - Smooth but fast */
     --duration-instant: 0ms;
-    --duration-fast: 50ms;    /* Hover states */
-    --duration-normal: 100ms; /* Max for any animation */
-    --duration-page: 150ms;   /* Page transitions only */
+    --duration-fast: 75ms;    /* Micro interactions */
+    --duration-base: 150ms;   /* Default transitions */
+    --duration-slow: 200ms;   /* Complex animations */
+    --duration-page: 250ms;   /* Page transitions */
 
-    /* Easings - Sharp and snappy */
+    /* Easings - Natural motion */
     --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
     --ease-out: cubic-bezier(0, 0, 0.2, 1);
-    --ease-sharp: cubic-bezier(0.4, 0, 0.6, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.5, 1.25, 0.75, 1.25);
 
     /* ===== Z-Index Scale ===== */
     --z-base: 0;
@@ -246,8 +264,11 @@
     /* Layout */
     --container-max: 1280px;
     --container-padding: var(--space-4);
-    --header-height: 3.5rem;  /* 56px */
-    --sidebar-width: 14rem;   /* 224px */
+    --container-padding-mobile: var(--space-3);
+    --header-height: 4rem;    /* 64px - more comfortable */
+    --header-height-mobile: 3.5rem; /* 56px */
+    --sidebar-width: 16rem;   /* 256px - more comfortable */
+    --sidebar-width-collapsed: 4rem; /* 64px */
 
     /* Light Mode (Default) */
     --color-bg-primary: var(--color-gray-0);
@@ -635,70 +656,77 @@ export default {
     -webkit-line-clamp: 3;
   }
 
-  /* Button sizes (compact) */
+  /* Button sizes (comfortable compact) */
   .btn-xs {
     height: var(--button-height-xs);
-    padding-inline: var(--space-2);
+    padding-inline: var(--space-2-5);
     font-size: var(--text-xs);
-    gap: var(--space-1);
+    gap: var(--space-1-5);
   }
 
   .btn-sm {
     height: var(--button-height-sm);
-    padding-inline: var(--space-2-5);
-    font-size: var(--text-sm);
-    gap: var(--space-1);
-  }
-
-  .btn-md {
-    height: var(--button-height-md);
     padding-inline: var(--space-3);
     font-size: var(--text-sm);
     gap: var(--space-1-5);
   }
 
-  .btn-lg {
-    height: var(--button-height-lg);
+  .btn-md {
+    height: var(--button-height-md);
     padding-inline: var(--space-4);
     font-size: var(--text-base);
     gap: var(--space-2);
   }
 
+  .btn-lg {
+    height: var(--button-height-lg);
+    padding-inline: var(--space-5);
+    font-size: var(--text-md);
+    gap: var(--space-2-5);
+  }
+
+  .btn-xl {
+    height: var(--button-height-xl);
+    padding-inline: var(--space-6);
+    font-size: var(--text-lg);
+    gap: var(--space-3);
+  }
+
   /* Input sizes */
   .input-sm {
     height: var(--input-height-sm);
-    padding-inline: var(--space-2);
+    padding-inline: var(--space-3);
     font-size: var(--text-sm);
   }
 
   .input-md {
     height: var(--input-height-md);
-    padding-inline: var(--space-2-5);
-    font-size: var(--text-sm);
+    padding-inline: var(--space-4);
+    font-size: var(--text-base);
   }
 
   .input-lg {
     height: var(--input-height-lg);
-    padding-inline: var(--space-3);
-    font-size: var(--text-base);
+    padding-inline: var(--space-5);
+    font-size: var(--text-md);
   }
 
-  /* Micro-interactions - FAST */
+  /* Micro-interactions - Smooth */
   .hover-bright {
-    transition: background-color var(--duration-fast) var(--ease-sharp),
-                border-color var(--duration-fast) var(--ease-sharp);
+    transition: background-color var(--duration-fast) var(--ease-out),
+                border-color var(--duration-fast) var(--ease-out);
   }
 
   .hover-bright:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.05);
   }
 
   .active-scale {
-    transition: transform var(--duration-instant);
+    transition: transform var(--duration-fast) var(--ease-out);
   }
 
   .active-scale:active {
-    transform: scale(0.97);
+    transform: scale(0.98);
   }
 
   /* Instant hover states */
@@ -795,18 +823,22 @@ export default {
 ```css
 /* /src/lib/styles/animations.css */
 @layer utilities {
-  /* Entrance animations - INSTANT */
+  /* Entrance animations - Smooth */
+  .fade-in {
+    animation: fade-in var(--duration-base) var(--ease-out);
+  }
+
   .fade-in-fast {
-    animation: fade-in var(--duration-fast) var(--ease-sharp);
+    animation: fade-in var(--duration-fast) var(--ease-out);
   }
 
   .pop-in {
-    animation: pop-in var(--duration-normal) var(--ease-sharp);
+    animation: pop-in var(--duration-base) var(--ease-spring);
   }
 
-  /* Page transitions only */
+  /* Page transitions */
   .slide-in-page {
-    animation: slide-in var(--duration-page) var(--ease-sharp);
+    animation: slide-in var(--duration-page) var(--ease-out);
   }
 
   /* No exit animations - instant removal */
@@ -1605,25 +1637,29 @@ toast.show({
 
 | Component | Height | Padding | Font Size |
 |-----------|---------|---------|-----------|
-| Button (sm) | h-8 (32px) | px-3 | text-sm |
-| Button (default) | h-9 (36px) | px-4 | text-sm |
-| Button (lg) | h-10 (40px) | px-5 | text-base |
-| Input | h-9 (36px) | px-3 | text-sm |
-| Select | h-9 (36px) | px-3 | text-sm |
+| Button (xs) | h-7 (28px) | px-2.5 | text-xs (12px) |
+| Button (sm) | h-9 (36px) | px-3 | text-sm (13px) |
+| Button (default) | h-10 (40px) | px-4 | text-base (14px) |
+| Button (lg) | h-11 (44px) | px-5 | text-md (15px) |
+| Button (xl) | h-12 (48px) | px-6 | text-lg (18px) |
+| Input (sm) | h-9 (36px) | px-3 | text-sm (13px) |
+| Input (default) | h-10 (40px) | px-4 | text-base (14px) |
+| Input (lg) | h-11 (44px) | px-5 | text-md (15px) |
+| Select | h-10 (40px) | px-4 | text-base (14px) |
 | Card | - | p-6 | - |
 | Dialog | - | p-6 | - |
-| Dropdown Item | - | px-3 py-2 | text-sm |
-| Table Cell | - | p-3 | text-sm |
-| Badge | - | px-2.5 py-0.5 | text-xs |
-| Tooltip | - | px-3 py-1.5 | text-xs |
-| Progress | h-1/h-2/h-3 | - | text-xs |
-| Spinner | h-3 to h-12 | - | - |
-| Toast | - | p-4 | text-sm |
-| SearchInput | h-9 (36px) | px-3 | text-sm |
-| TagInput | min-h-[38px] | px-3 py-2 | text-sm |
-| DatePicker | h-9 (36px) | px-3 | text-sm |
-| TimePicker | h-9 (36px) | px-3 | text-sm |
-| RangeSlider | h-2 track | - | text-sm |
+| Dropdown Item | - | px-4 py-2.5 | text-base (14px) |
+| Table Cell | - | p-4 | text-base (14px) |
+| Badge | - | px-3 py-1 | text-xs (12px) |
+| Tooltip | - | px-3 py-2 | text-sm (13px) |
+| Progress | h-2/h-3/h-4 | - | text-xs (12px) |
+| Spinner | h-4 to h-12 | - | - |
+| Toast | - | p-4 | text-base (14px) |
+| SearchInput | h-10 (40px) | px-4 | text-base (14px) |
+| TagInput | min-h-[42px] | px-4 py-2.5 | text-base (14px) |
+| DatePicker | h-10 (40px) | px-4 | text-base (14px) |
+| TimePicker | h-10 (40px) | px-4 | text-base (14px) |
+| RangeSlider | h-2 track | - | text-sm (13px) |
 
 ---
 

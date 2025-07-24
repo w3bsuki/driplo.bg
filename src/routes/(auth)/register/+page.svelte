@@ -331,12 +331,8 @@
 			<form 
 				method="POST"
 				onsubmit={(e) => {
-					// In production, require CAPTCHA
-					if (import.meta.env.MODE === 'production' && !captchaToken) {
-						e.preventDefault();
-						showCaptchaError = true;
-						toast.error('Please complete the CAPTCHA verification');
-					}
+					e.preventDefault();
+					handleRegister(e);
 				}}
 				class="space-y-3"
 			>

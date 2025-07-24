@@ -194,7 +194,7 @@
 					variant="outline"
 					size="lg"
 					class="w-full"
-					on:click={() => handleOAuth('google')}
+					onclick={() => handleOAuth('google')}
 					disabled={loading}
 				>
 					<svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -209,7 +209,7 @@
 					variant="outline"
 					size="lg"
 					class="w-full"
-					on:click={() => handleOAuth('github')}
+					onclick={() => handleOAuth('github')}
 					disabled={loading}
 				>
 					<Icon icon={Github} size="sm" />
@@ -228,7 +228,7 @@
 			</div>
 
 			<!-- Login Form -->
-			<form on:submit|preventDefault={handleLogin} class="space-y-3">
+			<form onsubmit={(e) => { e.preventDefault(); handleLogin(); }} class="space-y-3">
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
 						Email
@@ -264,7 +264,7 @@
 						<button
 							type="button"
 							class="absolute inset-y-0 right-0 pr-3 flex items-center touch-safe"
-							on:click={() => showPassword = !showPassword}
+							onclick={() => showPassword = !showPassword}
 						>
 							{#if showPassword}
 								<Icon icon={EyeOff} size="sm" class="text-gray-400" />
@@ -336,7 +336,7 @@
 				Need to verify your email?
 				<button
 					type="button"
-					on:click={() => showResendForm = !showResendForm}
+					onclick={() => showResendForm = !showResendForm}
 					class="text-blue-400 hover:text-blue-500 font-medium"
 				>
 					Resend verification
@@ -349,7 +349,7 @@
 					<p class="text-sm text-gray-700 mb-2">
 						Enter your email to receive a new verification link
 					</p>
-					<form on:submit|preventDefault={handleResendVerification} class="space-y-3">
+					<form onsubmit={(e) => { e.preventDefault(); handleResendVerification(); }} class="space-y-3">
 						<Input
 							type="email"
 							bind:value={resendEmail}
@@ -373,7 +373,7 @@
 							</Button>
 							<button
 								type="button"
-								on:click={() => { showResendForm = false; resendEmail = ''; }}
+								onclick={() => { showResendForm = false; resendEmail = ''; }}
 								class="px-3 py-2 border border-gray-300 rounded-sm hover:bg-gray-50 transition-colors duration-fast text-sm"
 							>
 								Cancel
