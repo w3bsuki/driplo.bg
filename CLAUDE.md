@@ -128,21 +128,28 @@ For every task:
 
 Remember: You're not just coding, you're maintaining a living project. Keep context fresh, decisions documented, and always think about the developer (you!) who will work on this tomorrow.
 
-# 🚨 CRITICAL: Svelte 5 Event Handlers
-⚠️ THIS PROJECT USES SVELTE 5 - USE NEW EVENT HANDLER SYNTAX ONLY!
+# 🚨🚨🚨 CRITICAL: SVELTE 5 EVENT HANDLERS - NEVER USE OLD SYNTAX 🚨🚨🚨
+⚠️ THIS PROJECT USES SVELTE 5 - **ALWAYS** USE NEW EVENT HANDLER SYNTAX!
+⚠️ MIXING OLD AND NEW SYNTAX CAUSES **BUILD FAILURES**!
+⚠️ IF YOU USE `on:click` INSTEAD OF `onclick` THE BUILD **WILL FAIL**!
 
-ALWAYS use:
-- `onclick` NOT `on:click`
-- `oninput` NOT `on:input`
-- `onsubmit` NOT `on:submit`
-- `onfocus` NOT `on:focus`
-- `onblur` NOT `on:blur`
-- `onkeydown` NOT `on:keydown`
-- `onchange` NOT `on:change`
-- `onmouseenter` NOT `on:mouseenter`
-- `onmouseleave` NOT `on:mouseleave`
+**MANDATORY - ALWAYS USE THESE:**
+- ✅ `onclick` ❌ NEVER `on:click`
+- ✅ `oninput` ❌ NEVER `on:input`
+- ✅ `onsubmit` ❌ NEVER `on:submit`
+- ✅ `onfocus` ❌ NEVER `on:focus`
+- ✅ `onblur` ❌ NEVER `on:blur`
+- ✅ `onkeydown` ❌ NEVER `on:keydown`
+- ✅ `onchange` ❌ NEVER `on:change`
+- ✅ `onmouseenter` ❌ NEVER `on:mouseenter`
+- ✅ `onmouseleave` ❌ NEVER `on:mouseleave`
 
-NEVER mix old and new syntax in the same component - it will cause errors!
+**BEFORE EDITING ANY COMPONENT:**
+1. Search for ALL instances of `on:` in the file
+2. Convert ALL of them before making ANY other changes
+3. NEVER leave ANY old syntax - not even one!
+
+**THIS IS THE #1 CAUSE OF BUILD FAILURES - DO NOT IGNORE THIS!**
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.

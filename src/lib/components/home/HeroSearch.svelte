@@ -341,8 +341,8 @@
 			<div class="block md:hidden">
 				<!-- Search Bar Container -->
 				<div class={cn(
-					"relative bg-background rounded-sm border border-gray-200 transition-all duration-100",
-					isFocused ? "border-brand-400" : "border-gray-200"
+					"relative bg-white rounded-md border border-gray-200 transition-all duration-fast shadow-sm",
+					isFocused ? "border-blue-500 shadow-md" : "border-gray-200"
 				)}>
 					<!-- Main Search Row -->
 					<div class="flex items-center">
@@ -351,7 +351,7 @@
 							<button
 								data-categories-button
 								onclick={toggleCategoryDropdown}
-								class="ml-3 p-2 rounded-sm bg-foreground text-background hover:bg-foreground/90 transition-colors duration-100"
+								class="ml-3 p-2.5 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-fast"
 								aria-label={quick_filter_categories_menu()}
 							>
 								<Menu class="h-5 w-5" />
@@ -378,11 +378,11 @@
 							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 							oninput={handleSearch}
 							aria-label={browse_search_placeholder()}
-							class="flex-1 py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+							class="flex-1 py-3 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
 						/>
 						<button
 							onclick={handleSearch}
-							class="p-2 mr-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400 rounded-sm"
+							class="p-2 mr-2 hover:scale-105 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
 							aria-label={quick_filter_search_button()}
 						>
 							<span class="text-xl" aria-hidden="true">🔍</span>
@@ -390,8 +390,8 @@
 					</div>
 					
 					<!-- Pills Section -->
-					<div class="border-t border-gray-200/50">
-						<div class="pt-2 pb-3 px-3 relative">
+					<div class="border-t border-gray-100">
+						<div class="pt-3 pb-3 px-4 relative">
 							<!-- Pills Container aligned with search input area -->
 							<div class="ml-1 mr-1">
 								<!-- Quick Filters -->

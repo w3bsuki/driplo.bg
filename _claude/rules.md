@@ -91,34 +91,45 @@ background: rgb(135, 206, 235);
 ```
 
 ### Event Handlers (Svelte 5)
-⚠️ **CRITICAL**: In Svelte 5, you MUST use the new event handler syntax consistently within a component:
+# 🚨🚨🚨 CRITICAL: SVELTE 5 EVENT SYNTAX 🚨🚨🚨
+# THIS PROJECT USES SVELTE 5 - NEVER USE OLD EVENT SYNTAX!
+# MIXING OLD AND NEW SYNTAX CAUSES BUILD FAILURES!
 
 ```svelte
-<!-- ✅ CORRECT - New syntax (use this) -->
+<!-- ✅ CORRECT - Svelte 5 syntax (ALWAYS USE THIS) -->
 <button onclick={() => handleClick()}>Click me</button>
 <input oninput={(e) => handleInput(e)} />
-<form onsubmit|preventDefault={handleSubmit}>
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 
-<!-- ❌ WRONG - Old syntax (do NOT use) -->
+<!-- ❌ WRONG - Svelte 4 syntax (NEVER USE THIS) -->
 <button on:click={() => handleClick()}>Click me</button>
 <input on:input={(e) => handleInput(e)} />
 <form on:submit|preventDefault={handleSubmit}>
 
-<!-- ❌ WRONG - Mixed syntax (NEVER do this) -->
+<!-- ❌ FATAL ERROR - Mixed syntax (BUILD WILL FAIL) -->
 <button onclick={() => handleClick()}>Click</button>
-<input on:input={(e) => handleInput(e)} />  <!-- This will cause errors! -->
+<input on:input={(e) => handleInput(e)} />  <!-- ERROR: Mixed event handler syntaxes -->
 ```
 
-**Common event handlers in new syntax:**
-- `onclick` (not on:click)
-- `oninput` (not on:input)
-- `onchange` (not on:change)
-- `onsubmit` (not on:submit)
-- `onfocus` (not on:focus)
-- `onblur` (not on:blur)
-- `onkeydown` (not on:keydown)
-- `onmouseenter` (not on:mouseenter)
-- `onmouseleave` (not on:mouseleave)
+**🔴 MANDATORY EVENT HANDLER CONVERSIONS:**
+- ✅ `onclick` ❌ ~~on:click~~
+- ✅ `oninput` ❌ ~~on:input~~
+- ✅ `onchange` ❌ ~~on:change~~
+- ✅ `onsubmit` ❌ ~~on:submit~~
+- ✅ `onfocus` ❌ ~~on:focus~~
+- ✅ `onblur` ❌ ~~on:blur~~
+- ✅ `onkeydown` ❌ ~~on:keydown~~
+- ✅ `onkeyup` ❌ ~~on:keyup~~
+- ✅ `onmouseenter` ❌ ~~on:mouseenter~~
+- ✅ `onmouseleave` ❌ ~~on:mouseleave~~
+- ✅ `onmouseover` ❌ ~~on:mouseover~~
+- ✅ `onmouseout` ❌ ~~on:mouseout~~
+
+**⚠️ WHEN UPDATING A COMPONENT:**
+1. Search for ALL `on:` prefixes
+2. Convert ALL of them to new syntax
+3. NEVER leave any old syntax behind
+4. Test the component still works
 
 ### Props Rules
 - Always use TypeScript interfaces
