@@ -235,7 +235,7 @@
 				<div class="relative overflow-visible">
 					<div class={cn(
 						"relative bg-white rounded-sm border border-gray-200 transition-all duration-100",
-						isFocused ? "border-blue-400 ring-1 ring-blue-400" : "border-gray-200"
+						isFocused ? "border-blue-400" : "border-gray-200"
 					)}>
 						<div class="flex items-center min-w-0">
 							<!-- Category Dropdown Button -->
@@ -284,7 +284,7 @@
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-sm"
+									class="p-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400 rounded-sm"
 									aria-label={quick_filter_search_button()}
 								>
 									<span class="text-lg" aria-hidden="true">🔍</span>
@@ -324,7 +324,7 @@
 										<button
 											onclick={() => handleCategorySelect(category.slug)}
 											aria-label="{filter_categories()}: {getCategoryName(category)}"
-											class="flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-background border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400"
+											class="flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-background border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400"
 										>
 											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
 											<span>{getCategoryName(category)}</span>
@@ -342,7 +342,7 @@
 				<!-- Search Bar Container -->
 				<div class={cn(
 					"relative bg-background rounded-sm border border-gray-200 transition-all duration-100",
-					isFocused ? "border-brand-400 ring-1 ring-brand-400" : "border-gray-200"
+					isFocused ? "border-brand-400" : "border-gray-200"
 				)}>
 					<!-- Main Search Row -->
 					<div class="flex items-center">
@@ -382,7 +382,7 @@
 						/>
 						<button
 							onclick={handleSearch}
-							class="p-2 mr-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-2 focus:ring-brand-400 rounded-sm"
+							class="p-2 mr-2 hover:scale-110 transition-transform duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400 rounded-sm"
 							aria-label={quick_filter_search_button()}
 						>
 							<span class="text-xl" aria-hidden="true">🔍</span>
@@ -401,11 +401,11 @@
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 flex-shrink-0",
-													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-brand-400",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
-													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700 focus:ring-brand-400"
+													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 flex-shrink-0",
+													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800",
+													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700"
 												)}
 											>
 												<span class="text-sm">{filter.icon}</span>
@@ -421,11 +421,11 @@
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-2 flex-shrink-0",
-													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800 focus:ring-amber-400",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800 focus:ring-brand-400",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800 focus:ring-pink-400",
-													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700 focus:ring-brand-400"
+													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 flex-shrink-0",
+													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800",
+													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700"
 												)}
 											>
 												<span class="text-sm">{filter.icon}</span>
