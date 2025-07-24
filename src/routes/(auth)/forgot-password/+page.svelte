@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
-	import Button from '$lib/components/ui/Button.svelte';
+	import Button from '$lib/components/ui/button.svelte';
 	import Input from '$lib/components/ui/input.svelte';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import { Mail, ArrowLeft } from 'lucide-svelte';

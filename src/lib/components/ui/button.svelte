@@ -21,7 +21,7 @@
 					sm: 'h-button-sm px-2.5 text-sm rounded-sm',
 					default: 'h-button-md px-3 text-sm rounded-sm',
 					lg: 'h-button-lg px-4 text-base rounded-sm',
-					xl: 'h-button-xl px-5 text-lg rounded-md',
+					xl: 'h-button-xl px-5 text-lg rounded-sm',
 					icon: 'w-8 h-8 p-0 rounded-sm'
 				}
 			},
