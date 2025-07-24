@@ -13,13 +13,7 @@ const config = {
 		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 		adapter: adapter({
 			// Use Node.js 20.x runtime
-			runtime: 'nodejs20.x',
-			// Split functions for better performance
-			split: false,
-			// Include files needed for server-side rendering
-			include: ['/*'],
-			// Exclude static assets from functions
-			exclude: ['<all>']
+			runtime: 'nodejs20.x'
 		}),
 		
 		// Prerender static pages for better performance

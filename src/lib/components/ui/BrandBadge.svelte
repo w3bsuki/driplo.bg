@@ -37,7 +37,7 @@
 		lg: {
 			container: 'px-3 py-2 gap-2',
 			icon: 'w-5 h-5',
-			text: 'text-base'
+			text: 'text-sm'
 		}
 	};
 	
@@ -45,7 +45,7 @@
 </script>
 
 <div class={cn(
-	"inline-flex items-center rounded-full font-medium",
+	"inline-flex items-center rounded-sm font-medium",
 	classes.container,
 	isVerified 
 		? "bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 border border-blue-200" 

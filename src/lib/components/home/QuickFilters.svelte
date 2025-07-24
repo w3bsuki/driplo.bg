@@ -164,7 +164,7 @@
 							value={selectedFilters[filter.type]}
 							onchange={(e) => applyFilter(filter.type, e.currentTarget.value)}
 							class={cn(
-								"filter-select appearance-none pl-3 pr-7 py-2 rounded-sm text-xs font-medium border cursor-pointer transition-all duration-fast min-w-[80px] outline-none",
+								"filter-select appearance-none pl-3 pr-7 py-2 rounded-sm text-xs font-medium border cursor-pointer transition-all duration-100 min-w-[80px] outline-none",
 								selectedFilters[filter.type]
 									? "bg-blue-50 border-blue-200 text-blue-500"
 									: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"
@@ -207,7 +207,7 @@
 						<button
 							onclick={() => showAllFilters = !showAllFilters}
 							class={cn(
-								"flex items-center gap-1.5 px-3 py-2 rounded-sm border font-medium transition-all duration-fast",
+								"flex items-center gap-1.5 px-3 py-2 rounded-sm border font-medium transition-all duration-100",
 								selectedFilters[filter.type]
 									? "bg-blue-100 border-blue-200 text-blue-500 hover:bg-blue-100"
 									: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"
@@ -221,12 +221,12 @@
 						</button>
 						
 						<!-- Dropdown -->
-						<div class="absolute top-full left-0 mt-2 bg-white rounded-sm border border-gray-200 p-2 min-w-[150px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-fast z-10">
+						<div class="absolute top-full left-0 mt-2 bg-white rounded-sm border border-gray-200 p-2 min-w-[150px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-100 z-10 shadow-md">
 							{#each filter.options as option}
 								<button
 									onclick={() => applyFilter(filter.type, option.value)}
 									class={cn(
-										"w-full text-left px-3 py-2 rounded-sm text-sm transition-colors duration-fast",
+										"w-full text-left px-3 py-2 rounded-sm text-sm transition-colors duration-100",
 										selectedFilters[filter.type] === option.value
 											? "bg-blue-100 text-blue-500"
 											: "hover:bg-gray-100"
@@ -255,7 +255,7 @@
 				<select
 					value={selectedFilters.sort}
 					onchange={(e) => { selectedFilters.sort = e.currentTarget.value; updateUrl(); }}
-					class="bg-white border border-gray-200 rounded-sm px-3 py-2 text-sm font-medium hover:border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-300/20"
+					class="bg-white border border-gray-200 rounded-sm px-3 py-2 text-sm font-medium hover:border-blue-200 focus:outline-none focus:ring-1 focus:ring-blue-300/20"
 				>
 					{#each sortOptions as option}
 						<option value={option.value}>{option.icon} {option.label}</option>
@@ -279,7 +279,7 @@
 								<button
 									onclick={() => applyFilter(filter.type, option.value)}
 									class={cn(
-										"px-3 py-1.5 rounded-sm text-sm font-medium border transition-all duration-fast",
+										"px-3 py-1.5 rounded-sm text-sm font-medium border transition-all duration-100",
 										selectedFilters[filter.type] === option.value
 											? "bg-blue-300 text-white border-blue-300"
 											: "bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50"
