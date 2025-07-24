@@ -55,7 +55,7 @@
 							<img
 								src={category.image}
 								alt={category.name}
-								class="h-full w-full object-cover transition-transform duration-fast group-hover:scale-110"
+								class="h-full w-full object-cover transition-transform duration-100 group-hover:scale-110"
 								loading="lazy"
 							/>
 						</div>
@@ -77,7 +77,7 @@
 							<img
 								src={category.image}
 								alt={category.name}
-								class="h-full w-full object-cover transition-transform duration-fast group-hover:scale-110"
+								class="h-full w-full object-cover transition-transform duration-100 group-hover:scale-110"
 								loading="lazy"
 							/>
 						</div>

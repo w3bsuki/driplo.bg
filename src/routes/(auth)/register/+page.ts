@@ -1,2 +1,3 @@
-// Enable prerendering for register page (no server data)
-export const prerender = true;
+// Disable prerendering since we have server-side logic
+export const prerender = false;
+export const ssr = true;
