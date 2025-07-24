@@ -226,7 +226,7 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6 pb-0">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4 pb-0">
 	<div class="container px-4">
 		<div class="max-w-3xl mx-auto">
 			
@@ -234,17 +234,17 @@
 			<div class="hidden md:block">
 				<div class="relative overflow-visible">
 					<div class={cn(
-						"relative bg-white rounded-md border border-gray-200 transition-all duration-fast shadow-sm",
-						isFocused ? "border-blue-500 shadow-md" : "border-gray-200"
+						"relative bg-white rounded border border-gray-200 transition-all duration-fast",
+						isFocused ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
 					)}>
 						<div class="flex items-center min-w-0">
 							<!-- Category Dropdown Button -->
-							<div class="relative flex-shrink-0 pl-4 pr-3 py-3">
+							<div class="relative flex-shrink-0 pl-3 pr-2">
 								<button
 									data-categories-button
 									onclick={toggleCategoryDropdown}
 									class={cn(
-										"flex items-center gap-2 px-4 py-2.5 rounded-md font-medium text-base focus:outline-none transition-all duration-fast",
+										"btn-sm font-medium focus:outline-none transition-all duration-fast rounded-md",
 										isCategoryDropdownOpen 
 											? "bg-blue-500 text-white hover:bg-blue-600" 
 											: "bg-gray-900 text-white hover:bg-gray-800"
@@ -252,7 +252,7 @@
 								>
 									<span>{header_categories()}</span>
 									<ChevronDown class={cn(
-										"h-4 w-4 transition-transform duration-fast",
+										"h-3 w-3 transition-transform duration-fast",
 										isCategoryDropdownOpen && "rotate-180"
 									)} />
 								</button>
@@ -280,23 +280,23 @@
 									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 									oninput={handleSearch}
 									aria-label={browse_search_placeholder()}
-									class="w-full py-3 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+									class="input-sm w-full border-0 focus:ring-0 bg-transparent"
 								/>
 								<button
 									onclick={handleSearch}
-									class="p-2 hover:scale-105 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+									class="p-1.5 hover:opacity-75 transition-opacity duration-fast focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
 									aria-label={quick_filter_search_button()}
 								>
-									<span class="text-lg" aria-hidden="true">🔍</span>
+									<span class="text-base" aria-hidden="true">🔍</span>
 								</button>
 							</div>
 						</div>
 						
 						
 						<!-- Trending Category Links -->
-						<div class="border-t border-gray-100 py-3 relative overflow-hidden rounded-b-md">
-							<div class="px-4 flex items-center gap-3">
-								<span class="text-sm text-gray-600 flex-shrink-0 hidden md:block font-medium">{search_trending()}:</span>
+						<div class="border-t border-gray-100 py-1.5 relative overflow-hidden rounded-b">
+							<div class="px-2 flex items-center gap-1.5">
+								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block">{search_trending()}:</span>
 								
 								<!-- Quick Filters Component -->
 								<QuickFilterPills
@@ -351,10 +351,10 @@
 							<button
 								data-categories-button
 								onclick={toggleCategoryDropdown}
-								class="ml-3 p-2.5 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-fast"
+								class="btn-sm ml-2 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-fast flex items-center justify-center"
 								aria-label={quick_filter_categories_menu()}
 							>
-								<Menu class="h-5 w-5" />
+								<Menu class="h-4 w-4" />
 							</button>
 							
 							<!-- Mobile Category Dropdown - positioned relative to button -->
@@ -378,20 +378,20 @@
 							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
 							oninput={handleSearch}
 							aria-label={browse_search_placeholder()}
-							class="flex-1 py-3 pr-3 text-base placeholder:text-gray-400 focus:outline-none bg-transparent"
+							class="input-sm flex-1 border-0 focus:ring-0 bg-transparent"
 						/>
 						<button
 							onclick={handleSearch}
-							class="p-2 mr-2 hover:scale-105 transition-transform duration-fast focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+							class="btn-sm mr-2 !p-0 w-9 hover:opacity-75 transition-opacity duration-fast focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md"
 							aria-label={quick_filter_search_button()}
 						>
-							<span class="text-xl" aria-hidden="true">🔍</span>
+							<span class="text-lg" aria-hidden="true">🔍</span>
 						</button>
 					</div>
 					
 					<!-- Pills Section -->
 					<div class="border-t border-gray-100">
-						<div class="pt-3 pb-3 px-4 relative">
+						<div class="pt-2 pb-2 px-3 relative">
 							<!-- Pills Container aligned with search input area -->
 							<div class="ml-1 mr-1">
 								<!-- Quick Filters -->

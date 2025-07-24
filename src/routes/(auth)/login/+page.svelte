@@ -13,6 +13,7 @@
 	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 
 	const auth = getAuthContext()
+	console.log('Auth context in login page:', auth)
 
 	let email = ''
 	let password = ''
@@ -83,6 +84,12 @@
 			return
 		}
 		
+		// Check if auth context exists
+		if (!auth) {
+			toast.error('Authentication service not available. Please refresh the page.')
+			return
+		}
+		
 		// Check CAPTCHA in production
 		if (import.meta.env.MODE === 'production' && !captchaToken) {
 			showCaptchaError = true
@@ -126,6 +133,11 @@
 	}
 
 	async function handleOAuth(provider: 'google' | 'github') {
+		if (!auth) {
+			toast.error('Authentication service not available. Please refresh the page.')
+			return
+		}
+		
 		loading = true
 		try {
 			await auth.signInWithProvider(provider)
