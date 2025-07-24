@@ -250,7 +250,7 @@
 				<div class="grid grid-cols-2 gap-2">
 					<button
 						type="button"
-						on:click={() => accountType = 'personal'}
+						onclick={() => accountType = 'personal'}
 						class={cn(
 							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'personal' 
@@ -268,7 +268,7 @@
 					</button>
 					<button
 						type="button"
-						on:click={() => accountType = 'brand'}
+						onclick={() => accountType = 'brand'}
 						class={cn(
 							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'brand' 
