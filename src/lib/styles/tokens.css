@@ -153,18 +153,18 @@
     --shadow-border-strong: 0 0 0 1px var(--color-border-secondary);
     
     /* Only for critical floating elements */
-    --shadow-dropdown: 0 2px 8px rgb(0 0 0 / 0.08);
-    --shadow-modal: 0 4px 16px rgb(0 0 0 / 0.12);
+    --shadow-dropdown: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 
     /* Focus Ring */
     --shadow-focus: 0 0 0 2px var(--color-gray-0), 0 0 0 4px var(--color-brand-500);
 
     /* ===== Animation Tokens ===== */
-    /* Durations - FAST only */
+    /* Durations */
     --duration-instant: 0ms;
-    --duration-fast: 50ms;    /* Hover states */
-    --duration-normal: 100ms; /* Max for any animation */
-    --duration-page: 150ms;   /* Page transitions only */
+    --duration-fast: 100ms;   /* Most transitions */
+    --duration-normal: 200ms; /* Smooth transitions */
+    --duration-page: 300ms;   /* Page transitions */
 
     /* Easings - Sharp and snappy */
     --ease-linear: linear;
@@ -191,37 +191,37 @@
     --sidebar-width: 14rem;   /* 224px */
 
     /* Light Mode (Default) */
-    --color-bg-primary: var(--color-gray-0);
-    --color-bg-secondary: var(--color-gray-50);
-    --color-bg-tertiary: var(--color-gray-100);
-    --color-bg-inverse: var(--color-gray-900);
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f8fafc;  /* gray-50 */
+    --color-bg-tertiary: #f1f5f9;   /* gray-100 */
+    --color-bg-inverse: #0f172a;    /* gray-900 */
 
-    --color-surface-primary: var(--color-gray-0);
-    --color-surface-secondary: var(--color-gray-50);
-    --color-surface-tertiary: var(--color-gray-100);
-    --color-surface-hover: var(--color-gray-100);
-    --color-surface-active: var(--color-gray-200);
+    --color-surface-primary: #ffffff;
+    --color-surface-secondary: #f8fafc;  /* gray-50 */
+    --color-surface-tertiary: #f1f5f9;   /* gray-100 */
+    --color-surface-hover: #f8fafc;      /* gray-50 */
+    --color-surface-active: #f1f5f9;     /* gray-100 */
 
-    --color-text-primary: var(--color-gray-900);
-    --color-text-secondary: var(--color-gray-600);
-    --color-text-tertiary: var(--color-gray-500);
-    --color-text-placeholder: var(--color-gray-400);
-    --color-text-inverse: var(--color-gray-0);
+    --color-text-primary: #0f172a;   /* gray-900 */
+    --color-text-secondary: #475569;  /* gray-600 */
+    --color-text-tertiary: #64748b;   /* gray-500 */
+    --color-text-placeholder: #94a3b8; /* gray-400 */
+    --color-text-inverse: #ffffff;
 
-    --color-border-primary: var(--color-gray-200);
-    --color-border-secondary: var(--color-gray-300);
-    --color-border-hover: var(--color-gray-400);
-    --color-border-focus: var(--color-brand-500);
+    --color-border-primary: #e2e8f0;   /* gray-200 */
+    --color-border-secondary: #cbd5e1;  /* gray-300 */
+    --color-border-hover: #cbd5e1;     /* gray-300 */
+    --color-border-focus: #3b82f6;     /* blue-500 */
 
     /* Component-specific */
-    --button-primary-bg: var(--color-brand-500);
-    --button-primary-bg-hover: var(--color-brand-600);
-    --button-primary-text: var(--color-gray-0);
+    --button-primary-bg: #3b82f6;      /* blue-500 */
+    --button-primary-bg-hover: #2563eb; /* blue-600 */
+    --button-primary-text: #ffffff;
 
-    --input-bg: var(--color-gray-0);
-    --input-border: var(--color-gray-300);
-    --input-border-hover: var(--color-gray-400);
-    --input-border-focus: var(--color-brand-500);
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;    /* gray-200 */
+    --input-border-hover: #cbd5e1; /* gray-300 */
+    --input-border-focus: #3b82f6; /* blue-500 */
   }
 
   /* Dark Mode */

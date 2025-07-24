@@ -58,7 +58,7 @@
 <div class="relative overflow-hidden {className}">
 	<div
 		bind:this={containerRef}
-		onscroll={handleThrottledHandleScroll}
+		onscroll={throttledHandleScroll}
 		class="flex items-center gap-2 md:gap-2.5 overflow-x-auto scrollbar-hide"
 		role="group"
 		aria-label={m.filter_categories()}
