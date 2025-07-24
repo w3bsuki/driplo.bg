@@ -1,4 +1,4 @@
-import Root from './Card.svelte';
+import Root from './card.svelte';
 import Content from './CardContent.svelte';
 import Description from './CardDescription.svelte';
 import Footer from './CardFooter.svelte';

@@ -281,11 +281,11 @@
 			<!-- Breadcrumb Navigation -->
 			<Breadcrumb class="mb-4">
 				<BreadcrumbItem>
-					<BreadcrumbLink href="/">{m.home()}</BreadcrumbLink>
+					<BreadcrumbLink href="/">{m.header_home()}</BreadcrumbLink>
 				</BreadcrumbItem>
 				<BreadcrumbSeparator />
 				<BreadcrumbItem>
-					<BreadcrumbLink href="/browse">{m.browse()}</BreadcrumbLink>
+					<BreadcrumbLink href="/browse">{m.header_browse()}</BreadcrumbLink>
 				</BreadcrumbItem>
 				{#if listing.category}
 					<BreadcrumbSeparator />

@@ -147,29 +147,29 @@
 	}
 </script>
 
-<article class="relative bg-background rounded-sm border border-gray-200 hover:border-gray-300 transition-all duration-100 focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 group product-card">
+<article class="relative bg-white rounded-md border border-gray-200 hover:border-gray-400 transition-all duration-100 group product-card">
 	<a 
 		href="/listings/{id}" 
-		class="block focus:outline-none rounded-sm no-underline"
+		class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 rounded-md no-underline"
 		aria-label={m.listing_view_details({ title })}
 	>
-		<div class="relative aspect-[3/4] overflow-hidden rounded-t-sm bg-muted">
+		<div class="relative aspect-[3/4] overflow-hidden rounded-t-md bg-gray-100">
 			{#if !imageError && primaryImageUrl()}
 				<img
 					src={primaryImageUrl()}
 					alt={title}
-					class="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+					class="absolute inset-0 h-full w-full object-cover transition-transform duration-100 group-hover:scale-105"
 					loading={eagerLoading ? 'eager' : 'lazy'}
 					onerror={handleImageError}
 					sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
 				/>
 			{:else}
-				<div class="h-full w-full flex items-center justify-center bg-muted" role="img" aria-label={m.listing_no_image()}>
+				<div class="h-full w-full flex items-center justify-center bg-gray-100" role="img" aria-label={m.listing_no_image()}>
 					<div class="text-center">
-						<div class="w-16 h-16 mx-auto mb-2 bg-muted-foreground/20 rounded-sm flex items-center justify-center">
-							<span class="text-2xl" aria-hidden="true">📷</span>
+						<div class="w-12 h-12 mx-auto mb-1 bg-gray-200 rounded-md flex items-center justify-center">
+							<span class="text-lg" aria-hidden="true">📷</span>
 						</div>
-						<p class="text-sm text-muted-foreground">{m.listing_no_image()}</p>
+						<p class="text-xs text-gray-500">{m.listing_no_image()}</p>
 					</div>
 				</div>
 			{/if}
@@ -177,8 +177,8 @@
 			<button
 				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-2 right-2 w-8 h-8 rounded-sm bg-background/90 backdrop-blur-sm border border-gray-200 hover:border-gray-300 transition-all duration-100 flex items-center justify-center active:scale-95",
-					"focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+					"absolute top-1.5 right-1.5 w-7 h-7 rounded-md bg-white/95 backdrop-blur-sm border border-gray-200 hover:border-gray-400 transition-all duration-100 flex items-center justify-center active:scale-95",
+					"focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
 				aria-label={liked ? m.listing_unlike() : m.listing_like()}
@@ -187,61 +187,61 @@
 				type="button"
 			>
 				<Heart 
-					class={cn("h-4 w-4", liked ? "fill-destructive text-destructive" : "text-muted-foreground")} 
+					class={cn("h-3.5 w-3.5", liked ? "fill-red-500 text-red-500" : "text-gray-600")} 
 					aria-hidden="true"
 				/>
 			</button>
 			
 			{#if condition}
-				<div class="absolute top-2 left-2">
-					<ConditionBadge {condition} size="md" />
+				<div class="absolute top-1.5 left-1.5">
+					<ConditionBadge {condition} size="sm" />
 				</div>
 			{/if}
 		</div>
 		
-		<div class="p-2 space-y-1">
-			<div class="flex items-start justify-between gap-2">
+		<div class="p-2 space-y-0.5">
+			<div class="flex items-start justify-between gap-1.5">
 				<div class="flex-1 min-w-0">
-					<h3 class="text-sm font-medium text-foreground truncate no-underline">{title}</h3>
+					<h3 class="text-sm font-medium text-gray-900 truncate leading-snug">{title}</h3>
 					{#if brand}
-						<p class="text-xs text-muted-foreground no-underline">{brand}</p>
+						<p class="text-xs text-gray-600 leading-snug">{brand}</p>
 					{/if}
 				</div>
-				<p class="text-sm font-semibold text-primary" aria-label={m.listing_price({ price: formattedPrice })}>
+				<p class="text-sm font-semibold text-gray-900 tabular-nums" aria-label={m.listing_price({ price: formattedPrice })}>
 					{formattedPrice}
 				</p>
 			</div>
 			
 			{#if size}
-				<p class="text-xs text-muted-foreground">{m.listing_size({ size })}</p>
+				<p class="text-xs text-gray-500 leading-snug">{m.listing_size({ size })}</p>
 			{/if}
 			
-			<div class="flex items-center gap-1.5 pt-1">
+			<div class="flex items-center gap-1 pt-0.5">
 				{#if seller.avatar}
 					<img
 						src={seller.avatar}
 						alt=""
-						class="h-5 w-5 rounded-sm object-cover"
+						class="h-4 w-4 rounded-md object-cover"
 						aria-hidden="true"
 					/>
 				{:else}
 					<div 
-						class="h-5 w-5 rounded-sm bg-gradient-to-br {avatarGradient} flex items-center justify-center"
+						class="h-4 w-4 rounded-md bg-gradient-to-br {avatarGradient} flex items-center justify-center"
 						aria-hidden="true"
 					>
-						<span class="text-xs font-medium text-white">
+						<span class="text-[10px] font-medium text-white">
 							{seller.username.charAt(0).toUpperCase()}
 						</span>
 					</div>
 				{/if}
-				<span class="text-xs text-muted-foreground">{seller.username}</span>
+				<span class="text-xs text-gray-600 truncate">{seller.username}</span>
 				{#if seller.account_type === 'brand'}
 					<BrandBadge size="xs" isVerified={seller.is_verified} showText={false} />
 				{/if}
 				{#if likeCount > 0}
-					<span class="text-xs text-muted-foreground/70 ml-auto flex items-center gap-0.5" aria-live="polite">
+					<span class="text-xs text-gray-500 ml-auto flex items-center gap-0.5 tabular-nums" aria-live="polite">
 						{likeCount}
-						<Heart class="h-3 w-3 fill-current" aria-hidden="true" />
+						<Heart class="h-2.5 w-2.5 fill-current" aria-hidden="true" />
 					</span>
 				{/if}
 			</div>
@@ -249,7 +249,7 @@
 	</a>
 	
 	{#if apiError}
-		<div class="absolute bottom-0 left-0 right-0 bg-destructive/90 text-destructive-foreground text-xs p-2 rounded-b-sm" role="alert">
+		<div class="absolute bottom-0 left-0 right-0 bg-red-500/95 text-white text-xs p-1.5 rounded-b-md" role="alert">
 			{apiError}
 		</div>
 	{/if}

@@ -1,4 +1,4 @@
-export { default as Root } from './Sheet.svelte';
+export { default as Root } from './sheet.svelte';
 export { default as Trigger } from './SheetTrigger.svelte';
 export { default as Content } from './SheetContent.svelte';
 export { default as Header } from './SheetHeader.svelte';

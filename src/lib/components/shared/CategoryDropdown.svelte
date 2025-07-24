@@ -147,12 +147,12 @@
 	
 	// Popular collections (cross-category)
 	const popularCollections = [
-		{ slug: 'shoes', name: 'All Shoes', icon: '👟' },
-		{ slug: 'bags', name: 'All Bags', icon: '👜' },
-		{ slug: 'jewelry', name: 'Jewelry', icon: '💍' },
-		{ slug: 'vintage', name: 'Vintage', icon: '🕰️' },
-		{ slug: 'sale', name: 'On Sale', icon: '🔥' },
-		{ slug: 'new', name: 'New In', icon: '✨' }
+		{ slug: 'shoes', name: getLocale() === 'bg' ? 'Всички обувки' : 'All Shoes', icon: '👟' },
+		{ slug: 'bags', name: getLocale() === 'bg' ? 'Всички чанти' : 'All Bags', icon: '👜' },
+		{ slug: 'jewelry', name: getLocale() === 'bg' ? 'Бижута' : 'Jewelry', icon: '💍' },
+		{ slug: 'vintage', name: getLocale() === 'bg' ? 'Винтидж' : 'Vintage', icon: '🕰️' },
+		{ slug: 'sale', name: getLocale() === 'bg' ? 'Намаления' : 'On Sale', icon: '🔥' },
+		{ slug: 'new', name: getLocale() === 'bg' ? 'Нови' : 'New In', icon: '✨' }
 	];
 
 	function handleMainCategoryClick(categorySlug: string) {
@@ -195,7 +195,7 @@
 	<div 
 		class={cn(
 			"absolute top-full left-0 mt-1 w-[calc(100vw-2rem)] md:w-[600px]",
-			"bg-white rounded-md shadow-lg border border-gray-200 z-[100] overflow-hidden",
+			"bg-white rounded-sm shadow-lg border border-gray-200 z-[100] overflow-hidden",
 			"md:mt-2",
 			className
 		)}
@@ -230,10 +230,10 @@
 								activeSection = 'brands'; 
 							}}
 							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap",
+								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
 								activeSection === 'brands' 
-									? "bg-blue-500 text-white" 
-									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									? "bg-white shadow-sm text-gray-900" 
+									: "text-gray-600 hover:text-gray-900"
 							)}
 						>
 							🏷️ {getLocale() === 'bg' ? 'Марки' : 'Brands'}
@@ -246,10 +246,10 @@
 								activeSection = 'filters';
 							}}
 							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap",
+								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
 								activeSection === 'filters' 
-									? "bg-blue-500 text-white" 
-									: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									? "bg-white shadow-sm text-gray-900" 
+									: "text-gray-600 hover:text-gray-900"
 							)}
 						>
 							🎯 {getLocale() === 'bg' ? 'Филтри' : 'Filters'}
@@ -261,7 +261,7 @@
 							e.stopPropagation();
 							onClose();
 						}}
-						class="p-1.5 hover:bg-gray-100 rounded-md transition-colors ml-2"
+						class="p-1.5 hover:bg-gray-100 rounded-sm transition-colors ml-2"
 					>
 						<X class="w-4 h-4 text-gray-500" />
 					</button>
@@ -298,7 +298,7 @@
 									{#each selectedCategory.subcategories as subcat}
 										<button
 											onclick={() => handleSubcategoryClick(selectedCategory.slug, subcat.slug)}
-											class="flex items-center gap-2 px-3 py-2.5 text-left bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
+											class="flex items-center gap-2 px-3 py-2.5 text-left bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors"
 										>
 											<span class="text-lg">{subcat.icon}</span>
 											<span class="text-sm font-medium text-gray-700">{subcat.name}</span>
@@ -313,7 +313,7 @@
 								{#each categoryHierarchy as category}
 									<button
 										onclick={() => handleMainCategoryClick(category.slug)}
-										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 									>
 										<span class="text-xl">{category.icon}</span>
 										<span class="text-xs font-medium text-gray-700">{category.name}</span>
@@ -333,7 +333,7 @@
 												goto(`/browse?category=${collection.slug}`);
 											}
 										}}
-										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 									>
 										<span class="text-xl">{collection.icon}</span>
 										<span class="text-xs font-medium text-gray-700">{collection.name}</span>
@@ -352,7 +352,7 @@
 										onClose();
 										goto(`/browse?brand=${encodeURIComponent(brand.name)}`);
 									}}
-									class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+									class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 								>
 									<span class="text-xl">{brand.emoji}</span>
 									<span class="text-xs font-medium text-gray-700">{brand.name}</span>
@@ -370,7 +370,7 @@
 									onClose();
 									goto('/browse?condition=new_with_tags');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">🏷️</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'С етикети' : 'With Tags'}</span>
@@ -380,7 +380,7 @@
 									onClose();
 									goto('/browse?condition=like_new');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">✨</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Като нови' : 'Like New'}</span>
@@ -390,7 +390,7 @@
 									onClose();
 									goto('/browse?condition=good');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">👍</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Добро' : 'Good'}</span>
@@ -402,7 +402,7 @@
 									onClose();
 									goto('/browse?filter=sale');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">🔥</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Намаление' : 'Sale'}</span>
@@ -412,7 +412,7 @@
 									onClose();
 									goto('/browse?sort=created_at&order=desc');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">🆕</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Най-нови' : 'Newest'}</span>
@@ -422,7 +422,7 @@
 									onClose();
 									goto('/browse?sort=favorites_count&order=desc');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">❤️</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Популярни' : 'Popular'}</span>
@@ -434,7 +434,7 @@
 									onClose();
 									goto('/browse?price=0-20');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">💰</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? '<20лв' : 'Under $20'}</span>
@@ -444,7 +444,7 @@
 									onClose();
 									goto('/browse?price=20-50');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">💵</span>
 								<span class="text-xs font-medium text-gray-700">$20-50</span>
@@ -454,7 +454,7 @@
 									onClose();
 									goto('/browse?price=50-100');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">💸</span>
 								<span class="text-xs font-medium text-gray-700">$50-100</span>
@@ -466,7 +466,7 @@
 									onClose();
 									goto('/browse?filter=free-shipping');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">🚚</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Безпл.' : 'Free Ship'}</span>
@@ -476,7 +476,7 @@
 									onClose();
 									goto('/browse?near=me');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">📍</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Близо' : 'Near Me'}</span>
@@ -486,7 +486,7 @@
 									onClose();
 									goto('/browse?filter=hot');
 								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
+								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
 							>
 								<span class="text-xl">🔥</span>
 								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Горещи' : 'Hot Items'}</span>
@@ -547,7 +547,7 @@
 								onClose();
 								goto('/browse?filter=new-with-tags');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">🏷️</span>
 							<div class="text-left">
@@ -561,7 +561,7 @@
 								onClose();
 								goto('/browse?filter=sale');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">💸</span>
 							<div class="text-left">
@@ -575,7 +575,7 @@
 								onClose();
 								goto('/browse?sort=created_at&order=desc');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">✨</span>
 							<div class="text-left">
@@ -597,7 +597,7 @@
 								onClose();
 								goto('/browse?sort=favorites_count&order=desc');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">❤️</span>
 							<div class="text-left">
@@ -611,7 +611,7 @@
 								onClose();
 								goto('/browse?filter=hot');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">🔥</span>
 							<div class="text-left">
@@ -625,7 +625,7 @@
 								onClose();
 								goto('/browse?price=0-20');
 							}}
-							class="w-full flex items-center gap-3 p-3 rounded-md bg-white hover:bg-blue-50 transition-colors group"
+							class="w-full flex items-center gap-3 p-3 rounded-sm bg-white hover:bg-blue-50 transition-colors group"
 						>
 							<span class="text-lg">💰</span>
 							<div class="text-left">
