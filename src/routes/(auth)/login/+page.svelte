@@ -7,7 +7,8 @@
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages.js'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
-	import { Button, Input, Icon } from '$lib/components/ui'
+	import { Button, Input } from '$lib/components/ui'
+	import Icon from '$lib/components/ui/Icon.svelte'
 	import { onMount } from 'svelte'
 	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 
