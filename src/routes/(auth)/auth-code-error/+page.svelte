@@ -1,6 +1,6 @@
 <script>
 	import { Button } from '$lib/components/ui'
-	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/Card'
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card'
 	import { AlertCircle } from 'lucide-svelte'
 </script>
 
