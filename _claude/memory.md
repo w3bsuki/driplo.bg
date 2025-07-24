@@ -1,5 +1,22 @@
 # Memory - Driplo Project
 
+## [2025-07-24] - Design System Component Refactoring Progress
+- **Status**: In progress (3 of 14 phases completed)
+- **Approach**: Systematic fix of all components to follow design tokens
+- **Design Standards Enforced**:
+  1. Border radius: Only `rounded-sm`
+  2. Shadows: Only `shadow-sm` for modals/dropdowns
+  3. Heights: Compact (h-7 to h-9 for buttons/inputs)
+  4. Spacing: Tight (p-2/p-3, gap-2)
+  5. Text: text-sm for body
+  6. Transitions: duration-fast or duration-100
+- **Completed Phases**:
+  - Phase 1A: Core UI primitives (button, input, textarea, select) ✅
+  - Phase 1B: Card components (card, header, content, footer) ✅
+  - Phase 1C: Dialog/modal components (dialog, sheet, alert) ✅
+- **Next Up**: Phase 1D - Dropdown components
+- **Files Updated So Far**: 11 core UI components
+
 ## [2025-07-24] - Fixed Styling System Issues
 - **Issue**: Multiple styling problems after partial implementation of new design system
 - **Problems Fixed**:
