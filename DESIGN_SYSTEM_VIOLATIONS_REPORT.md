@@ -9,28 +9,52 @@ This report identifies all Svelte components that violate the established design
 3. **Heights**: Use compact sizes (no h-10, h-12, h-14)
 4. **Spacing**: Use tighter spacing (no p-4, p-6, gap-4, gap-6)
 5. **Text Sizes**: Use text-sm for body text (no text-base or text-lg except headings)
-6. **Transitions**: Always use duration-fast with transition-all
+6. **Transitions**: Always use duration-100 (not duration-fast, duration-200, etc)
+7. **Focus Rings**: Use ring-1 (not ring-2) with minimal offset
+8. **Borders**: Use single borders (not border-2) with gray-200
 
-## Priority 1: Product Card Components (URGENT)
+## ✅ COMPLETED FIXES (2025-07-24)
 
-### ListingCard.svelte ⚠️
-- ✅ Already uses `rounded-sm` correctly
-- ✅ Already uses `duration-fast` 
-- ❌ Uses `p-3` - should be `p-2`
-- ❌ Uses `rounded-full` for avatars (lines 224, 229)
-- ❌ Uses `rounded-b-xl` for error state (line 252)
+### Priority 1: Product Card Components ✅
+- **ListingCard.svelte** - FIXED:
+  - All rounded-md → rounded-sm
+  - All avatars now use rounded-sm
+  - Error state rounded-b-xl → rounded-b-sm
+  - Transitions use duration-100
+  
+- **ListingGrid.svelte** - FIXED:
+  - All rounded-lg/xl → rounded-sm
+  - Spacing: py-3→py-2, gap-3→gap-2, p-4→p-3
+  - Text sizes: text-base/lg → text-sm
+  - Removed shadow-sm from skeleton
+  - All transitions use duration-100
 
-### ListingGrid.svelte ⚠️
-- ❌ Uses `rounded-lg` for error state (line 140)
-- ❌ Uses `rounded-t-xl` and `rounded-b-xl` in skeleton (lines 159, 160)
-- ❌ Uses `rounded-full` for avatar skeleton (line 164)
-- ❌ Uses `py-3 md:py-4` - should be tighter
-- ❌ Uses `gap-3 md:gap-4` - should be `gap-2 md:gap-3`
-- ❌ Uses `p-4` for error state (line 140)
-- ❌ Uses `shadow-sm` in skeleton (line 160)
-- ❌ Uses `text-base md:text-lg` for title (line 133)
-- ❌ Uses `text-lg` for empty state heading (line 201)
-- ❌ Uses `rounded-lg` for button (line 205)
+### Priority 2: Core UI Components ✅
+- **Button.svelte** - FIXED: All sizes use rounded-sm, text-sm, duration-100, ring-1
+- **Input.svelte** - FIXED: rounded-sm, removed text-base from lg, duration-100, ring-1
+- **Textarea.svelte** - FIXED: rounded-sm, duration-100, ring-1
+- **SelectTrigger.svelte** - FIXED: rounded-sm, duration-100, ring-1
+- **SelectContent.svelte** - FIXED: rounded-sm (kept shadow-md for dropdown)
+
+### Priority 3: High-Traffic Components ✅
+- **HeroSearch.svelte** - FIXED:
+  - All rounded-lg/md → rounded-sm
+  - Spacing: py-4→py-2, px-4→px-3, p-3→p-2
+  - Text: text-base → text-sm
+  - Removed shadow-sm, fixed ring-2→ring-1
+  - All transitions use duration-100
+  
+- **Header.svelte** - FIXED:
+  - All border-2 → single border
+  - All rounded-md/full → rounded-sm
+  - Fixed black border → gray-200
+  - All focus:ring-2 → focus:ring-1
+  - Heights: h-10 → h-9
+  
+- **ProfileDropdownContent.svelte** - FIXED:
+  - All rounded-lg → rounded-sm
+  - Spacing: p-3→p-2, py-2→py-1.5
+  - Profile avatar rounded-full → rounded-sm
 
 ## Priority 2: UI Components (120 files with violations)
 
@@ -103,44 +127,51 @@ This report identifies all Svelte components that violate the established design
 - `src/lib/components/orders/OrderList.svelte` - Uses rounded-lg, shadow-sm, h-12, gap-4
 - `src/lib/components/orders/OrderDetails.svelte` - Uses rounded-lg, shadow-sm, gap-4
 
-## Summary Statistics
-- **Total files with violations**: 120+ files
-- **Rounded violations**: 120 files
-- **Shadow violations**: 77 files  
-- **Height violations**: 61 files
-- **Spacing violations**: 82 files
-- **Text size violations**: 93 files
-- **Transition violations**: 0 files (good!)
+## 🎯 REMAINING VIOLATIONS TO FIX
 
-## Recommended Action Plan
+### Priority 4: Badge/Chip Components
+- `src/lib/components/ui/BrandBadge.svelte` - Uses text-base
+- `src/lib/components/ui/Chip.svelte` - Uses rounded-full
+- `src/lib/components/ui/badge.svelte` - Needs review
 
-### Phase 1: Product Cards (Immediate)
-1. Fix ListingCard.svelte spacing and rounded classes
-2. Fix ListingGrid.svelte comprehensive updates
-3. Test and deploy
+### Priority 5: Home Page Components (High Traffic)
+- `src/lib/components/home/QuickFilters.svelte` - Uses rounded-full, shadow-sm
+- `src/lib/components/home/SellerQuickView.svelte` - Uses rounded-lg, shadow-md
+- `src/lib/components/home/TopSellers.svelte` - Uses rounded-full, gap-4, p-4
+- `src/lib/components/home/LandingCategories.svelte` - Uses rounded-lg, gap-6, text-lg
+- `src/lib/components/home/CategoryGrid.svelte` - Uses h-12
 
-### Phase 2: Core UI Components (Week 1)
-1. Update button.svelte to use consistent rounded-sm
-2. Fix all form input components
-3. Update badge/chip components
-4. Leave dialog/modal shadows as-is (they need them)
+### Priority 6: Browse/Category Pages
+- `src/routes/(app)/browse/+page.svelte` - Uses gap-6, rounded-lg
+- `src/lib/components/category/CategoryLanding.svelte` - Uses shadow-sm, text-base, gap-4
+- `src/lib/components/subcategory/SubcategoryBrowse.svelte` - Uses text-lg, gap-4
 
-### Phase 3: High-Traffic Pages (Week 1-2)
-1. Fix home page components
-2. Update browse/category pages
-3. Fix product detail page
+### Priority 7: Product Detail Page
+- `src/routes/(app)/listings/[id]/+page.svelte` - Uses rounded-lg, shadow-sm, text-base, gap-4, p-4
 
-### Phase 4: Auth & Onboarding (Week 2)
-1. Update all auth pages
-2. Fix onboarding flow components
+### Priority 8: Auth & Onboarding
+- `src/routes/(auth)/login/+page.svelte` - Uses rounded-lg, shadow-sm, text-base
+- `src/routes/(auth)/register/+page.svelte` - Uses rounded-lg, shadow-sm, text-base, p-4
+- `src/routes/(auth)/forgot-password/+page.svelte` - Uses rounded-lg, shadow-md, gap-4
+- `src/routes/(auth)/reset-password/+page.svelte` - Uses rounded-lg, shadow-md, gap-4
+- `src/lib/components/onboarding/ProfileSetupWizard.svelte` - Uses rounded-lg, shadow-md, gap-4
+- `src/lib/components/onboarding/AvatarPicker.svelte` - Uses rounded-full, h-12, shadow-sm
+- `src/lib/components/onboarding/BrandInfoForm.svelte` - Uses text-base, gap-4
+- `src/lib/components/onboarding/WelcomeModal.svelte` - Uses rounded-lg, text-lg
 
-### Phase 5: Remaining Components (Week 3)
-1. Update profile components
-2. Fix messaging UI
-3. Update checkout/order components
+### Priority 9: Other Components
+- Profile components with rounded-full, shadow-sm, text-base
+- Messaging components with rounded-full, p-4, gap-4
+- Order/Checkout components with rounded-lg, h-12, p-4, gap-4
+
+## Summary Statistics (Updated)
+- **Initially**: 120+ files with violations
+- **Fixed**: 9 critical components (Priority 1-3)
+- **Remaining**: ~110 files still need updates
+- **Progress**: ~8% complete
 
 ## Next Steps
-1. Start with ListingCard.svelte and ListingGrid.svelte immediately
-2. Create a design token system to enforce these standards
-3. Add ESLint rules to catch violations
-4. Update Storybook examples with correct patterns
+1. Continue with Priority 4-5 (Badge/Chip and Home components)
+2. Focus on high-traffic pages first
+3. Update auth flows for better UX
+4. Complete remaining components systematically

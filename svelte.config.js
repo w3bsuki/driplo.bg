@@ -51,10 +51,10 @@ const config = {
 		// Security headers configuration
 		csp: {
 			directives: {
-				'script-src': ["'self'", "'unsafe-inline'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
-				'frame-src': ["'self'", 'https://js.stripe.com', 'https://checkout.stripe.com'],
+				'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://www.google.com', 'https://www.gstatic.com', 'https://js.stripe.com', 'https://checkout.stripe.com'],
+				'frame-src': ["'self'", 'https://www.google.com', 'https://js.stripe.com', 'https://checkout.stripe.com'],
 				'img-src': ["'self'", 'data:', 'https:', 'blob:'],
-				'connect-src': ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://api.stripe.com'],
+				'connect-src': ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://api.stripe.com', 'https://www.google.com'],
 				'font-src': ["'self'", 'https:', 'data:'],
 				'style-src': ["'self'", "'unsafe-inline'", 'https:'],
 				'base-uri': ["'self'"],

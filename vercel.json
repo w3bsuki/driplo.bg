@@ -45,6 +45,5 @@
     }
   ],
   "regions": ["iad1"],
-  "crons": [],
-  "buildCommand": "npm run build"
+  "crons": []
 }
