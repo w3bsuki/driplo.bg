@@ -18,7 +18,7 @@
 	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
 	import CategoryBadge from '$lib/components/badges/CategoryBadge.svelte';
 	import SizeBadge from '$lib/components/badges/SizeBadge.svelte';
-	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/Tabs';
+	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
 	import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import Image from '$lib/components/ui/Image.svelte';

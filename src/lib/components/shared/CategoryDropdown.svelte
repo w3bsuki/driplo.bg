@@ -145,14 +145,14 @@
 		}
 	]);
 	
-	// Popular quick access categories
-	const quickCategories = [
-		{ slug: 'shoes', name: 'Shoes', icon: '👟' },
-		{ slug: 'bags', name: 'Bags', icon: '👜' },
-		{ slug: 'dresses', name: 'Dresses', icon: '👗' },
+	// Popular collections (cross-category)
+	const popularCollections = [
+		{ slug: 'shoes', name: 'All Shoes', icon: '👟' },
+		{ slug: 'bags', name: 'All Bags', icon: '👜' },
+		{ slug: 'jewelry', name: 'Jewelry', icon: '💍' },
 		{ slug: 'vintage', name: 'Vintage', icon: '🕰️' },
-		{ slug: 'accessories', name: 'Accessories', icon: '💍' },
-		{ slug: 'jackets', name: 'Jackets', icon: '🧥' }
+		{ slug: 'sale', name: 'On Sale', icon: '🔥' },
+		{ slug: 'new', name: 'New In', icon: '✨' }
 	];
 
 	function handleMainCategoryClick(categorySlug: string) {
@@ -243,8 +243,7 @@
 							onclick={(e) => { 
 								e.preventDefault();
 								e.stopPropagation();
-								activeSection = 'filters'; 
-								showAllBrands = false;
+								activeSection = 'filters';
 							}}
 							class={cn(
 								"px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap",
@@ -308,8 +307,9 @@
 								</div>
 							{/if}
 						{:else}
-							<!-- Show all categories in unified grid -->
+							<!-- Show main categories and popular collections -->
 							<div class="grid grid-cols-3 gap-2">
+								<!-- Main Categories (6) -->
 								{#each categoryHierarchy as category}
 									<button
 										onclick={() => handleMainCategoryClick(category.slug)}
@@ -319,16 +319,24 @@
 										<span class="text-xs font-medium text-gray-700">{category.name}</span>
 									</button>
 								{/each}
-								{#each quickCategories as cat}
+								
+								<!-- Popular Collections (6) -->
+								{#each popularCollections as collection}
 									<button
 										onclick={() => {
 											onClose();
-											goto(`/browse?category=${cat.slug}`);
+											if (collection.slug === 'sale') {
+												goto('/browse?filter=sale');
+											} else if (collection.slug === 'new') {
+												goto('/browse?sort=created_at&order=desc');
+											} else {
+												goto(`/browse?category=${collection.slug}`);
+											}
 										}}
 										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-md"
 									>
-										<span class="text-xl">{cat.icon}</span>
-										<span class="text-xs font-medium text-gray-700">{cat.name}</span>
+										<span class="text-xl">{collection.icon}</span>
+										<span class="text-xs font-medium text-gray-700">{collection.name}</span>
 									</button>
 								{/each}
 							</div>
