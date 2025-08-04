@@ -56,6 +56,18 @@
 	$: isAuthPage = $page.url.pathname.includes('/login') || $page.url.pathname.includes('/register');
 
 	onMount(() => {
+		// Check for auth refresh parameter and refresh session
+		if (browser && $page.url.searchParams.get('_refreshAuth') === 'true') {
+			console.log('Auth refresh requested, refreshing session...');
+			// Remove the parameter from URL
+			const url = new URL($page.url);
+			url.searchParams.delete('_refreshAuth');
+			window.history.replaceState({}, '', url.toString());
+			
+			// Trigger auth refresh
+			invalidate('app:auth');
+		}
+		
 		// Initialize Web Vitals monitoring
 		if (browser) {
 			initWebVitals({
@@ -96,6 +108,10 @@
 			if (session) {
 				authContext.session = session;
 				authContext.user = session.user;
+				// Load profile when user is authenticated
+				if (authContext.user?.id) {
+					await authContext.loadProfile(authContext.user.id);
+				}
 			} else {
 				authContext.session = null;
 				authContext.user = null;
