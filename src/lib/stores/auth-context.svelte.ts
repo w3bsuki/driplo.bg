@@ -39,6 +39,7 @@ class AuthContext {
 	}
 	
 	async loadProfile(userId: string) {
+		console.log('🔄 Starting profile load for:', userId);
 		try {
 			const { data, error } = await this.supabase
 				.from('profiles')
@@ -46,12 +47,16 @@ class AuthContext {
 				.eq('id', userId)
 				.single()
 			
-			if (error) throw error
+			if (error) {
+				console.error('❌ Profile load error:', error);
+				throw error;
+			}
+			console.log('✅ Profile loaded:', data?.username || 'no username');
 			this.profile = data
 			this.notifyStateChange()
 			return data
 		} catch (error) {
-			// console.error('Error loading profile:', error)
+			console.error('❌ Error loading profile:', error)
 			this.profile = null
 			this.notifyStateChange()
 			return null
