@@ -361,10 +361,10 @@
 {#if showShippingForm && order}
     <ShippingForm 
         orderId={order.id}
-        on:shipped={() => {
+        onshipped={() => {
             showShippingForm = false;
             loadOrder();
         }}
-        on:cancel={() => showShippingForm = false}
+        oncancel={() => showShippingForm = false}
     />
 {/if}

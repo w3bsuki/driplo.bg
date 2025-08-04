@@ -60,6 +60,13 @@ export default [js.configs.recommended, {
         '.env',
         '.env.*',
         'vite.config.js.timestamp-*',
-        'vite.config.ts.timestamp-*'
+        'vite.config.ts.timestamp-*',
+        '.vercel/**',
+        '.storybook/**',
+        'vitest.config.ts',
+        'src/stories/**',
+        'static/**',
+        'playwright.config.ts',
+        'lighthouserc.js'
     ]
 }, ...storybook.configs["flat/recommended"]];

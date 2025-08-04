@@ -13,7 +13,6 @@
 	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 
 	const auth = getAuthContext()
-	console.log('Auth context in login page:', auth)
 
 	let email = ''
 	let password = ''

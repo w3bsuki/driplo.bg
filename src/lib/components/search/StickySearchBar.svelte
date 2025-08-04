@@ -69,6 +69,9 @@
 		isCategoryDropdownOpen = !isCategoryDropdownOpen;
 	}
 
+	// Alias for the missing function referenced in template
+	const handleToggleCategoryDropdown = toggleCategoryDropdown;
+
 	// Close dropdown
 	function closeCategoryDropdown() {
 		isCategoryDropdownOpen = false;
@@ -99,31 +102,29 @@
 {#if visible}
 	<div 
 		class={cn(
-			"fixed left-0 right-0 z-40 bg-white border-b shadow-sm transition-[top] duration-300 ease-in-out",
+			"fixed left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-md transition-[top] duration-200 ease-out",
 			className
 		)}
 		style="top: {headerHeight}px"
-		transition:fly={{ y: -20, duration: 200 }}
+		transition:fly={{ y: -20, duration: 150 }}
 	>
-		<div class="container mx-auto px-3 md:px-4 py-2 md:py-3">
-			<div class="flex items-center gap-2 md:gap-3 max-w-3xl mx-auto">
+		<div class="container mx-auto px-3 md:px-4 py-2">
+			<div class="flex items-center gap-2 max-w-3xl mx-auto">
 				<!-- Category Dropdown Button (matching hero style) -->
 				<div class="relative flex-shrink-0">
 					<button
 						data-categories-button
 						onclick={handleToggleCategoryDropdown}
 						class={cn(
-							"p-2 rounded-lg transition-all focus:outline-none h-[38px] w-[38px] flex items-center justify-center",
+							"px-2.5 h-9 rounded-sm text-sm font-medium transition-all focus:outline-none focus:ring-1 focus:ring-blue-500 flex items-center gap-1",
 							isCategoryDropdownOpen 
-								? "bg-gradient-to-r from-blue-300 to-blue-400 text-white shadow-sm" 
-								: "bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200"
+								? "bg-blue-500 text-white hover:bg-blue-600" 
+								: "bg-gray-900 text-white hover:bg-gray-800"
 						)}
 						aria-label="Categories"
 					>
-						<Menu class={cn(
-							"h-4 w-4",
-							isCategoryDropdownOpen ? "text-white" : "text-gray-900"
-						)} />
+						<Menu class="h-4 w-4" />
+						<span class="hidden sm:inline">{m.header_categories()}</span>
 					</button>
 					
 					<!-- Category Dropdown (reusing the same component) -->
@@ -135,35 +136,29 @@
 					/>
 				</div>
 
-				<!-- Search Input with Emoji -->
+				<!-- Search Input -->
 				<div class="relative flex-1">
-					<span class="absolute left-3 top-1/2 -translate-y-1/2 text-base pointer-events-none">🔍</span>
 					<input
 						type="search"
 						bind:value
 						{placeholder}
 						onkeydown={handleKeydown}
 						class={cn(
-							"w-full pl-9 pr-20 py-2 h-[38px] text-sm",
-							"bg-white border border-gray-200 rounded-lg",
-							"placeholder:text-gray-400",
-							"focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent",
-							"transition-all duration-200"
+							"w-full px-3 pr-10 h-9 text-sm",
+							"bg-white border border-gray-200 rounded-sm",
+							"placeholder:text-gray-500",
+							"focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500",
+							"transition-all duration-100"
 						)}
 					/>
-					<!-- Search button -->
+					<!-- Search Icon -->
 					<button
 						onclick={handleSearch}
 						type="button"
-						class={cn(
-							"absolute right-1 top-1/2 -translate-y-1/2",
-							"px-3 py-1.5 h-[30px] bg-blue-500 text-white rounded-md",
-							"text-xs font-medium",
-							"hover:bg-blue-600 transition-colors",
-							"focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
-						)}
+						class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-sm transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+						aria-label="Search"
 					>
-						Search
+						<span class="text-base">🔍</span>
 					</button>
 				</div>
 			</div>

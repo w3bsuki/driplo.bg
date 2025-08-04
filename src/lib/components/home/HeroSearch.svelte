@@ -1,16 +1,12 @@
 <script lang="ts">
-	import { ChevronDown, Menu } from 'lucide-svelte';
+	import { ChevronDown, Menu, Search, Loader2 } from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
 	import { debounce } from '$lib/utils/performance';
 	import CategoryDropdown from '$lib/components/shared/CategoryDropdown.svelte';
-	// Lazy load non-critical components
-	let StickySearchBar: any = null;
-	import QuickFilterPills from '$lib/components/search/QuickFilterPills.svelte';
 	import TrendingSearches from '$lib/components/search/TrendingSearches.svelte';
 	import type { Category } from '$lib/types';
 	import { onMount } from 'svelte';
-	// Only import the messages we actually use
 	import {
 		header_categories,
 		browse_search_placeholder,
@@ -37,7 +33,6 @@
 		quick_filter_sale,
 		category_men,
 		category_women,
-		category_kids,
 		condition_new_with_tags,
 		subcategory_shoes,
 		subcategory_tshirts,
@@ -51,23 +46,41 @@
 		quick_filter_categories_menu
 	} from '$lib/paraglide/messages.js';
 	
+	interface QuickFilter {
+		icon: string;
+		name: string;
+		action: string;
+		ariaLabel?: string;
+		color?: 'golden' | 'blue' | 'pink';
+	}
+	
 	interface Props {
 		categories?: Category[];
 	}
 	
 	let { categories = [] }: Props = $props();
 	
-	// Constants
-	const SEARCH_DEBOUNCE_DELAY = 300;
-	const INTERSECTION_ROOT_MARGIN = '-100px 0px 0px 0px';
-	const DESKTOP_QUICK_FILTERS_LIMIT = 4;
-	const MOBILE_CATEGORIES_LIMIT = 2;
-
+	// State management - clean and minimal
 	let searchQuery = $state('');
 	let isFocused = $state(false);
+	let isLoading = $state(false);
 	let isCategoryDropdownOpen = $state(false);
 	let activeCategory = $state('');
+	let isSticky = $state(false);
+	let searchInputRef: HTMLInputElement;
+	let heroRef: HTMLElement;
+	let StickySearchBar: any = null;
 	
+	// Auto-complete state
+	let suggestions = $state<string[]>([]);
+	let activeSuggestionIndex = $state(-1);
+	let showSuggestions = $state(false);
+	
+	// Constants
+	const SEARCH_DEBOUNCE_DELAY = 300;
+	const INTERSECTION_ROOT_MARGIN = '-80px 0px 0px 0px';
+	
+	// Trending searches
 	const trendingSearches = [
 		search_vintage_levis(),
 		search_designer_bags(),
@@ -76,8 +89,8 @@
 		search_north_face_jacket()
 	];
 	
-	// Pre-computed quick filters for better performance
-	const quickFilters = [
+	// Quick filters with proper accessibility
+	const quickFilters: QuickFilter[] = [
 		{ icon: '⭐', name: quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: quick_filter_top_sellers(), color: 'golden' },
 		{ icon: '👨', name: quick_filter_men(), action: 'men', ariaLabel: category_men(), color: 'blue' },
 		{ icon: '👩', name: quick_filter_women(), action: 'women', ariaLabel: category_women(), color: 'pink' },
@@ -94,28 +107,16 @@
 		{ icon: '💸', name: quick_filter_sale(), action: 'sale', ariaLabel: filter_browse_all() }
 	];
 	
-	// Get localized category name
-	function getCategoryName(category: Category): string {
-		// Use the category's localized name if available
-		return category.name;
-	}
-	
-	// Sticky search state for mobile
-	let isSticky = $state(false);
-	let heroRef: HTMLElement;
-	
-	// Lazy load non-critical components
+	// Initialize component
 	onMount(async () => {
-		// Load sticky search bar after initial render
+		// Lazy load sticky search bar
 		const stickyModule = await import('$lib/components/search/StickySearchBar.svelte');
 		StickySearchBar = stickyModule.default;
 		
-		// Defer intersection observer setup
-		if ('requestIdleCallback' in window) {
-			requestIdleCallback(() => setupIntersectionObserver());
-		} else {
-			setTimeout(() => setupIntersectionObserver(), 100);
-		}
+		// Setup intersection observer for sticky behavior - small delay to ensure DOM is ready
+		setTimeout(() => {
+			setupIntersectionObserver();
+		}, 100);
 	});
 	
 	function setupIntersectionObserver() {
@@ -130,16 +131,46 @@
 		
 		observer.observe(heroRef);
 		
-		// Cleanup function
 		return () => {
-			if (heroRef) observer.unobserve(heroRef);
 			observer.disconnect();
 		};
 	}
-
 	
-	// Debounced search handler for performance
-	const debouncedHandleSearch = debounce(() => {
+	// Auto-complete functionality
+	function generateSuggestions(query: string): string[] {
+		if (!query.trim() || query.length < 2) return [];
+		
+		const searchTerms = [
+			...trendingSearches,
+			'vintage designer',
+			'luxury bags',
+			'sneakers collection',
+			'summer dresses',
+			'winter jackets',
+			'casual wear',
+			'formal attire',
+			'accessories set'
+		];
+		
+		return searchTerms
+			.filter(term => term.toLowerCase().includes(query.toLowerCase()))
+			.slice(0, 5);
+	}
+	
+	// Debounced search with auto-complete
+	const debouncedSearch = debounce((query: string) => {
+		if (query.trim().length >= 2) {
+			suggestions = generateSuggestions(query);
+			showSuggestions = suggestions.length > 0;
+		} else {
+			suggestions = [];
+			showSuggestions = false;
+		}
+		activeSuggestionIndex = -1;
+	}, 150);
+	
+	// Navigation handlers
+	const debouncedNavigate = debounce(() => {
 		if (searchQuery.trim()) {
 			const params = new URLSearchParams();
 			params.set('q', searchQuery.trim());
@@ -147,10 +178,71 @@
 		} else {
 			goto('/browse');
 		}
+		isLoading = false;
 	}, SEARCH_DEBOUNCE_DELAY);
-
+	
 	function handleSearch() {
-		debouncedHandleSearch();
+		isLoading = true;
+		showSuggestions = false;
+		debouncedNavigate();
+	}
+	
+	function handleInput() {
+		debouncedSearch(searchQuery);
+	}
+	
+	function handleKeydown(event: KeyboardEvent) {
+		if (!showSuggestions) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				handleSearch();
+			}
+			return;
+		}
+		
+		switch (event.key) {
+			case 'ArrowDown':
+				event.preventDefault();
+				activeSuggestionIndex = Math.min(activeSuggestionIndex + 1, suggestions.length - 1);
+				break;
+			case 'ArrowUp':
+				event.preventDefault();
+				activeSuggestionIndex = Math.max(activeSuggestionIndex - 1, -1);
+				break;
+			case 'Enter':
+				event.preventDefault();
+				if (activeSuggestionIndex >= 0) {
+					searchQuery = suggestions[activeSuggestionIndex];
+				}
+				handleSearch();
+				break;
+			case 'Escape':
+				showSuggestions = false;
+				activeSuggestionIndex = -1;
+				searchInputRef?.blur();
+				break;
+		}
+	}
+	
+	function selectSuggestion(suggestion: string) {
+		searchQuery = suggestion;
+		handleSearch();
+	}
+	
+	function handleFocus() {
+		isFocused = true;
+		if (searchQuery.trim().length >= 2) {
+			debouncedSearch(searchQuery);
+		}
+	}
+	
+	function handleBlur() {
+		// Delay to allow suggestion clicks
+		setTimeout(() => {
+			isFocused = false;
+			showSuggestions = false;
+			activeSuggestionIndex = -1;
+		}, 150);
 	}
 	
 	function searchTrending(term: string) {
@@ -158,54 +250,25 @@
 		handleSearch();
 	}
 	
-
 	function handleQuickFilter(action: string) {
-		switch(action) {
-			case 'newest':
-				goto('/browse?sort=created_at&order=desc');
-				break;
-			case 'sale':
-				goto('/browse?filter=sale');
-				break;
-			case 'hot':
-				goto('/browse?filter=hot');
-				break;
-			case 'top-sellers':
-				goto('/browse?sort=favorites_count&order=desc');
-				break;
-			case 'with-tags':
-				goto('/browse?filter=with-tags');
-				break;
-			case 'men':
-				goto('/men');
-				break;
-			case 'women':
-				goto('/women');
-				break;
-			case 'shoes':
-				goto('/shoes');
-				break;
-			case 't-shirts':
-				goto('/browse?category=t-shirts');
-				break;
-			case 'accessories':
-				goto('/accessories');
-				break;
-			case 'jeans':
-				goto('/browse?category=jeans');
-				break;
-			case 'dresses':
-				goto('/browse?category=dresses');
-				break;
-			case 'jackets':
-				goto('/browse?category=jackets');
-				break;
-			case 'bags':
-				goto('/bags');
-				break;
-			default:
-				goto('/browse');
-		}
+		const routes: Record<string, string> = {
+			newest: '/browse?sort=created_at&order=desc',
+			sale: '/browse?filter=sale',
+			hot: '/browse?filter=hot',
+			'top-sellers': '/browse?sort=favorites_count&order=desc',
+			'with-tags': '/browse?filter=with-tags',
+			men: '/men',
+			women: '/women',
+			shoes: '/shoes',
+			't-shirts': '/browse?category=t-shirts',
+			accessories: '/accessories',
+			jeans: '/browse?category=jeans',
+			dresses: '/browse?category=dresses',
+			jackets: '/browse?category=jackets',
+			bags: '/bags'
+		};
+		
+		goto(routes[action] || '/browse');
 	}
 	
 	function toggleCategoryDropdown() {
@@ -218,232 +281,153 @@
 	
 	function handleCategorySelect(categorySlug: string) {
 		activeCategory = categorySlug;
-		if (categorySlug) {
-			goto(`/${categorySlug}`);
-		} else {
-			goto('/browse');
-		}
+		closeCategoryDropdown();
+		goto(categorySlug ? `/${categorySlug}` : '/browse');
+	}
+	
+	function getCategoryName(category: Category): string {
+		return category.name;
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4 pb-0">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
 	<div class="container px-4">
 		<div class="max-w-3xl mx-auto">
-			
-			<!-- Desktop Layout - Keep existing integrated design -->
-			<div class="hidden md:block">
-				<div class="relative overflow-visible">
-					<div class={cn(
-						"relative bg-white rounded border border-gray-200 transition-all duration-fast",
-						isFocused ? "border-blue-500 ring-1 ring-blue-500" : "border-gray-200"
-					)}>
-						<div class="flex items-center min-w-0">
-							<!-- Category Dropdown Button -->
-							<div class="relative flex-shrink-0 pl-3 pr-2">
-								<button
-									data-categories-button
-									onclick={toggleCategoryDropdown}
-									class={cn(
-										"btn-sm font-medium focus:outline-none transition-all duration-fast rounded-md",
-										isCategoryDropdownOpen 
-											? "bg-blue-500 text-white hover:bg-blue-600" 
-											: "bg-gray-900 text-white hover:bg-gray-800"
-									)}
-								>
-									<span>{header_categories()}</span>
-									<ChevronDown class={cn(
-										"h-3 w-3 transition-transform duration-fast",
-										isCategoryDropdownOpen && "rotate-180"
-									)} />
-								</button>
-								
-								<!-- Category Dropdown -->
-								<CategoryDropdown
-									{categories}
-									isOpen={isCategoryDropdownOpen}
-									onToggle={toggleCategoryDropdown}
-									onClose={closeCategoryDropdown}
-								/>
-							</div>
-							
-							<!-- Divider -->
-							<div class="w-px h-6 bg-gray-200 flex-shrink-0"></div>
-							
-							<!-- Search Input with Icon -->
-							<div class="flex-1 min-w-0 flex items-center px-3">
-								<input
-									type="search"
-									placeholder={browse_search_placeholder()}
-									bind:value={searchQuery}
-									onfocus={() => isFocused = true}
-									onblur={() => isFocused = false}
-									onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-									oninput={handleSearch}
-									aria-label={browse_search_placeholder()}
-									class="input-sm w-full border-0 focus:ring-0 bg-transparent"
-								/>
-								<button
-									onclick={handleSearch}
-									class="p-1.5 hover:opacity-75 transition-opacity duration-fast focus:outline-none focus:ring-1 focus:ring-blue-500 rounded"
-									aria-label={quick_filter_search_button()}
-								>
-									<span class="text-base" aria-hidden="true">🔍</span>
-								</button>
-							</div>
-						</div>
-						
-						
-						<!-- Trending Category Links -->
-						<div class="border-t border-gray-100 py-1.5 relative overflow-hidden rounded-b">
-							<div class="px-2 flex items-center gap-1.5">
-								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block">{search_trending()}:</span>
-								
-								<!-- Quick Filters Component -->
-								<QuickFilterPills
-									filters={quickFilters.slice(0, DESKTOP_QUICK_FILTERS_LIMIT)}
-									onFilterClick={handleQuickFilter}
-									class="flex-1"
-								/>
-								
-								<!-- Divider -->
-								<div class="w-px h-5 bg-border flex-shrink-0" aria-hidden="true"></div>
-								
-								<!-- More Filters -->
-								<QuickFilterPills
-									filters={quickFilters.slice(DESKTOP_QUICK_FILTERS_LIMIT)}
-									onFilterClick={handleQuickFilter}
-									class="flex-1"
-								/>
-								
-								<!-- Divider -->
-								<div class="w-px h-5 bg-border flex-shrink-0" aria-hidden="true"></div>
-								
-								<!-- Category Quick Links -->
-								<div class="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-									{#each categories.slice(0, 3) as category}
-										<button
-											onclick={() => handleCategorySelect(category.slug)}
-											aria-label="{filter_categories()}: {getCategoryName(category)}"
-											class="flex items-center gap-1.5 px-2 py-1.5 rounded-sm bg-background border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 focus:ring-brand-400"
-										>
-											<span class="text-sm" aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
-											<span>{getCategoryName(category)}</span>
-										</button>
-									{/each}
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			<!-- Mobile Layout - Optimized for better UX -->
-			<div class="block md:hidden">
-				<!-- Search Bar Container -->
+			<!-- Single Responsive Search Container - Mobile First -->
+			<div class="relative">
+				<!-- Main Search Bar -->
 				<div class={cn(
-					"relative bg-white rounded-md border border-gray-200 transition-all duration-fast shadow-sm",
+					"relative bg-white rounded-sm border transition-all duration-100 shadow-sm",
 					isFocused ? "border-blue-500 shadow-md" : "border-gray-200"
 				)}>
-					<!-- Main Search Row -->
-					<div class="flex items-center">
-						<!-- Categories Icon Button -->
-						<div class="relative">
+					<!-- Search Input Row -->
+					<div class="flex items-center h-12">
+						<!-- Category Button -->
+						<div class="relative flex-shrink-0 pl-2.5 pr-2">
 							<button
-								data-categories-button
 								onclick={toggleCategoryDropdown}
-								class="btn-sm ml-2 rounded-md bg-gray-900 text-white hover:bg-gray-800 transition-colors duration-fast flex items-center justify-center"
+								class={cn(
+									"flex items-center gap-1 px-2.5 h-9 rounded-sm text-sm font-medium transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500",
+									isCategoryDropdownOpen 
+										? "bg-blue-500 text-white hover:bg-blue-600" 
+										: "bg-gray-900 text-white hover:bg-gray-800"
+								)}
 								aria-label={quick_filter_categories_menu()}
 							>
-								<Menu class="h-4 w-4" />
+								<span class="hidden sm:inline">{header_categories()}</span>
+								<Menu class="h-4 w-4 sm:hidden" />
+								<ChevronDown class={cn(
+									"h-3 w-3 transition-transform duration-100 hidden sm:block",
+									isCategoryDropdownOpen && "rotate-180"
+								)} />
 							</button>
 							
-							<!-- Mobile Category Dropdown - positioned relative to button -->
+							<!-- Category Dropdown -->
 							<CategoryDropdown
 								{categories}
 								isOpen={isCategoryDropdownOpen}
 								onToggle={toggleCategoryDropdown}
 								onClose={closeCategoryDropdown}
-								class="!left-0 !mt-2"
 							/>
 						</div>
+						
 						<!-- Divider -->
-						<div class="w-px h-6 bg-gray-200 mx-2"></div>
-						<!-- Search Input -->
-						<input
-							type="search"
-							placeholder={browse_search_placeholder()}
-							bind:value={searchQuery}
-							onfocus={() => isFocused = true}
-							onblur={() => isFocused = false}
-							onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-							oninput={handleSearch}
-							aria-label={browse_search_placeholder()}
-							class="input-sm flex-1 border-0 focus:ring-0 bg-transparent"
-						/>
-						<button
-							onclick={handleSearch}
-							class="btn-sm mr-2 !p-0 w-9 hover:opacity-75 transition-opacity duration-fast focus:outline-none focus:ring-1 focus:ring-blue-500 rounded-md"
-							aria-label={quick_filter_search_button()}
-						>
-							<span class="text-lg" aria-hidden="true">🔍</span>
-						</button>
+						<div class="w-px h-7 bg-gray-200 flex-shrink-0"></div>
+						
+						<!-- Search Input Container -->
+						<div class="flex-1 min-w-0 flex items-center px-3 relative">
+							<input
+								bind:this={searchInputRef}
+								type="search"
+								placeholder={browse_search_placeholder()}
+								bind:value={searchQuery}
+								onfocus={handleFocus}
+								onblur={handleBlur}
+								onkeydown={handleKeydown}
+								oninput={handleInput}
+								aria-label={browse_search_placeholder()}
+								aria-expanded={showSuggestions}
+								aria-haspopup="listbox"
+								aria-autocomplete="list"
+								class="w-full h-9 border-0 focus:ring-0 focus:outline-none bg-transparent text-sm placeholder:text-gray-500"
+								autocomplete="off"
+							/>
+							
+							<!-- Search Button -->
+							<button
+								onclick={handleSearch}
+								disabled={isLoading}
+								class="p-2 hover:bg-gray-100 rounded-sm transition-colors duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+								aria-label={quick_filter_search_button()}
+							>
+								{#if isLoading}
+									<Loader2 class="h-4 w-4 animate-spin text-gray-600" />
+								{:else}
+									<Search class="h-4 w-4 text-gray-600" />
+								{/if}
+							</button>
+						</div>
 					</div>
 					
-					<!-- Pills Section -->
+					<!-- Auto-complete Suggestions -->
+					{#if showSuggestions && suggestions.length > 0}
+						<div class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-sm shadow-lg z-50 mt-1">
+							<ul role="listbox" class="py-1">
+								{#each suggestions as suggestion, index}
+									<li role="option" aria-selected={index === activeSuggestionIndex}>
+										<button
+											onclick={() => selectSuggestion(suggestion)}
+											class={cn(
+												"w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors duration-100 focus:outline-none focus:bg-gray-100",
+												index === activeSuggestionIndex && "bg-gray-100"
+											)}
+										>
+											<Search class="h-3 w-3 inline mr-2 text-gray-400" />
+											{suggestion}
+										</button>
+									</li>
+								{/each}
+							</ul>
+						</div>
+					{/if}
+					
+					<!-- Quick Filters Section -->
 					<div class="border-t border-gray-100">
-						<div class="pt-2 pb-2 px-3 relative">
-							<!-- Pills Container aligned with search input area -->
-							<div class="ml-1 mr-1">
-								<!-- Quick Filters -->
-								<div class="overflow-x-auto relative">
-									<div class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
-										{#each quickFilters.slice(0, 4) as filter}
+						<div class="p-2">
+							<!-- Trending Label + Filters Container -->
+							<div class="flex items-center gap-2">
+								<span class="text-xs text-gray-500 flex-shrink-0 hidden sm:block">{search_trending()}:</span>
+								
+								<!-- Scrollable Filters -->
+								<div class="flex-1 overflow-x-auto scrollbar-hide">
+									<div class="flex items-center gap-1.5 pb-1">
+										<!-- Quick Filter Pills -->
+										{#each quickFilters.slice(0, 8) as filter}
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 flex-shrink-0",
-													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800",
-													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700"
+													"flex items-center gap-1 px-2.5 py-2 rounded-sm text-xs font-semibold whitespace-nowrap transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0 shadow-sm",
+													filter.color === 'golden' && "bg-gradient-to-r from-amber-500 to-yellow-500 border-0 hover:from-amber-600 hover:to-yellow-600 text-white",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-500 to-sky-500 border-0 hover:from-blue-600 hover:to-sky-600 text-white",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-500 to-rose-500 border-0 hover:from-pink-600 hover:to-rose-600 text-white",
+													!filter.color && "bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-medium shadow-none"
 												)}
-											>
-												<span class="text-sm">{filter.icon}</span>
+												aria-label={filter.ariaLabel}
+												>
+												<span aria-hidden="true">{filter.icon}</span>
 												<span>{filter.name}</span>
 											</button>
 										{/each}
-										
-										<!-- Divider -->
-										<div class="w-px h-4 bg-border flex-shrink-0"></div>
-										
-										<!-- More quick filters -->
-										{#each quickFilters.slice(4) as filter}
-											<button
-												onclick={() => handleQuickFilter(filter.action)}
-												class={cn(
-													"flex items-center gap-1 px-2 py-1.5 rounded-sm border text-sm font-medium whitespace-nowrap transition-colors duration-100 focus:outline-none focus:ring-1 flex-shrink-0",
-													filter.color === 'golden' && "bg-gradient-to-r from-yellow-50 to-amber-50 border-amber-300 hover:from-yellow-100 hover:to-amber-100 hover:border-amber-400 text-amber-800",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-50 to-sky-50 border-blue-300 hover:from-blue-100 hover:to-sky-100 hover:border-blue-400 text-blue-800",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-50 to-rose-50 border-pink-300 hover:from-pink-100 hover:to-rose-100 hover:border-pink-400 text-pink-800",
-													!filter.color && "bg-background border-gray-200 hover:border-gray-200-hover hover:bg-gray-50 text-gray-700"
-												)}
-											>
-												<span class="text-sm">{filter.icon}</span>
-												<span>{filter.name}</span>
-											</button>
-										{/each}
-										
-										<!-- Divider -->
-										<div class="w-px h-4 bg-border flex-shrink-0"></div>
 										
 										<!-- Category Quick Links -->
-										{#each categories.slice(0, 2) as category}
+										{#each categories.slice(0, 3) as category}
 											<button
 												onclick={() => handleCategorySelect(category.slug)}
-												class="flex items-center gap-1 px-2 py-1.5 rounded-sm bg-background border border-gray-200 text-gray-700 text-sm font-medium whitespace-nowrap flex-shrink-0"
-											>
-												<span class="text-sm">{category.icon_url || category.icon || '📦'}</span>
-												<span>{getCategoryName(category)}</span>
+												class="flex items-center gap-1 px-2.5 py-2 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+												aria-label="{filter_categories()}: {getCategoryName(category)}"
+												>
+												<span aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
+												<span class="hidden sm:inline">{getCategoryName(category)}</span>
 											</button>
 										{/each}
 									</div>
@@ -452,21 +436,20 @@
 						</div>
 					</div>
 				</div>
-				
 			</div>
 			
-			<!-- Trending Searches - Compact -->
+			<!-- Trending Searches -->
 			<TrendingSearches
 				searches={trendingSearches}
 				onSearchClick={searchTrending}
 				maxVisible={3}
-				class="mt-2"
+				class="mt-3"
 			/>
 		</div>
 	</div>
 </section>
 
-<!-- Sticky Search Bar (Reusable Component) -->
+<!-- Sticky Search Bar -->
 {#if StickySearchBar}
 	<StickySearchBar
 		bind:value={searchQuery}
@@ -479,16 +462,8 @@
 	/>
 {/if}
 
-
 <style>
-	/* Hide scrollbar for quick categories */
-	.overflow-x-auto {
-		-ms-overflow-style: none;
-		scrollbar-width: none;
-	}
-	.overflow-x-auto::-webkit-scrollbar {
-		display: none;
-	}
+	/* Hide scrollbar for filters */
 	.scrollbar-hide {
 		-ms-overflow-style: none;
 		scrollbar-width: none;

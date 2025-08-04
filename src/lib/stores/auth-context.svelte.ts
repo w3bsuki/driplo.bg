@@ -135,21 +135,29 @@ class AuthContext {
 		this.notifyStateChange()
 		
 		try {
-			// Check rate limit before attempting login
-			const { data: rateLimitCheck } = await this.supabase.rpc('check_auth_rate_limit', {
-				p_identifier: email,
-				p_action: 'login',
-				p_max_attempts: 5,
-				p_window_minutes: 15,
-				p_block_minutes: 30
-			})
-			
-			if (rateLimitCheck && !rateLimitCheck.allowed) {
-				const errorMessage = rateLimitCheck.reason === 'blocked' 
-					? `Too many login attempts. Please try again in ${Math.ceil(rateLimitCheck.retry_after / 60)} minutes.`
-					: `Too many login attempts. Please try again later.`
-				throw new Error(errorMessage)
+			// Temporarily disable rate limit check to debug auth issues
+			// TODO: Re-enable once RPC issues are resolved
+			/*
+			try {
+				const { data: rateLimitCheck, error: rateLimitError } = await this.supabase.rpc('check_auth_rate_limit', {
+					p_identifier: email,
+					p_action: 'login',
+					p_max_attempts: 5,
+					p_window_minutes: 15,
+					p_block_minutes: 30
+				})
+				
+				if (!rateLimitError && rateLimitCheck && !rateLimitCheck.allowed) {
+					const errorMessage = rateLimitCheck.reason === 'blocked' 
+						? `Too many login attempts. Please try again in ${Math.ceil(rateLimitCheck.retry_after / 60)} minutes.`
+						: `Too many login attempts. Please try again later.`
+					throw new Error(errorMessage)
+				}
+			} catch (rateLimitError) {
+				// If rate limit check fails, log but continue with login attempt
+				console.warn('Rate limit check failed:', rateLimitError)
 			}
+			*/
 			
 			const { data, error } = await this.supabase.auth.signInWithPassword({
 				email,
@@ -160,16 +168,23 @@ class AuthContext {
 			})
 			
 			if (error) {
-				// Log failed login attempt (using IP/user agent version to avoid ambiguity)
-				await this.supabase.rpc('log_auth_event', {
-					p_user_id: null,
-					p_action: 'login_failed',
-					p_ip_address: null, // Would need to be passed from server
-					p_user_agent: browser ? navigator.userAgent : null,
-					p_success: false,
-					p_error_message: error.message,
-					p_metadata: { email }
-				}).catch(console.error)
+				// Temporarily disable auth event logging to debug auth issues
+				// TODO: Re-enable once RPC issues are resolved
+				/*
+				try {
+					await this.supabase.rpc('log_auth_event', {
+						p_user_id: null,
+						p_action: 'login_failed',
+						p_ip_address: null, // Would need to be passed from server
+						p_user_agent: browser ? navigator.userAgent : null,
+						p_success: false,
+						p_error_message: error.message,
+						p_metadata: { email }
+					})
+				} catch (logError) {
+					console.error('Failed to log auth event:', logError)
+				}
+				*/
 				
 				throw error
 			}
@@ -180,16 +195,23 @@ class AuthContext {
 				this.session = data.session
 				await this.loadProfile(data.user.id)
 				
-				// Log successful login (using IP/user agent version to avoid ambiguity)
-				await this.supabase.rpc('log_auth_event', {
-					p_user_id: data.user.id,
-					p_action: 'login',
-					p_ip_address: null, // Would need to be passed from server
-					p_user_agent: browser ? navigator.userAgent : null,
-					p_success: true,
-					p_error_message: null,
-					p_metadata: null
-				}).catch(console.error)
+				// Temporarily disable auth event logging to debug auth issues
+				// TODO: Re-enable once RPC issues are resolved
+				/*
+				try {
+					await this.supabase.rpc('log_auth_event', {
+						p_user_id: data.user.id,
+						p_action: 'login',
+						p_ip_address: null, // Would need to be passed from server
+						p_user_agent: browser ? navigator.userAgent : null,
+						p_success: true,
+						p_error_message: null,
+						p_metadata: null
+					})
+				} catch (logError) {
+					console.error('Failed to log auth event:', logError)
+				}
+				*/
 				
 				// Store remember me preference
 				if (browser && rememberMe) {

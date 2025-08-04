@@ -1,15 +1,17 @@
 <script lang="ts">
-    import { createEventDispatcher } from 'svelte';
+    interface Props {
+        orderId: string;
+        onshipped?: (data: any) => void;
+        oncancel?: () => void;
+    }
     
-    export let orderId: string;
+    let { orderId, onshipped, oncancel }: Props = $props();
     
-    const dispatch = createEventDispatcher();
-    
-    let shipping_carrier = '';
-    let tracking_number = '';
-    let shipping_label_url = '';
-    let submitting = false;
-    let error = '';
+    let shipping_carrier = $state('');
+    let tracking_number = $state('');
+    let shipping_label_url = $state('');
+    let submitting = $state(false);
+    let error = $state('');
 
     const carriers = [
         { value: 'usps', label: 'USPS' },
@@ -44,7 +46,7 @@
             const data = await response.json();
             
             if (response.ok) {
-                dispatch('shipped', data);
+                onshipped?.(data);
             } else {
                 error = data.error || 'Failed to update shipping information';
             }
@@ -120,7 +122,7 @@
                 <button 
                     type="button"
                     class="btn btn-ghost"
-                    onclick={() => dispatch('cancel')}
+                    onclick={() => oncancel?.()}
                     disabled={submitting}
                 >
                     Cancel
@@ -135,5 +137,5 @@
             </div>
         </form>
     </div>
-    <button type="button" class="modal-backdrop" onclick={() => dispatch('cancel')} aria-label="Close modal"></button>
+    <button type="button" class="modal-backdrop" onclick={() => oncancel?.()} aria-label="Close modal"></button>
 </div>

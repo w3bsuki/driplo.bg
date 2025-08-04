@@ -150,7 +150,7 @@
 {#if isOpen}
 	<div 
 		class="fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300"
-		onclick={handleOnClose}
+		onclick={onClose}
 	></div>
 {/if}
 
@@ -173,14 +173,14 @@
 			<div class="flex items-center gap-2">
 				{#if activeFilterCount > 0}
 					<button
-						onclick={handleClearAllFilters}
+						onclick={clearAllFilters}
 						class="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded-lg hover:bg-blue-50"
 					>
 						{m.filter_clear_all()}
 					</button>
 				{/if}
 				<button
-					onclick={handleOnClose}
+					onclick={onClose}
 					class="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
 				>
 					<X class="h-4 w-4 text-gray-500" />
@@ -352,7 +352,7 @@
 		<!-- Footer -->
 		<div class="border-t border-gray-200 p-3 bg-gray-50">
 			<button
-				onclick={handleApplyFilters}
+				onclick={applyFilters}
 				class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95 text-sm"
 			>
 				{#if activeFilterCount > 0}

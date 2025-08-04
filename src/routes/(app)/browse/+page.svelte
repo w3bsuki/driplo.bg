@@ -31,7 +31,7 @@
 		{ text: 'Watches', emoji: '⌚' }
 	];
 
-	// Top sellers query
+	// Top sellers query - optimized to prevent hydration issues
 	const topSellersQuery = createQuery({
 		queryKey: ['topSellers', 'month'],
 		queryFn: async () => {
@@ -39,12 +39,14 @@
 			if (!response.ok) throw new Error('Failed to fetch top sellers');
 			return response.json();
 		},
-		enabled: browser,
+		enabled: browser && !isNavigating, // Don't run during navigation
 		staleTime: 5 * 60 * 1000, // 5 minutes
+		refetchOnWindowFocus: false, // Prevent refetch on focus
+		refetchOnMount: false, // Don't refetch on remount during navigation
 	});
 
-	// Reactive filter states from server data
-	let searchInput = $state(data.filters.search);
+	// Reactive filter states from server data - prevent reactive loops
+	let searchInput = $state(data.filters.search || '');
 	let sortBy = $state(data.filters.sortBy);
 	let priceRange = $state({ 
 		min: data.filters.minPrice || 0, 
@@ -53,6 +55,9 @@
 	let selectedSizes = $state(new Set(data.filters.sizes));
 	let selectedBrands = $state(new Set(data.filters.brands));
 	let selectedConditions = $state(new Set(data.filters.conditions));
+
+	// Flag to prevent reactive loops during navigation
+	let isNavigating = $state(false);
 
 	// Infinite scroll state
 	let allListings = $state([...data.listings]);
@@ -111,12 +116,23 @@
 		return url.toString();
 	}
 
+	// Throttled navigation to prevent double calls
+	const throttledNavigate = throttle((url: string) => {
+		if (!isNavigating) {
+			isNavigating = true;
+			goto(url).finally(() => {
+				// Reset flag after navigation completes
+				setTimeout(() => { isNavigating = false; }, 100);
+			});
+		}
+	}, 200);
+
 	function updateCategory(categorySlug: string) {
-		goto(buildFilterUrl({ category: categorySlug || null }));
+		throttledNavigate(buildFilterUrl({ category: categorySlug || null }));
 	}
 
 	function handleSearch(query: string) {
-		goto(buildFilterUrl({ search: query?.trim() || null }));
+		throttledNavigate(buildFilterUrl({ search: query?.trim() || null }));
 	}
 
 	// Create debounced search handler
@@ -135,10 +151,11 @@
 		showQuickSearch = false;
 	}
 
-	// Clean up debounced search on unmount
+	// Clean up debounced search and throttled navigation on unmount
 	$effect(() => {
 		return () => {
 			debouncedSearch.cancel();
+			throttledNavigate.cancel();
 		};
 	});
 
@@ -164,11 +181,11 @@
 
 	function updateSort(newSort: string) {
 		sortBy = newSort;
-		goto(buildFilterUrl({ sort: newSort }));
+		throttledNavigate(buildFilterUrl({ sort: newSort }));
 	}
 
 	function updatePriceRange() {
-		goto(buildFilterUrl({ 
+		throttledNavigate(buildFilterUrl({ 
 			minPrice: priceRange.min > 0 ? priceRange.min : null,
 			maxPrice: priceRange.max < 10000 ? priceRange.max : null
 		}));
@@ -181,7 +198,7 @@
 			selectedSizes.add(size);
 		}
 		selectedSizes = new Set(selectedSizes);
-		goto(buildFilterUrl({ sizes: selectedSizes.size > 0 ? Array.from(selectedSizes).join(',') : null }));
+		throttledNavigate(buildFilterUrl({ sizes: selectedSizes.size > 0 ? Array.from(selectedSizes).join(',') : null }));
 	}
 
 	function toggleBrand(brand: string) {
@@ -191,7 +208,7 @@
 			selectedBrands.add(brand);
 		}
 		selectedBrands = new Set(selectedBrands);
-		goto(buildFilterUrl({ brands: selectedBrands.size > 0 ? Array.from(selectedBrands).join(',') : null }));
+		throttledNavigate(buildFilterUrl({ brands: selectedBrands.size > 0 ? Array.from(selectedBrands).join(',') : null }));
 	}
 
 	function toggleCondition(condition: string) {
@@ -201,11 +218,11 @@
 			selectedConditions.add(condition);
 		}
 		selectedConditions = new Set(selectedConditions);
-		goto(buildFilterUrl({ conditions: selectedConditions.size > 0 ? Array.from(selectedConditions).join(',') : null }));
+		throttledNavigate(buildFilterUrl({ conditions: selectedConditions.size > 0 ? Array.from(selectedConditions).join(',') : null }));
 	}
 
 	function clearAllFilters() {
-		goto('/browse');
+		throttledNavigate('/browse');
 	}
 
 
@@ -213,11 +230,25 @@
 	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '8', '10', '12', '14', '16'];
 
 	// Reset infinite scroll state when data changes (filter applied)
+	// Only update if we're not currently navigating to prevent loops
 	$effect(() => {
-		allListings = [...data.listings];
-		currentPage = data.pagination.currentPage;
-		hasMoreItems = data.pagination.hasNextPage;
-		loadingMore = false;
+		if (!isNavigating) {
+			allListings = [...data.listings];
+			currentPage = data.pagination.currentPage;
+			hasMoreItems = data.pagination.hasNextPage;
+			loadingMore = false;
+			
+			// Sync filter states with server data (without triggering navigation)
+			searchInput = data.filters.search || '';
+			sortBy = data.filters.sortBy;
+			priceRange = { 
+				min: data.filters.minPrice || 0, 
+				max: data.filters.maxPrice || 1000 
+			};
+			selectedSizes = new Set(data.filters.sizes);
+			selectedBrands = new Set(data.filters.brands);
+			selectedConditions = new Set(data.filters.conditions);
+		}
 	});
 
 	async function loadMoreItems() {
@@ -277,7 +308,7 @@
 		<div class="container mx-auto px-4">
 			<div class="max-w-3xl mx-auto">
 				
-				<!-- Top Sellers Section -->
+				<!-- Drippers Ranklist Section -->
 				<div class="mb-3">
 					{#if $topSellersQuery.isLoading}
 						<!-- Loading skeleton -->
@@ -301,24 +332,52 @@
 					{:else if $topSellersQuery.error}
 						<!-- Error state - silently fail, don't show section -->
 					{:else if $topSellersQuery.data?.sellers && $topSellersQuery.data.sellers.length > 0}
-						<h2 class="text-sm md:text-base font-semibold text-gray-800 mb-3 text-center flex items-center justify-center gap-2">
-							<span>🏆</span>
-							<span>Top Sellers This Month</span>
-						</h2>
-						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
+						<div class="text-center mb-4">
+							<h2 class="text-sm md:text-base font-bold text-gray-900 mb-1 flex items-center justify-center gap-2">
+								<span>🔥</span>
+								<span>Top Drippers</span>
+								<span>🔥</span>
+							</h2>
+							<p class="text-xs text-gray-600">This month's hottest sellers, brands & buyers</p>
+						</div>
+						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
 							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index (seller.id)}
-								<a href="/profile/{seller.username}" class="text-center group">
-									<div class="relative">
+								<a href="/profile/{seller.username}" class="text-center group relative">
+									<!-- Rank Badge -->
+									<div class="absolute -top-1 -left-1 z-20">
 										{#if index === 0}
-											<div class="absolute -top-2 -right-2 text-lg z-10">👑</div>
+											<div class="w-6 h-6 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg">
+												<span class="text-white text-xs font-bold">1</span>
+											</div>
+										{:else if index === 1}
+											<div class="w-6 h-6 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center shadow-lg">
+												<span class="text-white text-xs font-bold">2</span>
+											</div>
+										{:else if index === 2}
+											<div class="w-6 h-6 bg-gradient-to-r from-amber-600 to-amber-700 rounded-full flex items-center justify-center shadow-lg">
+												<span class="text-white text-xs font-bold">3</span>
+											</div>
+										{:else}
+											<div class="w-6 h-6 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
+												<span class="text-white text-xs font-bold">{index + 1}</span>
+											</div>
 										{/if}
+									</div>
+									
+									<!-- Crown for #1 -->
+									{#if index === 0}
+										<div class="absolute -top-3 -right-1 text-xl z-10 animate-pulse">👑</div>
+									{/if}
+									
+									<div class="relative">
 										<div class="relative">
-											<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full blur opacity-20 group-hover:opacity-30 transition-all duration-100"></div>
-											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-1 ring-white border border-gray-200 group-hover:ring-blue-200 transition-all duration-100">
+											<!-- Enhanced glow effect -->
+											<div class="absolute inset-0 bg-gradient-to-r {index === 0 ? 'from-yellow-400 to-yellow-600' : index === 1 ? 'from-gray-300 to-gray-500' : index === 2 ? 'from-amber-600 to-amber-700' : 'from-blue-400 to-blue-600'} rounded-full blur opacity-20 group-hover:opacity-40 transition-all duration-200"></div>
+											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-2 {index === 0 ? 'ring-yellow-300' : index === 1 ? 'ring-gray-300' : index === 2 ? 'ring-amber-300' : 'ring-blue-300'} border-2 border-white group-hover:scale-105 transition-all duration-200 shadow-lg">
 												{#if seller.avatar_url}
 													<img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
 												{:else}
-													<div class="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+													<div class="w-full h-full bg-gradient-to-br {index === 0 ? 'from-yellow-400 to-yellow-600' : index === 1 ? 'from-gray-300 to-gray-500' : index === 2 ? 'from-amber-600 to-amber-700' : 'from-blue-400 to-blue-600'} flex items-center justify-center">
 														<span class="text-white font-bold text-sm md:text-base">{seller.username[0].toUpperCase()}</span>
 													</div>
 												{/if}
@@ -326,12 +385,27 @@
 										</div>
 									</div>
 									<div class="mt-2">
-										<p class="text-sm font-medium text-gray-800 truncate">{seller.username}</p>
+										<p class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">{seller.username}</p>
 										<div class="flex items-center justify-center gap-1 text-xs text-gray-600">
-											<span>⭐</span>
-											<span>{seller.average_rating || '0.0'}</span>
+											<div class="flex items-center gap-0.5">
+												{#each Array(5) as _, i}
+													<span class="text-xs {(seller.average_rating || 4.8) > i ? 'text-yellow-400' : 'text-gray-300'}">★</span>
+												{/each}
+											</div>
+											<span class="font-medium">{seller.average_rating || '4.8'}</span>
 										</div>
-										<p class="text-xs text-gray-500 mt-1">{seller.total_sales} sales</p>
+										<p class="text-xs text-gray-500 mt-0.5 font-medium">
+											🔥 {seller.total_sales || 0} sales
+										</p>
+										{#if index < 3}
+											<div class="mt-1 text-xs font-bold {index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : 'text-amber-600'}">
+												{index === 0 ? '🥇 LEGEND' : index === 1 ? '🥈 ELITE' : '🥉 PRO'}
+											</div>
+										{:else}
+											<div class="mt-1 text-xs font-medium text-blue-600">
+												🔥 DRIPPER
+											</div>
+										{/if}
 									</div>
 								</a>
 							{/each}
@@ -574,7 +648,7 @@
 							{#if data.filters.search}
 								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									Search: "{data.filters.search}"
-									<button onclick={() => goto(buildFilterUrl({ search: null }))} class="hover:text-blue-900">
+									<button onclick={() => throttledNavigate(buildFilterUrl({ search: null }))} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
 									</button>
 								</span>
@@ -614,7 +688,7 @@
 							{#if data.filters.minPrice || data.filters.maxPrice}
 								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
 									${data.filters.minPrice || 0} - ${data.filters.maxPrice || '∞'}
-									<button onclick={() => goto(buildFilterUrl({ minPrice: null, maxPrice: null }))} class="hover:text-blue-900">
+									<button onclick={() => throttledNavigate(buildFilterUrl({ minPrice: null, maxPrice: null }))} class="hover:text-blue-900">
 										<X class="h-3.5 w-3.5" />
 									</button>
 								</span>

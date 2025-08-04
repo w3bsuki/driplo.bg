@@ -268,7 +268,7 @@
 	});
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <svelte:head>
 	<title>{listing?.title || 'Product'} - Driplo</title>
@@ -526,39 +526,85 @@
 						</div>
 					</div>
 
+					<!-- Action Buttons -->
+					{#if !isOwner && listing.status !== 'sold'}
+						<div class="flex gap-2 mt-3">
+							<button
+								onclick={handleLike}
+								class={cn(
+									"flex-1 py-2.5 px-4 rounded-sm font-medium transition-all duration-200 flex items-center justify-center gap-2",
+									isLiked 
+										? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100" 
+										: "bg-gray-100 text-gray-600 hover:bg-gray-200"
+								)}
+							>
+								<Heart class={cn("w-4 h-4", isLiked && "fill-current")} />
+								<span class="text-sm">{isLiked ? "Liked" : "Like"}</span>
+							</button>
+							<button
+								onclick={handleBuyNow}
+								onmouseenter={() => checkoutFlowRef?.preload()}
+								onfocus={() => checkoutFlowRef?.preload()}
+								class="flex-1 bg-primary text-white rounded-sm py-2.5 px-4 font-medium hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2"
+							>
+								<ShoppingBag class="w-4 h-4" />
+								<span class="text-sm">Buy Now</span>
+							</button>
+						</div>
+					{:else if isOwner}
+						<div class="flex gap-2 mt-3">
+							<button
+								onclick={() => goto(`/listings/${listing.id}/edit`)}
+								class="flex-1 bg-primary text-white rounded-sm py-2.5 px-4 font-medium hover:bg-primary/90 transition-all duration-200 text-sm"
+							>
+								Edit Listing
+							</button>
+						</div>
+					{:else if listing.status === 'sold'}
+						<div class="mt-3">
+							<div class="bg-red-50 border border-red-200 rounded-sm py-2.5 px-4 text-center">
+								<span class="text-red-600 font-medium text-sm">This item has been sold</span>
+							</div>
+						</div>
+					{/if}
+
 
 					<!-- Details Section with Tabs -->
-					<Tabs value="details" class="w-full">
-						<TabsList class="grid w-full grid-cols-3">
-							<TabsTrigger value="details" class="text-sm">
-								<span class="mr-1">📋</span> Details
-							</TabsTrigger>
-							<TabsTrigger value="shipping" class="text-sm">
-								<span class="mr-1">📦</span> Shipping
-							</TabsTrigger>
-							<TabsTrigger value="seller" class="text-sm">
-								<span class="mr-1">👤</span> Seller
-							</TabsTrigger>
-						</TabsList>
+					<div class="overflow-hidden">
+						<Tabs value="details" class="w-full">
+							<TabsList class="grid w-full grid-cols-3">
+								<TabsTrigger value="details" class="text-sm flex-1 min-w-0">
+									<span class="mr-1">📋</span> 
+									<span class="truncate">Details</span>
+								</TabsTrigger>
+								<TabsTrigger value="shipping" class="text-sm flex-1 min-w-0">
+									<span class="mr-1">📦</span> 
+									<span class="truncate">Shipping</span>
+								</TabsTrigger>
+								<TabsTrigger value="seller" class="text-sm flex-1 min-w-0">
+									<span class="mr-1">👤</span> 
+									<span class="truncate">Seller</span>
+								</TabsTrigger>
+							</TabsList>
 						
-						<TabsContent value="details" class="mt-4 space-y-4">
+						<TabsContent value="details" class="mt-4 space-y-4 overflow-hidden">
 							<div class="grid grid-cols-1 gap-3">
 								{#if listing.materials && listing.materials.length > 0}
 									<div class="flex justify-between items-center py-2 border-b border-gray-100">
-										<span class="text-sm text-gray-500">Materials</span>
-										<span class="text-sm text-gray-900 font-medium">{listing.materials.join(', ')}</span>
+										<span class="text-sm text-gray-500 flex-shrink-0">Materials</span>
+										<span class="text-sm text-gray-900 font-medium truncate ml-2">{listing.materials.join(', ')}</span>
 									</div>
 								{/if}
 								{#if listing.category}
 									<div class="flex justify-between items-center py-2 border-b border-gray-100">
-										<span class="text-sm text-gray-500">Category</span>
-										<span class="text-sm text-gray-900 font-medium">{listing.category.name}</span>
+										<span class="text-sm text-gray-500 flex-shrink-0">Category</span>
+										<span class="text-sm text-gray-900 font-medium truncate ml-2">{listing.category.name}</span>
 									</div>
 								{/if}
 								{#if listing.subcategory}
 									<div class="flex justify-between items-center py-2 border-b border-gray-100">
-										<span class="text-sm text-gray-500">Subcategory</span>
-										<span class="text-sm text-gray-900 font-medium">{listing.subcategory?.name}</span>
+										<span class="text-sm text-gray-500 flex-shrink-0">Subcategory</span>
+										<span class="text-sm text-gray-900 font-medium truncate ml-2">{listing.subcategory?.name}</span>
 									</div>
 								{/if}
 								<div class="flex justify-between items-center py-2 border-b border-gray-100">
@@ -587,11 +633,11 @@
 							{/if}
 						</TabsContent>
 						
-						<TabsContent value="shipping" class="mt-4 space-y-4">
+						<TabsContent value="shipping" class="mt-4 space-y-4 overflow-hidden">
 							<div class="space-y-2">
 								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
-									<Truck class="w-5 h-5 text-gray-600 mt-0.5" />
-									<div class="flex-1">
+									<Truck class="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+									<div class="flex-1 min-w-0">
 										<p class="text-sm font-medium text-gray-900">Standard Shipping</p>
 										<p class="text-sm text-gray-600">3-5 business days</p>
 										<p class="text-sm font-medium text-gray-900 mt-1">
@@ -601,8 +647,8 @@
 								</div>
 								
 								<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
-									<RotateCcw class="w-5 h-5 text-gray-600 mt-0.5" />
-									<div class="flex-1">
+									<RotateCcw class="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+									<div class="flex-1 min-w-0">
 										<p class="text-sm font-medium text-gray-900">Returns</p>
 										<p class="text-sm text-gray-600">30-day return policy</p>
 										<p class="text-xs text-gray-500 mt-1">Item must be in original condition</p>
@@ -611,59 +657,86 @@
 								
 								{#if listing.location_city}
 									<div class="flex items-start gap-3 p-3 bg-gray-50 rounded-sm">
-										<MapPin class="w-5 h-5 text-gray-600 mt-0.5" />
-										<div class="flex-1">
+										<MapPin class="w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0" />
+										<div class="flex-1 min-w-0">
 											<p class="text-sm font-medium text-gray-900">Ships from</p>
-											<p class="text-sm text-gray-600">{listing.location_city}</p>
+											<p class="text-sm text-gray-600 truncate">{listing.location_city}</p>
 										</div>
 									</div>
 								{/if}
 							</div>
 						</TabsContent>
 						
-						<TabsContent value="seller" class="mt-4 space-y-4">
+						<TabsContent value="seller" class="mt-4 space-y-4 overflow-hidden">
 							<div class="flex items-start gap-3">
 								{#if listing.seller.avatar_url}
-									<Image
-										src={listing.seller.avatar_url}
-										alt={listing.seller.username}
-										class="w-12 h-12 rounded-full"
-										objectFit="cover"
-										preferredSize="thumb"
-									/>
+									<div class="relative flex-shrink-0">
+										<Image
+											src={listing.seller.avatar_url}
+											alt={listing.seller.username}
+											class="w-12 h-12 rounded-full border-2 border-white shadow-sm"
+											objectFit="cover"
+											preferredSize="thumb"
+										/>
+										{#if listing.seller.is_verified}
+											<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+												<span class="text-white text-xs">✓</span>
+											</div>
+										{/if}
+									</div>
 								{:else}
-									<div class={cn("w-12 h-12 rounded-full flex items-center justify-center", getAvatarColor(listing.seller.username))}>
-										<span class="text-white font-medium">{listing.seller.username.charAt(0).toUpperCase()}</span>
+									<div class="relative flex-shrink-0">
+										<div class={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm", getAvatarColor(listing.seller.username))}>
+											<span class="text-white font-medium">{listing.seller.username.charAt(0).toUpperCase()}</span>
+										</div>
+										{#if listing.seller.is_verified}
+											<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+												<span class="text-white text-xs">✓</span>
+											</div>
+										{/if}
 									</div>
 								{/if}
-								<div class="flex-1">
+								<div class="flex-1 min-w-0">
 									<div class="flex items-center gap-2">
-										<h3 class="text-sm font-medium text-gray-900">{listing.seller.username}</h3>
+										<h3 class="text-sm font-medium text-gray-900 truncate">{listing.seller.username}</h3>
 										{#if listing.seller.account_type === 'brand'}
 											<BrandBadge size="xs" isVerified={listing.seller.is_verified} showText={false} />
 										{/if}
 									</div>
-									<div class="flex items-center gap-3 mt-1 text-sm text-gray-600">
+									<!-- Enhanced rating display -->
+									<div class="flex items-center gap-2 mt-1">
+										<div class="flex items-center gap-1">
+											{#each Array(5) as _, i}
+												<Star class={cn("w-3 h-3", (listing.seller.rating || 4.8) > i ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200")} />
+											{/each}
+										</div>
+										<span class="text-sm font-medium text-gray-900">{listing.seller.rating || 4.8}</span>
+										<span class="text-xs text-gray-500">({listing.seller.reviews_count || 42} reviews)</span>
+									</div>
+									<div class="flex items-center gap-2 mt-1 text-xs text-gray-600 flex-wrap">
 										<span class="flex items-center gap-1">
-											<Star class="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-											{listing.seller.rating || 4.8}
+											<span>🏆</span>
+											<span>{listing.seller.sales_count || 0} sales</span>
 										</span>
 										<span>•</span>
-										<span>{listing.seller.sales_count || 0} sales</span>
-										<span>•</span>
 										<span>Joined {new Date(listing.seller.created_at || Date.now()).getFullYear()}</span>
+										{#if listing.seller.response_rate}
+											<span>•</span>
+											<span>{listing.seller.response_rate}% response rate</span>
+										{/if}
 									</div>
 									<div class="flex gap-2 mt-3">
 										<a 
 											href="/profile/{listing.seller.username}" 
-											class="flex-1 py-1.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-100"
+											class="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-100 min-w-0"
 										>
-											View Profile
+											<span class="truncate">View Profile</span>
 										</a>
 										{#if !isOwner}
 											<button 
-												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-100"
+												class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-100 flex-shrink-0"
 												onclick={() => goto(`/messages?user=${listing.seller.username}`)}
+												title="Message seller"
 											>
 												<MessageCircle class="w-4 h-4 text-gray-700" />
 											</button>
@@ -673,6 +746,7 @@
 							</div>
 						</TabsContent>
 					</Tabs>
+					</div>
 				</div>
 			</div>
 		</div>
