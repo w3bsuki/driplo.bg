@@ -16,10 +16,13 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		isBrowser,
 		hasWindow: typeof window !== 'undefined',
 		hasSession: !!data.session,
-		userEmail: data.user?.email || 'none'
+		userEmail: data.user?.email || 'none',
+		supabaseUrl: PUBLIC_SUPABASE_URL,
+		hasAnonKey: !!PUBLIC_SUPABASE_ANON_KEY
 	});
 
 	// Create browser client for client-side operations
+	// Browser client doesn't need cookie handlers - it accesses cookies directly
 	const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 		global: {
 			fetch,
@@ -28,14 +31,6 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 			persistSession: true,
 			detectSessionInUrl: true,
 			flowType: 'pkce'
-		},
-		cookies: {
-			getAll() {
-				return []
-			},
-			setAll(cookies) {
-				// Do nothing during SSR
-			}
 		}
 	})
 
@@ -67,6 +62,22 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				hasSession: !!currentSession,
 				userEmail: currentSession?.user?.email || 'none'
 			});
+			
+			// Test if we can actually query the database
+			console.log('🧪 Testing database connection...');
+			try {
+				const { data: testData, error: testError } = await supabase
+					.from('profiles')
+					.select('id')
+					.limit(1);
+				console.log('📊 Database test result:', {
+					success: !testError,
+					error: testError?.message || 'none',
+					hasData: !!testData
+				});
+			} catch (e) {
+				console.error('❌ Database test failed:', e);
+			}
 		} catch (error) {
 			console.error('❌ Failed to set session on client:', error)
 		}
