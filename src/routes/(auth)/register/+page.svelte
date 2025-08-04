@@ -153,7 +153,7 @@
 				})
 			} else if (error instanceof Error) {
 				// Handle specific Supabase auth errors
-				if (error.message.includes('duplicate key') || error.message.includes('already registered')) {
+				if (error.message.includes('duplicate key') || error.message.includes('already registered') || error.message.includes('User already registered')) {
 					toast.error('An account with this email already exists. Please login instead.')
 				} else if (error.message.includes('username') && error.message.includes('unique')) {
 					toast.error('This username is already taken. Please choose another.')
@@ -163,6 +163,9 @@
 					toast.error('Please enter a valid email address.')
 				} else if (error.message.includes('weak password')) {
 					toast.error('Password is too weak. Please use a stronger password.')
+				} else if (error.message.includes('Database error')) {
+					// More specific database error handling
+					toast.error('An account with this email may already exist. Try logging in or use a different email.')
 				} else {
 					toast.error(error.message || 'Registration failed')
 				}

@@ -91,8 +91,13 @@ class AuthContext {
 			if (error) {
 				// console.error('Supabase signUp error:', error);
 				// Check for specific error types
-				if (error.message?.includes('duplicate key') || error.message?.includes('already registered')) {
-					throw new Error('An account with this email already exists');
+				if (error.message?.includes('duplicate key') || 
+				    error.message?.includes('already registered') || 
+				    error.message?.includes('User already registered')) {
+					throw new Error('An account with this email already exists. Please login instead.');
+				}
+				if (error.message?.includes('Database error')) {
+					throw new Error('An account with this email may already exist. Please try a different email or login.');
 				}
 				if (error.status === 406) {
 					throw new Error('Invalid request. Please check your information and try again.');
