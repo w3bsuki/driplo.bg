@@ -86,20 +86,7 @@ export const actions = {
 			password
 		})
 		
-		// Log authentication event
-		try {
-			await supabase.rpc('log_auth_event', {
-				p_user_id: data?.user?.id || null,
-				p_action: 'login',
-				p_ip_address: clientIP,
-				p_user_agent: request.headers.get('user-agent'),
-				p_success: !error,
-				p_error_message: error?.message || null,
-				p_metadata: { email, remember_me: rememberMe }
-			})
-		} catch (logError) {
-			console.error('Failed to log auth event:', logError)
-		}
+		// Skip auth event logging - RPC might not exist
 		
 		if (error) {
 			// Handle specific error cases
@@ -129,8 +116,7 @@ export const actions = {
 		
 		// Redirect to the originally requested page or home
 		const redirectTo = url.searchParams.get('redirectTo') || '/'
-		// Use invalidateAll to ensure session is refreshed on redirect
-		throw redirect(303, `${redirectTo}?_refreshAuth=true`)
+		throw redirect(303, redirectTo)
 	},
 	
 	oauth: async ({ request, locals: { supabase }, url }) => {

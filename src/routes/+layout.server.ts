@@ -17,7 +17,7 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabas
 
 	return {
 		session,
-		user,
+		user: session ? user : null, // Only return user if we have a valid session
 		categories: categories || [],
 		cookies: cookies.getAll()
 	}
