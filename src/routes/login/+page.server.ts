@@ -129,7 +129,8 @@ export const actions = {
 		
 		// Redirect to the originally requested page or home
 		const redirectTo = url.searchParams.get('redirectTo') || '/'
-		throw redirect(303, redirectTo)
+		// Use invalidateAll to ensure session is refreshed on redirect
+		throw redirect(303, `${redirectTo}?_refreshAuth=true`)
 	},
 	
 	oauth: async ({ request, locals: { supabase }, url }) => {

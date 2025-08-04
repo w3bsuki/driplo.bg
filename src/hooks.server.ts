@@ -77,7 +77,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 						...options, 
 						path: '/',
 						httpOnly: true,
-						secure: !dev,
+						secure: event.url.protocol === 'https:',
 						sameSite: 'lax',
 						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
 					})
@@ -87,7 +87,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 					event.cookies.delete(key, { 
 						path: '/',
 						httpOnly: true,
-						secure: !dev,
+						secure: event.url.protocol === 'https:',
 						sameSite: 'lax'
 					})
 				}
