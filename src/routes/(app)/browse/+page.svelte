@@ -2,7 +2,7 @@
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Search, X } from 'lucide-svelte';
-	import { Button } from '$lib/components/ui';
+	import { Button } from '$lib/components/native';
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
 	import { cn } from '$lib/utils';

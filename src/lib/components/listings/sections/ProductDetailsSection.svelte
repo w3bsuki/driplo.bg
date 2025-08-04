@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { Package } from 'lucide-svelte'
 	import FormSection from '$lib/components/ui/form-section.svelte'
-	import Input from '$lib/components/ui/input.svelte'
+	import { Input, Label } from '$lib/components/native'
 	import Textarea from '$lib/components/ui/textarea.svelte'
-	import { Label } from '$lib/components/ui'
 	import CategorySelector from '../CategorySelector.svelte'
 	import type { Database } from '$lib/types/database.types'
 	

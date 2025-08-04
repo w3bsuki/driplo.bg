@@ -2,7 +2,7 @@
 	import { page } from '$app/stores'
 	import { onMount } from 'svelte'
 	import { goto } from '$app/navigation'
-	import { Button } from '$lib/components/ui'
+	import { Button } from '$lib/components/native'
 	import confetti from 'canvas-confetti'
 	import * as m from '$lib/paraglide/messages.js'
 	

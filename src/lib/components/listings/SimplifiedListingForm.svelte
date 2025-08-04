@@ -20,10 +20,8 @@
 	} from 'lucide-svelte'
 
 	// UI Components
-	import { Button } from '$lib/components/ui'
-	import Input from '$lib/components/ui/input.svelte'
+	import { Button, Input, Label } from '$lib/components/native'
 	import Textarea from '$lib/components/ui/textarea.svelte'
-	import { Label } from '$lib/components/ui'
 	import Badge from '$lib/components/ui/badge.svelte'
 
 	// Types

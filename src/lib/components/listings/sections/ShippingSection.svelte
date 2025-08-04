@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { MapPin, Truck } from 'lucide-svelte'
 	import FormSection from '$lib/components/ui/form-section.svelte'
-	import Input from '$lib/components/ui/input.svelte'
-	import { Label } from '$lib/components/ui'
+	import { Input, Label } from '$lib/components/native'
 	import Checkbox from '$lib/components/ui/checkbox.svelte'
 	
 	interface Props {
