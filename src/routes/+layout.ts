@@ -34,21 +34,25 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		}
 	})
 
-	// Set the session on the client if we have server session data
-	// This ensures the client-side Supabase client has the same session as server
-	// Only do this in the actual browser, not during SSR
-	if (data.session && isBrowser) {
+	// Check if client already has a session first
+	const { data: { session: existingSession } } = await supabase.auth.getSession();
+	console.log('🔍 Existing client session check:', {
+		hasSession: !!existingSession,
+		userEmail: existingSession?.user?.email || 'none'
+	});
+	
+	// Only set session if we don't have one but server does
+	if (data.session && isBrowser && !existingSession) {
 		console.log('🔄 Setting session on client with tokens:', {
 			hasAccessToken: !!data.session.access_token,
 			hasRefreshToken: !!data.session.refresh_token,
-			expiresAt: data.session.expires_at
+			expiresAt: data.session.expires_at,
+			expiresIn: data.session.expires_in
 		});
 		
 		try {
-			const result = await supabase.auth.setSession({
-				access_token: data.session.access_token,
-				refresh_token: data.session.refresh_token
-			})
+			// Use the full session object instead of just tokens
+			const result = await supabase.auth.setSession(data.session);
 			
 			console.log('✅ Client setSession result:', {
 				hasSession: !!result.data.session,
@@ -57,13 +61,14 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 			});
 			
 			// Wait a bit for the session to be fully set
-			await new Promise(resolve => setTimeout(resolve, 100));
+			await new Promise(resolve => setTimeout(resolve, 200));
 			
 			// Verify the session was actually set
 			const { data: { session: currentSession } } = await supabase.auth.getSession();
 			console.log('🔍 Verification - Current client session:', {
 				hasSession: !!currentSession,
-				userEmail: currentSession?.user?.email || 'none'
+				userEmail: currentSession?.user?.email || 'none',
+				expiresAt: currentSession?.expires_at || 'none'
 			});
 			
 			// Test if we can actually query the database

@@ -125,8 +125,9 @@
 					console.log('🔄 Loading profile for user:', authContext.user.id);
 					await authContext.loadProfile(authContext.user.id);
 				}
-			} else {
-				console.log('❌ Clearing auth context - no session');
+			} else if (event !== 'INITIAL_SESSION') {
+				// Don't clear on INITIAL_SESSION as it might not be synced yet
+				console.log('❌ Clearing auth context - no session (event:', event, ')');
 				authContext.session = null;
 				authContext.user = null;
 				authContext.profile = null;
