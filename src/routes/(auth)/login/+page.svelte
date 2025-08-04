@@ -24,6 +24,9 @@
 	let captchaToken: string | null = null
 	let showCaptchaError = false
 	let captchaRef: CaptchaWrapper
+	
+	// Check if CAPTCHA is configured
+	const captchaEnabled = !!import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY
 
 	// Show error messages based on URL parameters
 	onMount(() => {
@@ -89,8 +92,8 @@
 			return
 		}
 		
-		// Check CAPTCHA in production
-		if (import.meta.env.MODE === 'production' && !captchaToken) {
+		// Check CAPTCHA in production only if it's enabled
+		if (import.meta.env.MODE === 'production' && captchaEnabled && !captchaToken) {
 			showCaptchaError = true
 			toast.error('Please complete the CAPTCHA verification')
 			return
@@ -324,7 +327,7 @@
 				<button 
 					type="submit" 
 					class="w-full py-2 bg-blue-400 text-white font-medium rounded-sm hover:bg-blue-500 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-					disabled={loading || (import.meta.env.MODE === 'production' && !captchaToken)}
+					disabled={loading || (import.meta.env.MODE === 'production' && captchaEnabled && !captchaToken)}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />

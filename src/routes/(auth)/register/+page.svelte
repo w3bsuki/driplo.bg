@@ -38,6 +38,9 @@
 	let showCaptchaError = $state(false)
 	let captchaRef: CaptchaWrapper
 	
+	// Check if CAPTCHA is configured
+	const captchaEnabled = !!import.meta.env.PUBLIC_RECAPTCHA_SITE_KEY
+	
 	// Check if showing success message
 	let showSuccess = $derived($page.url.searchParams.get('success') === 'true')
 
@@ -73,8 +76,8 @@
 			e.preventDefault();
 		}
 		
-		// Check CAPTCHA
-		if (!captchaToken) {
+		// Check CAPTCHA in production only if it's enabled
+		if (import.meta.env.MODE === 'production' && captchaEnabled && !captchaToken) {
 			showCaptchaError = true
 			toast.error('Please complete the CAPTCHA verification')
 			return
@@ -521,7 +524,7 @@
 					type="submit" 
 					style="background-color: #87CEEB; color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: 500; margin-top: 10px;"
 					class="w-full py-2 bg-primary text-white font-medium rounded-sm hover:bg-primary/90 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-					disabled={loading || !agreedToTerms || (import.meta.env.MODE === 'production' && !captchaToken)}
+					disabled={loading || !agreedToTerms || (import.meta.env.MODE === 'production' && captchaEnabled && !captchaToken)}
 				>
 					{#if loading}
 						<Spinner size="sm" color="white" />
