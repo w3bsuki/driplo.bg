@@ -151,6 +151,9 @@
 							captchaWrapper.reset()
 							captchaToken = ''
 						}
+					} else if (result.type === 'redirect') {
+						// Handle successful login - the redirect will happen automatically
+						// The auth state will be refreshed by the _refreshAuth parameter handling
 					}
 				}
 			}} class="space-y-4">

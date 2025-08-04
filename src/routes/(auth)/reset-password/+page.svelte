@@ -2,8 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
-	import Button from '$lib/components/ui/button.svelte';
-	import Input from '$lib/components/ui/input.svelte';
+	import { Button, Input } from '$lib/components/native';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import PasswordStrength from '$lib/components/ui/PasswordStrength.svelte';
 	import { Lock, Eye, EyeOff } from 'lucide-svelte';
