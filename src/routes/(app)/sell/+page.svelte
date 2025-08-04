@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
 	import { Lock } from 'lucide-svelte'
-	import Button from '$lib/components/ui/button.svelte'
+	import { Button } from '$lib/components/native'
 	import type { PageData } from './$types'
 	
 	let { data }: { data: PageData } = $props()

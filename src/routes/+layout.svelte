@@ -24,11 +24,12 @@
 
 	// Initialize auth context with client-side Supabase client and server data
 	console.log('🔍 Layout init - Server data:', { 
-		hasSupabase: !!$page.data.supabase,
+		hasSupabase: !!data.supabase,
 		user: data.user?.email || 'none',
 		session: data.session ? 'exists' : 'none'
 	});
-	const authContext = setAuthContext($page.data.supabase, data.user, data.session);
+	// Use the client-side supabase instance from data, not $page.data
+	const authContext = setAuthContext(data.supabase, data.user, data.session);
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
@@ -107,7 +108,7 @@
 		window.addEventListener('scroll', handleScroll);
 		
 		// Listen for auth changes and update context
-		const { data: authListener } = $page.data.supabase.auth.onAuthStateChange(async (event, session) => {
+		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
 			console.log('🔥 Auth state changed:', event, {
 				hasSession: !!session,
 				userEmail: session?.user?.email || 'none',
@@ -171,7 +172,7 @@
 					variant="gradient"
 				/>
 			{/if}
-			<Header categories={data.categories} supabase={$page.data.supabase} />
+			<Header categories={data.categories} supabase={data.supabase} />
 		{/if}
 		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
 			<slot />

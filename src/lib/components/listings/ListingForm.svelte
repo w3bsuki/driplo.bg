@@ -4,7 +4,7 @@
 	import { createListingSchema } from '$lib/schemas/listing'
 	import { toast } from 'svelte-sonner'
 	import { Camera, Package, DollarSign, MapPin, Tag } from 'lucide-svelte'
-	import Button from '$lib/components/ui/button.svelte'
+	import { Button } from '$lib/components/native'
 	import ImageUpload from '$lib/components/ui/image-upload.svelte'
 	import FormSection from '$lib/components/ui/form-section.svelte'
 	import ProductDetailsSection from './sections/ProductDetailsSection.svelte'
@@ -57,7 +57,7 @@
 	
 	async function loadSubcategories(categoryId: string) {
 		// Load subcategories when category changes
-		console.log('Loading subcategories for:', categoryId)
+		// TODO: Implement subcategory loading via API
 	}
 </script>
 
