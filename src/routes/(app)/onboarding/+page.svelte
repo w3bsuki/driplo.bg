@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { getAuthContext } from '$lib/stores/auth-context.svelte';
 	import type { PageData } from './$types';
@@ -34,38 +34,116 @@
 		showSetup = true;
 	});
 
-	async function handleComplete() {
-		// Mark onboarding as complete
-		await auth.supabase
-			.from('profiles')
-			.update({ 
+	async function handleComplete(formData?: any) {
+		loading = true;
+		try {
+			console.log('Starting onboarding completion for user:', auth.user?.id);
+			console.log('Form data received:', formData);
+			
+			// Prepare all profile data for final save
+			const profileUpdate: any = { 
 				onboarding_completed: true,
-				onboarding_step: 5 // Final step
-			})
-			.eq('id', auth.user!.id);
-
-		// Refresh profile
-		await auth.loadProfile();
-
-		// Check if user created a brand account
-		if (auth.profile?.account_type === 'brand') {
-			// Get the brand profile to find the slug
-			const { data: brandProfile } = await auth.supabase
-				.from('brand_profiles')
-				.select('brand_slug')
-				.eq('user_id', auth.user!.id)
-				.single();
-
-			if (brandProfile?.brand_slug) {
-				// Redirect to brand profile
-				goto(`/brands/${brandProfile.brand_slug}`);
-				return;
+				onboarding_step: 99, // Set to high number to indicate completion
+				setup_completed: true,
+				needs_username_setup: false // Ensure this is false
+			};
+			
+			// Add all form data if provided
+			if (formData) {
+				// Basic info
+				if (formData.username) profileUpdate.username = formData.username.toLowerCase();
+				if (formData.fullName) profileUpdate.full_name = formData.fullName;
+				if (formData.bio) profileUpdate.bio = formData.bio;
+				if (formData.location) profileUpdate.location = formData.location;
+				if (formData.accountType) profileUpdate.account_type = formData.accountType;
+				if (formData.avatarUrl) profileUpdate.avatar_url = formData.avatarUrl;
+				
+				// Payment info
+				if (formData.paymentMethods && formData.paymentMethods.length > 0) {
+					profileUpdate.payment_methods = formData.paymentMethods;
+				}
+				if (formData.revolut_tag) profileUpdate.revolut_tag = formData.revolut_tag;
+				if (formData.paypal_tag) profileUpdate.paypal_tag = formData.paypal_tag;
 			}
-		}
+			
+			console.log('Updating profile with:', profileUpdate);
+			
+			// Use the database function to ensure it completes properly
+			const { data: functionResult, error: updateError } = await auth.supabase
+				.rpc('complete_user_onboarding', {
+					p_user_id: auth.user!.id,
+					p_username: formData?.username || 'user' + Date.now(),
+					p_full_name: formData?.fullName || 'User',
+					p_account_type: formData?.accountType || 'personal'
+				});
 
-		// Redirect to home or wherever they came from
-		const redirectTo = $page.url.searchParams.get('redirectTo') || '/';
-		goto(redirectTo);
+			if (updateError) {
+				console.error('Database error completing onboarding:', updateError);
+				console.error('Update error details:', {
+					code: updateError.code,
+					message: updateError.message,
+					details: updateError.details,
+					hint: updateError.hint
+				});
+				
+				// Fallback: Try direct update
+				const { error: fallbackError } = await auth.supabase
+					.from('profiles')
+					.update(profileUpdate)
+					.eq('id', auth.user!.id);
+				
+				if (fallbackError) {
+					alert(`Failed to complete onboarding: ${fallbackError.message}`);
+					loading = false;
+					return;
+				}
+			}
+
+			console.log('Profile updated successfully via function');
+			
+			// Now fetch the updated profile separately
+			const { data: updatedProfile, error: fetchError } = await auth.supabase
+				.from('profiles')
+				.select('*')
+				.eq('id', auth.user!.id)
+				.single();
+			
+			if (fetchError || !updatedProfile) {
+				console.error('Failed to fetch updated profile:', fetchError);
+				// Continue anyway, the update succeeded
+			} else {
+				// Update the auth context with new profile data
+				auth.profile = updatedProfile;
+				console.log('Profile fetched:', updatedProfile);
+			}
+			
+			// Reload the profile to ensure all data is fresh
+			if (auth.user) {
+				const freshProfile = await auth.loadProfile(auth.user.id);
+				console.log('Fresh profile loaded:', freshProfile);
+			}
+			
+			console.log('Onboarding marked as complete, redirecting to home...');
+			
+			// Show success toast
+			const { toast } = await import('svelte-sonner');
+			toast.success('Welcome to Driplo! 🎉', { duration: 3000 });
+			
+			// Small delay to let the user see the success message
+			await new Promise(resolve => setTimeout(resolve, 1500));
+			
+			// Force invalidate all data
+			await invalidateAll();
+			
+			// Force a hard browser refresh to ensure hooks.server.ts gets fresh data
+			// This is necessary because Supabase cache might return stale data
+			console.log('Forcing hard refresh to homepage...');
+			window.location.href = '/';
+		} catch (err) {
+			console.error('Onboarding completion error:', err);
+			alert(`An error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`);
+			loading = false;
+		}
 	}
 </script>
 
@@ -75,15 +153,35 @@
 
 {#if loading}
 	<!-- Loading state -->
-	<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-		<div class="text-center">
-			<div class="w-12 h-12 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-			<h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome to Driplo!</h1>
-			<p class="text-gray-600">Preparing your profile setup...</p>
+	<div class="min-h-screen flex items-center justify-center bg-background">
+		<div class="text-center space-y-4">
+			<div class="w-12 h-12 border-3 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+			<div>
+				<h1 class="text-2xl font-semibold mb-2">Welcome to Driplo</h1>
+				<p class="text-muted-foreground">
+					{#if showSetup}
+						Completing your profile setup...
+					{:else}
+						Preparing your profile setup...
+					{/if}
+				</p>
+			</div>
 		</div>
 	</div>
 {:else if showSetup && auth.user}
-	<div class="min-h-[100dvh] bg-gradient-to-br from-blue-50 to-purple-50">
+	<div class="min-h-[100dvh] bg-background relative">
+		{#if loading}
+			<!-- Overlay loading state -->
+			<div class="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+				<div class="text-center space-y-3">
+					<div class="w-10 h-10 border-3 border-primary/20 border-t-primary rounded-full animate-spin mx-auto"></div>
+					<div>
+						<p class="font-medium">Finalizing your setup...</p>
+						<p class="text-sm text-muted-foreground">Please wait while we complete your profile</p>
+					</div>
+				</div>
+			</div>
+		{/if}
 		<ProfileSetupWizard 
 			user={auth.user} 
 			profile={auth.profile}

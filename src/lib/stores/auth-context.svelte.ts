@@ -38,7 +38,7 @@ class AuthContext {
 		}
 	}
 	
-	private async loadProfile(userId: string) {
+	async loadProfile(userId: string) {
 		try {
 			const { data, error } = await this.supabase
 				.from('profiles')
@@ -49,10 +49,12 @@ class AuthContext {
 			if (error) throw error
 			this.profile = data
 			this.notifyStateChange()
+			return data
 		} catch (error) {
 			// console.error('Error loading profile:', error)
 			this.profile = null
 			this.notifyStateChange()
+			return null
 		}
 	}
 	
@@ -228,22 +230,7 @@ class AuthContext {
 				// Continue with cleanup even if signOut fails
 			}
 			
-			// Log the sign out event (using IP/user agent version to avoid ambiguity)
-			if (userId) {
-				try {
-					await this.supabase.rpc('log_auth_event', {
-						p_user_id: userId,
-						p_action: 'logout',
-						p_ip_address: null, // Would need to be passed from server
-						p_user_agent: browser ? navigator.userAgent : null,
-						p_success: true,
-						p_error_message: null,
-						p_metadata: null
-					})
-				} catch (logError) {
-					console.error('Failed to log sign out event:', logError)
-				}
-			}
+			// Log auth event removed - function doesn't exist in database
 			
 			// Ensure we wait for invalidateAll to complete
 			try {
@@ -265,7 +252,9 @@ class AuthContext {
 			
 			// Force navigation even on error
 			if (browser) {
-				await goto('/login?message=logged_out', { replaceState: true, invalidateAll: false })
+				// Invalidate all to refresh server-side session
+				await invalidateAll()
+				await goto('/login?message=logged_out', { replaceState: true })
 			}
 		} finally {
 			this.loading = false

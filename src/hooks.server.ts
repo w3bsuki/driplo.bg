@@ -111,37 +111,30 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		return { session, user }
 	}
 
-	// Check if user needs to complete profile setup
+	// Check if authenticated user needs onboarding
 	const { user } = await event.locals.safeGetSession()
-	if (user && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
-		// Check if profile setup is complete
+	if (user && user.email_confirmed_at && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
+		// Get user profile to check onboarding completion
 		const { data: profile } = await event.locals.supabase
 			.from('profiles')
-			.select('*')
+			.select('onboarding_completed, account_type')
 			.eq('id', user.id)
 			.single()
 		
-		// Only redirect to onboarding for truly new users who need setup
-		const needsOnboarding = profile && (
-			// User has a temporary username (ends with numbers)
-			((profile as any).username && (profile as any).username.match(/[0-9]+$/) && (profile as any).username.length < 20) ||
-			// User explicitly needs username setup
-			(profile as any).needs_username_setup === true ||
-			// User is very new (created within last hour) and hasn't completed onboarding
-			(!(profile as any).onboarding_completed && 
-			 new Date((profile as any).created_at).getTime() > Date.now() - 60 * 60 * 1000)
-		)
+		// Redirect to onboarding if:
+		// 1. User has verified email (email_confirmed_at exists)
+		// 2. Profile exists but onboarding not completed
+		const needsOnboarding = profile && !profile.onboarding_completed
 		
 		if (needsOnboarding) {
-			// Redirect to onboarding if profile setup is not complete
-			// Skip redirect for auth pages, brand pages (for existing brands), and static assets
-			if (!event.url.pathname.startsWith('/login') && 
-				!event.url.pathname.startsWith('/register') &&
-				!event.url.pathname.startsWith('/callback') &&
-				!event.url.pathname.startsWith('/_app') &&
-				!event.url.pathname.includes('.') &&
-				// Don't redirect brand accounts from brand pages
-				!((profile as any).account_type === 'brand' && event.url.pathname.startsWith('/brands/'))) {
+			// Skip redirect for auth pages, API routes, and static assets
+			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app']
+			const shouldRedirect = !skipPaths.some(path => event.url.pathname.startsWith(path)) && 
+								   !event.url.pathname.includes('.') &&
+								   // Don't redirect brand accounts from their own brand pages
+								   !(profile.account_type === 'brand' && event.url.pathname.startsWith('/brands/'))
+			
+			if (shouldRedirect) {
 				return new Response(null, {
 					status: 302,
 					headers: {

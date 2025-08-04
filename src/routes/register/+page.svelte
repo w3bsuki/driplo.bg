@@ -194,7 +194,7 @@
 							placeholder="your@email.com"
 							required
 							disabled={loading}
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 						/>
 					</div>
 
@@ -212,7 +212,7 @@
 									placeholder="Your brand name"
 									required
 									disabled={loading}
-									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
+									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 								/>
 							</div>
 							<div>
@@ -224,7 +224,7 @@
 									name="brandCategory"
 									bind:value={brandCategory}
 									disabled={loading}
-									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
+									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 								>
 									<option value="">Select category</option>
 									<option value="fashion">Fashion & Apparel</option>
@@ -250,7 +250,7 @@
 									bind:value={brandWebsite}
 									placeholder="https://yourbrand.com"
 									disabled={loading}
-									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
+									class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 								/>
 							</div>
 							<p class="text-xs text-blue-700">
@@ -272,7 +272,7 @@
 								placeholder="Min 8 characters"
 								required
 								disabled={loading}
-								class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+								class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 							/>
 							<button
 								type="button"
@@ -301,7 +301,7 @@
 								placeholder="Confirm password"
 								required
 								disabled={loading}
-								class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+								class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 							/>
 							<button
 								type="button"

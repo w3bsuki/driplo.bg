@@ -5,6 +5,7 @@
 	import { toast } from 'svelte-sonner'
 	import type { PageData, ActionData } from './$types'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
+	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
 	import { onMount } from 'svelte'
 
 	let { data, form }: { data: PageData, form: ActionData } = $props()
@@ -15,6 +16,8 @@
 	let rememberMe = $state(false)
 	let loading = $state(false)
 	let oauthLoading = $state(false)
+	let captchaToken = $state('')
+	let captchaWrapper: CaptchaWrapper
 
 	// Show error messages based on URL parameters or form errors
 	onMount(() => {
@@ -143,9 +146,16 @@
 					
 					if (result.type === 'failure' && result.data?.error) {
 						toast.error(result.data.error)
+						// Reset CAPTCHA on error
+						if (captchaWrapper) {
+							captchaWrapper.reset()
+							captchaToken = ''
+						}
 					}
 				}
 			}} class="space-y-4">
+				<input type="hidden" name="captcha_token" value={captchaToken} />
+				
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
 						Email
@@ -159,7 +169,7 @@
 						required
 						disabled={loading}
 						autocomplete="email"
-						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 					/>
 				</div>
 
@@ -177,7 +187,7 @@
 							required
 							disabled={loading}
 							autocomplete="current-password"
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
 						/>
 						<button
 							type="button"
@@ -206,6 +216,16 @@
 					<a href="/forgot-password" class="text-sm text-blue-400 hover:text-blue-500">
 						Forgot password?
 					</a>
+				</div>
+
+				<!-- CAPTCHA -->
+				<div class="flex justify-center">
+					<CaptchaWrapper 
+						bind:this={captchaWrapper}
+						onVerify={(token) => captchaToken = token}
+						onExpire={() => captchaToken = ''}
+						onError={() => captchaToken = ''}
+					/>
 				</div>
 
 				<button 

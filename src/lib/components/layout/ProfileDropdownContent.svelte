@@ -167,18 +167,18 @@
 		<p class="text-xs text-gray-500 mb-4">Sign in to start shopping</p>
 		
 		<div class="space-y-2">
-			<a
-				href="/login"
-				class="flex items-center justify-center py-1.5 bg-gray-900 hover:bg-gray-800 text-white rounded-sm text-sm font-medium cursor-pointer w-full no-underline"
+			<button
+				onclick={() => goto('/login')}
+				class="flex items-center justify-center py-1.5 bg-gray-900 hover:bg-gray-800 text-white rounded-sm text-sm font-medium cursor-pointer w-full"
 			>
 				Sign in
-			</a>
-			<a
-				href="/register"
-				class="flex items-center justify-center py-1.5 border border-gray-300 hover:bg-gray-50 rounded-sm text-sm cursor-pointer w-full no-underline"
+			</button>
+			<button
+				onclick={() => goto('/register')}
+				class="flex items-center justify-center py-1.5 border border-gray-300 hover:bg-gray-50 rounded-sm text-sm cursor-pointer w-full"
 			>
 				Create account
-			</a>
+			</button>
 		</div>
 	</div>
 {/if}

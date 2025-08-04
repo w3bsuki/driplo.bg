@@ -1,13 +1,9 @@
 import { fail, redirect } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
 
-export const load: PageServerLoad = async ({ locals: { safeGetSession }, url }) => {
-	const { session } = await safeGetSession()
-	
-	// If already logged in, redirect to home
-	if (session) {
-		throw redirect(303, '/')
-	}
+export const load: PageServerLoad = async ({ url }) => {
+	// Don't check session - let users access register page
+	// They might want to create a new account
 	
 	// Check if showing success message
 	const success = url.searchParams.get('success') === 'true'
@@ -84,31 +80,45 @@ export const actions = {
 			})
 		}
 		
-		// Generate a temporary username from email
-		const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
+		// First check if user already exists
+		const { data: existingUser } = await supabase
+			.from('profiles')
+			.select('id')
+			.eq('email', email)
+			.single()
 		
-		// Sign up user through Supabase Auth
+		if (existingUser) {
+			return fail(400, {
+				error: 'An account with this email already exists. Please sign in instead.',
+				email,
+				accountType,
+				brandName,
+				brandCategory,
+				brandWebsite
+			})
+		}
+		
+		// Sign up user through Supabase Auth with email verification required
 		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
 			options: {
 				data: {
-					username: tempUsername,
 					account_type: accountType,
 					brand_name: accountType === 'brand' ? brandName : undefined,
 					brand_category: accountType === 'brand' ? brandCategory : undefined,
 					brand_website: accountType === 'brand' ? brandWebsite : undefined,
-					needs_username_setup: true
+					needs_onboarding: true // Clear flag for onboarding requirement
 				},
-				emailRedirectTo: `${url.origin}/auth/callback`
+				emailRedirectTo: `${url.origin}/auth/callback?type=signup`
 			}
 		})
 		
 		if (error) {
 			// Handle specific error cases
-			if (error.message?.includes('duplicate') || error.message?.includes('already registered')) {
+			if (error.message?.includes('duplicate') || error.message?.includes('already registered') || error.message?.includes('User already registered')) {
 				return fail(400, {
-					error: 'An account with this email already exists',
+					error: 'An account with this email already exists. Please sign in instead.',
 					email,
 					accountType,
 					brandName,
@@ -125,6 +135,46 @@ export const actions = {
 				brandCategory,
 				brandWebsite
 			})
+		}
+		
+		// Check if this was a duplicate signup attempt
+		// Supabase returns a user object even for existing users
+		if (data?.user) {
+			// Check if user's email was already confirmed (existing user)
+			if (data.user.email_confirmed_at) {
+				// This is an existing, confirmed user - sign them out and show error
+				await supabase.auth.signOut()
+				return fail(400, {
+					error: 'An account with this email already exists. Please sign in instead.',
+					email,
+					accountType,
+					brandName,
+					brandCategory,
+					brandWebsite
+				})
+			}
+			
+			// New user or unconfirmed user - sign out to prevent auto-login
+			if (data.session) {
+				await supabase.auth.signOut()
+			}
+			
+			// Check if this is truly a new signup (session would be null for existing unconfirmed)
+			if (!data.session && data.user.created_at) {
+				// Check if user was created more than 1 second ago (existing user)
+				const createdAt = new Date(data.user.created_at).getTime()
+				const now = Date.now()
+				if (now - createdAt > 1000) {
+					return fail(400, {
+						error: 'An account with this email already exists but is not confirmed. Please check your email.',
+						email,
+						accountType,
+						brandName,
+						brandCategory,
+						brandWebsite
+					})
+				}
+			}
 		}
 		
 		// Redirect to success page
