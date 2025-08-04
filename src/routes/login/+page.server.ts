@@ -86,6 +86,14 @@ export const actions = {
 			password
 		})
 		
+		console.log('🔐 Login attempt:', {
+			email,
+			success: !error,
+			hasSession: !!data?.session,
+			hasUser: !!data?.user,
+			error: error?.message || 'none'
+		});
+		
 		// Skip auth event logging - RPC might not exist
 		
 		if (error) {
@@ -114,8 +122,16 @@ export const actions = {
 			})
 		}
 		
+		// Check if session was actually set
+		const { data: { session: currentSession } } = await supabase.auth.getSession();
+		console.log('🔍 Post-login session check:', {
+			hasSession: !!currentSession,
+			userEmail: currentSession?.user?.email || 'none'
+		});
+		
 		// Redirect to the originally requested page or home
 		const redirectTo = url.searchParams.get('redirectTo') || '/'
+		console.log('➡️ Redirecting to:', redirectTo);
 		throw redirect(303, redirectTo)
 	},
 	
