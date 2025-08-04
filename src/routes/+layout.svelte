@@ -8,7 +8,7 @@
 	import { setAuthContext } from '$lib/stores/auth-context.svelte.ts';
 	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
 	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
+	import { invalidate, goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
@@ -91,13 +91,19 @@
 		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
 			console.log('Auth state changed:', event, session?.user?.email);
 			
-			// Invalidate all data to get fresh server state
-			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+			// Only invalidate on actual auth changes, not initial load
+			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+				// Invalidate to refresh server data
 				await invalidate('app:auth');
-				// Force page reload to ensure all components re-render with new auth state
-				if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-					window.location.reload();
+				// Navigate to refresh the page instead of hard reload
+				if (event === 'SIGNED_IN') {
+					await goto('/', { invalidateAll: true });
+				} else if (event === 'SIGNED_OUT') {
+					await goto('/login', { invalidateAll: true });
 				}
+			} else if (event === 'TOKEN_REFRESHED' && session) {
+				// Just update the session, no need to reload
+				authContext.session = session;
 			}
 		});
 
