@@ -290,32 +290,32 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
-	<div class="container px-4">
+<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6">
+	<div class="container px-3 md:px-4">
 		<div class="max-w-3xl mx-auto">
-			<!-- Single Responsive Search Container - Mobile First -->
+			<!-- Mobile-Optimized Search Container -->
 			<div class="relative">
-				<!-- Main Search Bar -->
+				<!-- Main Search Bar - Enhanced for Mobile -->
 				<div class={cn(
-					"relative bg-white rounded-sm border transition-all duration-100 shadow-sm",
-					isFocused ? "border-blue-500 shadow-md" : "border-gray-200"
+					"relative bg-white rounded-2xl md:rounded-lg border-2 transition-all duration-200",
+					isFocused ? "border-blue-500 shadow-lg" : "border-gray-200 shadow-md"
 				)}>
-					<!-- Search Input Row -->
-					<div class="flex items-center h-12">
-						<!-- Category Button -->
-						<div class="relative flex-shrink-0 pl-2.5 pr-2">
+					<!-- Search Input Row - Bigger on Mobile -->
+					<div class="flex items-center h-14 md:h-12">
+						<!-- Category Button - More Touch-Friendly -->
+						<div class="relative flex-shrink-0 pl-1 pr-1 md:pl-2.5 md:pr-2">
 							<button
 								onclick={toggleCategoryDropdown}
 								class={cn(
-									"flex items-center gap-1 px-2.5 h-9 rounded-sm text-sm font-medium transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500",
+									"flex items-center gap-1 px-3 md:px-2.5 h-11 md:h-9 rounded-xl md:rounded-sm text-sm font-medium transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500",
 									isCategoryDropdownOpen 
 										? "bg-blue-500 text-white hover:bg-blue-600" 
 										: "bg-gray-900 text-white hover:bg-gray-800"
 								)}
 								aria-label={quick_filter_categories_menu()}
 							>
+								<Menu class="h-5 w-5 md:h-4 md:w-4" />
 								<span class="hidden sm:inline">{header_categories()}</span>
-								<Menu class="h-4 w-4 sm:hidden" />
 								<ChevronDown class={cn(
 									"h-3 w-3 transition-transform duration-100 hidden sm:block",
 									isCategoryDropdownOpen && "rotate-180"
@@ -331,15 +331,16 @@
 							/>
 						</div>
 						
-						<!-- Divider -->
-						<div class="w-px h-7 bg-gray-200 flex-shrink-0"></div>
+						<!-- Divider - Hidden on Mobile -->
+						<div class="w-px h-8 md:h-7 bg-gray-200 flex-shrink-0 hidden md:block"></div>
 						
-						<!-- Search Input Container -->
-						<div class="flex-1 min-w-0 flex items-center px-3 relative">
+						<!-- Search Input Container - Bigger Touch Target -->
+						<div class="flex-1 min-w-0 flex items-center px-3 md:px-3 relative">
+							<span class="text-gray-400 mr-2 text-lg md:hidden">🔍</span>
 							<input
 								bind:this={searchInputRef}
 								type="search"
-								placeholder={browse_search_placeholder()}
+								placeholder="Search fashion..."
 								bind:value={searchQuery}
 								onfocus={handleFocus}
 								onblur={handleBlur}
@@ -349,21 +350,22 @@
 								aria-expanded={showSuggestions}
 								aria-haspopup="listbox"
 								aria-autocomplete="list"
-								class="w-full h-9 border-0 focus:ring-0 focus:outline-none bg-transparent text-sm placeholder:text-gray-500"
+								class="w-full h-11 md:h-9 border-0 focus:ring-0 focus:outline-none bg-transparent text-base md:text-sm placeholder:text-gray-400"
 								autocomplete="off"
 							/>
 							
-							<!-- Search Button -->
+							<!-- Search Button - Bigger on Mobile -->
 							<button
 								onclick={handleSearch}
 								disabled={isLoading}
-								class="p-2 hover:bg-gray-100 rounded-sm transition-colors duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:opacity-50"
+								class="p-2.5 md:p-2 hover:bg-gray-100 rounded-lg md:rounded-sm transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
 								aria-label={quick_filter_search_button()}
 							>
 								{#if isLoading}
-									<Loader2 class="h-4 w-4 animate-spin text-gray-600" />
+									<Loader2 class="h-5 w-5 md:h-4 md:w-4 animate-spin text-gray-600" />
 								{:else}
-									<Search class="h-4 w-4 text-gray-600" />
+									<Search class="h-5 w-5 md:h-4 md:w-4 text-gray-600 hidden md:block" />
+									<span class="text-base md:hidden">→</span>
 								{/if}
 							</button>
 						</div>
@@ -391,43 +393,43 @@
 						</div>
 					{/if}
 					
-					<!-- Quick Filters Section -->
+					<!-- Quick Filters Section - Mobile Optimized -->
 					<div class="border-t border-gray-100">
-						<div class="p-2">
-							<!-- Trending Label + Filters Container -->
+						<div class="p-2.5 md:p-2">
+							<!-- Mobile: Just Filters, Desktop: Label + Filters -->
 							<div class="flex items-center gap-2">
-								<span class="text-xs text-gray-500 flex-shrink-0 hidden sm:block">{search_trending()}:</span>
+								<span class="text-xs text-gray-500 flex-shrink-0 hidden md:block">{search_trending()}:</span>
 								
-								<!-- Scrollable Filters -->
+								<!-- Scrollable Filters - Bigger on Mobile -->
 								<div class="flex-1 overflow-x-auto scrollbar-hide">
-									<div class="flex items-center gap-1.5 pb-1">
-										<!-- Quick Filter Pills -->
+									<div class="flex items-center gap-2 md:gap-1.5 pb-1">
+										<!-- Quick Filter Pills - Larger Touch Targets -->
 										{#each quickFilters.slice(0, 8) as filter}
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1 px-2.5 py-2 rounded-sm text-xs font-semibold whitespace-nowrap transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500 flex-shrink-0 shadow-sm",
-													filter.color === 'golden' && "bg-gradient-to-r from-amber-500 to-yellow-500 border-0 hover:from-amber-600 hover:to-yellow-600 text-white",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-500 to-sky-500 border-0 hover:from-blue-600 hover:to-sky-600 text-white",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-500 to-rose-500 border-0 hover:from-pink-600 hover:to-rose-600 text-white",
-													!filter.color && "bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-medium shadow-none"
+													"flex items-center gap-1.5 md:gap-1 px-3.5 md:px-2.5 py-2.5 md:py-2 rounded-xl md:rounded-sm text-sm md:text-xs font-semibold whitespace-nowrap transition-all duration-100 focus:outline-none focus:ring-2 md:focus:ring-1 focus:ring-blue-500 flex-shrink-0",
+													filter.color === 'golden' && "bg-gradient-to-r from-amber-500 to-yellow-500 border-0 hover:from-amber-600 hover:to-yellow-600 text-white shadow-md",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-500 to-sky-500 border-0 hover:from-blue-600 hover:to-sky-600 text-white shadow-md",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-500 to-rose-500 border-0 hover:from-pink-600 hover:to-rose-600 text-white shadow-md",
+													!filter.color && "bg-gray-50 md:bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-100 md:hover:bg-gray-50 text-gray-700 font-medium"
 												)}
 												aria-label={filter.ariaLabel}
 												>
-												<span aria-hidden="true">{filter.icon}</span>
+												<span aria-hidden="true" class="text-base md:text-sm">{filter.icon}</span>
 												<span>{filter.name}</span>
 											</button>
 										{/each}
 										
-										<!-- Category Quick Links -->
+										<!-- Category Quick Links - Hidden on Mobile to Reduce Clutter -->
 										{#each categories.slice(0, 3) as category}
 											<button
 												onclick={() => handleCategorySelect(category.slug)}
-												class="flex items-center gap-1 px-2.5 py-2 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+												class="hidden md:flex items-center gap-1 px-2.5 py-2 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
 												aria-label="{filter_categories()}: {getCategoryName(category)}"
 												>
 												<span aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
-												<span class="hidden sm:inline">{getCategoryName(category)}</span>
+												<span>{getCategoryName(category)}</span>
 											</button>
 										{/each}
 									</div>
@@ -438,13 +440,15 @@
 				</div>
 			</div>
 			
-			<!-- Trending Searches -->
-			<TrendingSearches
-				searches={trendingSearches}
-				onSearchClick={searchTrending}
-				maxVisible={3}
-				class="mt-3"
-			/>
+			<!-- Trending Searches - Desktop Only to Keep Mobile Clean -->
+			<div class="hidden md:block">
+				<TrendingSearches
+					searches={trendingSearches}
+					onSearchClick={searchTrending}
+					maxVisible={3}
+					class="mt-3"
+				/>
+			</div>
 		</div>
 	</div>
 </section>
