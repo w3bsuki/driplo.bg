@@ -22,8 +22,7 @@
 
 	export let data;
 
-	// Initialize auth context with server-side data
-	// Get Supabase client from page data since it's available on both server and client
+	// Initialize auth context with client-side Supabase client and server data
 	const authContext = setAuthContext($page.data.supabase, data.user, data.session);
 	
 	// Initialize query client

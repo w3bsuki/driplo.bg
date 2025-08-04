@@ -9,6 +9,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	 * session refresh.
 	 */
 	depends('supabase:auth')
+	depends('app:auth')
 
 	// Create browser client for client-side operations
 	const supabase = createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
