@@ -200,300 +200,177 @@
 			className
 		)}
 	>
-		<!-- Mobile Layout -->
+		<!-- Mobile Layout - Simplified and Touch-Optimized -->
 		<div class="md:hidden flex flex-col">
-			<!-- Header with Tabs -->
-			<div class="border-b border-gray-200" onclick={(e) => e.stopPropagation()}>
-				<div class="flex items-center justify-between px-3 py-2">
-					<div class="flex gap-1 overflow-x-auto bg-gray-100 p-1 rounded-sm">
-						<button
-							type="button"
-							onclick={(e) => { 
-								e.preventDefault();
-								e.stopPropagation();
-								activeSection = 'categories';
-							}}
-							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
-								activeSection === 'categories' 
-									? "bg-white shadow-sm text-gray-900" 
-									: "text-gray-600 hover:text-gray-900"
-							)}
-						>
-							📦 {getLocale() === 'bg' ? 'Категории' : 'Categories'}
-						</button>
-						<button
-							type="button"
-							onclick={(e) => { 
-								e.preventDefault();
-								e.stopPropagation();
-								activeSection = 'brands'; 
-							}}
-							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
-								activeSection === 'brands' 
-									? "bg-white shadow-sm text-gray-900" 
-									: "text-gray-600 hover:text-gray-900"
-							)}
-						>
-							🏷️ {getLocale() === 'bg' ? 'Марки' : 'Brands'}
-						</button>
-						<button
-							type="button"
-							onclick={(e) => { 
-								e.preventDefault();
-								e.stopPropagation();
-								activeSection = 'filters';
-							}}
-							class={cn(
-								"px-3 py-1.5 text-xs font-medium rounded-sm transition-colors whitespace-nowrap",
-								activeSection === 'filters' 
-									? "bg-white shadow-sm text-gray-900" 
-									: "text-gray-600 hover:text-gray-900"
-							)}
-						>
-							🎯 {getLocale() === 'bg' ? 'Филтри' : 'Filters'}
-						</button>
-					</div>
-					<button
-						type="button"
-						onclick={(e) => {
-							e.stopPropagation();
-							onClose();
-						}}
-						class="p-1.5 hover:bg-gray-100 rounded-sm transition-colors ml-2"
-					>
-						<X class="w-4 h-4 text-gray-500" />
-					</button>
-				</div>
+			<!-- Header - Cleaner with Close Button -->
+			<div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+				<h3 class="text-base font-semibold text-gray-900">
+					{getLocale() === 'bg' ? 'Намери това, което търсиш' : 'Find what you\'re looking for'}
+				</h3>
+				<button
+					type="button"
+					onclick={onClose}
+					class="p-2 -mr-2 hover:bg-gray-100 rounded-full transition-colors"
+					aria-label="Close menu"
+				>
+					<X class="w-5 h-5 text-gray-500" />
+				</button>
 			</div>
 			
 			
-			<!-- Content based on active section -->
-			<div class="overflow-y-auto max-h-[60vh]">
-				{#if activeSection === 'categories'}
-					<!-- Categories List -->
-					<div class="px-3 py-2">
-						{#if initialCategory && activeMainCategory}
-							<!-- Show subcategories for selected gender -->
-							{@const selectedCategory = categoryHierarchy.find(cat => cat.slug === activeMainCategory)}
-							{#if selectedCategory}
-								<div class="mb-3">
-									<button
-										onclick={() => {
-											activeMainCategory = '';
-											activeSection = 'categories';
-										}}
-										class="flex items-center gap-1 text-xs text-gray-500 mb-2"
-									>
-										<ChevronLeft class="h-3 w-3" />
-										<span>{getLocale() === 'bg' ? 'Назад' : 'Back'}</span>
-									</button>
-									<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-										<span>{selectedCategory.icon}</span>
-										<span>{selectedCategory.name}</span>
-									</h3>
-								</div>
-								<div class="grid grid-cols-2 gap-2">
-									{#each selectedCategory.subcategories as subcat}
-										<button
-											onclick={() => handleSubcategoryClick(selectedCategory.slug, subcat.slug)}
-											class="flex items-center gap-2 px-3 py-2.5 text-left bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors"
-										>
-											<span class="text-lg">{subcat.icon}</span>
-											<span class="text-sm font-medium text-gray-700">{subcat.name}</span>
-										</button>
-									{/each}
-								</div>
-							{/if}
-						{:else}
-							<!-- Show main categories and popular collections -->
-							<div class="grid grid-cols-3 gap-2">
-								<!-- Main Categories (6) -->
-								{#each categoryHierarchy as category}
-									<button
-										onclick={() => handleMainCategoryClick(category.slug)}
-										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-									>
-										<span class="text-xl">{category.icon}</span>
-										<span class="text-xs font-medium text-gray-700">{category.name}</span>
-									</button>
-								{/each}
-								
-								<!-- Popular Collections (6) -->
-								{#each popularCollections as collection}
-									<button
-										onclick={() => {
-											onClose();
-											if (collection.slug === 'sale') {
-												goto('/browse?filter=sale');
-											} else if (collection.slug === 'new') {
-												goto('/browse?sort=created_at&order=desc');
-											} else {
-												goto(`/browse?category=${collection.slug}`);
-											}
-										}}
-										class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-									>
-										<span class="text-xl">{collection.icon}</span>
-										<span class="text-xs font-medium text-gray-700">{collection.name}</span>
-									</button>
-								{/each}
-							</div>
-						{/if}
-					</div>
-				{:else if activeSection === 'brands'}
-					<!-- Brands List -->
-					<div class="px-3 py-2">
-						<div class="grid grid-cols-3 gap-2">
-							{#each popularBrands as brand}
+			<!-- Content - Unified Scrollable List -->
+			<div class="overflow-y-auto max-h-[70vh] bg-gray-50">
+				{#if activeMainCategory}
+					<!-- Subcategory View -->
+					{@const selectedCategory = categoryHierarchy.find(cat => cat.slug === activeMainCategory)}
+					{#if selectedCategory}
+						<div class="sticky top-0 bg-white border-b border-gray-100 px-4 py-3">
+							<button
+								onclick={() => activeMainCategory = ''}
+								class="flex items-center gap-2 text-sm text-blue-500 font-medium"
+							>
+								<ChevronLeft class="h-4 w-4" />
+								<span>{getLocale() === 'bg' ? 'Всички категории' : 'All Categories'}</span>
+							</button>
+							<h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2 mt-2">
+								<span class="text-2xl">{selectedCategory.icon}</span>
+								<span>{selectedCategory.name}</span>
+							</h3>
+						</div>
+						<div class="p-4 space-y-1">
+							{#each selectedCategory.subcategories as subcat}
 								<button
-									onclick={() => {
-										onClose();
-										goto(`/browse?brand=${encodeURIComponent(brand.name)}`);
-									}}
-									class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
+									onclick={() => handleSubcategoryClick(selectedCategory.slug, subcat.slug)}
+									class="w-full flex items-center gap-3 px-4 py-3.5 bg-white hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-colors text-left"
 								>
-									<span class="text-xl">{brand.emoji}</span>
-									<span class="text-xs font-medium text-gray-700">{brand.name}</span>
+									<span class="text-2xl flex-shrink-0">{subcat.icon}</span>
+									<span class="text-base font-medium text-gray-900">{subcat.name}</span>
+									<ChevronRight class="h-4 w-4 text-gray-400 ml-auto" />
 								</button>
 							{/each}
 						</div>
-					</div>
-				{:else if activeSection === 'filters'}
-					<!-- Filters Section -->
-					<div class="px-3 py-2">
-						<div class="grid grid-cols-3 gap-2">
-							<!-- Conditions -->
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?condition=new_with_tags');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">🏷️</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'С етикети' : 'With Tags'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?condition=like_new');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">✨</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Като нови' : 'Like New'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?condition=good');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">👍</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Добро' : 'Good'}</span>
-							</button>
-							
-							<!-- Quick Filters -->
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?filter=sale');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">🔥</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Намаление' : 'Sale'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?sort=created_at&order=desc');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">🆕</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Най-нови' : 'Newest'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?sort=favorites_count&order=desc');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">❤️</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Популярни' : 'Popular'}</span>
-							</button>
-							
-							<!-- Price Filters -->
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?price=0-20');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">💰</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? '<20лв' : 'Under $20'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?price=20-50');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">💵</span>
-								<span class="text-xs font-medium text-gray-700">$20-50</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?price=50-100');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">💸</span>
-								<span class="text-xs font-medium text-gray-700">$50-100</span>
-							</button>
-							
-							<!-- Special Filters -->
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?filter=free-shipping');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">🚚</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Безпл.' : 'Free Ship'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?near=me');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">📍</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Близо' : 'Near Me'}</span>
-							</button>
-							<button
-								onclick={() => {
-									onClose();
-									goto('/browse?filter=hot');
-								}}
-								class="flex flex-col items-center gap-1 p-2 text-center transition-colors duration-200 hover:bg-gray-50 active:bg-gray-100 rounded-sm"
-							>
-								<span class="text-xl">🔥</span>
-								<span class="text-xs font-medium text-gray-700">{getLocale() === 'bg' ? 'Горещи' : 'Hot Items'}</span>
-							</button>
+					{/if}
+				{:else}
+					<!-- Main View - All Categories -->
+					<div class="p-4 space-y-6">
+						<!-- Main Categories Section -->
+						<div>
+							<h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+								{getLocale() === 'bg' ? 'Категории' : 'Categories'}
+							</h4>
+							<div class="space-y-1">
+								{#each categoryHierarchy.filter(cat => cat.slug !== '') as category}
+									<button
+										onclick={() => {
+											if (category.subcategories.length > 0) {
+												activeMainCategory = category.slug;
+											} else {
+												handleCategoryNavigation(category.slug);
+											}
+										}}
+										class="w-full flex items-center gap-3 px-4 py-3.5 bg-white hover:bg-blue-50 active:bg-blue-100 rounded-lg transition-colors text-left"
+									>
+										<span class="text-2xl flex-shrink-0">{category.icon}</span>
+										<div class="flex-1">
+											<div class="text-base font-medium text-gray-900">{category.name}</div>
+											{#if category.subcategories.length > 0}
+												<div class="text-xs text-gray-500">
+													{m.category_subcategories_count({ count: category.subcategories.length })}
+												</div>
+											{/if}
+										</div>
+										{#if category.subcategories.length > 0}
+											<ChevronRight class="h-4 w-4 text-gray-400" />
+										{/if}
+									</button>
+								{/each}
+							</div>
+						</div>
+
+						<!-- Quick Actions Section -->
+						<div>
+							<h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+								{getLocale() === 'bg' ? 'Бързи филтри' : 'Quick Filters'}
+							</h4>
+							<div class="grid grid-cols-2 gap-2">
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?filter=sale');
+									}}
+									class="flex items-center gap-2 px-3 py-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg font-medium text-sm shadow-sm"
+								>
+									<span class="text-lg">🔥</span>
+									<span>{getLocale() === 'bg' ? 'Намаления' : 'On Sale'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?condition=new_with_tags');
+									}}
+									class="flex items-center gap-2 px-3 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-medium text-sm shadow-sm"
+								>
+									<span class="text-lg">🏷️</span>
+									<span>{getLocale() === 'bg' ? 'С етикети' : 'With Tags'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?sort=created_at&order=desc');
+									}}
+									class="flex items-center gap-2 px-3 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50"
+								>
+									<span class="text-lg">✨</span>
+									<span>{getLocale() === 'bg' ? 'Най-нови' : 'Newest'}</span>
+								</button>
+								<button
+									onclick={() => {
+										onClose();
+										goto('/browse?sort=favorites_count&order=desc');
+									}}
+									class="flex items-center gap-2 px-3 py-2.5 bg-white border border-gray-200 rounded-lg font-medium text-sm text-gray-700 hover:bg-gray-50"
+								>
+									<span class="text-lg">❤️</span>
+									<span>{getLocale() === 'bg' ? 'Популярни' : 'Popular'}</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- Popular Brands Section -->
+						<div>
+							<h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+								{getLocale() === 'bg' ? 'Популярни марки' : 'Popular Brands'}
+							</h4>
+							<div class="grid grid-cols-4 gap-2">
+								{#each popularBrands.slice(0, 8) as brand}
+									<button
+										onclick={() => {
+											onClose();
+											goto(`/browse?brand=${encodeURIComponent(brand.name)}`);
+										}}
+										class="flex flex-col items-center gap-1 p-3 bg-white rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors"
+									>
+										<span class="text-2xl">{brand.emoji}</span>
+										<span class="text-xs font-medium text-gray-700 text-center">{brand.name}</span>
+									</button>
+								{/each}
+							</div>
 						</div>
 					</div>
 				{/if}
+			</div>
+			
+			<!-- Bottom Action Bar -->
+			<div class="border-t border-gray-100 bg-white px-4 py-3">
+				<button
+					onclick={() => {
+						onClose();
+						goto('/browse');
+					}}
+					class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium text-base transition-colors"
+				>
+					{getLocale() === 'bg' ? '🔍 Разгледай всички' : '🔍 Browse All Items'}
+				</button>
 			</div>
 		</div>
 		

@@ -302,20 +302,20 @@
 				)}>
 					<!-- Search Input Row - Bigger on Mobile -->
 					<div class="flex items-center h-14 md:h-12">
-						<!-- Category Button - More Touch-Friendly -->
-						<div class="relative flex-shrink-0 pl-1 pr-1 md:pl-2.5 md:pr-2">
+						<!-- Category Button - Compact and Clean -->
+						<div class="relative flex-shrink-0 pl-2 pr-1 md:pl-2.5 md:pr-2">
 							<button
 								onclick={toggleCategoryDropdown}
 								class={cn(
-									"flex items-center gap-1 px-3 md:px-2.5 h-11 md:h-9 rounded-xl md:rounded-sm text-sm font-medium transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500",
+									"flex items-center gap-1 px-2.5 md:px-2.5 h-10 md:h-9 rounded-lg md:rounded-sm text-sm font-medium transition-all duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500",
 									isCategoryDropdownOpen 
 										? "bg-blue-500 text-white hover:bg-blue-600" 
-										: "bg-gray-900 text-white hover:bg-gray-800"
+										: "bg-gray-800 text-white hover:bg-gray-700"
 								)}
 								aria-label={quick_filter_categories_menu()}
 							>
-								<Menu class="h-5 w-5 md:h-4 md:w-4" />
-								<span class="hidden sm:inline">{header_categories()}</span>
+								<Menu class="h-4 w-4" />
+								<span class="hidden sm:inline text-sm">{header_categories()}</span>
 								<ChevronDown class={cn(
 									"h-3 w-3 transition-transform duration-100 hidden sm:block",
 									isCategoryDropdownOpen && "rotate-180"
