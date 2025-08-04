@@ -42,5 +42,5 @@
 	)}
 	{...restProps}
 >
-	{@render children?.()}
+	<slot></slot>
 </div>

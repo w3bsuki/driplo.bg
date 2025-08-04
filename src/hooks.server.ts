@@ -105,6 +105,12 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			data: { session }
 		} = await event.locals.supabase.auth.getSession()
 		
+		console.log('🔍 Server safeGetSession:', {
+			hasSession: !!session,
+			userEmail: session?.user?.email || 'none',
+			path: event.url.pathname
+		});
+		
 		if (!session) {
 			return { session: null, user: null }
 		}
@@ -115,10 +121,12 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		} = await event.locals.supabase.auth.getUser()
 		
 		if (error) {
+			console.log('❌ Server auth validation error:', error.message);
 			// JWT validation has failed
 			return { session: null, user: null }
 		}
 
+		console.log('✅ Server auth validation success for:', user?.email);
 		return { session, user }
 	}
 

@@ -8,7 +8,7 @@
 	import { setAuthContext } from '$lib/stores/auth-context.svelte.ts';
 	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
 	import { onMount } from 'svelte';
-	import { invalidate, goto } from '$app/navigation';
+	import { invalidate, goto, replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
@@ -23,6 +23,11 @@
 	export let data;
 
 	// Initialize auth context with client-side Supabase client and server data
+	console.log('🔍 Layout init - Server data:', { 
+		hasSupabase: !!$page.data.supabase,
+		user: data.user?.email || 'none',
+		session: data.session ? 'exists' : 'none'
+	});
 	const authContext = setAuthContext($page.data.supabase, data.user, data.session);
 	
 	// Initialize query client
@@ -57,10 +62,10 @@
 	// Handle auth refresh parameter reactively when URL changes
 	$: if (browser && $page.url.searchParams.get('_refreshAuth') === 'true') {
 		console.log('Auth refresh requested via URL change, refreshing session...');
-		// Remove the parameter from URL
+		// Remove the parameter from URL using SvelteKit's replaceState
 		const url = new URL($page.url);
 		url.searchParams.delete('_refreshAuth');
-		window.history.replaceState({}, '', url.toString());
+		replaceState(url.toString(), {});
 		
 		// Trigger auth refresh
 		invalidate('app:auth');
@@ -103,17 +108,24 @@
 		
 		// Listen for auth changes and update context
 		const { data: authListener } = $page.data.supabase.auth.onAuthStateChange(async (event, session) => {
-			console.log('Auth state changed:', event, session?.user?.email);
+			console.log('🔥 Auth state changed:', event, {
+				hasSession: !!session,
+				userEmail: session?.user?.email || 'none',
+				expiresAt: session?.expires_at || 'none'
+			});
 			
 			// Update auth context with new session data
 			if (session) {
+				console.log('✅ Setting session in auth context');
 				authContext.session = session;
 				authContext.user = session.user;
 				// Load profile when user is authenticated
 				if (authContext.user?.id) {
+					console.log('🔄 Loading profile for user:', authContext.user.id);
 					await authContext.loadProfile(authContext.user.id);
 				}
 			} else {
+				console.log('❌ Clearing auth context - no session');
 				authContext.session = null;
 				authContext.user = null;
 				authContext.profile = null;
@@ -121,11 +133,13 @@
 			
 			// Only invalidate on actual auth changes, not initial load
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+				console.log('🔄 Invalidating auth data due to', event);
 				// Invalidate to refresh server data
 				await invalidate('app:auth');
 				// Don't navigate automatically - let the server redirect handle it
 				// This prevents interference with intended redirects
 			} else if (event === 'TOKEN_REFRESHED' && session) {
+				console.log('🔄 Token refreshed');
 				// Session updated above, no additional action needed
 			}
 		});
