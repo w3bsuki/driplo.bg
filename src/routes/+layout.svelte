@@ -28,10 +28,10 @@
 		user: data.user?.email || 'none',
 		session: data.session ? 'exists' : 'none'
 	});
-	// Only pass user if we have a valid session
+	// Always pass the user and session from server data
 	const authContext = setAuthContext(
 		data.supabase, 
-		data.session ? data.user : null, 
+		data.user, 
 		data.session
 	);
 	
@@ -119,34 +119,40 @@
 				expiresAt: session?.expires_at || 'none'
 			});
 			
+			// Skip INITIAL_SESSION if we already have server data
+			if (event === 'INITIAL_SESSION' && data.session) {
+				console.log('⏭️ Skipping INITIAL_SESSION - using server data');
+				return;
+			}
+			
 			// Update auth context with new session data
 			if (session) {
 				console.log('✅ Setting session in auth context');
 				authContext.session = session;
 				authContext.user = session.user;
 				// Load profile when user is authenticated
-				if (authContext.user?.id) {
+				if (authContext.user?.id && !authContext.profile) {
 					console.log('🔄 Loading profile for user:', authContext.user.id);
 					await authContext.loadProfile(authContext.user.id);
 				}
-			} else if (event !== 'INITIAL_SESSION') {
-				// Don't clear on INITIAL_SESSION as it might not be synced yet
-				console.log('❌ Clearing auth context - no session (event:', event, ')');
+			} else if (event === 'SIGNED_OUT') {
+				// Only clear on explicit sign out
+				console.log('❌ Clearing auth context - signed out');
 				authContext.session = null;
 				authContext.user = null;
 				authContext.profile = null;
 			}
 			
 			// Only invalidate on actual auth changes, not initial load
-			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
 				console.log('🔄 Invalidating auth data due to', event);
 				// Invalidate to refresh server data
 				await invalidate('app:auth');
-				// Don't navigate automatically - let the server redirect handle it
-				// This prevents interference with intended redirects
+				await invalidate('supabase:auth');
 			} else if (event === 'TOKEN_REFRESHED' && session) {
 				console.log('🔄 Token refreshed');
-				// Session updated above, no additional action needed
+				// Update the session to ensure we have the latest tokens
+				authContext.session = session;
 			}
 		});
 

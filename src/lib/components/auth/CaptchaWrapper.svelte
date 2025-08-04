@@ -71,7 +71,7 @@
   
   // Expose reset method
   export function reset() {
-    if (window.grecaptcha && widgetId !== null) {
+    if (typeof window !== 'undefined' && window.grecaptcha && widgetId !== null) {
       window.grecaptcha.reset(widgetId)
     }
   }

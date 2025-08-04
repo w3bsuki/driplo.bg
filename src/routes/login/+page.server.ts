@@ -83,7 +83,14 @@ export const actions = {
 		
 		const { data, error } = await supabase.auth.signInWithPassword({
 			email,
-			password
+			password,
+			options: {
+				// Ensure proper cookie setting
+				...(rememberMe && { 
+					// Extended session for remember me
+					data: { remember_me: true }
+				})
+			}
 		})
 		
 		console.log('🔐 Login attempt:', {

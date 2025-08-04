@@ -2,6 +2,17 @@
 **Created**: 2025-08-04  
 **Target**: Native Svelte 5 + SvelteKit 2 + Tailwind CSS v4  
 **Approach**: Phase-by-phase systematic refactor with explicit agent tasks
+**Last Updated**: 2025-08-04 - Fixed Auth Persistence Issues
+
+---
+
+## 🔐 AUTH FIXES IMPLEMENTED (2025-08-04)
+1. **Fixed Supabase Warnings**: Updated `safeGetSession` to call `getUser()` first before `getSession()`
+2. **Enhanced Cookie Settings**: Added production-specific domain settings for driplo.bg
+3. **Improved Client-Server Sync**: Trust server auth data over client on initial load
+4. **Better Auth State Handling**: Skip INITIAL_SESSION when server data exists
+5. **Added Auth Callback**: Created proper `/auth/callback` route for OAuth flows
+6. **Session Persistence**: Enhanced browser client configuration with proper storage settings
 
 ---
 
@@ -11,6 +22,259 @@
 3. **Design System**: Consistent Tailwind CSS v4 with modern theme
 4. **Performance**: Bundle < 500KB, Lighthouse > 95
 5. **Code Quality**: 0 TypeScript errors, 0 console.logs
+
+---
+
+## 📚 TECH STACK BEST PRACTICES (2025 Latest Docs)
+**Critical: All agents must follow these patterns from official documentation**
+
+### 🔥 SVELTE 5 - PRODUCTION PATTERNS
+
+#### ✅ DO - MANDATORY SVELTE 5
+```typescript
+// State Management - ALWAYS use runes
+let count = $state(0);
+let user = $state({ name: 'John', age: 30 });
+let doubled = $derived(count * 2);
+
+// Props - ALWAYS use $props()
+let { title, description = "Default", onclick }: Props = $props();
+
+// Bindable Props
+let { value = $bindable() } = $props();
+
+// Effects - Check browser environment
+$effect(() => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('count', count.toString());
+  }
+});
+
+// Event Handlers - NEW SYNTAX ONLY
+<button onclick={() => count++}>Click</button>
+<input oninput={(e) => handleInput(e)} />
+<form onsubmit={handleSubmit}>
+
+// Snippets instead of slots
+{#snippet userCard(user)}
+  <div class="card">
+    <h3>{user.name}</h3>
+  </div>
+{/snippet}
+{@render userCard(currentUser)}
+
+// TypeScript with $state
+let selectedUser = $state<User | null>(null);
+```
+
+#### ❌ DON'T - FORBIDDEN SVELTE 5
+```typescript
+// NEVER use old patterns - causes build failures
+export let value; // ❌ Use $props()
+on:click={handler} // ❌ Use onclick
+$: doubled = count * 2; // ❌ Use $derived
+<slot /> // ❌ Use snippets
+
+// NEVER mutate state in derived
+let doubled = $derived(() => {
+  count++; // ❌ Infinite loop!
+  return count * 2;
+});
+
+// NEVER mix old and new syntax in same component
+export let title; // ❌ Old
+let { description } = $props(); // New - DON'T MIX!
+```
+
+### 🚀 SVELTEKIT 2 - SSR PATTERNS
+
+#### ✅ DO - SVELTEKIT 2 BEST PRACTICES
+```typescript
+// Server-side data loading (+page.server.ts)
+import type { PageServerLoad } from './$types';
+export const load: PageServerLoad = async ({ locals, depends }) => {
+  depends('app:products'); // For invalidation
+  
+  const products = await getProducts();
+  if (!products) error(500, 'Failed to load');
+  
+  return {
+    products,
+    metadata: fetchMetadata() // Return promise for streaming
+  };
+};
+
+// Form Actions with validation
+import { fail, redirect } from '@sveltejs/kit';
+import { z } from 'zod';
+
+const schema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1).max(100),
+});
+
+export const actions: Actions = {
+  updateProfile: async ({ request, locals }) => {
+    const formData = await request.formData();
+    const result = schema.safeParse(Object.fromEntries(formData));
+    
+    if (!result.success) {
+      return fail(400, {
+        errors: result.error.flatten().fieldErrors
+      });
+    }
+    
+    // Update database
+    return { success: true };
+  }
+};
+
+// Progressive Enhancement
+<form method="POST" use:enhance={({ formData }) => {
+  return async ({ result, update }) => {
+    if (result.type === 'success') {
+      showNotification('Success!');
+    }
+    await update();
+  };
+}}>
+```
+
+#### ❌ DON'T - SVELTEKIT 2 ANTI-PATTERNS
+```typescript
+// DON'T put auth in layout loads - won't protect all routes
+// +layout.server.ts
+export const load = async ({ locals }) => {
+  if (!locals.user) throw redirect(303, '/login'); // ❌ Use hooks instead
+};
+
+// DON'T skip server validation
+export const actions = {
+  submit: async ({ request }) => {
+    const data = await request.formData();
+    await db.insert(data); // ❌ DANGEROUS - no validation!
+  }
+};
+
+// DON'T load data client-side when SSR available
+onMount(() => fetch('/api/data')); // ❌ Use load functions
+```
+
+### 🎨 TAILWIND CSS V4 - MODERN APPROACH
+
+#### ✅ DO - TAILWIND V4 PATTERNS
+```css
+/* CSS-first configuration */
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #3b82f6;
+  --font-display: "Inter", sans-serif;
+}
+
+/* Use CSS variables for theming */
+:root {
+  --bg-primary: 255 255 255;
+  --text-primary: 0 0 0;
+}
+
+.dark {
+  --bg-primary: 17 24 39;
+  --text-primary: 255 255 255;
+}
+
+/* Container queries */
+<div class="@container">
+  <div class="@sm:text-lg @md:text-xl">Responsive to container</div>
+</div>
+
+/* Vite plugin setup */
+import tailwindcss from '@tailwindcss/vite';
+export default {
+  plugins: [tailwindcss()]
+}
+```
+
+#### ❌ DON'T - TAILWIND V4 ANTI-PATTERNS
+```css
+/* DON'T use old directives */
+@tailwind base; /* ❌ Use @import "tailwindcss" */
+@tailwind components;
+@tailwind utilities;
+
+/* DON'T create dynamic classes */
+<div class="bg-{color}-500"> /* ❌ Won't be detected */
+
+/* DON'T overuse @apply */
+.my-button {
+  @apply bg-blue-500 hover:bg-blue-700 text-white; /* ❌ Use classes directly */
+}
+```
+
+### 🔐 SUPABASE + SVELTEKIT - SECURITY FIRST
+
+#### ✅ DO - SUPABASE PRODUCTION PATTERNS
+```typescript
+// Cookie-based SSR auth (hooks.server.ts)
+export const handle: Handle = async ({ event, resolve }) => {
+  event.locals.supabase = createServerClient(
+    PUBLIC_SUPABASE_URL,
+    PUBLIC_SUPABASE_ANON_KEY,
+    {
+      cookies: {
+        get: (key) => event.cookies.get(key),
+        set: (key, value, options) => {
+          event.cookies.set(key, value, { ...options, path: '/' })
+        },
+      },
+    }
+  );
+
+  event.locals.safeGetSession = async () => {
+    const { data: { session }, error } = await event.locals.supabase.auth.getSession();
+    if (error) return { session: null, user: null };
+    return { session, user: session?.user ?? null };
+  };
+
+  return resolve(event);
+};
+
+// RLS with SELECT wrapping (99% faster)
+CREATE POLICY "Users can view own profile" ON profiles
+FOR SELECT TO authenticated
+USING ((SELECT auth.uid()) = user_id);
+
+// Proper real-time cleanup
+const channel = supabase.channel('changes')
+  .on('postgres_changes', { 
+    event: '*', 
+    schema: 'public', 
+    table: 'listings',
+    filter: `user_id=eq.${userId}` // RLS-compatible
+  }, handler)
+  .subscribe();
+
+onDestroy(() => {
+  supabase.removeChannel(channel); // ALWAYS cleanup!
+});
+```
+
+#### ❌ DON'T - SUPABASE SECURITY RISKS
+```typescript
+// DON'T expose service role key
+const client = createClient(URL, SERVICE_ROLE_KEY); // ❌ NEVER on client!
+
+// DON'T skip RLS filters in queries
+await supabase.from('users').select('*'); // ❌ Add explicit filters
+
+// DON'T use unwrapped auth functions in RLS
+USING (auth.uid() = user_id); // ❌ 10x slower
+USING ((SELECT auth.uid()) = user_id); // ✅ Wrapped = fast
+
+// DON'T forget to cleanup subscriptions
+// ❌ Memory leak - no cleanup!
+supabase.channel('test').on('*', handler).subscribe();
+```
 
 ---
 

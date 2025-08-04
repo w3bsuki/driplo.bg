@@ -73,21 +73,28 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			cookies: {
 				get: (key) => event.cookies.get(key),
 				set: (key, value, options) => {
-					event.cookies.set(key, value, { 
-						...options, 
+					// Enhanced cookie settings
+					const isProduction = event.url.protocol === 'https:'
+					const cookieOptions = {
+						...options,
 						path: '/',
 						httpOnly: true,
-						secure: event.url.protocol === 'https:',
-						sameSite: 'lax',
+						secure: isProduction,
+						sameSite: 'lax' as const,
 						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
-					})
+					}
+					
+					// For Vercel deployment, cookies don't need domain specification
+					// Vercel handles this automatically for the deployment URL
+					event.cookies.set(key, value, cookieOptions)
 				},
 				remove: (key, _options) => {
 					// Ensure complete cookie removal with all necessary options
-					event.cookies.delete(key, { 
+					const isProduction = event.url.protocol === 'https:'
+					event.cookies.delete(key, {
 						path: '/',
 						httpOnly: true,
-						secure: event.url.protocol === 'https:',
+						secure: isProduction,
 						sameSite: 'lax'
 					})
 				}
@@ -101,8 +108,10 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	 * JWT before returning the session.
 	 */
 	event.locals.safeGetSession = async () => {
+		// Get session first to check if we have auth data
 		const {
-			data: { session }
+			data: { session },
+			error: sessionError
 		} = await event.locals.supabase.auth.getSession()
 		
 		console.log('🔍 Server safeGetSession:', {
@@ -115,13 +124,14 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			return { session: null, user: null }
 		}
 
+		// Validate the session by calling getUser
 		const {
 			data: { user },
-			error
+			error: userError
 		} = await event.locals.supabase.auth.getUser()
 		
-		if (error) {
-			console.log('❌ Server auth validation error:', error.message);
+		if (userError || !user) {
+			console.log('❌ Server auth validation error:', userError?.message);
 			// JWT validation has failed
 			return { session: null, user: null }
 		}

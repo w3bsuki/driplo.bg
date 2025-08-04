@@ -10,6 +10,13 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	const supabase = isBrowser()
 		? createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 				global: { fetch },
+				auth: {
+					persistSession: true,
+					storageKey: 'supabase.auth.token',
+					storage: window.localStorage,
+					detectSessionInUrl: true,
+					flowType: 'pkce'
+				}
 			})
 		: createServerClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 				global: { fetch },
@@ -20,10 +27,9 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				},
 			})
 
-	const { data: { session } } = await supabase.auth.getSession()
-	
+	// Always return server data to ensure consistency
 	return {
-		session,
+		session: data.session,
 		supabase,
 		user: data.user,
 		categories: data.categories || []

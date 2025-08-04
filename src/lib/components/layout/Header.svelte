@@ -47,7 +47,7 @@
 	
 	$effect(async () => {
 		if (authContext?.profile?.account_type === 'brand' && authContext.user?.id) {
-			const { data } = await authContext.supabase
+			const { data } = await supabase
 				.from('brand_profiles')
 				.select('brand_slug')
 				.eq('user_id', authContext.user.id)
