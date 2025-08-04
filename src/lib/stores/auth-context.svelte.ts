@@ -57,7 +57,7 @@ class AuthContext {
 	}
 	
 	// Auth methods
-	async signUp(email: string, password: string, username: string, fullName?: string, metadata?: Record<string, any>) {
+	async signUp(email: string, password: string, username?: string, fullName?: string, metadata?: Record<string, any>) {
 		this.loading = true
 		this.error = null
 		this.notifyStateChange()
@@ -66,19 +66,27 @@ class AuthContext {
 			// Extract captcha token from metadata if present
 			const { captcha_token, ...userMetadata } = metadata || {}
 			
-			const { data, error } = await this.supabase.auth.signUp({
+			const signUpData: any = {
 				email,
 				password,
 				options: {
 					data: {
-						username,
-						full_name: fullName,
 						...userMetadata
 					},
 					emailRedirectTo: `${window.location.origin}/auth/confirm`,
 					...(captcha_token && { captchaToken: captcha_token })
 				}
-			})
+			}
+			
+			// Only add username and full_name if provided
+			if (username) {
+				signUpData.options.data.username = username
+			}
+			if (fullName) {
+				signUpData.options.data.full_name = fullName
+			}
+			
+			const { data, error } = await this.supabase.auth.signUp(signUpData)
 			
 			if (error) {
 				// console.error('Supabase signUp error:', error);

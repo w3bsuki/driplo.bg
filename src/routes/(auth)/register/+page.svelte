@@ -105,32 +105,25 @@
 			
 			// Try to use auth context first, fallback to direct client
 			if (auth) {
-				// Sign up with additional metadata and CAPTCHA token
-				// Generate a temporary username based on email
-				const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
-				await auth.signUp(email, password, tempUsername, undefined, {
+				// Sign up without username - user will set it during onboarding
+				await auth.signUp(email, password, '', undefined, {
 					account_type: accountType,
 					brand_name: accountType === 'brand' ? brandName : undefined,
 					brand_category: accountType === 'brand' ? brandCategory : undefined,
 					brand_website: accountType === 'brand' ? brandWebsite : undefined,
-					captcha_token: captchaToken,
-					needs_username_setup: true
+					captcha_token: captchaToken
 				})
 			} else {
 				// Use direct Supabase client
-				const tempUsername = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 1000)
 				const { data, error } = await supabaseClient.auth.signUp({
 					email,
 					password,
 					options: {
 						data: {
-							username: tempUsername,
-							full_name: undefined,
 							account_type: accountType,
 							brand_name: accountType === 'brand' ? brandName : undefined,
 							brand_category: accountType === 'brand' ? brandCategory : undefined,
-							brand_website: accountType === 'brand' ? brandWebsite : undefined,
-							needs_username_setup: true
+							brand_website: accountType === 'brand' ? brandWebsite : undefined
 						},
 						emailRedirectTo: `${window.location.origin}/auth/confirm`,
 						captchaToken: captchaToken
