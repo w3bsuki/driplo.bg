@@ -146,9 +146,8 @@
 			// Only invalidate on actual auth changes, not initial load
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
 				console.log('🔄 Invalidating auth data due to', event);
-				// Invalidate to refresh server data
-				await invalidate('app:auth');
-				await invalidate('supabase:auth');
+				// Invalidate all data to refresh server data and ensure UI updates
+				await invalidateAll();
 			} else if (event === 'TOKEN_REFRESHED' && session) {
 				console.log('🔄 Token refreshed');
 				// Update the session to ensure we have the latest tokens

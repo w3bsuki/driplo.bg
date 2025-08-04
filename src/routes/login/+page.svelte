@@ -141,6 +141,14 @@
 			<form method="POST" action="?/signin" use:enhance={() => {
 				loading = true
 				return async ({ result, update }) => {
+					if (result.type === 'redirect') {
+						// Successful login - invalidate auth data before redirect
+						await import('$app/navigation').then(nav => {
+							nav.invalidate('app:auth')
+							nav.invalidate('supabase:auth')
+						})
+					}
+					
 					await update()
 					loading = false
 					
@@ -151,9 +159,6 @@
 							captchaWrapper.reset()
 							captchaToken = ''
 						}
-					} else if (result.type === 'redirect') {
-						// Handle successful login - the redirect will happen automatically
-						// The auth state will be refreshed by the _refreshAuth parameter handling
 					}
 				}
 			}} class="space-y-4">
