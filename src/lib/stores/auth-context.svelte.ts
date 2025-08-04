@@ -213,9 +213,6 @@ class AuthContext {
 		this.notifyStateChange()
 		
 		try {
-			// Store user id for logging before clearing
-			const userId = this.user?.id
-			
 			// Clear local state first
 			this.user = null
 			this.session = null
@@ -239,40 +236,28 @@ class AuthContext {
 				keysToRemove.forEach(key => localStorage.removeItem(key))
 			}
 			
-			// Sign out from Supabase with global scope to ensure all sessions are cleared
-			const { error } = await this.supabase.auth.signOut({
-				scope: 'global' // Changed to global to ensure complete logout
+			// Use server endpoint for logout to ensure proper cleanup
+			const response = await fetch('/logout', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				}
 			})
 			
-			if (error) {
-				console.error('Supabase signOut error:', error)
-				// Continue with cleanup even if signOut fails
+			if (response.redirected) {
+				// Server will redirect to login with success message
+				window.location.href = response.url
+			} else {
+				// Fallback to client-side logout
+				await this.supabase.auth.signOut({ scope: 'global' })
+				await goto('/login?message=logged_out', { replaceState: true })
 			}
-			
-			// Log auth event removed - function doesn't exist in database
-			
-			// Ensure we wait for invalidateAll to complete
-			try {
-				await invalidateAll()
-			} catch (e) {
-				console.error('Error invalidating all:', e)
-			}
-			
-			// Add a delay to ensure all async operations complete
-			if (browser) {
-				await new Promise(resolve => setTimeout(resolve, 200))
-			}
-			
-			// Navigate to login page with success message
-			await goto('/login?message=logged_out', { replaceState: true, invalidateAll: false })
 		} catch (error) {
 			console.error('Error during sign out process:', error)
 			this.error = error instanceof Error ? error : new Error('Sign out failed')
 			
 			// Force navigation even on error
 			if (browser) {
-				// Invalidate all to refresh server-side session
-				await invalidateAll()
 				await goto('/login?message=logged_out', { replaceState: true })
 			}
 		} finally {

@@ -28,8 +28,12 @@
 		user: data.user?.email || 'none',
 		session: data.session ? 'exists' : 'none'
 	});
-	// Use the client-side supabase instance from data, not $page.data
-	const authContext = setAuthContext(data.supabase, data.user, data.session);
+	// Only pass user if we have a valid session
+	const authContext = setAuthContext(
+		data.supabase, 
+		data.session ? data.user : null, 
+		data.session
+	);
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
