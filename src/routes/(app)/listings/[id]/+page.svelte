@@ -493,15 +493,15 @@
 										<span class="text-sm font-medium group-hover:text-primary transition-colors duration-100">
 											{listing.seller.username}
 										</span>
-										{#if listing.seller.account_type === 'brand'}
-											<BrandBadge size="xs" isVerified={listing.seller.is_verified} showText={false} />
+										{#if listing.seller.seller_verified}
+											<BrandBadge size="xs" isVerified={listing.seller.seller_verified} showText={false} />
 										{/if}
 									</div>
 									<div class="flex items-center gap-1 text-xs text-gray-500">
 										<Star class="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
-										<span>{listing.seller.rating || 4.8}</span>
+										<span>{listing.seller.seller_rating || 4.8}</span>
 										<span>•</span>
-										<span>{listing.seller.sales_count || 0} sales</span>
+										<span>{listing.seller.total_sales || 0} sales</span>
 									</div>
 								</div>
 							</a>
@@ -678,7 +678,7 @@
 											objectFit="cover"
 											preferredSize="thumb"
 										/>
-										{#if listing.seller.is_verified}
+										{#if listing.seller.seller_verified}
 											<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
 												<span class="text-white text-xs">✓</span>
 											</div>
@@ -689,7 +689,7 @@
 										<div class={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm", getAvatarColor(listing.seller.username))}>
 											<span class="text-white font-medium">{listing.seller.username.charAt(0).toUpperCase()}</span>
 										</div>
-										{#if listing.seller.is_verified}
+										{#if listing.seller.seller_verified}
 											<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
 												<span class="text-white text-xs">✓</span>
 											</div>
@@ -699,31 +699,27 @@
 								<div class="flex-1 min-w-0">
 									<div class="flex items-center gap-2">
 										<h3 class="text-sm font-medium text-gray-900 truncate">{listing.seller.username}</h3>
-										{#if listing.seller.account_type === 'brand'}
-											<BrandBadge size="xs" isVerified={listing.seller.is_verified} showText={false} />
+										{#if listing.seller.seller_verified}
+											<BrandBadge size="xs" isVerified={listing.seller.seller_verified} showText={false} />
 										{/if}
 									</div>
 									<!-- Enhanced rating display -->
 									<div class="flex items-center gap-2 mt-1">
 										<div class="flex items-center gap-1">
 											{#each Array(5) as _, i}
-												<Star class={cn("w-3 h-3", (listing.seller.rating || 4.8) > i ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200")} />
+												<Star class={cn("w-3 h-3", (listing.seller.seller_rating || 4.8) > i ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200")} />
 											{/each}
 										</div>
-										<span class="text-sm font-medium text-gray-900">{listing.seller.rating || 4.8}</span>
-										<span class="text-xs text-gray-500">({listing.seller.reviews_count || 42} reviews)</span>
+										<span class="text-sm font-medium text-gray-900">{listing.seller.seller_rating || 4.8}</span>
+										<span class="text-xs text-gray-500">({listing.seller.seller_rating_count || 42} reviews)</span>
 									</div>
 									<div class="flex items-center gap-2 mt-1 text-xs text-gray-600 flex-wrap">
 										<span class="flex items-center gap-1">
 											<span>🏆</span>
-											<span>{listing.seller.sales_count || 0} sales</span>
+											<span>{listing.seller.total_sales || 0} sales</span>
 										</span>
 										<span>•</span>
 										<span>Joined {new Date(listing.seller.created_at || Date.now()).getFullYear()}</span>
-										{#if listing.seller.response_rate}
-											<span>•</span>
-											<span>{listing.seller.response_rate}% response rate</span>
-										{/if}
 									</div>
 									<div class="flex gap-2 mt-3">
 										<a 

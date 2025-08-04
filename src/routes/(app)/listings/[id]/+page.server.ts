@@ -20,10 +20,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				full_name,
 				avatar_url,
 				bio,
-				location,
+				city,
 				created_at,
-				account_type,
-				is_verified
+				seller_verified,
+				seller_rating,
+				seller_rating_count,
+				total_sales
 			),
 			category:categories!category_id(
 				id,
