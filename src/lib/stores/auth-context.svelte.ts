@@ -41,19 +41,11 @@ class AuthContext {
 	async loadProfile(userId: string) {
 		console.log('🔄 Starting profile load for:', userId);
 		try {
-			// Add timeout to prevent infinite hang
-			const timeoutPromise = new Promise((_, reject) => 
-				setTimeout(() => reject(new Error('Profile load timeout after 5s')), 5000)
-			);
-			
-			console.log('📡 Querying profiles table...');
-			const queryPromise = this.supabase
+			const { data, error } = await this.supabase
 				.from('profiles')
 				.select('*')
 				.eq('id', userId)
-				.single();
-			
-			const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any
+				.single()
 			
 			if (error) {
 				console.error('❌ Profile load error:', error);
