@@ -678,6 +678,303 @@ Found TODO/FIXME comments in **10 files** indicating:
 
 ---
 
+## 📋 MASTER REFACTOR EXECUTION CHECKLIST
+
+### 🚨 PHASE 1: EMERGENCY TRIAGE (Week 1)
+**Goal: Break down monolithic components & fix critical issues**
+
+#### Day 1-2: Monolith Destruction - HIGHEST PRIORITY
+- [ ] **SimplifiedListingForm.svelte** (770→150 lines)
+  - [ ] Extract `ImageUploadSection.svelte` (handle drag/drop, preview, progress)
+  - [ ] Extract `ProductDetailsSection.svelte` (title, description, category)
+  - [ ] Extract `PricingSection.svelte` (price, condition, shipping)
+  - [ ] Extract `TagsSection.svelte` (tag management)
+  - [ ] Extract `LocationSection.svelte` (location picker)
+  - [ ] Create parent orchestrator component
+  - [ ] Test all form submission flows
+
+- [ ] **CheckoutModal.svelte** (769→150 lines)
+  - [ ] Extract `CheckoutHeader.svelte` 
+  - [ ] Extract `PaymentMethodSelector.svelte`
+  - [ ] Extract `ShippingAddressForm.svelte`
+  - [ ] Extract `OrderSummary.svelte`
+  - [ ] Extract `PaymentProcessing.svelte`
+  - [ ] Separate payment logic from UI
+  - [ ] Test checkout flow end-to-end
+
+- [ ] **BrandOnboardingWizard.svelte** (757→150 lines)
+  - [ ] Extract `BrandInfoStep.svelte`
+  - [ ] Extract `SocialMediaStep.svelte`
+  - [ ] Extract `VerificationStep.svelte`
+  - [ ] Extract `PaymentSetupStep.svelte`
+  - [ ] Create step management logic
+  - [ ] Test wizard progression
+
+#### Day 3-4: Route Page Refactoring
+- [ ] **listings/[id]/+page.svelte** (940→300 lines)
+  - [ ] Extract `ProductGallery.svelte`
+  - [ ] Extract `ProductInfo.svelte`
+  - [ ] Extract `SellerInfo.svelte`
+  - [ ] Extract `RelatedProducts.svelte`
+  - [ ] Extract `ProductActions.svelte`
+  - [ ] Implement proper data loading
+
+- [ ] **browse/+page.svelte** (732→200 lines)
+  - [ ] Extract `FilterSidebar.svelte`
+  - [ ] Extract `ProductGrid.svelte`
+  - [ ] Extract `SortingControls.svelte`
+  - [ ] Extract `PaginationControls.svelte`
+  - [ ] Fix double refresh issue
+
+- [ ] **brands/settings/+page.svelte** (786→200 lines)
+  - [ ] Extract `BrandProfileForm.svelte`
+  - [ ] Extract `PaymentSettings.svelte`
+  - [ ] Extract `NotificationSettings.svelte`
+  - [ ] Extract `DangerZone.svelte`
+
+#### Day 5-7: Component Quality
+- [ ] **CategoryDropdown.svelte** (572→100 lines)
+  - [ ] Simplify category selection logic
+  - [ ] Extract recursive category renderer
+  - [ ] Remove duplicate code
+
+- [ ] **profile/settings/+page.svelte** (631→200 lines)
+  - [ ] Extract setting sections into components
+  - [ ] Simplify form handling
+
+- [ ] **CheckoutFlow.svelte** (561→150 lines)  
+  - [ ] Merge with CheckoutModal refactor
+  - [ ] Eliminate duplicate logic
+
+### 🎨 PHASE 2: DESIGN SYSTEM CONSISTENCY (Week 2)
+**Goal: Apply consistent TailwindCSS patterns**
+
+#### Day 1-2: Global Search & Replace
+- [ ] **Border Radius Cleanup** (104 files)
+  - [ ] Search: `rounded-md` → Replace: `rounded-sm`
+  - [ ] Search: `rounded-lg` → Replace: `rounded-sm`
+  - [ ] Search: `rounded-xl` → Replace: `rounded-sm`
+  - [ ] Search: `rounded-2xl` → Replace: `rounded-sm`
+  - [ ] Exception: Keep `rounded-full` for avatars only
+
+- [ ] **Spacing Reduction** (93 files)
+  - [ ] Search: `p-4` → Replace: `p-2`
+  - [ ] Search: `p-6` → Replace: `p-3`
+  - [ ] Search: `p-8` → Replace: `p-3`
+  - [ ] Search: `gap-4` → Replace: `gap-2`
+  - [ ] Search: `gap-6` → Replace: `gap-3`
+  - [ ] Search: `gap-8` → Replace: `gap-3`
+
+#### Day 3-4: Shadow & Height Cleanup
+- [ ] **Shadow Removal** (60 files)
+  - [ ] Remove all `shadow-sm` (except cards)
+  - [ ] Remove all `shadow-md` (except dropdowns)
+  - [ ] Remove all `shadow-lg` (except modals)
+  - [ ] Remove all `shadow-xl`
+
+- [ ] **Height Reduction** (67 files)
+  - [ ] Search: `h-10` → Replace: `h-8`
+  - [ ] Search: `h-12` → Replace: `h-9`
+  - [ ] Search: `h-14` → Replace: `h-9`
+  - [ ] Search: `h-16` → Replace: `h-9`
+
+#### Day 5: Text Size Standardization
+- [ ] **Text Size Fixes**
+  - [ ] Body text: `text-base` → `text-sm`
+  - [ ] Large text: `text-lg` → `text-base` (headings only)
+  - [ ] Small text: Keep `text-xs` for labels
+
+### 🔄 PHASE 3: DEDUPLICATION RAMPAGE (Week 2-3)
+**Goal: Eliminate all duplicate code**
+
+#### Day 1-2: Utility Consolidation
+- [ ] **Storage Utilities**
+  - [ ] Merge `storage.ts` + `storage-client.ts` → `storage.ts`
+  - [ ] Delete duplicate upload functions
+  - [ ] Create single upload interface
+
+- [ ] **Image Processing**
+  - [ ] Merge `image-compression.ts` + `image-optimization.ts` + `image-processor.ts` → `images.ts`
+  - [ ] Delete `responsive-image.ts`
+  - [ ] Consolidate compression logic
+
+- [ ] **Validation**
+  - [ ] Merge `validation.ts` + `form-validation.ts` + `auth-validation.ts` → `validation.ts`
+  - [ ] Delete duplicate email/password validators
+  - [ ] Create unified validation exports
+
+#### Day 3-4: Component Deduplication
+- [ ] **Listing Forms** (Already done! ✅)
+  - [x] Keep `ListingForm.svelte`
+  - [x] Delete `SimplifiedListingForm.svelte` 
+  - [x] Delete `CreateListingForm/` directory
+
+- [ ] **Auth Components**
+  - [ ] Audit login/register forms for duplication
+  - [ ] Consolidate auth UI patterns
+  - [ ] Remove auth-compat layer
+
+- [ ] **UI Components**
+  - [ ] Audit for duplicate buttons, inputs, cards
+  - [ ] Complete native Svelte conversion
+  - [ ] Delete unused shadcn components
+
+#### Day 5: Dead Code Elimination
+- [ ] **Console.log Cleanup** (10+ files)
+  - [ ] Search and remove all console.log statements
+  - [ ] Replace with logger service where needed
+
+- [ ] **TODO/FIXME Cleanup** (10 files)
+  - [ ] Address or remove all TODO comments
+  - [ ] Fix or document FIXME issues
+
+- [ ] **Unused Imports**
+  - [ ] Run ESLint to find unused imports
+  - [ ] Remove all unused dependencies
+
+### 🏗️ PHASE 4: ARCHITECTURE SIMPLIFICATION (Week 3)
+**Goal: Flatten architecture, remove over-engineering**
+
+#### Day 1-2: Auth System Simplification
+- [ ] **Remove Auth Compatibility Layer**
+  - [ ] Merge auth-compat.ts functionality into auth-context
+  - [ ] Use pure Svelte 5 reactive patterns
+  - [ ] Simplify auth state management
+
+- [ ] **Consolidate Auth Logic**
+  - [ ] Single source of truth for user state
+  - [ ] Remove duplicate profile loading
+  - [ ] Streamline session management
+
+#### Day 3-4: Directory Structure
+- [ ] **Flatten Component Directories**
+  - [ ] Remove nested `/components/` subdirectories
+  - [ ] Move components to logical flat structure
+  - [ ] Update all imports
+
+- [ ] **Simplify Route Structure**
+  - [ ] Consolidate similar routes
+  - [ ] Remove unnecessary route groups
+  - [ ] Optimize data loading patterns
+
+#### Day 5: Testing Infrastructure Decision
+- [ ] **Storybook Decision**
+  - [ ] Either commit to using it properly
+  - [ ] OR delete entirely (recommended)
+  - [ ] Remove if <20 stories maintained
+
+- [ ] **Testing Stack**
+  - [ ] Keep only essential testing tools
+  - [ ] Write tests for critical paths
+  - [ ] OR remove unused testing infrastructure
+
+### 🚀 PHASE 5: PERFORMANCE & OPTIMIZATION (Week 4)
+**Goal: Optimize bundle size and runtime performance**
+
+#### Day 1-2: Bundle Optimization
+- [ ] **Dependency Audit**
+  - [ ] Remove unused npm packages
+  - [ ] Replace heavy dependencies with lighter alternatives
+  - [ ] Audit dev dependencies
+
+- [ ] **Code Splitting**
+  - [ ] Implement route-based code splitting
+  - [ ] Lazy load heavy components
+  - [ ] Optimize initial bundle
+
+#### Day 3-4: Runtime Performance
+- [ ] **Component Performance**
+  - [ ] Add proper memoization where needed
+  - [ ] Optimize re-renders
+  - [ ] Fix performance bottlenecks
+
+- [ ] **Image Optimization**
+  - [ ] Implement proper lazy loading
+  - [ ] Add responsive images
+  - [ ] Optimize image formats
+
+#### Day 5: Final Cleanup
+- [ ] **TypeScript Strictness**
+  - [ ] Fix remaining TS errors
+  - [ ] Enable stricter TS config
+  - [ ] Add proper types everywhere
+
+- [ ] **Lint & Format**
+  - [ ] Run full ESLint fix
+  - [ ] Apply consistent formatting
+  - [ ] Update lint rules
+
+### 📊 SUCCESS METRICS TRACKING
+
+#### Component Size Reduction
+- [ ] 0 components > 400 lines (currently 9)
+- [ ] 0 components > 300 lines (currently 19)
+- [ ] 0 components > 200 lines (target)
+- [ ] Average component size < 100 lines
+
+#### Code Quality Metrics
+- [ ] TypeScript errors < 100 (from 1500+)
+- [ ] 0 console.log statements in production
+- [ ] 0 TODO/FIXME comments
+- [ ] ESLint warnings < 50
+
+#### Performance Metrics
+- [ ] Bundle size < 500KB (target)
+- [ ] Lighthouse score > 95 (all metrics)
+- [ ] First contentful paint < 1.5s
+- [ ] Time to interactive < 3s
+
+#### Architecture Metrics
+- [ ] Utility files < 15 (from 30)
+- [ ] Component count < 100 (from 197)
+- [ ] Max directory nesting: 3 levels
+- [ ] 0 circular dependencies
+
+### 🔥 DAILY STANDUP TEMPLATE
+
+```markdown
+## Day X Progress
+
+### ✅ Completed Today
+- [ ] Task 1
+- [ ] Task 2
+
+### 🚧 In Progress
+- [ ] Task 3 (60% complete)
+
+### 🚫 Blockers
+- Issue with X
+
+### 📊 Metrics Update
+- Components refactored: X/Y
+- Lines reduced: X
+- Current largest component: X lines
+
+### 🎯 Tomorrow's Goals
+- [ ] Task 4
+- [ ] Task 5
+```
+
+### 🎉 PHASE 6: VICTORY LAP (Week 5)
+**Goal: Polish, test, and prepare for production**
+
+- [ ] **Full Testing Suite**
+  - [ ] E2E tests for critical paths
+  - [ ] Performance benchmarks
+  - [ ] Mobile responsiveness audit
+
+- [ ] **Documentation**
+  - [ ] Update component documentation
+  - [ ] Create architecture diagrams
+  - [ ] Write deployment guide
+
+- [ ] **Production Prep**
+  - [ ] Security audit
+  - [ ] Performance monitoring setup
+  - [ ] Deployment checklist
+
+---
+
 ## 🦇 IM BATMAN, HERE IS MY COMMENT
 
 **SUPABASE AUTH & DATABASE AUDIT COMPLETE - THE DARK KNIGHT'S VERDICT:**
@@ -735,5 +1032,62 @@ The irony? Your backend could handle 100x the traffic, but your 770-line compone
 Your database isn't the problem. Your components are. Fix the frontend, Batman style - swift, precise, no mercy for bloated code.
 
 *- The Database Detective* 🦇
+
+---
+
+## 🚀 NATIVE SVELTE CONVERSION PROGRESS
+
+### 📊 Refactor Metrics
+- **Goal**: 50% codebase reduction
+- **Started**: 2025-08-04
+- **Lines Eliminated**: 1,219+ (and counting)
+
+### ✅ Completed Tasks
+- [x] Analyze shadcn usage and decide on native conversion
+- [x] Create native Button component (34 lines)
+- [x] Create native Input component (33 lines)
+- [x] Create native Card component (19 lines)
+- [x] Create native Label component (19 lines)
+- [x] Analyze 3 listing form duplicates
+- [x] Delete SimplifiedListingForm.svelte (768 lines)
+- [x] Delete CreateListingForm directory (451+ lines)
+- [x] Update ListingForm to use native Button
+
+### 🎯 Immediate Tasks
+- [ ] Create native Textarea component
+- [ ] Create native Badge component
+- [ ] Complete ListingForm native conversion
+- [ ] Convert Header to native components
+- [ ] Convert ListingCard to native components
+- [ ] Remove console.log statements (10+ files)
+- [ ] Test all converted components on mobile
+
+### 📈 Component Conversion Tracking
+| Component | Status | Lines Saved | Notes |
+|-----------|--------|-------------|-------|
+| Button | ✅ Native | ~50 | No more CVA |
+| Input | ✅ Native | ~40 | Clean $bindable |
+| Card | ✅ Native | ~30 | Simple container |
+| Label | ✅ Native | ~20 | With required indicator |
+| Textarea | ⏳ Todo | ~40 est | Needed for forms |
+| Badge | ⏳ Todo | ~30 est | Used in listings |
+| Select | ❌ Keep bits-ui | - | Complex component |
+| Dialog | ❌ Keep bits-ui | - | Complex component |
+
+### 🧹 Cleanup Tracking
+| Task | Status | Impact |
+|------|--------|--------|
+| Remove duplicate listing forms | ✅ | -1,219 lines |
+| Remove unused utils (30 files) | ⏳ | ~3,000 lines est |
+| Remove console.logs | ⏳ | Clean production |
+| Remove dead components | ⏳ | ~5,000 lines est |
+| Consolidate duplicate validations | ⏳ | ~500 lines est |
+
+### 🏆 Success Criteria
+- [ ] 50% total line reduction achieved
+- [ ] All components < 150 lines
+- [ ] Zero duplicate components
+- [ ] Performance benchmarks improved
+- [ ] Mobile experience verified
 
 ---

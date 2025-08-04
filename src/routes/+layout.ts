@@ -56,6 +56,9 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				error: result.error?.message || 'none'
 			});
 			
+			// Wait a bit for the session to be fully set
+			await new Promise(resolve => setTimeout(resolve, 100));
+			
 			// Verify the session was actually set
 			const { data: { session: currentSession } } = await supabase.auth.getSession();
 			console.log('🔍 Verification - Current client session:', {
@@ -87,6 +90,25 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 			isBrowser,
 			hasWindow: typeof window !== 'undefined'
 		});
+	}
+	
+	// Test if we can actually query the database (move outside to ensure it runs)
+	if (isBrowser && data.session) {
+		console.log('🧪 Testing database connection with client...');
+		try {
+			const { data: testData, error: testError } = await supabase
+				.from('profiles')
+				.select('id')
+				.limit(1);
+			console.log('📊 Database test result:', {
+				success: !testError,
+				error: testError?.message || 'none',
+				hasData: !!testData,
+				recordCount: testData?.length || 0
+			});
+		} catch (e) {
+			console.error('❌ Database test failed:', e);
+		}
 	}
 
 	// Always use the data passed from the server layout

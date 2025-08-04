@@ -47,6 +47,12 @@ class AuthContext {
 			);
 			
 			console.log('📡 Querying profiles table...');
+			console.log('🔍 Supabase client check:', {
+				hasSupabase: !!this.supabase,
+				hasAuth: !!this.supabase?.auth,
+				hasFrom: typeof this.supabase?.from === 'function'
+			});
+			
 			const queryPromise = this.supabase
 				.from('profiles')
 				.select('*')
