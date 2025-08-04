@@ -257,15 +257,15 @@
 			hot: '/browse?filter=trending',
 			'top-sellers': '/leaderboard',
 			'with-tags': '/browse?condition=new-with-tags',
-			men: '/browse?gender=men',
-			women: '/browse?gender=women',
-			shoes: '/browse?category=shoes',
-			't-shirts': '/browse?category=t-shirts',
-			accessories: '/browse?category=accessories',
+			men: '/men',
+			women: '/women',
+			shoes: '/shoes',
+			bags: '/bags',
+			designer: '/designer',
+			kids: '/kids',
 			jeans: '/browse?category=jeans',
 			dresses: '/browse?category=dresses',
-			jackets: '/browse?category=jackets',
-			bags: '/browse?category=bags'
+			jackets: '/browse?category=jackets'
 		};
 		
 		goto(routes[action] || '/browse');
