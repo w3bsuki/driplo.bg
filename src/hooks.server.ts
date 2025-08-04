@@ -6,6 +6,17 @@ import { sequence } from '@sveltejs/kit/hooks'
 import { setLocale, isLocale } from '$lib/paraglide/runtime.js'
 import { dev } from '$app/environment'
 
+// Validate environment variables
+if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
+	console.error('Missing required environment variables:', {
+		PUBLIC_SUPABASE_URL: !!PUBLIC_SUPABASE_URL,
+		PUBLIC_SUPABASE_ANON_KEY: !!PUBLIC_SUPABASE_ANON_KEY
+	})
+	if (!dev) {
+		throw new Error('Missing required Supabase environment variables')
+	}
+}
+
 const handleI18n: Handle = async ({ event, resolve }) => {
 	// Get language from cookie or Accept-Language header
 	// Paraglide uses PARAGLIDE_LOCALE as the cookie name
