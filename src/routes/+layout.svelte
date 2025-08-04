@@ -91,19 +91,24 @@
 		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
 			console.log('Auth state changed:', event, session?.user?.email);
 			
+			// Update auth context with new session data
+			if (session) {
+				authContext.session = session;
+				authContext.user = session.user;
+			} else {
+				authContext.session = null;
+				authContext.user = null;
+				authContext.profile = null;
+			}
+			
 			// Only invalidate on actual auth changes, not initial load
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
 				// Invalidate to refresh server data
 				await invalidate('app:auth');
-				// Navigate to refresh the page instead of hard reload
-				if (event === 'SIGNED_IN') {
-					await goto('/', { invalidateAll: true });
-				} else if (event === 'SIGNED_OUT') {
-					await goto('/login', { invalidateAll: true });
-				}
+				// Don't navigate automatically - let the server redirect handle it
+				// This prevents interference with intended redirects
 			} else if (event === 'TOKEN_REFRESHED' && session) {
-				// Just update the session, no need to reload
-				authContext.session = session;
+				// Session updated above, no additional action needed
 			}
 		});
 
