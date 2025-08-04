@@ -230,7 +230,7 @@
 						</p>
 					</div>
 				{/if}
-				<a href="/login" class="text-primary hover:text-primary/80 font-medium">
+				<a href="/login" class="text-blue-400 hover:text-blue-500 font-medium">
 					Return to login
 				</a>
 			</div>
@@ -238,7 +238,7 @@
 		<div class="bg-white rounded-sm border border-gray-200 p-3">
 			<!-- Logo -->
 			<div class="text-center mb-3">
-				<h1 class="text-2xl font-bold text-primary">Driplo</h1>
+				<h1 class="text-2xl font-bold text-blue-400">Driplo</h1>
 				<p class="text-gray-600 text-sm mt-1">Create your account</p>
 			</div>
 			
@@ -254,13 +254,13 @@
 						class={cn(
 							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'personal' 
-								? "border-primary bg-primary/5" 
+								? "border-blue-400 bg-blue-50" 
 								: "border-gray-200 hover:border-gray-300"
 						)}
 					>
 						<div class="text-center">
 							<User class={cn("w-6 h-6 mx-auto mb-1", 
-								accountType === 'personal' ? "text-primary" : "text-gray-400"
+								accountType === 'personal' ? "text-blue-400" : "text-gray-400"
 							)} />
 							<div class="font-medium text-sm">Personal</div>
 							<div class="text-xs text-gray-500">Buy & sell fashion</div>
@@ -272,18 +272,18 @@
 						class={cn(
 							"relative p-2 rounded-sm border-2 transition-all duration-fast",
 							accountType === 'brand' 
-								? "border-primary bg-primary/5" 
+								? "border-blue-400 bg-blue-50" 
 								: "border-gray-200 hover:border-gray-300"
 						)}
 					>
 						<div class="text-center">
 							<Store class={cn("w-6 h-6 mx-auto mb-1", 
-								accountType === 'brand' ? "text-primary" : "text-gray-400"
+								accountType === 'brand' ? "text-blue-400" : "text-gray-400"
 							)} />
 							<div class="font-medium text-sm">Brand</div>
 							<div class="text-xs text-gray-500">Sell as a business</div>
 						</div>
-						<div class="absolute -top-2 -right-2 bg-primary text-white text-xs px-1.5 py-0.5 rounded-full">
+						<div class="absolute -top-2 -right-2 bg-blue-400 text-white text-xs px-1.5 py-0.5 rounded-full">
 							Pro
 						</div>
 					</button>
@@ -350,7 +350,7 @@
 						required
 						disabled={loading}
 						autocomplete="email"
-						class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+						class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
 					/>
 				</div>
 
@@ -368,7 +368,7 @@
 								placeholder="Your brand name"
 								required
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
 							/>
 						</div>
 						<div>
@@ -380,7 +380,7 @@
 								name="brandCategory"
 								bind:value={brandCategory}
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
 							>
 								<option value="">Select category</option>
 								<option value="fashion">Fashion & Apparel</option>
@@ -406,7 +406,7 @@
 								bind:value={brandWebsite}
 								placeholder="https://yourbrand.com"
 								disabled={loading}
-								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-white"
+								class="w-full px-3 py-2 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm bg-white"
 							/>
 						</div>
 						<p class="text-xs text-blue-700">
@@ -429,7 +429,7 @@
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
 						/>
 						<button
 							type="button"
@@ -459,7 +459,7 @@
 							required
 							disabled={loading}
 							autocomplete="new-password"
-							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+							class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm"
 						/>
 						<button
 							type="button"
@@ -481,14 +481,14 @@
 						id="terms"
 						name="agreedToTerms"
 						bind:checked={agreedToTerms}
-						class="mt-0.5 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary/30"
+						class="mt-0.5 rounded border-gray-300 text-blue-400 focus:ring-2 focus:ring-blue-400"
 						required
 					/>
 					<label for="terms" class="ml-2 text-xs text-gray-600">
 						I agree to the
-						<a href="/terms" class="text-primary hover:text-primary/80">Terms of Service</a>
+						<a href="/terms" class="text-blue-400 hover:text-blue-500">Terms of Service</a>
 						and
-						<a href="/privacy" class="text-primary hover:text-primary/80">Privacy Policy</a>
+						<a href="/privacy" class="text-blue-400 hover:text-blue-500">Privacy Policy</a>
 					</label>
 				</div>
 				
@@ -519,8 +519,7 @@
 
 				<button 
 					type="submit" 
-					style="background-color: #87CEEB; color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: 500; margin-top: 10px;"
-					class="w-full py-2 bg-primary text-white font-medium rounded-sm hover:bg-primary/90 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+					class="w-full py-2 bg-blue-400 text-white font-medium rounded-sm hover:bg-blue-500 transition-colors duration-fast disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
 					disabled={loading || !agreedToTerms || (import.meta.env.MODE === 'production' && captchaEnabled && !captchaToken)}
 				>
 					{#if loading}
@@ -535,7 +534,7 @@
 			<!-- Sign in link -->
 			<p class="text-center text-sm text-gray-600 mt-4">
 				Already have an account?
-				<a href="/login" class="text-primary hover:text-primary/80 font-medium">
+				<a href="/login" class="text-blue-400 hover:text-blue-500 font-medium">
 					Sign in
 				</a>
 			</p>
