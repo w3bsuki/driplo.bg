@@ -87,17 +87,41 @@
 			<DriploLogo size="md" className="hidden md:flex" />
 		</a>
 		
+		<!-- Mobile Search Bar -->
+		<div class="flex-1 mx-3 md:hidden">
+			<div class="relative group">
+				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">🔍</span>
+				<input
+					type="search"
+					placeholder={m.header_search_placeholder()}
+					bind:value={searchQuery}
+					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
+					class="w-full rounded-full border border-gray-200 bg-gray-50 pl-10 pr-9 h-9 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all duration-200"
+				/>
+				{#if searchQuery.trim()}
+					<button
+						onclick={() => searchQuery = ''}
+						class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
+						type="button"
+						aria-label="Clear search"
+					>
+						<span class="text-gray-400 text-xs">✕</span>
+					</button>
+				{/if}
+			</div>
+		</div>
+
 		<!-- Mobile Actions -->
-		<div class="flex items-center gap-2 ml-auto md:hidden">
+		<div class="flex items-center gap-2 md:hidden">
 			{#if authContext?.user}
 				<a 
 					href="/messages" 
-					class="relative h-10 w-10 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-fast"
+					class="relative h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-fast"
 					aria-label="Messages"
 				>
-					<span class="text-xl">💬</span>
+					<span class="text-lg">💬</span>
 					{#if $unreadCount > 0}
-						<span class="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
+						<span class="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-xs font-medium flex items-center justify-center">
 							{$unreadCount > 9 ? '9+' : $unreadCount}
 						</span>
 					{/if}
@@ -114,9 +138,9 @@
 						<img 
 							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
 							alt="Profile" 
-							width="40"
-							height="40"
-							class="h-10 w-10 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
+							width="36"
+							height="36"
+							class="h-9 w-9 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
 						/>
 						{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
 							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
@@ -126,12 +150,12 @@
 							</div>
 						{/if}
 					{:else}
-						<div class="h-10 w-10 rounded-md bg-gray-50 flex items-center justify-center border border-gray-200 hover:border-gray-300 transition-colors duration-fast">
-							<User class="h-5 w-5 text-gray-600" />
+						<div class="h-9 w-9 rounded-md bg-gray-50 flex items-center justify-center border border-gray-200 hover:border-gray-300 transition-colors duration-fast">
+							<User class="h-4 w-4 text-gray-600" />
 						</div>
 					{/if}
-					<div class="absolute -bottom-1 -right-1 bg-white rounded-md p-0.5 border border-gray-200">
-						<ChevronDown class="h-3.5 w-3.5 text-gray-600" />
+					<div class="absolute -bottom-0.5 -right-0.5 bg-white rounded-md p-0.5 border border-gray-200">
+						<ChevronDown class="h-3 w-3 text-gray-600" />
 					</div>
 				</DropdownMenu.Trigger>
 				<DropdownMenu.Content 
@@ -145,16 +169,26 @@
 		</div>
 
 		<!-- Desktop Search Bar -->
-		<div class="hidden md:block flex-1 max-w-2xl mx-4">
-			<div class="relative">
-				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg">🔍</span>
+		<div class="hidden md:block flex-1 max-w-2xl mx-6">
+			<div class="relative group">
+				<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">🔍</span>
 				<input
 					type="search"
 					placeholder={m.header_search_placeholder()}
 					bind:value={searchQuery}
 					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-					class="w-full rounded-md border border-gray-200 bg-white pl-10 pr-4 h-10 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-fast"
+					class="w-full rounded-full border border-gray-200 bg-gray-50 pl-12 pr-4 h-11 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white focus:shadow-sm transition-all duration-200"
 				/>
+				{#if searchQuery.trim()}
+					<button
+						onclick={() => searchQuery = ''}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
+						type="button"
+						aria-label="Clear search"
+					>
+						<span class="text-gray-400 text-sm">✕</span>
+					</button>
+				{/if}
 			</div>
 		</div>
 
