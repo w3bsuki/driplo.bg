@@ -3,11 +3,10 @@
  * Single source of truth matching database schema
  */
 
-import type { Database } from './database'
-import type { ExtendedProfile } from './database.extended'
+import type { Database } from './database.types'
 
 // Core database types
-export type Profile = ExtendedProfile
+export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Listing = Database['public']['Tables']['listings']['Row']
 export type Category = Database['public']['Tables']['categories']['Row']
 export type Transaction = Database['public']['Tables']['transactions']['Row']
@@ -139,4 +138,4 @@ export interface AchievementDefinition {
 }
 
 // Re-export database types for backwards compatibility
-export type { Database } from './database'
+export type { Database } from './database.types'

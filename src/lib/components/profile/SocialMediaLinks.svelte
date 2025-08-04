@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { Instagram, Globe, Link2, ShoppingBag } from 'lucide-svelte';
 	import type { Database } from '$lib/types/database.types';
-	import type { ExtendedProfile } from '$lib/types/database.extended';
 
-	type Profile = ExtendedProfile;
+	type Profile = Database['public']['Tables']['profiles']['Row'];
 	type SocialMediaAccount = Database['public']['Tables']['social_media_accounts']['Row'];
 
 	interface Props {
