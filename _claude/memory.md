@@ -1,5 +1,30 @@
 # Memory - Driplo Project
 
+## [2025-08-04] - Critical Fix: Supabase Session Persistence Issue
+- **Problem**: Client-side session wasn't persisting properly after server authentication
+- **Symptom**: setSession() returned success but getSession() immediately showed no session, causing SIGNED_OUT events
+- **Root Cause**: Manual session synchronization approach was interfering with Supabase's internal session management
+- **Solution Applied**:
+  1. **Replaced manual session sync with proper SSR pattern** in `src/routes/+layout.ts`:
+     - Removed complex setSession() logic with manual cookie handling
+     - Implemented `createBrowserClient`/`createServerClient` pattern from Supabase docs
+     - Used `isBrowser()` helper to determine which client to create
+     - Let Supabase handle session management automatically
+  2. **Updated server layout** in `src/routes/+layout.server.ts`:
+     - Added `cookies.getAll()` to pass cookie data to client
+     - Maintained existing session validation logic
+  3. **Fixed type import**:
+     - Changed from `$lib/types/database.types` to `$lib/types/database`
+- **Technical Details**:
+  - Browser client automatically reads cookies without manual intervention
+  - Server client gets cookies from passed data for SSR compatibility
+  - Removed 100+ lines of complex session synchronization code
+  - Session persistence now works correctly across page reloads
+- **Files Modified**:
+  - `src/routes/+layout.ts` - Complete rewrite with proper SSR pattern
+  - `src/routes/+layout.server.ts` - Added cookies data passing
+- **Result**: Session persistence now works correctly, no more unexpected SIGNED_OUT events
+
 ## [2025-07-24] - Design System Fixes Applied to Existing Components
 - **Status**: In Progress - Fixed Priority 1 and core UI components
 - **What Was Done**:

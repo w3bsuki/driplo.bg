@@ -1,6 +1,6 @@
 import type { LayoutServerLoad } from './$types'
 
-export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabase }, depends }) => {
+export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabase }, depends, cookies }) => {
 	// Add dependency for auth invalidation
 	depends('app:auth')
 	
@@ -18,6 +18,7 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabas
 	return {
 		session,
 		user,
-		categories: categories || []
+		categories: categories || [],
+		cookies: cookies.getAll()
 	}
 }
