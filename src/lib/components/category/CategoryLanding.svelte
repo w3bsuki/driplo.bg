@@ -259,12 +259,61 @@
   </div>
 </section>
 
+<!-- Subcategory Quick Pills -->
+{#if subcategories.length > 0}
+  <section class="bg-white border-b">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center gap-3 overflow-x-auto scrollbar-hide">
+        <button
+          onclick={() => handleSubcategoryChange('all')}
+          class={cn(
+            "flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 whitespace-nowrap font-medium text-xs transition-all duration-200 flex-shrink-0 min-w-[70px]",
+            selectedSubcategory === 'all'
+              ? theme === 'pink' 
+                ? "bg-pink-500 text-white border-pink-500 shadow-md" 
+                : "bg-blue-500 text-white border-blue-500 shadow-md"
+              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:shadow-sm"
+          )}
+        >
+          <div class="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-md text-lg">
+            🏷️
+          </div>
+          <span>All</span>
+        </button>
+        {#each subcategories as subcategory}
+          <button
+            onclick={() => handleSubcategoryChange(subcategory.id)}
+            class={cn(
+              "flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 whitespace-nowrap font-medium text-xs transition-all duration-200 flex-shrink-0 min-w-[70px]",
+              selectedSubcategory === subcategory.id
+                ? theme === 'pink' 
+                  ? "bg-pink-500 text-white border-pink-500 shadow-md" 
+                  : "bg-blue-500 text-white border-blue-500 shadow-md"
+                : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:shadow-sm"
+            )}
+          >
+            <div class={cn(
+              "w-8 h-8 flex items-center justify-center rounded-md text-lg",
+              selectedSubcategory === subcategory.id 
+                ? "bg-white/20" 
+                : "bg-gray-50"
+            )}>
+              {subcategory.icon_url || '📦'}
+            </div>
+            <span>{subcategory.name}</span>
+          </button>
+        {/each}
+      </div>
+    </div>
+  </section>
+{/if}
+
 <!-- Category Filters -->
 <ReusableFilters 
   filters={filterGroups}
   {selectedFilters}
   {subcategories}
-  showSubcategories={true}
+  showSubcategories={false}
   {selectedSubcategory}
   onFilterChange={handleFilterChange}
   onSubcategoryChange={handleSubcategoryChange}

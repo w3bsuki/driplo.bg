@@ -51,9 +51,9 @@
 			isPrimary: true
 		},
 		{ 
-			href: '/messages', 
-			emoji: '💬', 
-			label: 'Chat'
+			href: '/wishlist', 
+			emoji: '❤️', 
+			label: 'Saved'
 		},
 		{ 
 			href: '/profile', 

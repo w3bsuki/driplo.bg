@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { getAuthContext } from '$lib/stores/auth-context.svelte'
-	import CreateListingForm from '$lib/components/listings/CreateListingForm/CreateListingForm.svelte'
+	import SimplifiedListingForm from '$lib/components/listings/SimplifiedListingForm.svelte'
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
 	import { page } from '$app/stores'
@@ -26,7 +26,7 @@
 </svelte:head>
 
 {#if authContext?.user && data.user}
-	<CreateListingForm 
+	<SimplifiedListingForm 
 		data={data.form} 
 		categories={data.categories}
 		hasPaymentAccount={data.hasPaymentAccount}

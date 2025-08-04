@@ -28,20 +28,11 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 	}
 
 	try {
-		// Cache browse results for 5 minutes
-		const cacheKey = cacheKeys.browseResults(filters)
-		const browseResult = await getCachedData(
-			cacheKey,
-			() => browseListings(supabase, filters),
-			cacheTTL.browseResults
-		)
+		// Temporarily bypass caching for debugging
+		const browseResult = await browseListings(supabase, filters)
 
-		// Get filter options (cached separately for 30 minutes)
-		const filterOptions = await getCachedData(
-			`filter-options-${filters.category}`,
-			() => getBrowseFilters(supabase, filters.category),
-			30 * 60 * 1000 // 30 minutes
-		)
+		// Get filter options without caching
+		const filterOptions = await getBrowseFilters(supabase, filters.category)
 
 		// Get all categories for filter UI (cached for 1 hour)
 		const categories = await getCachedData(
