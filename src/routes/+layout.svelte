@@ -23,7 +23,8 @@
 	export let data;
 
 	// Initialize auth context with server-side data
-	const authContext = setAuthContext(data.supabase, data.user, data.session);
+	// Get Supabase client from page data since it's available on both server and client
+	const authContext = setAuthContext($page.data.supabase, data.user, data.session);
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
@@ -88,7 +89,7 @@
 		window.addEventListener('scroll', handleScroll);
 		
 		// Listen for auth changes and update context
-		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
+		const { data: authListener } = $page.data.supabase.auth.onAuthStateChange(async (event, session) => {
 			console.log('Auth state changed:', event, session?.user?.email);
 			
 			// Update auth context with new session data
@@ -139,7 +140,7 @@
 					variant="gradient"
 				/>
 			{/if}
-			<Header categories={data.categories} supabase={data.supabase} />
+			<Header categories={data.categories} supabase={$page.data.supabase} />
 		{/if}
 		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
 			<slot />

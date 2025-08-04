@@ -18,7 +18,6 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabas
 	return {
 		session,
 		user,
-		supabase,
 		categories: categories || []
 	}
 }
