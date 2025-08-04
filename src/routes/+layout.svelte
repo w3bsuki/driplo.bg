@@ -89,30 +89,15 @@
 		
 		// Listen for auth changes and update context
 		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
-			// Update the auth context directly
-			if (event === 'SIGNED_IN' && session?.user) {
-				authContext.user = session.user;
-				authContext.session = session;
-				// Initialize onboarding for new user
-				onboarding.initialize(session.user.id);
-				// Notify compatibility layer
-				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
-				// Invalidate to get fresh data
-				await invalidate('supabase:auth');
-			} else if (event === 'SIGNED_OUT') {
-				authContext.user = null;
-				authContext.session = null;
-				authContext.profile = null;
-				// Reset onboarding
-				onboarding.reset();
-				// Notify compatibility layer
-				notifyAuthStateChange(authContext.user, authContext.session, authContext.profile, authContext.loading);
-				// Invalidate to clear server-side session
-				await invalidate('supabase:auth');
-			} else if (event === 'TOKEN_REFRESHED' && session) {
-				authContext.session = session;
-				// Invalidate to sync with server
-				await invalidate('supabase:auth');
+			console.log('Auth state changed:', event, session?.user?.email);
+			
+			// Invalidate all data to get fresh server state
+			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+				await invalidate('app:auth');
+				// Force page reload to ensure all components re-render with new auth state
+				if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+					window.location.reload();
+				}
 			}
 		});
 
