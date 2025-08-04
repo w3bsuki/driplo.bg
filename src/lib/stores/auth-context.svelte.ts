@@ -93,11 +93,9 @@ class AuthContext {
 				// Check for specific error types
 				if (error.message?.includes('duplicate key') || 
 				    error.message?.includes('already registered') || 
-				    error.message?.includes('User already registered')) {
-					throw new Error('An account with this email already exists. Please login instead.');
-				}
-				if (error.message?.includes('Database error')) {
-					throw new Error('An account with this email may already exist. Please try a different email or login.');
+				    error.message?.includes('User already registered') ||
+				    error.message?.includes('Database error')) {
+					throw new Error('Email already in use! Please login or use a different email.');
 				}
 				if (error.status === 406) {
 					throw new Error('Invalid request. Please check your information and try again.');
