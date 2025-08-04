@@ -252,20 +252,20 @@
 	
 	function handleQuickFilter(action: string) {
 		const routes: Record<string, string> = {
-			newest: '/browse?sort=created_at&order=desc',
+			newest: '/browse?sort=newest',
 			sale: '/browse?filter=sale',
-			hot: '/browse?filter=hot',
-			'top-sellers': '/browse?sort=favorites_count&order=desc',
-			'with-tags': '/browse?filter=with-tags',
-			men: '/men',
-			women: '/women',
-			shoes: '/shoes',
+			hot: '/browse?filter=trending',
+			'top-sellers': '/leaderboard',
+			'with-tags': '/browse?condition=new-with-tags',
+			men: '/browse?gender=men',
+			women: '/browse?gender=women',
+			shoes: '/browse?category=shoes',
 			't-shirts': '/browse?category=t-shirts',
-			accessories: '/accessories',
+			accessories: '/browse?category=accessories',
 			jeans: '/browse?category=jeans',
 			dresses: '/browse?category=dresses',
 			jackets: '/browse?category=jackets',
-			bags: '/bags'
+			bags: '/browse?category=bags'
 		};
 		
 		goto(routes[action] || '/browse');

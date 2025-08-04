@@ -31,6 +31,9 @@
 		{ text: 'Watches', emoji: '⌚' }
 	];
 
+	// Flag to prevent reactive loops during navigation - define early
+	let isNavigating = $state(false);
+
 	// Top sellers query - optimized to prevent hydration issues
 	const topSellersQuery = createQuery({
 		queryKey: ['topSellers', 'month'],
@@ -55,9 +58,6 @@
 	let selectedSizes = $state(new Set(data.filters.sizes));
 	let selectedBrands = $state(new Set(data.filters.brands));
 	let selectedConditions = $state(new Set(data.filters.conditions));
-
-	// Flag to prevent reactive loops during navigation
-	let isNavigating = $state(false);
 
 	// Infinite scroll state
 	let allListings = $state([...data.listings]);

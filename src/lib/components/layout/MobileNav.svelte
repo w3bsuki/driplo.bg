@@ -32,17 +32,17 @@
 		isPrimary?: boolean;
 	}
 	
+	// Optimal C2C e-commerce navigation
 	const navItems: NavItem[] = [
 		{ 
-			href: '#filters', 
-			emoji: '🎯', 
-			label: 'Filter', 
-			isAction: true
+			href: '/', 
+			emoji: '🏠', 
+			label: 'Home'
 		},
 		{ 
 			href: '/browse', 
-			emoji: '🛍️', 
-			label: 'Shop'
+			emoji: '🔍', 
+			label: 'Search'
 		},
 		{ 
 			href: '/sell', 
@@ -51,14 +51,14 @@
 			isPrimary: true
 		},
 		{ 
-			href: '/wishlist', 
-			emoji: '❤️', 
-			label: 'Saved'
+			href: '/messages', 
+			emoji: '💬', 
+			label: 'Chat'
 		},
 		{ 
-			href: '/leaderboard', 
-			emoji: '🔥', 
-			label: 'Drippers'
+			href: '/profile', 
+			emoji: '👤', 
+			label: 'Profile'
 		}
 	];
 	
