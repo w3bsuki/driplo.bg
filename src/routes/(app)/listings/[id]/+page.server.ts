@@ -9,38 +9,37 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	// Set cache headers for product pages
 	setCacheHeaders({ setHeaders } as any, cachePresets.product)
 
-	// First, get the main listing
+	// First, get the main listing WITHOUT joins to debug
 	const { data: listing, error: listingError } = await supabase
 		.from('listings')
-		.select(`
-			*,
-			profiles!listings_user_id_fkey(
-				id,
-				username,
-				full_name,
-				avatar_url,
-				bio,
-				city,
-				created_at,
-				seller_verified,
-				seller_rating,
-				seller_rating_count,
-				total_sales
-			),
-			categories!listings_category_id_fkey(
-				id,
-				name,
-				slug,
-				icon_url
-			)
-		`)
+		.select('*')
 		.eq('id', params.id)
 		.eq('status', 'active')
 		.single()
 
 	if (listingError || !listing) {
+		console.error('Listing query error:', listingError)
+		console.error('Listing ID:', params.id)
 		throw error(404, 'Listing not found')
 	}
+	
+	// Get seller profile separately
+	const { data: sellerProfile } = await supabase
+		.from('profiles')
+		.select('*')
+		.eq('id', listing.user_id)
+		.single()
+	
+	// Get category separately
+	const { data: category } = await supabase
+		.from('categories')
+		.select('*')
+		.eq('id', listing.category_id)
+		.single()
+		
+	// Attach to listing
+	listing.seller = sellerProfile
+	listing.category = category
 
 	// Now execute all dependent queries in parallel
 	const [
@@ -52,19 +51,19 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		favoriteCheckResult
 	] = await Promise.all([
 		// Get seller's followers count
-		listing.profiles
+		listing.seller
 			? supabase
 					.from('user_follows')
 					.select('id', { count: 'exact', head: true })
-					.eq('following_id', listing.profiles.id)
+					.eq('following_id', listing.seller.id)
 			: Promise.resolve({ count: 0 }),
 
 		// Get seller's active listings count
-		listing.profiles
+		listing.seller
 			? supabase
 					.from('listings')
 					.select('id', { count: 'exact', head: true })
-					.eq('user_id', listing.profiles.id)
+					.eq('user_id', listing.seller.id)
 					.eq('status', 'active')
 			: Promise.resolve({ count: 0 }),
 
@@ -94,7 +93,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				size,
 				brand,
 				condition,
-				profiles!listings_user_id_fkey(username, avatar_url, account_type, is_verified)
+				user_id
 			`)
 			.eq('category_id', listing.category_id)
 			.eq('status', 'active')
@@ -123,18 +122,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	])
 
 	// Update seller stats
-	if (listing.profiles) {
-		listing.profiles.followers_count = followersResult.count || 0
-		listing.profiles.listings_count = listingsCountResult.count || 0
+	if (listing.seller) {
+		listing.seller.followers_count = followersResult.count || 0
+		listing.seller.listings_count = listingsCountResult.count || 0
 	}
-	
-	// Rename profiles to seller for consistency with frontend
-	listing.seller = listing.profiles
-	delete listing.profiles
-	
-	// Also rename category
-	listing.category = listing.categories
-	delete listing.categories
 
 	// Track view using our new stored procedure (fire and forget)
 	if (session?.user) {
@@ -149,14 +140,19 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// This would require client-side tracking instead
 	}
 
-	// Fix related listings structure
-	const relatedListings = (relatedListingsResult.data || []).map(item => {
-		if (item.profiles) {
-			item.seller = item.profiles
-			delete item.profiles
-		}
-		return item
-	})
+	// Get seller profiles for related listings
+	const relatedListings = await Promise.all(
+		(relatedListingsResult.data || []).map(async (item) => {
+			const { data: seller } = await supabase
+				.from('profiles')
+				.select('username, avatar_url, account_type, is_verified')
+				.eq('id', item.user_id)
+				.single()
+			
+			item.seller = seller
+			return item
+		})
+	)
 	
 	return {
 		listing,
