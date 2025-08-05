@@ -8,7 +8,12 @@ export const load: PageServerLoad = async () => {
 
 export const actions = {
 	default: async ({ locals: { supabase } }) => {
-		await supabase.auth.signOut()
+		try {
+			await supabase.auth.signOut()
+		} catch (error) {
+			console.error('Logout error:', error)
+		}
+		// Always redirect to home page after logout
 		throw redirect(303, '/')
 	}
 } satisfies Actions

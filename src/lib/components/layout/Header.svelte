@@ -66,9 +66,14 @@
 	}
 
 	async function handleSignOut() {
-		const response = await fetch('/logout', { method: 'POST' });
-		if (response.redirected) {
-			window.location.href = response.url;
+		try {
+			await fetch('/logout', { method: 'POST' });
+			// Force redirect to home page
+			window.location.href = '/';
+		} catch (error) {
+			console.error('Logout error:', error);
+			// Still redirect to home even if there's an error
+			window.location.href = '/';
 		}
 	}
 	
