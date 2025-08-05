@@ -5,8 +5,7 @@
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
-	import { setAuthContext } from '$lib/stores/auth-context.svelte.ts';
-	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
+	import { initializeAuth, setupAuthListener } from '$lib/stores/auth';
 	import { onMount } from 'svelte';
 	import { invalidate, invalidateAll, goto, replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -20,15 +19,15 @@
 	import { initWebVitals } from '$lib/utils/web-vitals';
 	import * as m from '$lib/paraglide/messages.js';
 
-	export let data;
+	let { data } = $props();
 
-	// Initialize auth context with client-side Supabase client and server data
-	// Always pass the user and session from server data
-	const authContext = setAuthContext(
-		data.supabase, 
-		data.user, 
-		data.session
-	);
+	// Initialize auth stores from server data
+	initializeAuth(data.user, data.session, data.profile);
+	
+	// Update auth stores when data changes (after login/logout)
+	$effect(() => {
+		initializeAuth(data.user, data.session, data.profile);
+	});
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
@@ -47,38 +46,41 @@
 	];
 	
 	// Hide mobile nav on specific pages
-	$: shouldHideMobileNav = 
+	const shouldHideMobileNav = $derived(
 		hiddenPaths.some(path => $page.url.pathname.startsWith(path)) || // Hidden paths
 		$page.url.pathname.includes('/listings/') || // Product detail pages
 		$page.url.pathname.includes('/sell') || // Sell product form
 		($page.url.pathname === '/' && !showMobileNavOnLanding) || // Landing page (show when scrolled)
 		$page.url.pathname.includes('/payment') || // Payment forms
 		$page.url.pathname.includes('/login') || // Login page
-		$page.url.pathname.includes('/register'); // Register page
+		$page.url.pathname.includes('/register') // Register page
+	);
 		
 	// Check if we're on an auth page
-	$: isAuthPage = $page.url.pathname.includes('/login') || $page.url.pathname.includes('/register');
+	const isAuthPage = $derived($page.url.pathname.includes('/login') || $page.url.pathname.includes('/register'));
 	
 	// Track if we've already handled the refresh to prevent loops
 	let hasHandledRefresh = false;
 	
 	// Handle auth refresh parameter reactively when URL changes
-	$: if (browser && $page.url.searchParams.get('_refreshAuth') === 'true' && !hasHandledRefresh) {
+	$effect(() => {
+		if (browser && $page.url.searchParams.get('_refreshAuth') === 'true' && !hasHandledRefresh) {
 			hasHandledRefresh = true;
 		
-		// Remove the parameter from URL using SvelteKit's replaceState
-		const url = new URL($page.url);
-		url.searchParams.delete('_refreshAuth');
-		replaceState(url.toString(), {});
-		
-		// Trigger auth refresh ONCE
-		invalidateAll().then(() => {
-			// Reset the flag after a delay to allow future refreshes if needed
-			setTimeout(() => {
-				hasHandledRefresh = false;
-			}, 1000);
-		});
-	}
+			// Remove the parameter from URL using SvelteKit's replaceState
+			const url = new URL($page.url);
+			url.searchParams.delete('_refreshAuth');
+			replaceState(url.toString(), {});
+			
+			// Trigger auth refresh ONCE
+			invalidateAll().then(() => {
+				// Reset the flag after a delay to allow future refreshes if needed
+				setTimeout(() => {
+					hasHandledRefresh = false;
+				}, 1000);
+			});
+		}
+	});
 
 	onMount(() => {
 		
@@ -114,37 +116,11 @@
 		
 		window.addEventListener('scroll', handleScroll);
 		
-		// Listen for auth changes and update context
-		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
-			
-			
-			// Update auth context with new session data
-			if (session) {
-					authContext.session = session;
-				authContext.user = session.user;
-				// Load profile when user is authenticated
-				if (authContext.user?.id && !authContext.profile) {
-						await authContext.loadProfile(authContext.user.id);
-				}
-			} else if (event === 'SIGNED_OUT') {
-				// Only clear on explicit sign out
-					authContext.session = null;
-				authContext.user = null;
-				authContext.profile = null;
-			}
-			
-			// Only invalidate on actual auth changes, not initial load
-			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-					// Invalidate all data to refresh server data and ensure UI updates
-				await invalidateAll();
-			} else if (event === 'TOKEN_REFRESHED' && session) {
-					// Update the session to ensure we have the latest tokens
-				authContext.session = session;
-			}
-		});
+		// Set up auth state listener
+		const unsubscribeAuth = setupAuthListener(data.supabase);
 
 		return () => {
-			authListener.subscription.unsubscribe();
+			if (unsubscribeAuth) unsubscribeAuth();
 			window.removeEventListener('scroll', handleScroll);
 		};
 	});

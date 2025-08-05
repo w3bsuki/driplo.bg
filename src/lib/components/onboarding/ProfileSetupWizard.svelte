@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import { user } from '$lib/stores/auth';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
@@ -43,7 +43,7 @@
 
 	let { user, profile, onComplete, initialStep = 1, supabase }: Props = $props();
 	
-	const auth = getAuthContext();
+	// Auth state available via stores
 
 	// Check if user needs username setup (no username at all) - make it reactive
 	const needsUsernameSetup = $derived(!profile?.username || profile.username === '');

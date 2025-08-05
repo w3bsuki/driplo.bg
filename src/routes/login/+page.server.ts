@@ -127,12 +127,7 @@ export const actions = {
 		
 		// Redirect to the originally requested page or home
 		const redirectTo = url.searchParams.get('redirectTo') || '/'
-		
-		// Add a refresh parameter to force auth state update on the client
-		const redirectUrl = new URL(redirectTo, url.origin)
-		redirectUrl.searchParams.set('_refreshAuth', 'true')
-		
-		throw redirect(303, redirectUrl.toString())
+		throw redirect(303, redirectTo)
 	},
 	
 	oauth: async ({ request, locals: { supabase }, url }) => {

@@ -3,17 +3,18 @@
 	import { User } from 'lucide-svelte';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import type { User as SupabaseUser } from '@supabase/supabase-js';
 	import { DropdownMenu, Button } from '$lib/components/ui';
 	
 	interface Props {
-		authContext: ReturnType<typeof getAuthContext>;
+		user: SupabaseUser | null;
+		profile?: any;
 		brandSlug?: string | null;
 		onSignOut: () => void;
 		open?: boolean;
 	}
 	
-	let { authContext, brandSlug = null, onSignOut, open }: Props = $props();
+	let { user, profile, brandSlug = null, onSignOut, open }: Props = $props();
 	
 	// Badge mapping
 	const badgeConfig: Record<string, { emoji: string; label: string }> = {
@@ -26,21 +27,21 @@
 	};
 </script>
 
-{#if authContext?.user}
+{#if user}
 	<!-- Profile Header -->
 	<DropdownMenu.Item
-		onSelect={() => goto(authContext.profile?.username ? `/profile/${authContext.profile.username}` : '/profile')}
+		onSelect={() => goto(profile?.username ? `/profile/${profile.username}` : '/profile')}
 		class="flex items-center gap-2 p-2 mb-2 rounded-sm hover:bg-gray-50"
 	>
 		<div class="relative">
 			<img 
-				src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+				src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || user.email}`} 
 				alt="Profile" 
 				class="h-8 w-8 rounded-sm object-cover" 
 			/>
-			{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
+			{#if profile?.badges?.length && profile.badges.length > 0}
 				<div class="absolute -bottom-1 -right-1 flex">
-					{#each authContext.profile.badges.slice(0, 2) as badge}
+					{#each profile.badges.slice(0, 2) as badge}
 						{#if badgeConfig[badge]}
 							<span 
 								class="text-xs -ml-1 first:ml-0" 
@@ -55,9 +56,9 @@
 		</div>
 		<div class="flex-1">
 			<div class="flex items-center gap-1">
-				<p class="text-sm font-medium">{authContext.profile?.username || 'user'}</p>
-				{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 2}
-					{#each authContext.profile.badges.slice(2) as badge}
+				<p class="text-sm font-medium">{profile?.username || 'user'}</p>
+				{#if profile?.badges?.length && profile.badges.length > 2}
+					{#each profile.badges.slice(2) as badge}
 						{#if badgeConfig[badge]}
 							<span 
 								class="text-xs" 
@@ -107,7 +108,7 @@
 			<span class="text-xs">Wishlist</span>
 		</DropdownMenu.Item>
 		
-		{#if authContext.profile?.account_type === 'brand' && brandSlug}
+		{#if profile?.account_type === 'brand' && brandSlug}
 			<DropdownMenu.Item
 				onSelect={() => goto(`/brands/${brandSlug}`)}
 				class="flex flex-col items-center gap-1 p-2 rounded-sm bg-gray-50 hover:bg-gray-100 text-center"
@@ -133,7 +134,7 @@
 			</DropdownMenu.Item>
 		{/if}
 		
-		{#if authContext.profile?.is_admin}
+		{#if profile?.is_admin}
 			<DropdownMenu.Item
 				onSelect={() => goto('/admin')}
 				class="flex flex-col items-center gap-1 p-2 rounded-sm bg-purple-50 hover:bg-purple-100 text-center col-span-2"

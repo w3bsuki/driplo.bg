@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import { user } from '$lib/stores/auth';
 	import type { PageData } from './$types';
 	import ProfileSetupWizard from '$lib/components/onboarding/ProfileSetupWizard.svelte';
 	
@@ -10,17 +10,15 @@
 	let showSetup = $state(false);
 	let loading = $state(true);
 	
-	const auth = getAuthContext();
-	
 	onMount(async () => {
 		// Only show onboarding for authenticated users
-		if (!auth.user) {
+		if (!$user) {
 			goto('/login');
 			return;
 		}
 		
 		// Check if profile setup is already completed
-		if (auth.profile?.onboarding_completed) {
+		if (data.user?.profile?.onboarding_completed) {
 			// Profile already set up, redirect to home
 			goto('/');
 			return;
@@ -37,7 +35,7 @@
 	async function handleComplete(formData?: any) {
 		loading = true;
 		try {
-			console.log('Starting onboarding completion for user:', auth.user?.id);
+			console.log('Starting onboarding completion for user:', $user?.id);
 			console.log('Form data received:', formData);
 			
 			// Prepare all profile data for final save
@@ -69,9 +67,9 @@
 			console.log('Updating profile with:', profileUpdate);
 			
 			// Use the database function to ensure it completes properly
-			const { data: functionResult, error: updateError } = await auth.supabase
+			const { data: functionResult, error: updateError } = await data.supabase
 				.rpc('complete_user_onboarding', {
-					p_user_id: auth.user!.id,
+					p_user_id: $user!.id,
 					p_username: formData?.username || 'user' + Date.now(),
 					p_full_name: formData?.fullName || 'User',
 					p_account_type: formData?.accountType || 'personal'
@@ -87,10 +85,10 @@
 				});
 				
 				// Fallback: Try direct update
-				const { error: fallbackError } = await auth.supabase
+				const { error: fallbackError } = await data.supabase
 					.from('profiles')
 					.update(profileUpdate)
-					.eq('id', auth.user!.id);
+					.eq('id', $user!.id);
 				
 				if (fallbackError) {
 					alert(`Failed to complete onboarding: ${fallbackError.message}`);
@@ -102,10 +100,10 @@
 			console.log('Profile updated successfully via function');
 			
 			// Now fetch the updated profile separately
-			const { data: updatedProfile, error: fetchError } = await auth.supabase
+			const { data: updatedProfile, error: fetchError } = await data.supabase
 				.from('profiles')
 				.select('*')
-				.eq('id', auth.user!.id)
+				.eq('id', $user!.id)
 				.single();
 			
 			if (fetchError || !updatedProfile) {
@@ -113,13 +111,13 @@
 				// Continue anyway, the update succeeded
 			} else {
 				// Update the auth context with new profile data
-				auth.profile = updatedProfile;
+				// Profile updated successfully;
 				console.log('Profile fetched:', updatedProfile);
 			}
 			
 			// Reload the profile to ensure all data is fresh
-			if (auth.user) {
-				const freshProfile = await auth.loadProfile(auth.user.id);
+			if ($user) {
+				const freshProfile = await auth.loadProfile($user.id);
 				console.log('Fresh profile loaded:', freshProfile);
 			}
 			
@@ -168,7 +166,7 @@
 			</div>
 		</div>
 	</div>
-{:else if showSetup && auth.user}
+{:else if showSetup && $user}
 	<div class="min-h-[100dvh] bg-background relative">
 		{#if loading}
 			<!-- Overlay loading state -->
@@ -183,8 +181,8 @@
 			</div>
 		{/if}
 		<ProfileSetupWizard 
-			user={auth.user} 
-			profile={auth.profile}
+			user={$user} 
+			profile={data.user?.profile}
 			onComplete={handleComplete}
 		/>
 	</div>

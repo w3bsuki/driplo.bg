@@ -2,7 +2,7 @@
 	import { User, ChevronDown } from 'lucide-svelte';
 	import { DropdownMenu } from '$lib/components/ui';
 	import { goto } from '$app/navigation';
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import { user, session, profile } from '$lib/stores/auth';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { Database } from '$lib/types/database.types';
@@ -20,13 +20,11 @@
 	
 	let searchQuery = $state('');
 	
-	const authContext = getAuthContext();
-
 	// Initialize unread count and real-time subscriptions
 	onMount(() => {
-		if (authContext?.user) {
+		if ($user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates(authContext.user.id, supabase);
+			subscribeToUnreadUpdates($user.id, supabase);
 		}
 	});
 
@@ -36,23 +34,26 @@
 
 	// Re-initialize when user changes
 	$effect(() => {
-		if (authContext?.user) {
+		if ($user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates(authContext.user.id, supabase);
+			subscribeToUnreadUpdates($user.id, supabase);
 		}
 	});
 	
 	// Cache brand slug
 	let brandSlug = $state<string | null>(null);
 	
+	// Load brand slug when profile changes
 	$effect(async () => {
-		if (authContext?.profile?.account_type === 'brand' && authContext.user?.id) {
-			const { data } = await supabase
+		if ($profile?.account_type === 'brand' && $user) {
+			const { data: brandData } = await supabase
 				.from('brand_profiles')
 				.select('brand_slug')
-				.eq('user_id', authContext.user.id)
+				.eq('user_id', $user.id)
 				.single();
-			brandSlug = data?.brand_slug || null;
+			brandSlug = brandData?.brand_slug || null;
+		} else {
+			brandSlug = null;
 		}
 	});
 
@@ -64,8 +65,11 @@
 		}
 	}
 
-	function handleSignOut() {
-		authContext?.signOut?.();
+	async function handleSignOut() {
+		const response = await fetch('/logout', { method: 'POST' });
+		if (response.redirected) {
+			window.location.href = response.url;
+		}
 	}
 	
 	// Badge mapping
@@ -113,7 +117,7 @@
 
 		<!-- Mobile Actions -->
 		<div class="flex items-center gap-2 md:hidden">
-			{#if authContext?.user}
+			{#if $user}
 				<a 
 					href="/messages" 
 					class="relative h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-fast"
@@ -134,18 +138,18 @@
 					class="relative rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 					aria-label="Account menu"
 				>
-					{#if authContext?.user}
+					{#if $user}
 						<img 
-							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+							src={$profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${$profile?.username || $user.email}`} 
 							alt="Profile" 
 							width="36"
 							height="36"
 							class="h-9 w-9 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
 						/>
-						{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
+						{#if $profile?.badges?.length && $profile.badges.length > 0}
 							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
-								<span class="text-xs" title={badgeConfig[authContext.profile.badges[0]]?.label}>
-									{badgeConfig[authContext.profile.badges[0]]?.emoji}
+								<span class="text-xs" title={badgeConfig[$profile.badges[0]]?.label}>
+									{badgeConfig[$profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
@@ -163,7 +167,7 @@
 					sideOffset={8}
 					class="w-72 rounded-lg border border-gray-200 bg-white p-0 shadow-lg"
 				>
-					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
+					<ProfileDropdownContent user={$user} profile={$profile} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>
@@ -219,16 +223,16 @@
 					class="relative rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 					aria-label="Account menu"
 				>
-					{#if authContext?.user}
+					{#if $user}
 						<img 
-							src={authContext.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${authContext.profile?.username || authContext.user.email}`} 
+							src={$profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${$profile?.username || $user.email}`} 
 							alt="Profile" 
 							class="h-10 w-10 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
 						/>
-						{#if authContext.profile?.badges?.length && authContext.profile.badges.length > 0}
+						{#if $profile?.badges?.length && $profile.badges.length > 0}
 							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
-								<span class="text-xs" title={badgeConfig[authContext.profile.badges[0]]?.label}>
-									{badgeConfig[authContext.profile.badges[0]]?.emoji}
+								<span class="text-xs" title={badgeConfig[$profile.badges[0]]?.label}>
+									{badgeConfig[$profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
@@ -246,7 +250,7 @@
 					sideOffset={8}
 					class="w-72 rounded-lg border border-gray-200 bg-white p-0 shadow-lg"
 				>
-					<ProfileDropdownContent {authContext} {brandSlug} onSignOut={handleSignOut} />
+					<ProfileDropdownContent user={$user} profile={$profile} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>

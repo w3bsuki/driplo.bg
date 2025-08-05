@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
-	import { getAuthContext } from '$lib/stores/auth-context.svelte'
+	import { user } from '$lib/stores/auth'
 	import ProfileHeader from '$lib/components/profile/ProfileHeader.svelte'
 	import ProfileStats from '$lib/components/profile/ProfileStats.svelte'
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte'
@@ -18,7 +18,7 @@
 	let { data }: { data: PageData } = $props()
 	
 	// Get auth context
-	const auth = getAuthContext()
+	// Auth state available via stores
 	
 	// Get supabase client from page data
 	const supabase = $derived(data.supabase)
@@ -118,7 +118,10 @@
 	
 	async function handleSignOut() {
 		try {
-			await auth.signOut()
+			const response = await fetch('/logout', { method: 'POST' })
+		if (response.redirected) {
+			window.location.href = response.url
+		}
 			toast.success(m.profile_signout_success())
 		} catch (error) {
 			console.error('Sign out error:', error)

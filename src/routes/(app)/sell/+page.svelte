@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { getAuthContext } from '$lib/stores/auth-context.svelte'
+	import { user } from '$lib/stores/auth'
 	import ListingForm from '$lib/components/listings/ListingForm.svelte'
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
@@ -10,10 +10,8 @@
 	
 	let { data }: { data: PageData } = $props()
 	
-	const authContext = getAuthContext()
-	
 	onMount(() => {
-		if (!authContext?.user) {
+		if (!$user) {
 			goto('/login?redirect=/sell')
 		}
 	})
@@ -24,7 +22,7 @@
 	<meta name="description" content={m.sell_page_description()} />
 </svelte:head>
 
-{#if authContext?.user && data.user}
+{#if $user && data.user}
 	<div class="min-h-screen bg-background">
 		<div class="container max-w-4xl py-8">
 			<!-- Header -->

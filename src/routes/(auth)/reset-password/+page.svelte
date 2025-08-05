@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
 	import { Button, Input } from '$lib/components/native';
 	import Alert from '$lib/components/ui/Alert.svelte';
 	import PasswordStrength from '$lib/components/ui/PasswordStrength.svelte';
@@ -16,7 +15,6 @@
 
 	let { form, data }: Props = $props();
 
-	const auth = getAuthContext();
 
 	let password = $state('');
 	let confirmPassword = $state('');
@@ -64,7 +62,7 @@
 		loading = true;
 
 		try {
-			const { error: updateError } = await auth.supabase.auth.updateUser({
+			const { error: updateError } = await $page.data.supabase.auth.updateUser({
 				password: password
 			});
 

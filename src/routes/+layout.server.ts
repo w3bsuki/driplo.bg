@@ -1,10 +1,18 @@
 import type { LayoutServerLoad } from './$types'
 
-export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabase }, depends, cookies }) => {
-	// Add dependency for auth invalidation
-	depends('app:auth')
-	
+export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabase }, cookies }) => {
 	const { session, user } = await safeGetSession()
+	
+	// Load user profile if authenticated
+	let profile = null
+	if (user) {
+		const { data } = await supabase
+			.from('profiles')
+			.select('*')
+			.eq('id', user.id)
+			.single()
+		profile = data
+	}
 	
 	// Get main categories for navigation
 	const { data: categories } = await supabase
@@ -17,7 +25,8 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabas
 
 	return {
 		session,
-		user: session ? user : null, // Only return user if we have a valid session
+		user,
+		profile,
 		categories: categories || [],
 		cookies: cookies.getAll()
 	}

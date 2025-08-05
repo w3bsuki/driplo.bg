@@ -71,31 +71,10 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		PUBLIC_SUPABASE_ANON_KEY,
 		{
 			cookies: {
-				get: (key) => {
-					return event.cookies.get(key);
-				},
-				set: (key, value, options) => {
-					// More robust production detection
-					const isSecure = event.url.protocol === 'https:' || event.url.hostname !== 'localhost';
-					
-					// Set cookie with proper options
-					event.cookies.set(key, value, {
-						...options,
-						path: '/',
-						httpOnly: true,
-						secure: isSecure,
-						sameSite: 'lax',
-						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
-					})
-				},
-				remove: (key, _options) => {
-					const isSecure = event.url.protocol === 'https:' || event.url.hostname !== 'localhost';
-					// Ensure complete cookie removal with all necessary options
-					event.cookies.delete(key, {
-						path: '/',
-						httpOnly: true,
-						secure: isSecure,
-						sameSite: 'lax'
+				getAll: () => event.cookies.getAll(),
+				setAll: (cookiesToSet) => {
+					cookiesToSet.forEach(({ name, value, options }) => {
+						event.cookies.set(name, value, { ...options, path: '/' })
 					})
 				}
 			}
