@@ -455,54 +455,53 @@
 						{activeSteps[currentStepIndex]?.name}
 					</h2>
 
-						<!-- Step Content Area -->
-						<div class="relative">
-							{#if activeSteps[currentStepIndex]?.name === 'Username'}
-								<UsernameSetup 
-									bind:username={$form.username}
-									{user}
-									{supabase}
+					<!-- Step Content Area -->
+					<div class="relative">
+						{#if activeSteps[currentStepIndex]?.name === 'Username'}
+							<UsernameSetup 
+								bind:username={$form.username}
+								{user}
+								{supabase}
+							/>
+						{:else if activeSteps[currentStepIndex]?.name === 'Account Type'}
+							<AccountTypeSelector 
+								bind:accountType={$form.accountType}
+							/>
+						{:else if activeSteps[currentStepIndex]?.name === 'Profile'}
+							<div class="space-y-8">
+								<!-- Avatar Picker -->
+								<AvatarPicker 
+									userId={user.id}
+									bind:customAvatarUrl={$form.avatarUrl}
 								/>
-							{:else if activeSteps[currentStepIndex]?.name === 'Account Type'}
-								<AccountTypeSelector 
-									bind:accountType={$form.accountType}
+								
+								<!-- Personal Info -->
+								<PersonalInfoForm 
+									bind:fullName={$form.fullName}
+									bind:bio={$form.bio}
+									bind:location={$form.location}
 								/>
-							{:else if activeSteps[currentStepIndex]?.name === 'Profile'}
-								<div class="space-y-8">
-									<!-- Avatar Picker -->
-									<AvatarPicker 
-										userId={user.id}
-										bind:customAvatarUrl={$form.avatarUrl}
-									/>
-									
-									<!-- Personal Info -->
-									<PersonalInfoForm 
-										bind:fullName={$form.fullName}
-										bind:bio={$form.bio}
-										bind:location={$form.location}
-									/>
-								</div>
-							{:else if activeSteps[currentStepIndex]?.name === 'Payment'}
-								<PaymentMethodSetup 
-									bind:selectedMethods={$form.paymentMethods}
-									bind:revolut_tag={$form.revolut_tag}
-									bind:paypal_tag={$form.paypal_tag}
-									{supabase}
-								/>
-							{:else if activeSteps[currentStepIndex]?.name === 'Brand Info'}
-								<BrandInfoForm 
-									bind:brandName={$form.brandName}
-									bind:brandDescription={$form.brandDescription}
-									bind:socialMediaAccounts={$form.socialMediaAccounts}
-								/>
-							{:else if activeSteps[currentStepIndex]?.name === 'Complete'}
-								<SetupComplete 
-									accountType={$form.accountType || 'personal'}
-									fullName={$form.fullName || ''}
-									avatarUrl={$form.avatarUrl}
-								/>
-							{/if}
-						</div>
+							</div>
+						{:else if activeSteps[currentStepIndex]?.name === 'Payment'}
+							<PaymentMethodSetup 
+								bind:selectedMethods={$form.paymentMethods}
+								bind:revolut_tag={$form.revolut_tag}
+								bind:paypal_tag={$form.paypal_tag}
+								{supabase}
+							/>
+						{:else if activeSteps[currentStepIndex]?.name === 'Brand Info'}
+							<BrandInfoForm 
+								bind:brandName={$form.brandName}
+								bind:brandDescription={$form.brandDescription}
+								bind:socialMediaAccounts={$form.socialMediaAccounts}
+							/>
+						{:else if activeSteps[currentStepIndex]?.name === 'Complete'}
+							<SetupComplete 
+								accountType={$form.accountType || 'personal'}
+								fullName={$form.fullName || ''}
+								avatarUrl={$form.avatarUrl}
+							/>
+						{/if}
 					</div>
 				</div>
 			{/key}

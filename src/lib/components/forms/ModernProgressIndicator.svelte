@@ -34,7 +34,7 @@
 	const progressPercentage = $derived(() => {
 		const currentIndex = steps.findIndex(step => step.id === currentStep);
 		const totalSteps = steps.length;
-		return ((currentIndex + 1) / totalSteps) * 100;
+		return Math.max(0, ((currentIndex) / (totalSteps - 1)) * 100);
 	});
 
 	// Determine step status
@@ -49,17 +49,15 @@
 		const status = getStepStatus(step);
 		
 		return cn(
-			'relative flex items-center justify-center transition-all duration-300',
+			'relative flex items-center justify-center transition-all duration-200',
 			// Size
 			compact ? 'w-8 h-8' : 'w-10 h-10',
 			// Base styles
-			'rounded-full border-2 font-medium text-sm',
+			'rounded-full border-2 font-medium',
 			// Status-specific styles
-			status === 'completed' && 'bg-primary border-primary text-primary-foreground shadow-md',
-			status === 'current' && 'bg-primary border-primary text-primary-foreground shadow-lg scale-110',
-			status === 'upcoming' && 'bg-background border-border text-muted-foreground',
-			// Hover effects for upcoming steps
-			status === 'upcoming' && 'hover:border-border/80'
+			status === 'completed' && 'bg-primary border-primary text-primary-foreground',
+			status === 'current' && 'bg-primary border-primary text-primary-foreground ring-4 ring-primary/20',
+			status === 'upcoming' && 'bg-muted border-muted-foreground/30 text-muted-foreground'
 		);
 	}
 
@@ -68,110 +66,88 @@
 		const status = getStepStatus(step);
 		
 		return cn(
-			'text-xs font-medium transition-colors duration-200',
-			status === 'completed' && 'text-primary',
-			status === 'current' && 'text-primary font-semibold',
+			'text-xs transition-colors duration-200',
+			status === 'completed' && 'text-foreground font-medium',
+			status === 'current' && 'text-foreground font-semibold',
 			status === 'upcoming' && 'text-muted-foreground',
 			// Optional styling
-			step.optional && 'italic'
+			step.optional && 'opacity-75'
 		);
 	}
 
 	// Connection line styling
-	function getLineClasses(index: number) {
+	function isLineCompleted(index: number) {
 		const step = steps[index];
-		const nextStep = steps[index + 1];
-		if (!nextStep) return '';
-		
-		const isCompleted = completedSteps.includes(step.id);
-		const isNextCurrent = nextStep.id === currentStep;
-		const isNextCompleted = completedSteps.includes(nextStep.id);
-		
-		return cn(
-			'absolute transition-all duration-500',
-			variant === 'horizontal' ? 'h-0.5 top-1/2 -translate-y-1/2' : 'w-0.5 left-1/2 -translate-x-1/2',
-			// Completed connection
-			(isCompleted || isNextCompleted) ? 'bg-primary' : 'bg-border',
-			// Progressive fill animation
-			isCompleted && isNextCurrent && 'animate-pulse'
-		);
+		return completedSteps.includes(step.id);
 	}
 </script>
 
 <div class={cn('w-full', className)}>
-	<!-- Progress Bar (overall) -->
-	<div class="mb-6">
-		<div class="flex items-center justify-between mb-2">
-			<span class="text-sm font-medium text-card-foreground">Setup Progress</span>
-			<span class="text-sm text-muted-foreground">{Math.round(progressPercentage)}%</span>
+	{#if !compact}
+		<!-- Progress Bar (overall) -->
+		<div class="mb-4">
+			<div class="flex items-center justify-between mb-2">
+				<span class="text-sm font-medium">Progress</span>
+				<span class="text-sm text-muted-foreground">{Math.round(progressPercentage)}%</span>
+			</div>
+			<div class="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+				<div 
+					class="h-full bg-primary transition-all duration-500 ease-out"
+					style="width: {progressPercentage}%"
+				></div>
+			</div>
 		</div>
-		<div class="w-full bg-muted rounded-full h-2 overflow-hidden">
-			<div 
-				class="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-700 ease-out"
-				style="width: {progressPercentage}%"
-			></div>
-		</div>
-	</div>
+	{/if}
 
 	<!-- Steps -->
 	<div class={cn(
-		'flex',
-		variant === 'horizontal' ? 'items-center justify-between' : 'flex-col space-y-4'
+		'relative flex',
+		variant === 'horizontal' ? 'items-center justify-between' : 'flex-col space-y-4',
+		showLabels && variant === 'horizontal' ? 'mb-8' : ''
 	)}>
 		{#each steps as step, index}
 			<div class={cn(
 				'flex items-center',
-				variant === 'horizontal' ? 'flex-col space-y-2' : 'flex-row space-x-3',
-				variant === 'horizontal' && index < steps.length - 1 ? 'flex-1' : ''
+				variant === 'horizontal' ? 'flex-1' : 'flex-row space-x-3',
+				index === steps.length - 1 ? 'flex-initial' : ''
 			)}>
-				<!-- Step Circle -->
-				<div class="relative">
-					<div 
-						class={getStepClasses(step)}
-						transition:scale={{ duration: 200, delay: index * 50 }}
-					>
-						{#if completedSteps.includes(step.id)}
-							<Check class={cn('transition-all duration-200', compact ? 'w-4 h-4' : 'w-5 h-5')} />
-						{:else if step.icon}
-							<svelte:component 
-								this={step.icon} 
-								class={cn('transition-all duration-200', compact ? 'w-4 h-4' : 'w-5 h-5')} 
-							/>
-						{:else}
-							<span class="font-semibold">{step.id}</span>
-						{/if}
-					</div>
-
-					<!-- Connection Line -->
+				<!-- Step Container -->
+				<div class="relative flex-1">
+					<!-- Connection Line (placed before circle for proper z-index) -->
 					{#if variant === 'horizontal' && index < steps.length - 1}
-						<div 
-							class={cn(
-								getLineClasses(index),
-								'left-full ml-2 right-0 w-full'
-							)}
-							style="width: calc(100% - 1rem)"
-						></div>
-					{:else if variant === 'vertical' && index < steps.length - 1}
-						<div 
-							class={cn(
-								getLineClasses(index),
-								'top-full mt-2 bottom-0 h-full'
-							)}
-							style="height: calc(100% - 0.5rem)"
-						></div>
+						<div class="absolute top-1/2 left-0 right-0 -translate-y-1/2 h-0.5 -z-10">
+							<div 
+								class="h-full transition-all duration-500"
+								class:bg-primary={isLineCompleted(index)}
+								class:bg-border={!isLineCompleted(index)}
+							></div>
+						</div>
 					{/if}
+					
+					<!-- Step Circle -->
+					<div class="relative z-10">
+						<div class={getStepClasses(step)}>
+							{#if completedSteps.includes(step.id)}
+								<Check class={cn(compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} />
+							{:else if step.icon}
+								<svelte:component 
+									this={step.icon} 
+									class={cn(compact ? 'w-3.5 h-3.5' : 'w-4 h-4')} 
+								/>
+							{:else}
+								<span class="text-xs font-semibold">{index + 1}</span>
+							{/if}
+						</div>
+					</div>
 				</div>
 
 				<!-- Step Label -->
-				{#if showLabels}
-					<div class={cn(
-						'text-center',
-						variant === 'horizontal' ? 'max-w-20' : 'flex-1'
-					)}>
+				{#if showLabels && variant === 'horizontal'}
+					<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
 						<p class={getLabelClasses(step)}>
 							{step.name}
 							{#if step.optional}
-								<span class="text-xs opacity-60">(optional)</span>
+								<span class="opacity-60 text-[10px]"> (opt)</span>
 							{/if}
 						</p>
 					</div>
@@ -181,17 +157,3 @@
 	</div>
 </div>
 
-<style>
-	@keyframes pulse-glow {
-		0%, 100% {
-			box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
-		}
-		50% {
-			box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
-		}
-	}
-	
-	.animate-pulse-glow {
-		animation: pulse-glow 2s infinite;
-	}
-</style>
