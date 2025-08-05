@@ -43,7 +43,7 @@
 	let isDescriptionExpanded = $state(false);
 	let checkoutFlowRef: any;
 
-	let isOwner = $derived(currentUser?.id === listing?.seller_id);
+	let isOwner = $derived(currentUser?.id === listing?.user_id);
 	let images = $derived(() => {
 		if (!listing) return [];
 		
@@ -187,7 +187,7 @@
 					.from('user_follows')
 					.delete()
 					.eq('follower_id', currentUser.id)
-					.eq('following_id', listing.seller_id);
+					.eq('following_id', listing.user_id);
 				isFollowing = false;
 				toast.success(m.profile_unfollow_success());
 			} else {
@@ -195,7 +195,7 @@
 					.from('user_follows')
 					.insert({
 						follower_id: currentUser.id,
-						following_id: listing.seller_id
+						following_id: listing.user_id
 					});
 				isFollowing = true;
 				toast.success(m.profile_follow_success());

@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		.from('listings')
 		.select(`
 			*,
-			seller:profiles!seller_id(
+			seller:profiles!user_id(
 				id,
 				username,
 				full_name,
@@ -64,7 +64,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			? supabase
 					.from('listings')
 					.select('id', { count: 'exact', head: true })
-					.eq('seller_id', listing.seller.id)
+					.eq('user_id', listing.seller.id)
 					.eq('status', 'active')
 			: Promise.resolve({ count: 0 }),
 
@@ -78,7 +78,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				images,
 				created_at
 			`)
-			.eq('seller_id', listing.seller_id)
+			.eq('user_id', listing.user_id)
 			.eq('status', 'active')
 			.neq('id', params.id)
 			.limit(6),
@@ -94,7 +94,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				size,
 				brand,
 				condition,
-				seller:profiles!seller_id(username, avatar_url, account_type, is_verified)
+				seller:profiles!user_id(username, avatar_url, account_type, is_verified)
 			`)
 			.eq('category_id', listing.category_id)
 			.eq('status', 'active')
@@ -107,7 +107,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 					.from('user_follows')
 					.select('id')
 					.eq('follower_id', session.user.id)
-					.eq('following_id', listing.seller_id)
+					.eq('following_id', listing.user_id)
 					.maybeSingle()
 			: Promise.resolve({ data: null }),
 		
