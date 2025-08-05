@@ -4,7 +4,7 @@
 	import { getLocale, localizeHref, setLocale } from '$lib/paraglide/runtime.js'
 	import { browser, dev } from '$app/environment'
 	
-	$: currentLanguage = getLocale()
+	let currentLanguage = $derived(getLocale())
 	let isSwitching = $state(false)
 	
 	async function switchToLanguage(newLang: string) {
