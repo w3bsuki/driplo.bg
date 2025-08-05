@@ -5,9 +5,12 @@
 	import { browser, dev } from '$app/environment'
 	
 	$: currentLanguage = getLocale()
+	let isSwitching = $state(false)
 	
 	async function switchToLanguage(newLang: string) {
-		if (newLang === currentLanguage) return;
+		if (newLang === currentLanguage || isSwitching) return;
+		
+		isSwitching = true;
 		
 		// Set the PARAGLIDE_LOCALE cookie before navigation
 		if (browser) {
@@ -37,12 +40,28 @@
 		// Generate the localized URL for the new language
 		const localizedUrl = localizeHref(fullPath, { locale: newLang as 'en' | 'bg' });
 		
-		// Navigate to the new localized URL
-		await goto(localizedUrl, { replaceState: true });
+		try {
+			// Navigate to the new localized URL
+			await goto(localizedUrl, { replaceState: true });
+		} finally {
+			// Reset switching state after navigation completes or fails
+			isSwitching = false;
+		}
 	}
 </script>
 
-<select onchange={(e) => switchToLanguage((e.target as HTMLSelectElement).value)} class="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
-	<option value="en" selected={currentLanguage === 'en'}>English</option>
-	<option value="bg" selected={currentLanguage === 'bg'}>Български</option>
-</select>
+<div class="relative inline-block">
+	<select 
+		onchange={(e) => switchToLanguage((e.target as HTMLSelectElement).value)} 
+		disabled={isSwitching}
+		class="rounded-md border border-input bg-background px-3 py-1.5 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-wait"
+	>
+		<option value="en" selected={currentLanguage === 'en'}>English</option>
+		<option value="bg" selected={currentLanguage === 'bg'}>Български</option>
+	</select>
+	{#if isSwitching}
+		<div class="absolute inset-0 flex items-center justify-center bg-background/50 rounded-md">
+			<div class="h-4 w-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+		</div>
+	{/if}
+</div>
