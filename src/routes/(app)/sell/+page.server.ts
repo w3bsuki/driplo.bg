@@ -130,15 +130,44 @@ export const actions: Actions = {
 		// Extract image files
 		const imageFiles = formData.getAll('imageFiles') as File[]
 		
+		// Check if we have images first
+		if (imageFiles.length === 0) {
+			const form = await superValidate(formData, zod(createListingSchema))
+			return fail(400, { form, error: 'Please add at least one image.' })
+		}
+		
 		// Remove image files from form data before validation
 		formData.delete('imageFiles')
 		formData.delete('imageCount')
+		
+		// Upload images first, then validate with real URLs
+		const uploadedImageUrls: string[] = []
+		for (let i = 0; i < imageFiles.length; i++) {
+			try {
+				const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
+				uploadedImageUrls.push(url)
+			} catch (error) {
+				console.error('Image upload failed:', error)
+				const form = await superValidate(formData, zod(createListingSchema))
+				return fail(500, { form, error: 'Failed to upload images. Please try again.' })
+			}
+		}
+		
+		// Add real image URLs for validation
+		formData.set('images', JSON.stringify(uploadedImageUrls));
+		
+		// Convert price to number if it's a string
+		const priceValue = formData.get('price');
+		if (priceValue && typeof priceValue === 'string') {
+			formData.set('price', parseFloat(priceValue).toString());
+		}
 		
 		// Validate form data
 		const form = await superValidate(formData, zod(createListingSchema))
 		
 		if (!form.valid) {
 			console.error('Form validation failed:', form.errors)
+			console.error('Form data received:', Object.fromEntries(formData.entries()));
 			return fail(400, { form, error: 'Please check all required fields.' })
 		}
 		
@@ -154,19 +183,7 @@ export const actions: Actions = {
 			return fail(400, { form, error: 'Profile not found. Please complete your profile setup.' })
 		}
 		
-		// Upload images if any
-		const uploadedImageUrls: string[] = []
-		if (imageFiles.length > 0) {
-			for (let i = 0; i < imageFiles.length; i++) {
-				try {
-					const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
-					uploadedImageUrls.push(url)
-				} catch (error) {
-					console.error('Image upload failed:', error)
-					return fail(500, { form, error: 'Failed to upload images. Please try again.' })
-				}
-			}
-		}
+		// Images are now uploaded before validation - use the URLs we already have
 		
 		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, tags, materials, ships_worldwide } = form.data
 

@@ -13,6 +13,19 @@
 	
 	let { form, categories, hasPaymentAccount }: Props = $props();
 	
+	// Create reactive state from form data
+	let formData = $state({
+		title: form.data.title || '',
+		description: form.data.description || '',
+		category_id: form.data.category_id || '',
+		brand: form.data.brand || '',
+		size: form.data.size || '',
+		color: form.data.color || '',
+		condition: form.data.condition || 'new_with_tags',
+		price: form.data.price || 0,
+		shipping_type: form.data.shipping_type || 'standard'
+	});
+	
 	// State
 	let images = $state<File[]>([]);
 	let imagePreviews = $state<string[]>([]);
@@ -66,7 +79,7 @@
 		{ value: 'new_without_tags', label: 'New without tags' },
 		{ value: 'very_good', label: 'Very good' },
 		{ value: 'good', label: 'Good' },
-		{ value: 'satisfactory', label: 'Satisfactory' }
+		{ value: 'fair', label: 'Fair' }
 	];
 </script>
 
@@ -100,6 +113,13 @@
 			} else if (result.type === 'failure') {
 				uploadError = result.data?.error || 'Failed to create listing';
 				console.error('Listing creation failed:', result.data);
+				console.error('Form validation errors:', result.data?.form?.errors);
+				// Show detailed validation errors
+				if (result.data?.form?.errors) {
+					Object.entries(result.data.form.errors).forEach(([field, errors]) => {
+						console.error(`${field}:`, errors);
+					});
+				}
 			} else if (result.type === 'error') {
 				uploadError = 'An unexpected error occurred. Please try again.';
 				console.error('Unexpected error:', result.error);
@@ -197,7 +217,7 @@
 					id="title"
 					name="title"
 					type="text"
-					value={form.data.title}
+					bind:value={formData.title}
 					placeholder="e.g. White COS shirt"
 					required
 					class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -210,7 +230,7 @@
 				<textarea
 					id="description"
 					name="description"
-					value={form.data.description}
+					bind:value={formData.description}
 					placeholder="e.g. only worn a few times, true to size"
 					rows="4"
 					required
@@ -219,7 +239,7 @@
 			</div>
 			
 			<!-- Category & Details Grid -->
-			<div class="grid grid-cols-2 gap-4">
+			<div class="grid grid-cols-2 lg:grid-cols-3 gap-4">
 				<!-- Category -->
 				<div>
 					<label for="category_id" class="block text-base font-medium mb-2">Category</label>
@@ -227,7 +247,7 @@
 						<select
 							id="category_id"
 							name="category_id"
-							value={form.data.category_id}
+							bind:value={formData.category_id}
 							required
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10"
 						>
@@ -247,7 +267,7 @@
 						id="brand"
 						name="brand"
 						type="text"
-						value={form.data.brand}
+						bind:value={formData.brand}
 						placeholder="e.g. COS"
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					/>
@@ -260,8 +280,21 @@
 						id="size"
 						name="size"
 						type="text"
-						value={form.data.size}
+						bind:value={formData.size}
 						placeholder="e.g. M / 38 / 10"
+						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					/>
+				</div>
+				
+				<!-- Color -->
+				<div>
+					<label for="color" class="block text-base font-medium mb-2">Color</label>
+					<input
+						id="color"
+						name="color"
+						type="text"
+						bind:value={formData.color}
+						placeholder="e.g. Black, White, Blue"
 						class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					/>
 				</div>
@@ -273,7 +306,7 @@
 						<select
 							id="condition"
 							name="condition"
-							value={form.data.condition}
+							bind:value={formData.condition}
 							required
 							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white pr-10"
 						>
@@ -295,7 +328,7 @@
 						id="price"
 						name="price"
 						type="number"
-						value={form.data.price}
+						bind:value={formData.price}
 						placeholder="0.00"
 						step="0.01"
 						min="0.01"
@@ -309,12 +342,12 @@
 			<div>
 				<p class="text-base font-medium mb-3">Shipping</p>
 				<div class="space-y-2">
-					<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {form.data.shipping_type === 'standard' ? 'border-blue-500 bg-blue-50' : ''}">
+					<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {formData.shipping_type === 'standard' ? 'border-blue-500 bg-blue-50' : ''}">
 						<input
 							type="radio"
 							name="shipping_type"
 							value="standard"
-							checked={form.data.shipping_type === 'standard'}
+							bind:group={formData.shipping_type}
 							class="mr-3"
 						/>
 						<div class="flex-1">
@@ -323,12 +356,12 @@
 						</div>
 					</label>
 					
-					<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {form.data.shipping_type === 'pickup' ? 'border-blue-500 bg-blue-50' : ''}">
+					<label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {formData.shipping_type === 'pickup' ? 'border-blue-500 bg-blue-50' : ''}">
 						<input
 							type="radio"
 							name="shipping_type"
 							value="pickup"
-							checked={form.data.shipping_type === 'pickup'}
+							bind:group={formData.shipping_type}
 							class="mr-3"
 						/>
 						<div class="flex-1">
@@ -339,17 +372,36 @@
 				</div>
 			</div>
 			
-			<!-- Hidden fields -->
+			<!-- Hidden fields for form submission -->
+			<input type="hidden" name="title" value={formData.title} />
+			<input type="hidden" name="description" value={formData.description} />
+			<input type="hidden" name="category_id" value={formData.category_id} />
+			<input type="hidden" name="brand" value={formData.brand} />
+			<input type="hidden" name="size" value={formData.size} />
+			<input type="hidden" name="color" value={formData.color} />
+			<input type="hidden" name="condition" value={formData.condition} />
+			<input type="hidden" name="price" value={formData.price} />
+			<input type="hidden" name="shipping_type" value={formData.shipping_type} />
 			<input type="hidden" name="location_city" value="Sofia" />
 			<input type="hidden" name="shipping_cost" value="0" />
-			<input type="hidden" name="color" value="" />
 			<input type="hidden" name="ships_worldwide" value="false" />
 			
 			<!-- Submit Button -->
 			<div class="pt-4">
+				<!-- Debug info -->
+				{#if !hasPaymentAccount || !formData.title || !formData.price || images.length === 0}
+					<div class="text-xs text-gray-500 mb-2">
+						Missing: 
+						{#if !hasPaymentAccount}Payment method, {/if}
+						{#if !formData.title}Title, {/if}
+						{#if !formData.price || formData.price <= 0}Price, {/if}
+						{#if images.length === 0}Images{/if}
+					</div>
+				{/if}
+				
 				<button
 					type="submit"
-					disabled={!form.data.title || !form.data.price || images.length === 0 || isSubmitting || !hasPaymentAccount}
+					disabled={!formData.title || !formData.price || formData.price <= 0 || images.length === 0 || isSubmitting || !hasPaymentAccount}
 					class="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
 				>
 					{#if isSubmitting}

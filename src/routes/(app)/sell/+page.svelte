@@ -24,18 +24,11 @@
 
 {#if $user && data.user}
 	<div class="min-h-screen bg-gray-50 py-4">
-		<!-- Temporary test form to debug -->
-		{#await import('$lib/components/listings/SimpleTestForm.svelte') then { default: SimpleTestForm }}
-			<SimpleTestForm />
-		{/await}
-		
-		<!-- Original form commented out for testing
 		<ProductionListingForm 
 			form={data.form} 
 			categories={data.categories} 
 			hasPaymentAccount={data.hasPaymentAccount} 
 		/>
-		-->
 	</div>
 {:else}
 	<div class="min-h-screen flex items-center justify-center bg-gray-50">

@@ -43,13 +43,13 @@ export const createListingSchema = z.object({
 		.max(100, 'Title must be less than 100 characters')
 		.trim(),
 	description: z.string()
-		.min(10, 'Description must be at least 10 characters')
+		.min(3, 'Description must be at least 3 characters')
 		.max(2000, 'Description must be less than 2000 characters')
 		.trim(),
 	category_id: z.string().uuid('Please select a valid category'),
 	subcategory_id: z.string().uuid('Please select a subcategory').optional().nullable(),
 	
-	// Images (Step 2)
+	// Images (Step 2) - REQUIRED for production
 	images: z.array(z.string().url())
 		.min(1, 'At least one image is required')
 		.max(10, 'Maximum 10 images allowed')
@@ -64,7 +64,7 @@ export const createListingSchema = z.object({
 	}),
 	brand: z.string().max(50).optional().nullable(),
 	size: z.string().max(20).optional().nullable(),
-	color: z.string().min(1, 'Please specify the color').max(30),
+	color: z.string().max(30).optional().default(''),
 	materials: z.array(z.string()).optional().default([]),
 	
 	// Shipping & Location (Step 4)
@@ -88,13 +88,13 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	category_id: '',
 	subcategory_id: null,
 	images: [],
-	price: 0,
+	price: undefined, // Changed from 0 to undefined so it doesn't interfere with validation
 	condition: LISTING_CONDITIONS.NEW_WITH_TAGS,
 	brand: null,
 	size: null,
-	color: '',
+	color: '', // Keep empty, but make it optional in schema
 	materials: [],
-	location_city: '',
+	location_city: 'Sofia', // Set default city
 	shipping_type: 'standard',
 	shipping_cost: 0,
 	ships_worldwide: false,

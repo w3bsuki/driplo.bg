@@ -1,5 +1,34 @@
 # Memory - Driplo Project
 
+## [2025-08-05] - URGENT Fix: Listing Form Upload Button Disabled Issue
+- **Problem**: Upload button in ProductionListingForm.svelte was permanently disabled
+- **Root Cause**: Form inputs using one-way binding (`value={}`) instead of two-way binding (`bind:value={}`)
+- **Symptoms**: 
+  - Button disabled due to `!form.data.title || !form.data.price` conditions
+  - Form data never updated when user typed in inputs
+  - form.data.title remained empty string, form.data.price remained 0/undefined
+- **Solution Applied**:
+  1. **Fixed all form input bindings**:
+     - Title: `value={form.data.title}` → `bind:value={form.data.title}` 
+     - Description: `value={form.data.description}` → `bind:value={form.data.description}`
+     - Category: `value={form.data.category_id}` → `bind:value={form.data.category_id}`
+     - Brand: `value={form.data.brand}` → `bind:value={form.data.brand}`
+     - Size: `value={form.data.size}` → `bind:value={form.data.size}`
+     - Price: `value={form.data.price}` → `bind:value={form.data.price}`
+     - Condition: `value={form.data.condition}` → `bind:value={form.data.condition}`
+     - Shipping radios: `checked={}` → `bind:group={form.data.shipping_type}`
+  2. **Added missing color input field** (was in schema but not in UI)
+  3. **Fixed schema defaults**:
+     - Changed `price: 0` to `price: undefined` to avoid false validation
+     - Made color field optional in schema 
+     - Set default location_city to 'Sofia'
+  4. **Removed duplicate hidden color field** that conflicted with new input
+  5. **Enhanced button validation**: Added `form.data.price <= 0` check
+- **Files Changed**:
+  - `src/lib/components/listings/ProductionListingForm.svelte` - Fixed all bindings
+  - `src/lib/schemas/listing.ts` - Updated defaults and made color optional
+- **Result**: Form inputs now properly update form.data, enabling button when conditions met
+
 ## [2025-08-04] - Critical Fix: Supabase Session Persistence Issue
 - **Problem**: Client-side session wasn't persisting properly after server authentication
 - **Symptom**: setSession() returned success but getSession() immediately showed no session, causing SIGNED_OUT events
