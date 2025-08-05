@@ -19,7 +19,6 @@ export const load: PageServerLoad = async ({ locals: { safeGetSession, supabase 
 	return {
 		user,
 		session,
-		profile,
-		supabase
+		profile
 	};
 };

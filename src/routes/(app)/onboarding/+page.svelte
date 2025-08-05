@@ -6,8 +6,17 @@
 	import type { PageData } from './$types';
 	import ProfileSetupWizard from '$lib/components/onboarding/ProfileSetupWizard.svelte';
 	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
+	import { createBrowserClient } from '@supabase/ssr';
+	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+	import { browser } from '$app/environment';
 	
 	let { data }: { data: PageData } = $props();
+	
+	// Create supabase client for client-side operations
+	let supabase: any;
+	if (browser) {
+		supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
+	}
 	let showSetup = $state(false);
 	let loading = $state(true);
 	
@@ -72,7 +81,7 @@
 			console.log('Updating profile with:', profileUpdate);
 			
 			// First check if profile exists
-			const { data: existingProfile, error: profileCheckError } = await data.supabase
+			const { data: existingProfile, error: profileCheckError } = await supabase
 				.from('profiles')
 				.select('id')
 				.eq('id', $user!.id)
@@ -81,7 +90,7 @@
 			if (profileCheckError || !existingProfile) {
 				console.error('Profile does not exist, creating one...');
 				// Create profile if it doesn't exist
-				const { error: createError } = await data.supabase
+				const { error: createError } = await supabase
 					.from('profiles')
 					.insert({
 						id: $user!.id,
@@ -103,7 +112,7 @@
 				}
 			} else {
 				// Use the database function to ensure it completes properly
-				const { data: functionResult, error: updateError } = await data.supabase
+				const { data: functionResult, error: updateError } = await supabase
 					.rpc('complete_user_onboarding', {
 						p_user_id: $user!.id,
 						p_username: formData?.username || 'user' + Date.now(),
@@ -121,7 +130,7 @@
 					});
 					
 					// Fallback: Try direct update
-					const { error: fallbackError } = await data.supabase
+					const { error: fallbackError } = await supabase
 						.from('profiles')
 						.update(profileUpdate)
 						.eq('id', $user!.id);
@@ -137,7 +146,7 @@
 			console.log('Profile updated successfully via function');
 			
 			// Now fetch the updated profile separately
-			const { data: updatedProfile, error: fetchError } = await data.supabase
+			const { data: updatedProfile, error: fetchError } = await supabase
 				.from('profiles')
 				.select('*')
 				.eq('id', $user!.id)
@@ -155,7 +164,7 @@
 			// Reload the profile to ensure all data is fresh
 			if ($user) {
 				try {
-					const { data: freshProfile } = await data.supabase
+					const { data: freshProfile } = await supabase
 						.from('profiles')
 						.select('*')
 						.eq('id', $user.id)
