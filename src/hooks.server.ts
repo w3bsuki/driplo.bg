@@ -73,22 +73,37 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			cookies: {
 				get: (key) => event.cookies.get(key),
 				set: (key, value, options) => {
-					// Use SvelteKit's dev flag for reliable detection
+					// More robust production detection
+					const isSecure = event.url.protocol === 'https:' || event.url.hostname !== 'localhost';
+					
+					// Debug cookie setting
+					console.log('🍪 Setting cookie:', {
+						key,
+						valueLength: value?.length,
+						options,
+						hostname: event.url.hostname,
+						protocol: event.url.protocol,
+						isSecure,
+						dev
+					});
+					
+					// Set cookie with proper options
 					event.cookies.set(key, value, {
 						...options,
 						path: '/',
 						httpOnly: true,
-						secure: !dev, // Use SvelteKit's dev import
+						secure: isSecure,
 						sameSite: 'lax',
 						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
 					})
 				},
 				remove: (key, _options) => {
+					const isSecure = event.url.protocol === 'https:' || event.url.hostname !== 'localhost';
 					// Ensure complete cookie removal with all necessary options
 					event.cookies.delete(key, {
 						path: '/',
 						httpOnly: true,
-						secure: !dev,
+						secure: isSecure,
 						sameSite: 'lax'
 					})
 				}
