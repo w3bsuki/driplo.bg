@@ -181,14 +181,19 @@ export const actions = {
 		throw redirect(303, '/register?success=true')
 	},
 	
-	oauth: async ({ request, locals: { supabase }, url }) => {
+	oauth: async ({ request, locals: { supabase }, url, cookies }) => {
 		const formData = await request.formData()
 		const provider = formData.get('provider') as 'google' | 'github'
 		const accountType = formData.get('accountType') as 'personal' | 'brand'
 		
-		// Store account type preference in cookies for OAuth callback
-		const headers = new Headers()
-		headers.append('Set-Cookie', `pending_account_type=${accountType}; Path=/; HttpOnly; SameSite=Lax; Max-Age=600`)
+		// Store account type preference in cookies for OAuth callback using proper cookie serialization
+		cookies.set('pending_account_type', accountType, {
+			path: '/',
+			httpOnly: true,
+			sameSite: 'lax',
+			maxAge: 600, // 10 minutes
+			secure: process.env.NODE_ENV === 'production'
+		})
 		
 		const { data, error } = await supabase.auth.signInWithOAuth({
 			provider,

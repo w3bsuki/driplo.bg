@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { user, profile } from '$lib/stores/auth';
 	import { AtSign, Check, X, Loader2, User, Sparkles } from 'lucide-svelte';
 	import { onboardingValidators } from '$lib/schemas/onboarding';
 	import { fly, fade } from 'svelte/transition';
+	import type { SupabaseClient } from '@supabase/supabase-js';
+	import type { User as AuthUser } from '@supabase/supabase-js';
 
 	interface Props {
 		username: string;
+		user: AuthUser;
+		supabase: SupabaseClient;
 	}
 
-	let { username = $bindable('') }: Props = $props();
-
-	// Auth stores are already imported above
+	let { username = $bindable(''), user, supabase }: Props = $props();
 	
 	let isChecking = $state(false);
 	let isAvailable = $state(false);
@@ -19,9 +20,9 @@
 
 	// Username suggestions based on the user's email or profile
 	const usernameSuggestions = $derived(() => {
-		if (!auth.user?.email) return [];
+		if (!user?.email) return [];
 		
-		const emailPrefix = auth.user.email.split('@')[0];
+		const emailPrefix = user.email.split('@')[0];
 		const baseUsername = emailPrefix.replace(/[^a-zA-Z0-9]/g, '');
 		
 		return [
@@ -53,7 +54,7 @@
 		checkError = null;
 
 		try {
-			const { data, error } = await auth.supabase
+			const { data, error } = await supabase
 				.from('profiles')
 				.select('id')
 				.eq('username', usernameToCheck.toLowerCase());

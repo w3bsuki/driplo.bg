@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
 import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
-import { setLocale, isLocale } from '$lib/paraglide/runtime.js'
+import { setLocale } from '$lib/paraglide/runtime.js'
 import { paraglideMiddleware } from '$lib/paraglide/server.js'
 import { dev } from '$app/environment'
 import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit'
@@ -58,6 +58,9 @@ const handleParaglide: Handle = async ({ event, resolve }) => {
 		event.request = request
 		event.locals.locale = locale
 		
+		// Set the runtime locale for server-side operations
+		setLocale(locale as 'en' | 'bg', { reload: false })
+		
 		// Continue with the resolve chain
 		const response = await resolve(event, {
 			transformPageChunk: ({ html }) => {
@@ -66,54 +69,23 @@ const handleParaglide: Handle = async ({ event, resolve }) => {
 			}
 		})
 		
+		// Ensure PARAGLIDE_LOCALE cookie is set for client-side consistency
+		if (!event.cookies.get('PARAGLIDE_LOCALE') || event.cookies.get('PARAGLIDE_LOCALE') !== locale) {
+			response.headers.append('set-cookie', event.cookies.serialize('PARAGLIDE_LOCALE', locale, {
+				path: '/',
+				httpOnly: false, // Allow client-side access for LanguageSwitcher
+				sameSite: 'lax',
+				maxAge: 60 * 60 * 24 * 365, // 1 year
+				secure: !dev
+			}))
+		}
+		
 		return response
 	})
 }
 
-const handleI18n: Handle = async ({ event, resolve }) => {
-	// This is now handled by Paraglide middleware, but keep for fallback
-	// Get language from cookie or Accept-Language header
-	// Paraglide uses PARAGLIDE_LOCALE as the cookie name
-	const cookieLocale = event.cookies.get('PARAGLIDE_LOCALE') || event.cookies.get('locale')
-	const acceptLanguage = event.request.headers.get('accept-language')?.split(',')[0]?.split('-')[0]
-	
-	// Determine which language to use
-	let locale = 'en' // default
-	
-	if (cookieLocale && isLocale(cookieLocale)) {
-		locale = cookieLocale
-	} else if (acceptLanguage && isLocale(acceptLanguage)) {
-		locale = acceptLanguage
-	}
-	
-	// Set the language for this request
-	setLocale(locale as 'en' | 'bg', { reload: false })
-	
-	// Store locale for use in components
-	event.locals.locale = locale
-	
-	// Resolve the request
-	const response = await resolve(event, {
-		transformPageChunk: ({ html }) => {
-			// Replace html lang attribute
-			return html.replace('<html lang="en">', `<html lang="${locale}">`)
-		}
-	})
-	
-	// Set cookie if it's not already set or if locale changed
-	if (!cookieLocale || cookieLocale !== locale) {
-		// Set PARAGLIDE_LOCALE cookie for Paraglide runtime
-		response.headers.append('set-cookie', event.cookies.serialize('PARAGLIDE_LOCALE', locale, {
-			path: '/',
-			httpOnly: true,
-			sameSite: 'lax',
-			maxAge: 60 * 60 * 24 * 365, // 1 year
-			secure: !dev
-		}))
-	}
-	
-	return response
-}
+// Locale handling is now entirely managed by Paraglide middleware
+// This function is removed to avoid conflicts
 
 const handleSupabase: Handle = async ({ event, resolve }) => {
 	/**
@@ -131,7 +103,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 						event.cookies.set(name, value, { 
 							...options, 
 							path: '/',
-							httpOnly: false, // Allow client-side access
+							httpOnly: false, // Allow client-side access for auth cookies
 							secure: !dev,
 							sameSite: 'lax'
 						})

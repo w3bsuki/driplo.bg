@@ -25,7 +25,8 @@
       "Bash(ls:*)",
       "mcp__supabase__get_logs",
       "mcp__supabase__apply_migration",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "mcp__supabase__search_docs"
     ],
     "deny": []
   },

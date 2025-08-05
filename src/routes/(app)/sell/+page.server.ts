@@ -5,6 +5,7 @@ import { zod } from 'sveltekit-superforms/adapters'
 import { createListingSchema, createListingDefaults } from '$lib/schemas/listing'
 import { serverCache, cacheKeys } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
+import { localizeHref } from '$lib/paraglide/runtime.js'
 
 export const load: PageServerLoad = async ({ locals }) => {
 	try {
@@ -112,7 +113,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	create: async ({ request, locals }) => {
+	create: async ({ request, locals, cookies }) => {
 		console.log('Create listing action started');
 		
 		// Get user from auth
@@ -286,9 +287,12 @@ export const actions: Actions = {
 			// Clear cache to show new listing immediately
 			serverCache.clear()
 			
-			// Store listing ID in session/cookie for success page if needed
-			// For now, redirect directly to main page
-			throw redirect(303, `/`)
+			// Get current locale from cookies to maintain language context
+			const currentLocale = cookies.get('PARAGLIDE_LOCALE') || locals.locale || 'en'
+			
+			// Redirect to localized home page to maintain language context
+			const localizedUrl = localizeHref('/', { locale: currentLocale as 'en' | 'bg' })
+			throw redirect(303, localizedUrl)
 			
 		} catch (error: any) {
 			// If it's a redirect, rethrow it

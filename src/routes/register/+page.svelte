@@ -19,11 +19,67 @@
 	let oauthLoading = $state(false)
 	let agreedToTerms = $state(false)
 	let accountType = $state<'personal' | 'brand'>(form?.accountType || 'personal')
+	let emailCheckLoading = $state(false)
+	let emailCheckResult = $state<'available' | 'taken' | null>(null)
+	let hasSubmitted = $state(false)
 	
 	// Brand-specific fields
 	let brandName = $state(form?.brandName || '')
 	let brandCategory = $state(form?.brandCategory || '')
 	let brandWebsite = $state(form?.brandWebsite || '')
+	
+	// Debounced email availability check
+	let emailCheckTimeout: number | null = null;
+	
+	function checkEmailAvailability(emailValue: string) {
+		if (!emailValue || !emailValue.includes('@')) {
+			emailCheckResult = null;
+			return;
+		}
+		
+		// Clear previous timeout
+		if (emailCheckTimeout) {
+			clearTimeout(emailCheckTimeout);
+		}
+		
+		// Set loading state
+		emailCheckLoading = true;
+		emailCheckResult = null;
+		
+		// Debounce the check by 500ms
+		emailCheckTimeout = setTimeout(async () => {
+			try {
+				const response = await fetch('/api/auth/check-email', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ email: emailValue })
+				});
+				
+				const result = await response.json();
+				
+				if (response.ok) {
+					emailCheckResult = result.available ? 'available' : 'taken';
+				} else {
+					emailCheckResult = null;
+				}
+			} catch (error) {
+				console.error('Email check failed:', error);
+				emailCheckResult = null;
+			} finally {
+				emailCheckLoading = false;
+			}
+		}, 500);
+	}
+	
+	// Watch email changes for availability check
+	$effect(() => {
+		if (email && email.length > 0) {
+			checkEmailAvailability(email);
+		} else {
+			emailCheckResult = null;
+			emailCheckLoading = false;
+		}
+	});
 	
 	// Show error messages from form submission
 	onMount(() => {
@@ -170,13 +226,25 @@
 
 				<!-- Registration Form -->
 				<form method="POST" action="?/signup" use:enhance={() => {
-					loading = true
+					// Prevent duplicate submissions
+					if (hasSubmitted || loading) {
+						return async () => {};
+					}
+					
+					hasSubmitted = true;
+					loading = true;
+					
 					return async ({ result, update }) => {
 						await update()
 						loading = false
 						
 						if (result.type === 'failure' && result.data?.error) {
 							toast.error(result.data.error)
+							// Allow retry on failure
+							hasSubmitted = false;
+						} else if (result.type === 'success') {
+							// Keep submitted state on success to prevent retry
+							toast.success('Registration successful! Check your email.')
 						}
 					}
 				}} class="space-y-4">
@@ -186,16 +254,39 @@
 						<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
 							Email *
 						</label>
-						<input
-							id="email"
-							name="email"
-							type="email"
-							bind:value={email}
-							placeholder="your@email.com"
-							required
-							disabled={loading}
-							class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400"
-						/>
+						<div class="relative">
+							<input
+								id="email"
+								name="email"
+								type="email"
+								bind:value={email}
+								placeholder="your@email.com"
+								required
+								disabled={loading}
+								class={cn(
+									"w-full px-3 py-2 pr-10 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-sm text-gray-900 bg-white placeholder:text-gray-400",
+									emailCheckResult === 'taken' ? "border-red-300" : "border-gray-300"
+								)}
+							/>
+							{#if emailCheckLoading}
+								<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+									<div class="w-4 h-4 border-2 border-blue-400/20 border-t-blue-400 rounded-full animate-spin"></div>
+								</div>
+							{:else if emailCheckResult === 'available'}
+								<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+									<CheckCircle class="w-4 h-4 text-green-500" />
+								</div>
+							{:else if emailCheckResult === 'taken'}
+								<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+									<div class="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center">
+										<div class="w-2 h-2 bg-white rounded-full"></div>
+									</div>
+								</div>
+							{/if}
+						</div>
+						{#if emailCheckResult === 'taken'}
+							<p class="mt-1 text-sm text-red-600">This email is already registered. <a href="/login" class="text-blue-400 hover:text-blue-500">Sign in instead?</a></p>
+						{/if}
 					</div>
 
 					{#if accountType === 'brand'}
@@ -337,7 +428,7 @@
 					<button 
 						type="submit" 
 						class="w-full py-2.5 bg-blue-400 text-white font-medium rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-						disabled={loading || oauthLoading || !agreedToTerms}
+						disabled={loading || oauthLoading || !agreedToTerms || emailCheckResult === 'taken' || emailCheckLoading || hasSubmitted}
 					>
 						{#if loading}
 							<Spinner size="sm" color="white" />

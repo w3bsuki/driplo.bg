@@ -434,6 +434,8 @@
 					{#if activeSteps()[currentStepIndex]?.name === 'Username'}
 						<UsernameSetup 
 							bind:username={$form.username}
+							{user}
+							{supabase}
 						/>
 					{:else if activeSteps()[currentStepIndex]?.name === 'Account Type'}
 						<AccountTypeSelector 

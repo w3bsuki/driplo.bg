@@ -5,6 +5,7 @@
 	import { user } from '$lib/stores/auth';
 	import type { PageData } from './$types';
 	import ProfileSetupWizard from '$lib/components/onboarding/ProfileSetupWizard.svelte';
+	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
 	
 	let { data }: { data: PageData } = $props();
 	let showSetup = $state(false);
@@ -133,10 +134,12 @@
 			// Force invalidate all data
 			await invalidateAll();
 			
-			// Force a hard browser refresh to ensure hooks.server.ts gets fresh data
-			// This is necessary because Supabase cache might return stale data
-			console.log('Forcing hard refresh to homepage...');
-			window.location.href = '/';
+			// Navigate to localized home page using SvelteKit navigation
+			// This maintains client-side state and locale context
+			console.log('Redirecting to homepage with locale context...');
+			const currentLocale = getLocale();
+			const localizedHomeUrl = localizeHref('/', { locale: currentLocale });
+			await goto(localizedHomeUrl, { replaceState: true, invalidateAll: true });
 		} catch (err) {
 			console.error('Onboarding completion error:', err);
 			alert(`An error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`);

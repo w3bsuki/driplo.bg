@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { localizeHref } from '$lib/paraglide/runtime.js'
 
 export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }) => {
 	// Get the auth code from the URL
@@ -7,12 +8,16 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 	const next = url.searchParams.get('next') || '/'
 	const type = url.searchParams.get('type')
 	
+	// Get current locale for localized redirects
+	const currentLocale = cookies.get('PARAGLIDE_LOCALE') || locals.locale || 'en'
+	
 	// Check for any auth errors first
 	const authError = url.searchParams.get('error')
 	if (authError) {
 		const errorDescription = url.searchParams.get('error_description')
 		console.error('Auth error:', authError, errorDescription)
-		throw redirect(303, `/login?error=${authError}`)
+		const loginUrl = localizeHref(`/login?error=${authError}`, { locale: currentLocale as 'en' | 'bg' })
+		throw redirect(303, loginUrl)
 	}
 	
 	if (code) {
@@ -21,7 +26,8 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 		
 		if (error) {
 			console.error('Auth callback error:', error)
-			throw redirect(303, `/login?error=auth_callback_error`)
+			const loginUrl = localizeHref('/login?error=auth_callback_error', { locale: currentLocale as 'en' | 'bg' })
+			throw redirect(303, loginUrl)
 		}
 		
 		// Handle OAuth signup - create profile with account type preference
@@ -63,14 +69,20 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 	// Handle email confirmation
 	if (type === 'signup') {
 		// User confirmed their email - redirect to onboarding since profile already exists
-		throw redirect(303, '/onboarding')
+		const onboardingUrl = localizeHref('/onboarding', { locale: currentLocale as 'en' | 'bg' })
+		throw redirect(303, onboardingUrl)
 	}
 	
 	// Handle password reset
 	if (type === 'recovery') {
-		throw redirect(303, '/reset-password')
+		const resetUrl = localizeHref('/reset-password', { locale: currentLocale as 'en' | 'bg' })
+		throw redirect(303, resetUrl)
 	}
 	
 	// Successful auth, redirect to the intended page or home
-	throw redirect(303, next)
+	// If next is already localized, use it as-is, otherwise localize it
+	const finalUrl = next.startsWith('/bg') || next.startsWith('/en') 
+		? next 
+		: localizeHref(next, { locale: currentLocale as 'en' | 'bg' })
+	throw redirect(303, finalUrl)
 }
