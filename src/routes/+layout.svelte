@@ -117,10 +117,6 @@
 		// Listen for auth changes and update context
 		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
 			
-			// Skip INITIAL_SESSION if we already have server data
-			if (event === 'INITIAL_SESSION' && data.session) {
-					return;
-			}
 			
 			// Update auth context with new session data
 			if (session) {

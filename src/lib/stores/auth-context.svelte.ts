@@ -39,19 +39,12 @@ class AuthContext {
 	}
 	
 	async loadProfile(userId: string) {
-		console.log('🔄 Starting profile load for:', userId);
 		try {
 			// Add timeout to prevent infinite hang
 			const timeoutPromise = new Promise((_, reject) => 
 				setTimeout(() => reject(new Error('Profile load timeout after 5s')), 5000)
 			);
 			
-			console.log('📡 Querying profiles table...');
-			console.log('🔍 Supabase client check:', {
-				hasSupabase: !!this.supabase,
-				hasAuth: !!this.supabase?.auth,
-				hasFrom: typeof this.supabase?.from === 'function'
-			});
 			
 			const queryPromise = this.supabase
 				.from('profiles')
@@ -65,7 +58,6 @@ class AuthContext {
 				console.error('❌ Profile load error:', error);
 				throw error;
 			}
-			console.log('✅ Profile loaded:', data?.username || 'no username');
 			this.profile = data
 			this.notifyStateChange()
 			return data
@@ -81,7 +73,6 @@ class AuthContext {
 	// Server-side auth is handled through form actions in +page.server.ts files
 	async signUp(email: string, password: string, username?: string, fullName?: string, metadata?: Record<string, any>) {
 		// This method is kept for compatibility but auth should be handled server-side
-		console.warn('Client-side signUp called. Consider using server-side form actions instead.')
 		this.loading = true
 		this.error = null
 		this.notifyStateChange()
@@ -144,7 +135,6 @@ class AuthContext {
 	
 	async signIn(email: string, password: string, rememberMe: boolean = false) {
 		// This method is kept for compatibility but auth should be handled server-side
-		console.warn('Client-side signIn called. Consider using server-side form actions instead.')
 		this.loading = true
 		this.error = null
 		this.notifyStateChange()
