@@ -222,7 +222,7 @@
 			</div>
 		</div>
 	</div>
-{:else if showSetup && $user}
+{:else if showSetup && $user && supabase}
 	<div class="min-h-[100dvh] bg-background relative">
 		{#if loading}
 			<!-- Overlay loading state -->
@@ -238,8 +238,9 @@
 		{/if}
 		<ProfileSetupWizard 
 			user={$user} 
-			profile={data.user?.profile}
+			profile={data.profile}
 			onComplete={handleComplete}
+			{supabase}
 		/>
 	</div>
 {/if}
