@@ -4,6 +4,7 @@ import type { Handle } from '@sveltejs/kit'
 import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
 import { setLocale, isLocale } from '$lib/paraglide/runtime.js'
+import { paraglideMiddleware } from '$lib/paraglide/server.js'
 import { dev } from '$app/environment'
 import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit'
 import * as Sentry from '@sentry/sveltekit'
@@ -50,7 +51,27 @@ if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
 	}
 }
 
+// Paraglide middleware handle - integrates URL-based i18n routing
+const handleParaglide: Handle = async ({ event, resolve }) => {
+	return paraglideMiddleware(event.request, async ({ request, locale }) => {
+		// Update the event with the new request and locale
+		event.request = request
+		event.locals.locale = locale
+		
+		// Continue with the resolve chain
+		const response = await resolve(event, {
+			transformPageChunk: ({ html }) => {
+				// Replace html lang attribute
+				return html.replace('<html lang="en">', `<html lang="${locale}">`)
+			}
+		})
+		
+		return response
+	})
+}
+
 const handleI18n: Handle = async ({ event, resolve }) => {
+	// This is now handled by Paraglide middleware, but keep for fallback
 	// Get language from cookie or Accept-Language header
 	// Paraglide uses PARAGLIDE_LOCALE as the cookie name
 	const cookieLocale = event.cookies.get('PARAGLIDE_LOCALE') || event.cookies.get('locale')
@@ -287,4 +308,4 @@ export const handleError = handleErrorWithSentry((error, event) => {
 	}
 });
 
-export const handle = sequence(handleI18n, handleSupabase, sentryHandleWrapper, handleCaching)
+export const handle = sequence(handleParaglide, handleSupabase, sentryHandleWrapper, handleCaching)

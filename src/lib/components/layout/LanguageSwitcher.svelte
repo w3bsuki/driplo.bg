@@ -1,25 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/stores'
 	import { goto } from '$app/navigation'
-	import { i18n } from '$lib/i18n'
-	import { getLocale, setLocale } from '$lib/paraglide/runtime.js'
-	import { setCookie } from '$lib/utils/cookies'
+	import { getLocale, localizeHref } from '$lib/paraglide/runtime.js'
 	
 	$: currentLanguage = getLocale()
 	
 	function switchToLanguage(newLang: string) {
 		if (newLang === currentLanguage) return;
 		
-		// Set locale cookie for persistence
-		// Using PARAGLIDE_LOCALE as that's what Paraglide runtime expects
-		setCookie('PARAGLIDE_LOCALE', newLang);
+		// Get the current page path
+		const currentPath = $page.url.pathname + $page.url.search + $page.url.hash;
 		
-		// Set the locale in Paraglide runtime
-		setLocale(newLang as 'en' | 'bg', { reload: false });
+		// Generate the localized URL for the new language
+		const localizedUrl = localizeHref(currentPath, { locale: newLang as 'en' | 'bg' });
 		
-		// Reload the page to apply the new language
-		// This ensures all server-side translations are loaded
-		window.location.reload();
+		// Navigate to the new localized URL
+		goto(localizedUrl);
 	}
 </script>
 
