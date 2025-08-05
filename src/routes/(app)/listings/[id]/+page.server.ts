@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		.from('listings')
 		.select(`
 			*,
-			seller:profiles!user_id(
+			profiles!listings_user_id_fkey(
 				id,
 				username,
 				full_name,
@@ -27,7 +27,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				seller_rating_count,
 				total_sales
 			),
-			category:categories!category_id(
+			categories!listings_category_id_fkey(
 				id,
 				name,
 				slug,
@@ -52,19 +52,19 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		favoriteCheckResult
 	] = await Promise.all([
 		// Get seller's followers count
-		listing.seller
+		listing.profiles
 			? supabase
 					.from('user_follows')
 					.select('id', { count: 'exact', head: true })
-					.eq('following_id', listing.seller.id)
+					.eq('following_id', listing.profiles.id)
 			: Promise.resolve({ count: 0 }),
 
 		// Get seller's active listings count
-		listing.seller
+		listing.profiles
 			? supabase
 					.from('listings')
 					.select('id', { count: 'exact', head: true })
-					.eq('user_id', listing.seller.id)
+					.eq('user_id', listing.profiles.id)
 					.eq('status', 'active')
 			: Promise.resolve({ count: 0 }),
 
@@ -94,7 +94,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				size,
 				brand,
 				condition,
-				seller:profiles!user_id(username, avatar_url, account_type, is_verified)
+				profiles!listings_user_id_fkey(username, avatar_url, account_type, is_verified)
 			`)
 			.eq('category_id', listing.category_id)
 			.eq('status', 'active')
@@ -123,10 +123,18 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	])
 
 	// Update seller stats
-	if (listing.seller) {
-		listing.seller.followers_count = followersResult.count || 0
-		listing.seller.listings_count = listingsCountResult.count || 0
+	if (listing.profiles) {
+		listing.profiles.followers_count = followersResult.count || 0
+		listing.profiles.listings_count = listingsCountResult.count || 0
 	}
+	
+	// Rename profiles to seller for consistency with frontend
+	listing.seller = listing.profiles
+	delete listing.profiles
+	
+	// Also rename category
+	listing.category = listing.categories
+	delete listing.categories
 
 	// Track view using our new stored procedure (fire and forget)
 	if (session?.user) {
@@ -141,10 +149,19 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// This would require client-side tracking instead
 	}
 
+	// Fix related listings structure
+	const relatedListings = (relatedListingsResult.data || []).map(item => {
+		if (item.profiles) {
+			item.seller = item.profiles
+			delete item.profiles
+		}
+		return item
+	})
+	
 	return {
 		listing,
 		sellerListings: sellerListingsResult.data || [],
-		relatedListings: relatedListingsResult.data || [],
+		relatedListings,
 		isFollowing: !!followCheckResult.data,
 		isLiked: !!favoriteCheckResult.data,
 		user: session?.user || null
