@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { User, ChevronDown } from 'lucide-svelte';
 	import { DropdownMenu } from '$lib/components/ui';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { user, session, profile } from '$lib/stores/auth';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
 	import type { SupabaseClient } from '@supabase/supabase-js';
@@ -66,15 +66,12 @@
 	}
 
 	async function handleSignOut() {
-		try {
-			await fetch('/logout', { method: 'POST' });
-			// Force redirect to home page
-			window.location.href = '/';
-		} catch (error) {
-			console.error('Logout error:', error);
-			// Still redirect to home even if there's an error
-			window.location.href = '/';
-		}
+		// Sign out using Supabase client directly
+		await supabase.auth.signOut();
+		// Invalidate all server-side data
+		await invalidateAll();
+		// Redirect to home
+		await goto('/');
 	}
 	
 	// Badge mapping
