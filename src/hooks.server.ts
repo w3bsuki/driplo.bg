@@ -72,16 +72,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		{
 			cookies: {
 				get: (key) => {
-					const value = event.cookies.get(key);
-					// Debug cookie reading
-					if (key.includes('auth-token')) {
-						console.log('🔍 Reading auth cookie:', {
-							key,
-							hasValue: !!value,
-							valueLength: value?.length || 0
-						});
-					}
-					return value;
+					return event.cookies.get(key);
 				},
 				set: (key, value, options) => {
 					// More robust production detection
@@ -123,12 +114,6 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			error: sessionError
 		} = await event.locals.supabase.auth.getSession()
 		
-		console.log('🔍 Server safeGetSession:', {
-			hasSession: !!session,
-			userEmail: session?.user?.email || 'none',
-			path: event.url.pathname
-		});
-		
 		if (!session) {
 			return { session: null, user: null }
 		}
@@ -140,12 +125,9 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		} = await event.locals.supabase.auth.getUser()
 		
 		if (userError || !user) {
-			console.log('❌ Server auth validation error:', userError?.message);
 			// JWT validation has failed
 			return { session: null, user: null }
 		}
-
-		console.log('✅ Server auth validation success for:', user?.email);
 		return { session, user }
 	}
 
