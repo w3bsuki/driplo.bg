@@ -155,6 +155,9 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		Sentry.setUser(null);
 	}
 	
+	// TEMPORARILY DISABLED: Onboarding redirect causing issues
+	// TODO: Fix the redirect logic to prevent circular redirects
+	/*
 	if (user && user.email_confirmed_at && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
 		// Get user profile to check onboarding completion
 		const { data: profile } = await event.locals.supabase
@@ -169,8 +172,8 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		const needsOnboarding = profile && !profile.onboarding_completed
 		
 		if (needsOnboarding) {
-			// Skip redirect for auth pages, API routes, and static assets
-			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api', '/sign-in', '/sign-up']
+			// Skip redirect for auth pages, API routes, onboarding page itself, and static assets
+			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api', '/sign-in', '/sign-up', '/onboarding']
 			const pathname = event.url.pathname.replace('/bg', '').replace('/en', '') // Remove locale prefix for comparison
 			const shouldRedirect = !skipPaths.some(path => pathname.startsWith(path)) && 
 								   !event.url.pathname.includes('.') &&
@@ -191,6 +194,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			}
 		}
 	}
+	*/
 
 	const response = await resolve(event, {
 		filterSerializedResponseHeaders(name) {

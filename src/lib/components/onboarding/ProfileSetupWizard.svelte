@@ -158,7 +158,7 @@
 	let completedSteps = $state<number[]>([]);
 
 	// Reactive step calculation
-	const activeSteps = $derived(() => {
+	const activeSteps = $derived.by(() => {
 		const steps = [...STEPS];
 		
 		// Add brand step if account type is brand
@@ -171,16 +171,16 @@
 	});
 
 	const currentStepIndex = $derived(
-		activeSteps().findIndex(step => step.id === currentStep)
+		activeSteps.findIndex(step => step.id === currentStep)
 	);
 
 	const isLastStep = $derived(
-		currentStepIndex === activeSteps().length - 1
+		currentStepIndex === activeSteps.length - 1
 	);
 
 	const canProceed = $derived.by(() => {
 		// Get current step data
-		const stepData = activeSteps()[currentStepIndex];
+		const stepData = activeSteps[currentStepIndex];
 		if (!stepData) return false;
 
 		switch (stepData.name) {
@@ -241,7 +241,7 @@
 			if (!supabase) {
 				throw new Error('Supabase client is not available');
 			}
-			const stepData = activeSteps()[currentStepIndex];
+			const stepData = activeSteps[currentStepIndex];
 			
 			// Save current step data
 			const updateData: any = { onboarding_step: currentStep };
@@ -348,7 +348,7 @@
 			
 			// Move to next step
 			if (!isLastStep) {
-				currentStep = activeSteps()[currentStepIndex + 1].id;
+				currentStep = activeSteps[currentStepIndex + 1].id;
 			}
 			
 			toast.success('Progress saved!', { duration: 2000 });
@@ -362,7 +362,7 @@
 
 	function handleBack() {
 		if (currentStepIndex > 0) {
-			currentStep = activeSteps()[currentStepIndex - 1].id;
+			currentStep = activeSteps[currentStepIndex - 1].id;
 		}
 	}
 
@@ -394,9 +394,11 @@
 		}
 	}
 
-	// Initialize form data from profile
+	// Initialize form data from profile ONCE on mount
+	let formInitialized = false;
 	$effect(() => {
-		if (profile) {
+		if (profile && !formInitialized) {
+			formInitialized = true;
 			$form.fullName = profile.full_name || '';
 			$form.bio = profile.bio || '';
 			$form.location = profile.location || '';
@@ -409,7 +411,7 @@
 				completedSteps = [];
 			} else if (profile.onboarding_step && profile.onboarding_step > 0) {
 				// Resume from last step only if username is already set
-				currentStep = Math.min(profile.onboarding_step, activeSteps().length);
+				currentStep = Math.min(profile.onboarding_step, activeSteps.length);
 				// Mark previous steps as completed
 				completedSteps = Array.from({ length: profile.onboarding_step - 1 }, (_, i) => i + 1);
 			}
@@ -417,83 +419,55 @@
 	});
 </script>
 
-<!-- Premium Modern Layout -->
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-	<div class="container max-w-4xl mx-auto px-4 py-8 sm:py-12">
-		<!-- Premium Header -->
-		<div class="text-center mb-12">
-			<div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
-				<!-- Gradient background with animated glow -->
-				<div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl animate-pulse opacity-20"></div>
-				<div class="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
-					<Sparkles class="w-8 h-8 text-white" />
-				</div>
-			</div>
-			<h1 class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-				Welcome to Driplo
+<!-- Simple Clean Layout -->
+<div class="min-h-screen bg-white">
+	<div class="max-w-2xl mx-auto px-4 py-6">
+		<!-- Minimal Header -->
+		<div class="text-center mb-6">
+			<h1 class="text-xl font-semibold text-gray-900">
+				Set up your profile
 			</h1>
-			<p class="text-lg text-gray-600 max-w-md mx-auto">
-				Let's create your perfect fashion profile in just a few simple steps
+			<p class="text-sm text-gray-600 mt-1">
+				Complete these steps to get started
 			</p>
 		</div>
 
-		<!-- Enhanced Progress Indicator -->
-		<div class="mb-10">
-			<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
-				<ModernProgressIndicator 
-					steps={activeSteps()}
-					{currentStep}
-					{completedSteps}
-					showLabels={true}
-					variant="horizontal"
-				/>
+		<!-- Simple Progress Bar -->
+		<div class="mb-6">
+			<div class="flex items-center justify-between mb-2">
+				<span class="text-xs text-gray-600">Step {currentStepIndex + 1} of {activeSteps.length}</span>
+				<span class="text-xs text-gray-600">{Math.round((currentStepIndex / (activeSteps.length - 1)) * 100)}%</span>
+			</div>
+			<div class="w-full bg-gray-200 rounded-full h-1.5">
+				<div 
+					class="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+					style="width: {(currentStepIndex / (activeSteps.length - 1)) * 100}%"
+				></div>
 			</div>
 		</div>
 
-		<!-- Premium Step Content -->
+		<!-- Step Content -->
 		<div>
 			{#key currentStep}
-				<div class="relative">
-					<!-- Glass morphism card with enhanced styling -->
-					<div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl p-8 sm:p-10 mb-8 transition-all duration-500 hover:shadow-3xl hover:bg-white/85">
-						<!-- Gradient overlay for depth -->
-						<div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-3xl pointer-events-none"></div>
-						
-						<!-- Premium Step Header -->
-						<div class="relative flex items-center gap-4 mb-8 pb-6 border-b border-gray-200/50">
-							<!-- Enhanced icon container -->
-							<div class="relative">
-								<div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
-								<div class="relative w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-									<svelte:component 
-										this={activeSteps()[currentStepIndex]?.icon || UserIcon} 
-										class="w-6 h-6 text-white" 
-									/>
-								</div>
-							</div>
-							<div>
-								<h2 class="text-2xl font-bold text-gray-900 mb-1">
-									{activeSteps()[currentStepIndex]?.name}
-								</h2>
-								<p class="text-sm text-gray-500">
-									Step {currentStepIndex + 1} of {activeSteps().length}
-								</p>
-							</div>
-						</div>
+				<div class="bg-white rounded-lg border border-gray-200 p-5 mb-4">
+					<!-- Step Title -->
+					<h2 class="text-lg font-medium text-gray-900 mb-4">
+						{activeSteps[currentStepIndex]?.name}
+					</h2>
 
 						<!-- Step Content Area -->
 						<div class="relative">
-							{#if activeSteps()[currentStepIndex]?.name === 'Username'}
+							{#if activeSteps[currentStepIndex]?.name === 'Username'}
 								<UsernameSetup 
 									bind:username={$form.username}
 									{user}
 									{supabase}
 								/>
-							{:else if activeSteps()[currentStepIndex]?.name === 'Account Type'}
+							{:else if activeSteps[currentStepIndex]?.name === 'Account Type'}
 								<AccountTypeSelector 
 									bind:accountType={$form.accountType}
 								/>
-							{:else if activeSteps()[currentStepIndex]?.name === 'Profile'}
+							{:else if activeSteps[currentStepIndex]?.name === 'Profile'}
 								<div class="space-y-8">
 									<!-- Avatar Picker -->
 									<AvatarPicker 
@@ -508,20 +482,20 @@
 										bind:location={$form.location}
 									/>
 								</div>
-							{:else if activeSteps()[currentStepIndex]?.name === 'Payment'}
+							{:else if activeSteps[currentStepIndex]?.name === 'Payment'}
 								<PaymentMethodSetup 
 									bind:selectedMethods={$form.paymentMethods}
 									bind:revolut_tag={$form.revolut_tag}
 									bind:paypal_tag={$form.paypal_tag}
 									{supabase}
 								/>
-							{:else if activeSteps()[currentStepIndex]?.name === 'Brand Info'}
+							{:else if activeSteps[currentStepIndex]?.name === 'Brand Info'}
 								<BrandInfoForm 
 									bind:brandName={$form.brandName}
 									bind:brandDescription={$form.brandDescription}
 									bind:socialMediaAccounts={$form.socialMediaAccounts}
 								/>
-							{:else if activeSteps()[currentStepIndex]?.name === 'Complete'}
+							{:else if activeSteps[currentStepIndex]?.name === 'Complete'}
 								<SetupComplete 
 									accountType={$form.accountType || 'personal'}
 									fullName={$form.fullName || ''}
@@ -533,54 +507,31 @@
 				</div>
 			{/key}
 
-			<!-- Premium Navigation -->
-			<div class="flex items-center justify-between gap-4">
+			<!-- Simple Navigation -->
+			<div class="flex justify-between">
 				<button
 					onclick={handleBack}
 					disabled={currentStepIndex === 0 || loading}
-					class="group flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:bg-gray-50 rounded-2xl"
+					class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed"
 				>
-					<ChevronLeft class="w-5 h-5 transition-transform group-hover:-translate-x-1" />
-					<span class="font-medium">Back</span>
+					← Back
 				</button>
 
 				{#if isLastStep}
 					<button
 						onclick={handleComplete}
 						disabled={loading}
-						class="group relative flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+						class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						<!-- Animated background -->
-						<div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-						
-						<div class="relative flex items-center gap-3">
-							{#if loading}
-								<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-								<span>Completing Setup...</span>
-							{:else}
-								<Sparkles class="w-5 h-5" />
-								<span>Complete Setup</span>
-							{/if}
-						</div>
+						{loading ? 'Completing...' : 'Complete'}
 					</button>
 				{:else}
 					<button
 						onclick={handleNext}
 						disabled={!canProceed || loading}
-						class="group relative flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+						class="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
 					>
-						<!-- Animated background -->
-						<div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
-						
-						<div class="relative flex items-center gap-3">
-							{#if loading}
-								<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-								<span>Saving...</span>
-							{:else}
-								<span>Continue</span>
-								<ChevronRight class="w-5 h-5 transition-transform group-hover:translate-x-1" />
-							{/if}
-						</div>
+						{loading ? 'Saving...' : 'Continue →'}
 					</button>
 				{/if}
 			</div>
