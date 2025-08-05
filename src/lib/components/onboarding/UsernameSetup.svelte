@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import { user, profile } from '$lib/stores/auth';
 	import { AtSign, Check, X, Loader2, User, Sparkles } from 'lucide-svelte';
 	import { onboardingValidators } from '$lib/schemas/onboarding';
 	import { fly, fade } from 'svelte/transition';
@@ -10,7 +10,7 @@
 
 	let { username = $bindable('') }: Props = $props();
 
-	const auth = getAuthContext();
+	// Auth stores are already imported above
 	
 	let isChecking = $state(false);
 	let isAvailable = $state(false);

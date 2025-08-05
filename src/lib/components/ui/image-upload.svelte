@@ -89,7 +89,7 @@
 					<button
 						type="button"
 						onclick={() => removeImage(index)}
-						class="absolute -top-2 -right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+						class="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm hover:bg-red-600"
 						aria-label="Remove image"
 					>
 						<X class="w-3 h-3" />
@@ -107,8 +107,8 @@
 		<div
 			class={cn(
 				"relative border-2 border-dashed rounded-lg p-8 transition-colors",
-				"hover:border-primary/50 hover:bg-muted/50",
-				dragOver ? "border-primary bg-primary/5" : "border-border",
+				"hover:border-blue-400 hover:bg-blue-50/50",
+				dragOver ? "border-blue-500 bg-blue-50" : "border-gray-300",
 				"cursor-pointer"
 			)}
 			ondragover={(e) => { e.preventDefault(); dragOver = true }}
@@ -121,15 +121,15 @@
 		>
 			<div class="flex flex-col items-center justify-center text-center">
 				{#if images.length === 0}
-					<Upload class="w-10 h-10 text-muted-foreground mb-4" />
+					<Upload class="w-10 h-10 text-gray-400 mb-4" />
 					<p class="text-sm font-medium mb-1">Click or drag to upload</p>
-					<p class="text-xs text-muted-foreground">
+					<p class="text-xs text-gray-500">
 						{accept} • Max {maxSize}MB per file
 					</p>
 				{:else}
-					<ImageIcon class="w-8 h-8 text-muted-foreground mb-3" />
+					<ImageIcon class="w-8 h-8 text-gray-400 mb-3" />
 					<p class="text-sm font-medium">Add more images</p>
-					<p class="text-xs text-muted-foreground">
+					<p class="text-xs text-gray-500">
 						{images.length}/{maxImages} uploaded
 					</p>
 				{/if}

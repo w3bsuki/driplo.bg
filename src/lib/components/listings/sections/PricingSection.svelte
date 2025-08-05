@@ -28,10 +28,10 @@
 		<!-- Price -->
 		<div class="space-y-2">
 			<Label for="price">
-				Price <span class="text-destructive">*</span>
+				Price <span class="text-red-500">*</span>
 			</Label>
 			<div class="relative">
-				<DollarSign class="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+				<DollarSign class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
 				<Input
 					id="price"
 					type="number"
@@ -43,25 +43,25 @@
 				/>
 			</div>
 			{#if errors.price}
-				<p class="text-sm text-destructive">{errors.price[0]}</p>
+				<p class="text-sm text-red-500">{errors.price[0]}</p>
 			{/if}
 		</div>
 		
 		<!-- Condition -->
 		<div class="space-y-2">
 			<Label>
-				Condition <span class="text-destructive">*</span>
+				Condition <span class="text-red-500">*</span>
 			</Label>
 			<ConditionSelector bind:value={condition} />
 			{#if errors.condition}
-				<p class="text-sm text-destructive">{errors.condition[0]}</p>
+				<p class="text-sm text-red-500">{errors.condition[0]}</p>
 			{/if}
 		</div>
 		
 		<!-- Color -->
 		<div class="space-y-2">
 			<Label for="color">
-				Color <span class="text-destructive">*</span>
+				Color <span class="text-red-500">*</span>
 			</Label>
 			<Input
 				id="color"
@@ -69,7 +69,7 @@
 				placeholder="e.g., Black"
 			/>
 			{#if errors.color}
-				<p class="text-sm text-destructive">{errors.color[0]}</p>
+				<p class="text-sm text-red-500">{errors.color[0]}</p>
 			{/if}
 		</div>
 		

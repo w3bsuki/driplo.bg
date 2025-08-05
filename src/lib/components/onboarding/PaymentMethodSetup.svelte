@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAuthContext } from '$lib/stores/auth-context.svelte';
+	import { user, profile } from '$lib/stores/auth';
 	import { toast } from 'svelte-sonner';
 	import { CreditCard, Wallet, DollarSign, Info, CheckCircle2 } from 'lucide-svelte';
 
@@ -15,7 +15,7 @@
 		paypal_tag = $bindable('')
 	}: Props = $props();
 
-	const auth = getAuthContext();
+	// Auth stores are already imported above
 	let loading = $state(false);
 
 	const paymentMethods = [

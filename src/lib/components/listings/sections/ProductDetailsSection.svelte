@@ -34,7 +34,7 @@
 		<!-- Title -->
 		<div class="space-y-2">
 			<Label for="title">
-				Title <span class="text-destructive">*</span>
+				Title <span class="text-red-500">*</span>
 			</Label>
 			<Input
 				id="title"
@@ -45,17 +45,17 @@
 				aria-describedby={errors.title ? "title-error" : undefined}
 			/>
 			{#if errors.title}
-				<p id="title-error" class="text-sm text-destructive">
+				<p id="title-error" class="text-sm text-red-500">
 					{errors.title[0]}
 				</p>
 			{/if}
-			<p class="text-xs text-muted-foreground">{title.length}/100</p>
+			<p class="text-xs text-gray-500">{title.length}/100</p>
 		</div>
 		
 		<!-- Category -->
 		<div class="space-y-2">
 			<Label>
-				Category <span class="text-destructive">*</span>
+				Category <span class="text-red-500">*</span>
 			</Label>
 			<CategorySelector
 				bind:value={categoryId}
@@ -63,7 +63,7 @@
 				onchange={onCategoryChange}
 			/>
 			{#if errors.category_id}
-				<p class="text-sm text-destructive">
+				<p class="text-sm text-red-500">
 					{errors.category_id[0]}
 				</p>
 			{/if}
@@ -72,7 +72,7 @@
 		<!-- Description -->
 		<div class="space-y-2">
 			<Label for="description">
-				Description <span class="text-destructive">*</span>
+				Description <span class="text-red-500">*</span>
 			</Label>
 			<Textarea
 				id="description"
@@ -83,11 +83,11 @@
 				aria-invalid={!!errors.description}
 			/>
 			{#if errors.description}
-				<p class="text-sm text-destructive">
+				<p class="text-sm text-red-500">
 					{errors.description[0]}
 				</p>
 			{/if}
-			<p class="text-xs text-muted-foreground">{description.length}/2000</p>
+			<p class="text-xs text-gray-500">{description.length}/2000</p>
 		</div>
 	</div>
 </FormSection>

@@ -23,18 +23,18 @@
 </svelte:head>
 
 {#if $user && data.user}
-	<div class="min-h-screen bg-background">
+	<div class="min-h-screen bg-gray-50">
 		<div class="container max-w-4xl py-8">
 			<!-- Header -->
 			<div class="mb-8">
 				<h1 class="text-3xl font-bold mb-2">Create New Listing</h1>
-				<p class="text-muted-foreground">
+				<p class="text-gray-600">
 					Fill out the form below to list your item for sale
 				</p>
 			</div>
 			
 			<!-- Form -->
-			<div class="bg-card rounded-lg border shadow-sm p-6 md:p-8">
+			<div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
 				<ListingForm 
 					data={data.form} 
 					categories={data.categories}
@@ -44,14 +44,14 @@
 		</div>
 	</div>
 {:else}
-	<div class="min-h-screen flex items-center justify-center bg-background">
+	<div class="min-h-screen flex items-center justify-center bg-gray-50">
 		<div class="text-center space-y-4 px-4">
-			<div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-				<Lock class="w-8 h-8 text-primary" />
+			<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+				<Lock class="w-8 h-8 text-blue-600" />
 			</div>
 			<div class="space-y-2">
 				<h2 class="text-xl font-semibold">{m.sell_login_required()}</h2>
-				<p class="text-muted-foreground">{m.sell_need_account()}</p>
+				<p class="text-gray-600">{m.sell_need_account()}</p>
 			</div>
 			<a href="/login?redirect=/sell">
 				<Button>

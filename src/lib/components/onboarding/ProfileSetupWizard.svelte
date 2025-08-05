@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { user } from '$lib/stores/auth';
+	import { user as authUser } from '$lib/stores/auth';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';

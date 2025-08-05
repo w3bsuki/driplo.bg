@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { getAuthContext } from '$lib/stores/auth-context.svelte'
+	import { user, profile as authProfile } from '$lib/stores/auth'
 	import { onMount } from 'svelte'
 	import ImageUpload from '$lib/components/upload/ImageUpload.svelte'
 	import { Save, ArrowLeft, User, Image as ImageIcon, MapPin, Globe, FileText, Loader2, Camera, Instagram, Music2, Facebook, Twitter, Youtube, Link } from 'lucide-svelte'
@@ -12,7 +12,7 @@
 	let { data }: { data: PageData } = $props()
 	
 	// Get auth context
-	const auth = getAuthContext()
+	// Auth stores are already imported above
 	
 	// Get supabase client from page data
 	const supabase = $derived(data.supabase)

@@ -25,12 +25,12 @@
 		<div class="space-y-1">
 			<h3 class="text-lg font-semibold flex items-center gap-2">
 				{#if Icon}
-					<Icon class="w-5 h-5 text-muted-foreground" />
+					<Icon class="w-5 h-5 text-gray-500" />
 				{/if}
 				{title}
 			</h3>
 			{#if description}
-				<p class="text-sm text-muted-foreground">{description}</p>
+				<p class="text-sm text-gray-600">{description}</p>
 			{/if}
 		</div>
 	{/if}

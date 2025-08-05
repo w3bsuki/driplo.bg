@@ -129,10 +129,10 @@
 	</div>
 	
 	{#if !hasPaymentAccount}
-		<div class="rounded-lg bg-warning/10 border border-warning p-4">
-			<p class="text-sm">
+		<div class="rounded-lg bg-yellow-50 border border-yellow-200 p-4">
+			<p class="text-sm text-yellow-800">
 				Set up your payment account to start selling.
-				<a href="/profile/settings" class="font-medium underline">
+				<a href="/profile/settings" class="font-medium underline hover:text-yellow-900">
 					Set up now
 				</a>
 			</p>
