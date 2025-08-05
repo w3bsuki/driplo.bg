@@ -64,17 +64,26 @@
 	// Check if we're on an auth page
 	$: isAuthPage = $page.url.pathname.includes('/login') || $page.url.pathname.includes('/register');
 	
+	// Track if we've already handled the refresh to prevent loops
+	let hasHandledRefresh = false;
+	
 	// Handle auth refresh parameter reactively when URL changes
-	$: if (browser && $page.url.searchParams.get('_refreshAuth') === 'true') {
+	$: if (browser && $page.url.searchParams.get('_refreshAuth') === 'true' && !hasHandledRefresh) {
 		console.log('Auth refresh requested via URL change, refreshing session...');
+		hasHandledRefresh = true;
+		
 		// Remove the parameter from URL using SvelteKit's replaceState
 		const url = new URL($page.url);
 		url.searchParams.delete('_refreshAuth');
 		replaceState(url.toString(), {});
 		
-		// Trigger auth refresh
-		invalidate('app:auth');
-		invalidate('supabase:auth');
+		// Trigger auth refresh ONCE
+		invalidateAll().then(() => {
+			// Reset the flag after a delay to allow future refreshes if needed
+			setTimeout(() => {
+				hasHandledRefresh = false;
+			}, 1000);
+		});
 	}
 
 	onMount(() => {
