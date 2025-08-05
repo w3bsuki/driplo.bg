@@ -37,5 +37,15 @@ export default defineConfig({
 				// Let Vite handle chunk splitting automatically for now
 			}
 		}
-	}
+	},
+	// Optimize deps to include fontsource packages
+	optimizeDeps: {
+		include: [
+			'@fontsource/inter',
+			'@fontsource/plus-jakarta-sans',
+			'@fontsource/jetbrains-mono'
+		]
+	},
+	// Ensure proper asset handling
+	assetsInclude: ['**/*.woff', '**/*.woff2']
 });

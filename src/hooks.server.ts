@@ -73,28 +73,22 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 			cookies: {
 				get: (key) => event.cookies.get(key),
 				set: (key, value, options) => {
-					// Enhanced cookie settings
-					const isProduction = event.url.protocol === 'https:'
-					const cookieOptions = {
+					// Use SvelteKit's dev flag for reliable detection
+					event.cookies.set(key, value, {
 						...options,
 						path: '/',
 						httpOnly: true,
-						secure: isProduction,
-						sameSite: 'lax' as const,
+						secure: !dev, // Use SvelteKit's dev import
+						sameSite: 'lax',
 						maxAge: options?.maxAge ?? 60 * 60 * 24 * 30 // 30 days default
-					}
-					
-					// For Vercel deployment, cookies don't need domain specification
-					// Vercel handles this automatically for the deployment URL
-					event.cookies.set(key, value, cookieOptions)
+					})
 				},
 				remove: (key, _options) => {
 					// Ensure complete cookie removal with all necessary options
-					const isProduction = event.url.protocol === 'https:'
 					event.cookies.delete(key, {
 						path: '/',
 						httpOnly: true,
-						secure: isProduction,
+						secure: !dev,
 						sameSite: 'lax'
 					})
 				}
@@ -184,28 +178,19 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		}
 	})
 
-	// Add security headers
-	response.headers.set('X-Content-Type-Options', 'nosniff')
-	response.headers.set('X-Frame-Options', 'DENY')
-	response.headers.set('X-XSS-Protection', '1; mode=block')
-	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-	response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+	// Security headers are already set in vercel.json
+	// Only add CSP here to include dynamic values for Supabase and allow Vercel live
+	const cspDirectives = [
+		"default-src 'self'",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live",
+		"frame-src 'self' https://www.google.com https://checkout.stripe.com https://vercel.live",
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+		"font-src 'self' https://fonts.gstatic.com data:",
+		"img-src 'self' data: https: blob:",
+		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live"
+	]
 	
-	// Add CSP header for reCAPTCHA and Stripe
-	response.headers.set('Content-Security-Policy', 
-		"default-src 'self'; " +
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com; " +
-		"frame-src 'self' https://www.google.com https://checkout.stripe.com; " +
-		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-		"font-src 'self' https://fonts.gstatic.com; " +
-		"img-src 'self' data: https: blob:; " +
-		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com"
-	)
-	
-	// Only set HSTS in production
-	if (event.url.protocol === 'https:') {
-		response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
-	}
+	response.headers.set('Content-Security-Policy', cspDirectives.join('; '))
 
 	return response
 }
