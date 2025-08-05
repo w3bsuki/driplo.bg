@@ -2,14 +2,13 @@
 	import { cn } from '$lib/utils'
 	
 	interface Props {
-		name?: string
 		class?: string
 		children?: any
 	}
 	
-	let { name, class: className = '', children }: Props = $props()
+	let { class: className, children }: Props = $props()
 </script>
 
-<div class={cn("space-y-2", className)} data-field={name}>
+<div class={cn("relative", className)}>
 	{@render children?.()}
 </div>

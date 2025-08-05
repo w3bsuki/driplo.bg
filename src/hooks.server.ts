@@ -5,6 +5,39 @@ import type { Database } from '$lib/types/database'
 import { sequence } from '@sveltejs/kit/hooks'
 import { setLocale, isLocale } from '$lib/paraglide/runtime.js'
 import { dev } from '$app/environment'
+import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit'
+import * as Sentry from '@sentry/sveltekit'
+
+// Initialize Sentry only in production
+if (!dev && import.meta.env.VITE_PUBLIC_SENTRY_DSN) {
+	Sentry.init({
+		dsn: import.meta.env.VITE_PUBLIC_SENTRY_DSN,
+		
+		// Performance Monitoring
+		tracesSampleRate: 0.1,
+		
+		// Environment
+		environment: import.meta.env.MODE || 'production',
+		
+		// Server-specific configuration
+		beforeSend(event, hint) {
+			// Don't log authentication errors (expected)
+			if (event.exception?.values?.[0]?.value?.includes('AUTH_')) {
+				return null;
+			}
+			
+			// Add request context
+			if (event.request) {
+				event.request.cookies = '[Filtered]';
+			}
+			
+			return event;
+		},
+		
+		// Only activate in production
+		enabled: !dev,
+	});
+}
 
 // Validate environment variables
 if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
@@ -118,6 +151,17 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 
 	// Check if authenticated user needs onboarding
 	const { user } = await event.locals.safeGetSession()
+	
+	// Add user context to Sentry
+	if (user && !dev) {
+		Sentry.setUser({
+			id: user.id,
+			email: user.email,
+		});
+	} else if (!dev) {
+		Sentry.setUser(null);
+	}
+	
 	if (user && user.email_confirmed_at && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
 		// Get user profile to check onboarding completion
 		const { data: profile } = await event.locals.supabase
@@ -227,4 +271,19 @@ const handleCaching: Handle = async ({ event, resolve }) => {
 	return response
 }
 
-export const handle = sequence(handleI18n, handleSupabase, handleCaching)
+// Add Sentry handle for performance monitoring
+const sentryHandleWrapper = sentryHandle();
+
+// Export error handler
+export const handleError = handleErrorWithSentry((error, event) => {
+	// Log additional context
+	if (!dev) {
+		console.error('Server error:', {
+			error,
+			url: event.url.pathname,
+			method: event.request.method,
+		});
+	}
+});
+
+export const handle = sequence(handleI18n, handleSupabase, sentryHandleWrapper, handleCaching)

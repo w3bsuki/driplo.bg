@@ -4,12 +4,14 @@ import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
 import { createListingSchema, createListingDefaults } from '$lib/schemas/listing'
 import { serverCache, cacheKeys } from '$lib/server/cache'
+import { uploadListingImage } from '$lib/utils/upload'
 
 export const load: PageServerLoad = async ({ locals }) => {
-	const { data: { user }, error } = await locals.supabase.auth.getUser()
-	if (error || !user) {
-		throw redirect(303, '/login?redirect=/sell')
-	}
+	try {
+		const { data: { user }, error } = await locals.supabase.auth.getUser()
+		if (error || !user) {
+			throw redirect(303, '/login?redirect=/sell')
+		}
 	
 	// Initialize form with superforms - ensure all fields have proper defaults
 	const formDefaults = {
@@ -79,9 +81,9 @@ export const load: PageServerLoad = async ({ locals }) => {
 				}
 			}
 		}
-	} catch (error) {
+	} catch (error: any) {
 		// If error is "no rows returned", that's fine
-		if (error.code !== 'PGRST116') {
+		if (error?.code !== 'PGRST116') {
 			console.error('Failed to check payment account:', error)
 		}
 	}
@@ -92,117 +94,106 @@ export const load: PageServerLoad = async ({ locals }) => {
 		categories: categories || [],
 		hasPaymentAccount
 	}
+	} catch (error) {
+		// If it's a redirect, rethrow it
+		if (error instanceof Response && error.status === 303) {
+			throw error
+		}
+		
+		console.error('Error in sell page load:', error)
+		// Return minimal data to prevent complete failure
+		return {
+			form: await superValidate(createListingDefaults, zod(createListingSchema)),
+			user: null,
+			categories: [],
+			hasPaymentAccount: false
+		}
+	}
 }
 
 export const actions: Actions = {
-	create: async ({ request, locals, cookies }) => {
-		// CRITICAL FIX: Get session first to ensure proper JWT context
-		const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession()
-		if (sessionError || !session) {
-			console.error('No valid session found:', sessionError)
-			return fail(401, { error: 'Please log in to create a listing' })
-		}
-
+	create: async ({ request, locals }) => {
+		// Get user from auth
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
 		if (authError || !user) {
 			console.error('Auth error:', authError)
-			return fail(401, { error: 'Authentication failed' })
+			return fail(401, { error: 'Please log in to create a listing' })
 		}
 
-		console.log('=== AUTH CHECK ===')
-		console.log('Session exists:', !!session)
-		console.log('User ID:', user.id)
-		console.log('JWT present:', !!session.access_token)
-		console.log('==================')
-
-		// Use superValidate to parse the request directly
-		const form = await superValidate(request, zod(createListingSchema))
+		// Get form data
+		const formData = await request.formData()
+		
+		// Extract image files
+		const imageFiles = formData.getAll('imageFiles') as File[]
+		
+		// Remove image files from form data before validation
+		formData.delete('imageFiles')
+		formData.delete('imageCount')
+		
+		// Validate form data
+		const form = await superValidate(formData, zod(createListingSchema))
 		
 		if (!form.valid) {
 			console.error('Form validation failed:', form.errors)
-			console.error('Form data received:', form.data)
-			return fail(400, { form, error: 'Validation failed. Please check all fields.' })
+			return fail(400, { form, error: 'Please check all required fields.' })
 		}
 		
-		const supabase = locals.supabase
-		
-		// CRITICAL FIX: Check if user profile exists first (foreign key requirement)
-		const { data: profile, error: profileError } = await supabase
+		// Check if user profile exists (required by foreign key)
+		const { data: profile, error: profileError } = await locals.supabase
 			.from('profiles')
-			.select('id, username')
+			.select('id')
 			.eq('id', user.id)
 			.single()
 		
 		if (profileError || !profile) {
-			console.error('Profile not found for user:', user.id, profileError)
-			return fail(400, { form, error: 'User profile not found. Please complete your profile setup first.' })
+			console.error('Profile not found:', profileError)
+			return fail(400, { form, error: 'Profile not found. Please complete your profile setup.' })
 		}
 		
-		console.log('User authenticated:', user.id, 'Profile exists:', profile.username)
-		
-		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, images, tags, materials, ships_worldwide } = form.data
-		
-		// Generate slug
-		const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').substring(0, 50) + '-' + Date.now().toString(36)
-
-		try {
-			console.log('Attempting to create listing for user:', user.id)
-			console.log('Form data:', { title, price, category_id, condition, images: images?.length || 0 })
-			
-			// CRITICAL DEBUG: Test if auth.uid() is working in the database context
-			const { data: authDebug, error: authDebugError } = await supabase
-				.rpc('debug_listing_insert', { p_user_id: user.id })
-				.single()
-			
-			if (authDebugError) {
-				console.error('Auth debug test failed:', authDebugError)
-			} else {
-				console.log('=== AUTH DEBUG RESULTS ===')
-				console.log('current_auth_uid:', authDebug.current_auth_uid)
-				console.log('provided_user_id:', authDebug.provided_user_id)
-				console.log('auth_matches:', authDebug.auth_matches)
-				console.log('profile_exists:', authDebug.profile_exists)
-				console.log('========================')
-				
-				// If auth doesn't match, this is the core issue
-				if (!authDebug.auth_matches) {
-					console.error('CRITICAL: auth.uid() does not match user.id!')
-					console.error('This will cause RLS policy to fail')
-					console.error('Expected user.id:', user.id)
-					console.error('Database auth.uid():', authDebug.current_auth_uid)
-					return fail(401, { 
-						form, 
-						error: 'Authentication context error. Please log out and log back in.' 
-					})
+		// Upload images if any
+		const uploadedImageUrls: string[] = []
+		if (imageFiles.length > 0) {
+			for (let i = 0; i < imageFiles.length; i++) {
+				try {
+					const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
+					uploadedImageUrls.push(url)
+				} catch (error) {
+					console.error('Image upload failed:', error)
+					return fail(500, { form, error: 'Failed to upload images. Please try again.' })
 				}
 			}
-			
-			const { data, error } = await supabase
+		}
+		
+		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, tags, materials, ships_worldwide } = form.data
+
+		try {
+			// Create the listing
+			const { data: listing, error } = await locals.supabase
 				.from('listings')
 				.insert({
-					user_id: user.id, // Use user_id not seller_id
+					user_id: user.id,
 					title,
 					description,
 					price,
 					category_id,
 					subcategory_id,
 					condition,
-					images,
-					thumbnail_url: images?.[0], // Set first image as thumbnail
+					images: uploadedImageUrls,
+					thumbnail_url: uploadedImageUrls[0] || null,
 					color,
-					location: location_city, // Use location field directly
-					country: 'Bulgaria', // Default country
-					shipping_price: shipping_cost,
+					location: location_city,
+					country: 'Bulgaria',
+					shipping_price: shipping_cost || 0,
 					shipping_options: { 
 						standard: shipping_type === 'standard',
 						express: shipping_type === 'express',
 						pickup: shipping_type === 'pickup',
-						worldwide: ships_worldwide 
+						worldwide: ships_worldwide || false
 					},
-					brand: brand || null, // Add brand text field
-					size,
-					tags,
-					materials,
+					brand: brand || null,
+					size: size || null,
+					tags: tags || [],
+					materials: materials || [],
 					is_sold: false,
 					is_archived: false,
 					is_draft: false,
@@ -211,65 +202,47 @@ export const actions: Actions = {
 					view_count: 0,
 					like_count: 0,
 					save_count: 0,
-					currency: 'EUR' // Default currency
+					currency: 'EUR'
 				})
 				.select()
 				.single()
 
 			if (error) {
-				console.error('=== DETAILED DATABASE ERROR ===')
-				console.error('Error message:', error.message)
-				console.error('Error code:', error.code)
-				console.error('Error details:', error.details)
-				console.error('Error hint:', error.hint)
-				console.error('Full error object:', JSON.stringify(error, null, 2))
-				console.error('=== INSERT DATA ATTEMPTED ===')
-				console.error('user_id:', user.id)
-				console.error('title:', title)
-				console.error('price:', price)
-				console.error('category_id:', category_id)
-				console.error('condition:', condition)
-				console.error('images count:', images?.length || 0)
-				console.error('=== AUTH CONTEXT ===')
-				console.error('JWT user.id:', user.id)
-				console.error('Profile found:', !!profile)
-				console.error('===========================')
+				console.error('Database error:', error)
 				
-				// Return user-friendly error based on error code
-				let userError = 'Failed to create listing'
+				// User-friendly error messages
+				let userError = 'Failed to create listing. Please try again.'
 				if (error.code === '42501') {
-					userError = 'Permission denied. Please make sure you are logged in and try again.'
+					userError = 'Permission denied. Please log out and log back in.'
 				} else if (error.code === '23503') {
-					userError = 'Invalid category or missing profile information.'
+					if (error.message.includes('category')) {
+						userError = 'Invalid category selected.'
+					} else if (error.message.includes('profile')) {
+						userError = 'Profile not found. Please complete your profile setup.'
+					}
+				} else if (error.code === '23505') {
+					userError = 'A similar listing already exists.'
 				}
 				
-				return fail(500, { 
-					form, 
-					error: userError,
-					debugError: error.message // Include debug info for development
-				})
+				return fail(500, { form, error: userError })
 			}
 			
-			// Clear all relevant caches so new listing appears immediately
-			serverCache.delete(cacheKeys.homepage)
-			serverCache.delete(cacheKeys.featuredListings)
-			serverCache.delete(cacheKeys.popularListings)
-			// Clear browse cache entries that might contain this listing
-			serverCache.clear() // Clear all cache to ensure listing appears everywhere
+			// Clear cache to show new listing immediately
+			serverCache.clear()
 			
-			// Redirect to success page
-			throw redirect(303, `/sell/success?id=${data.id}`)
+			// Redirect to the new listing
+			throw redirect(303, `/listings/${listing.id}`)
 			
 		} catch (error: any) {
 			// If it's a redirect, rethrow it
-			if (error.status === 303) {
+			if (error?.status === 303) {
 				throw error
 			}
 			
-			console.error('Listing creation error:', error)
+			console.error('Unexpected error:', error)
 			return fail(500, { 
 				form,
-				error: error.message || 'Failed to create listing' 
+				error: 'An unexpected error occurred. Please try again.' 
 			})
 		}
 	}

@@ -12,6 +12,16 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "sbp_e4e00c804f70f8bf4f08225ec68d5b83fb8309ec"
       }
+    },
+    "@21st-dev/magic": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@21st-dev/magic@latest",
+        "API_KEY=\"1e26104b96d9ad00b7af16e814bd26b78be39fcd0670908433f0b90c6e6f58a5\""
+      ]
     }
   }
 }

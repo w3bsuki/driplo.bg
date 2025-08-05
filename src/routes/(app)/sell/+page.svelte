@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
 	import { user } from '$lib/stores/auth'
-	import ListingForm from '$lib/components/listings/ListingForm.svelte'
+	import ProductionListingForm from '$lib/components/listings/ProductionListingForm.svelte'
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
 	import { Lock } from 'lucide-svelte'
@@ -23,25 +23,12 @@
 </svelte:head>
 
 {#if $user && data.user}
-	<div class="min-h-screen bg-gray-50">
-		<div class="container max-w-4xl py-8">
-			<!-- Header -->
-			<div class="mb-8">
-				<h1 class="text-3xl font-bold mb-2">Create New Listing</h1>
-				<p class="text-gray-600">
-					Fill out the form below to list your item for sale
-				</p>
-			</div>
-			
-			<!-- Form -->
-			<div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 md:p-8">
-				<ListingForm 
-					data={data.form} 
-					categories={data.categories}
-					hasPaymentAccount={data.hasPaymentAccount}
-				/>
-			</div>
-		</div>
+	<div class="min-h-screen bg-gray-50 py-4">
+		<ProductionListingForm 
+			form={data.form} 
+			categories={data.categories} 
+			hasPaymentAccount={data.hasPaymentAccount} 
+		/>
 	</div>
 {:else}
 	<div class="min-h-screen flex items-center justify-center bg-gray-50">

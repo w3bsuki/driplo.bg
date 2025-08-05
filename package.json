@@ -75,6 +75,7 @@
     "@fontsource/plus-jakarta-sans": "^5.2.6",
     "@inlang/paraglide-js": "^2.2.0",
     "@inlang/paraglide-js-adapter-sveltekit": "^0.6.7",
+    "@sentry/sveltekit": "^10.1.0",
     "@stripe/stripe-js": "^7.6.1",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.5",

@@ -2,12 +2,19 @@ import { paraglideVitePlugin } from "@inlang/paraglide-js"
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { sentrySvelteKit } from '@sentry/sveltekit';
 
 export default defineConfig({
 	plugins: [
 		paraglideVitePlugin({
 			project: "./project.inlang",
 			outdir: "./src/lib/paraglide",
+		}),
+		sentrySvelteKit({
+			sourceMapsUploadOptions: {
+				org: process.env.SENTRY_ORG,
+				project: process.env.SENTRY_PROJECT,
+			},
 		}),
 		sveltekit(),
 		// Bundle analyzer - generates stats.html after build
