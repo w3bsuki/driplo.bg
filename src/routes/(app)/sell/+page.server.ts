@@ -201,13 +201,33 @@ export const actions: Actions = {
 		// Check if user profile exists (required by foreign key)
 		const { data: profile, error: profileError } = await locals.supabase
 			.from('profiles')
-			.select('id')
+			.select('id, username, onboarding_completed')
 			.eq('id', user.id)
 			.single()
 		
-		if (profileError || !profile) {
-			console.error('Profile not found:', profileError)
-			return fail(400, { form, error: 'Profile not found. Please complete your profile setup.' })
+		if (profileError) {
+			console.error('Profile check error:', profileError)
+			console.error('User ID being checked:', user.id)
+			
+			// If profile doesn't exist, try to create it
+			if (profileError.code === 'PGRST116') { // No rows returned
+				console.log('Profile not found, creating basic profile for user:', user.id)
+				const { error: createError } = await locals.supabase
+					.from('profiles')
+					.insert({
+						id: user.id,
+						email: user.email,
+						username: user.email?.split('@')[0] || 'user' + Date.now(),
+						onboarding_completed: false
+					})
+				
+				if (createError) {
+					console.error('Failed to create profile:', createError)
+					return fail(400, { form, error: 'Failed to create profile. Please try logging out and back in.' })
+				}
+			} else {
+				return fail(400, { form, error: 'Profile not found. Please complete your profile setup.' })
+			}
 		}
 		
 		// Images are now uploaded before validation - use the URLs we already have
@@ -267,19 +287,26 @@ export const actions: Actions = {
 				console.error('Error code:', error.code)
 				console.error('Error message:', error.message)
 				console.error('Error details:', error.details)
+				console.error('Error hint:', error.hint)
 				
 				// User-friendly error messages
-				let userError = 'Failed to create listing. Please try again.'
+				let userError = 'Failed to create listing. '
 				if (error.code === '42501') {
-					userError = 'Permission denied. Please log out and log back in.'
+					userError += 'Permission denied. Please log out and log back in.'
 				} else if (error.code === '23503') {
 					if (error.message.includes('category')) {
-						userError = 'Invalid category selected.'
+						userError += 'Invalid category selected.'
 					} else if (error.message.includes('profile')) {
-						userError = 'Profile not found. Please complete your profile setup.'
+						userError += 'Profile not found. Please complete your profile setup.'
+					} else {
+						userError += `Missing reference: ${error.message}`
 					}
 				} else if (error.code === '23505') {
-					userError = 'A similar listing already exists.'
+					userError += 'A similar listing already exists.'
+				} else if (error.code === '23502') {
+					userError += `Required field missing: ${error.message}`
+				} else {
+					userError += error.message || 'Unknown database error.'
 				}
 				
 				return fail(500, { form, error: userError })
