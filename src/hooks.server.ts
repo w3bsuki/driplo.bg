@@ -71,21 +71,21 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		PUBLIC_SUPABASE_ANON_KEY,
 		{
 			cookies: {
-				get: (key) => event.cookies.get(key),
+				get: (key) => {
+					const value = event.cookies.get(key);
+					// Debug cookie reading
+					if (key.includes('auth-token')) {
+						console.log('🔍 Reading auth cookie:', {
+							key,
+							hasValue: !!value,
+							valueLength: value?.length || 0
+						});
+					}
+					return value;
+				},
 				set: (key, value, options) => {
 					// More robust production detection
 					const isSecure = event.url.protocol === 'https:' || event.url.hostname !== 'localhost';
-					
-					// Debug cookie setting
-					console.log('🍪 Setting cookie:', {
-						key,
-						valueLength: value?.length,
-						options,
-						hostname: event.url.hostname,
-						protocol: event.url.protocol,
-						isSecure,
-						dev
-					});
 					
 					// Set cookie with proper options
 					event.cookies.set(key, value, {

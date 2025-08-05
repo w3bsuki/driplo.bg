@@ -8,7 +8,7 @@
 	import { setAuthContext } from '$lib/stores/auth-context.svelte.ts';
 	import { notifyAuthStateChange } from '$lib/stores/auth-compat';
 	import { onMount } from 'svelte';
-	import { invalidate, goto, replaceState } from '$app/navigation';
+	import { invalidate, invalidateAll, goto, replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { navigating } from '$app/stores';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
