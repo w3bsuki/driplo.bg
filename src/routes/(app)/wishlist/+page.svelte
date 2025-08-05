@@ -24,6 +24,7 @@
 	import { cn } from '$lib/utils'
 	import { toast } from 'svelte-sonner'
 	import * as m from '$lib/paraglide/messages.js'
+	import { localizeHref } from '$lib/paraglide/runtime.js'
 
 	let { data }: { data: PageData } = $props()
 
@@ -399,7 +400,7 @@
 										/>
 										
 										<!-- Image -->
-										<a href={`/listings/${listing.id}`} class="flex-shrink-0">
+										<a href={localizeHref(`/listings/${listing.id}`)} class="flex-shrink-0">
 											{#if listing.images?.[0]}
 												<img 
 													src={listing.images[0]} 
@@ -418,7 +419,7 @@
 											<div class="flex items-start justify-between gap-4">
 												<div class="flex-1">
 													<a 
-														href={`/listings/${listing.id}`}
+														href={localizeHref(`/listings/${listing.id}`)}
 														class="font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-1"
 													>
 														{listing.title}
@@ -465,7 +466,7 @@
 											<!-- Actions -->
 											<div class="flex items-center gap-2 mt-3">
 												<a 
-													href={`/listings/${listing.id}`}
+													href={localizeHref(`/listings/${listing.id}`)}
 													class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors"
 												>
 													<ShoppingBag class="w-4 h-4" />

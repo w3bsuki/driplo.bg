@@ -5,6 +5,7 @@
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
 	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref } from '$lib/paraglide/runtime.js';
 	
 	// Constants
 	const PRICE_CURRENCY = 'GBP';
@@ -149,7 +150,7 @@
 
 <article class="relative bg-white rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-fast group product-card shadow-sm hover:shadow-md">
 	<a 
-		href="/listings/{id}" 
+		href={localizeHref(`/listings/${id}`)} 
 		class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md no-underline"
 		aria-label={m.listing_view_details({ title })}
 	>
