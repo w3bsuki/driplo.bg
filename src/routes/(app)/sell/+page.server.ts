@@ -112,12 +112,55 @@ export const actions: Actions = {
 		
 		const supabase = locals.supabase
 		
+		// CRITICAL FIX: Check if user profile exists first (foreign key requirement)
+		const { data: profile, error: profileError } = await supabase
+			.from('profiles')
+			.select('id, username')
+			.eq('id', user.id)
+			.single()
+		
+		if (profileError || !profile) {
+			console.error('Profile not found for user:', user.id, profileError)
+			return fail(400, { form, error: 'User profile not found. Please complete your profile setup first.' })
+		}
+		
+		console.log('User authenticated:', user.id, 'Profile exists:', profile.username)
+		
 		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, images, tags, materials, ships_worldwide } = form.data
 		
 		// Generate slug
 		const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').substring(0, 50) + '-' + Date.now().toString(36)
 
 		try {
+			console.log('Attempting to create listing for user:', user.id)
+			console.log('Form data:', { title, price, category_id, condition, images: images?.length || 0 })
+			
+			// CRITICAL DEBUG: Test if auth.uid() is working in the database context
+			const { data: authDebug, error: authDebugError } = await supabase
+				.rpc('debug_listing_insert', { p_user_id: user.id })
+				.single()
+			
+			if (authDebugError) {
+				console.error('Auth debug test failed:', authDebugError)
+			} else {
+				console.log('=== AUTH DEBUG RESULTS ===')
+				console.log('current_auth_uid:', authDebug.current_auth_uid)
+				console.log('provided_user_id:', authDebug.provided_user_id)
+				console.log('auth_matches:', authDebug.auth_matches)
+				console.log('profile_exists:', authDebug.profile_exists)
+				console.log('========================')
+				
+				// If auth doesn't match, this is the core issue
+				if (!authDebug.auth_matches) {
+					console.error('CRITICAL: auth.uid() does not match user.id!')
+					console.error('This will cause RLS policy to fail')
+					return fail(401, { 
+						form, 
+						error: 'Authentication context error. Please log out and log back in.' 
+					})
+				}
+			}
+			
 			const { data, error } = await supabase
 				.from('listings')
 				.insert({
@@ -158,26 +201,36 @@ export const actions: Actions = {
 				.single()
 
 			if (error) {
-				console.error('Database error:', error)
-				console.error('Database error details:', {
-					message: error.message,
-					details: error.details,
-					hint: error.hint,
-					code: error.code
-				})
-				console.error('Data attempted to insert:', {
-					seller_id: user.id,
-					title,
-					category_id,
-					subcategory_id,
-					price,
-					condition,
-					shipping_type,
-					images_count: images?.length || 0
-				})
+				console.error('=== DETAILED DATABASE ERROR ===')
+				console.error('Error message:', error.message)
+				console.error('Error code:', error.code)
+				console.error('Error details:', error.details)
+				console.error('Error hint:', error.hint)
+				console.error('Full error object:', JSON.stringify(error, null, 2))
+				console.error('=== INSERT DATA ATTEMPTED ===')
+				console.error('user_id:', user.id)
+				console.error('title:', title)
+				console.error('price:', price)
+				console.error('category_id:', category_id)
+				console.error('condition:', condition)
+				console.error('images count:', images?.length || 0)
+				console.error('=== AUTH CONTEXT ===')
+				console.error('JWT user.id:', user.id)
+				console.error('Profile found:', !!profile)
+				console.error('===========================')
+				
+				// Return user-friendly error based on error code
+				let userError = 'Failed to create listing'
+				if (error.code === '42501') {
+					userError = 'Permission denied. Please make sure you are logged in and try again.'
+				} else if (error.code === '23503') {
+					userError = 'Invalid category or missing profile information.'
+				}
+				
 				return fail(500, { 
 					form, 
-					error: error.message || 'Failed to create listing' 
+					error: userError,
+					debugError: error.message // Include debug info for development
 				})
 			}
 			
