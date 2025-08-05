@@ -64,8 +64,7 @@
 	
 	// Handle auth refresh parameter reactively when URL changes
 	$: if (browser && $page.url.searchParams.get('_refreshAuth') === 'true' && !hasHandledRefresh) {
-		console.log('Auth refresh requested via URL change, refreshing session...');
-		hasHandledRefresh = true;
+			hasHandledRefresh = true;
 		
 		// Remove the parameter from URL using SvelteKit's replaceState
 		const url = new URL($page.url);
@@ -125,8 +124,7 @@
 			
 			// Update auth context with new session data
 			if (session) {
-				console.log('✅ Setting session in auth context');
-				authContext.session = session;
+					authContext.session = session;
 				authContext.user = session.user;
 				// Load profile when user is authenticated
 				if (authContext.user?.id && !authContext.profile) {
@@ -134,8 +132,7 @@
 				}
 			} else if (event === 'SIGNED_OUT') {
 				// Only clear on explicit sign out
-				console.log('❌ Clearing auth context - signed out');
-				authContext.session = null;
+					authContext.session = null;
 				authContext.user = null;
 				authContext.profile = null;
 			}
