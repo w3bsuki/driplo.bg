@@ -7,14 +7,62 @@
 @import './lib/styles/animations.css';
 @import './lib/styles/ecommerce.css';
 
-/* Font imports */
-@import '@fontsource/inter/400.css';
-@import '@fontsource/inter/500.css';
-@import '@fontsource/inter/600.css';
-@import '@fontsource/inter/700.css';
-@import '@fontsource/plus-jakarta-sans/600.css';
-@import '@fontsource/plus-jakarta-sans/700.css';
-@import '@fontsource/jetbrains-mono/400.css';
+/* Font imports - Local font files */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'),
+       url('/fonts/inter-latin-400-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/inter-latin-500-normal.woff2') format('woff2'),
+       url('/fonts/inter-latin-500-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'),
+       url('/fonts/inter-latin-600-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/inter-latin-700-normal.woff2') format('woff2'),
+       url('/fonts/inter-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/plus-jakarta-sans-latin-600-normal.woff2') format('woff2'),
+       url('/fonts/plus-jakarta-sans-latin-600-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/plus-jakarta-sans-latin-700-normal.woff2') format('woff2'),
+       url('/fonts/plus-jakarta-sans-latin-700-normal.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2'),
+       url('/fonts/jetbrains-mono-latin-400-normal.woff') format('woff');
+}
 
 /* Fix for dropdown portals */
 [data-portal] {

@@ -208,12 +208,13 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	// Only add CSP here to include dynamic values for Supabase and allow Vercel live
 	const cspDirectives = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live",
+		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live blob:",
+		"worker-src 'self' blob:",
 		"frame-src 'self' https://www.google.com https://checkout.stripe.com https://vercel.live",
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 		"font-src 'self' https://fonts.gstatic.com data:",
 		"img-src 'self' data: https: blob:",
-		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live"
+		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live https://*.ingest.de.sentry.io https://*.sentry.io"
 	]
 	
 	response.headers.set('Content-Security-Policy', cspDirectives.join('; '))

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node --max-http-header-size=16384 ./node_modules/vite/bin/vite.js dev",
-    "build": "vite build",
+    "build": "node scripts/copy-fonts.js && vite build",
+    "postinstall": "node scripts/copy-fonts.js",
     "preview": "vite preview",
     "prepare": "svelte-kit sync || echo ''",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
