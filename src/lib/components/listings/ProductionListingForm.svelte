@@ -99,6 +99,10 @@
 				// Success - will redirect automatically
 			} else if (result.type === 'failure') {
 				uploadError = result.data?.error || 'Failed to create listing';
+				console.error('Listing creation failed:', result.data);
+			} else if (result.type === 'error') {
+				uploadError = 'An unexpected error occurred. Please try again.';
+				console.error('Unexpected error:', result.error);
 			}
 			
 			await update();

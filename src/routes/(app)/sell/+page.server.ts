@@ -113,12 +113,16 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	create: async ({ request, locals }) => {
+		console.log('Create listing action started');
+		
 		// Get user from auth
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
 		if (authError || !user) {
 			console.error('Auth error:', authError)
 			return fail(401, { error: 'Please log in to create a listing' })
 		}
+		
+		console.log('User authenticated:', user.id);
 
 		// Get form data
 		const formData = await request.formData()
