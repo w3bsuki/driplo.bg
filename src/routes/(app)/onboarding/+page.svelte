@@ -12,14 +12,18 @@
 	let loading = $state(true);
 	
 	onMount(async () => {
+		// Use server-side data instead of client-side stores initially
+		// The auth stores might not be initialized yet on first load
+		const currentUser = data.user || $user;
+		
 		// Only show onboarding for authenticated users
-		if (!$user) {
+		if (!currentUser) {
 			goto('/login');
 			return;
 		}
 		
-		// Check if profile setup is already completed
-		if (data.user?.profile?.onboarding_completed) {
+		// Check if profile setup is already completed using server data
+		if (data.profile?.onboarding_completed) {
 			// Profile already set up, redirect to home
 			goto('/');
 			return;
@@ -150,8 +154,16 @@
 			
 			// Reload the profile to ensure all data is fresh
 			if ($user) {
-				const freshProfile = await auth.loadProfile($user.id);
-				console.log('Fresh profile loaded:', freshProfile);
+				try {
+					const { data: freshProfile } = await data.supabase
+						.from('profiles')
+						.select('*')
+						.eq('id', $user.id)
+						.single();
+					console.log('Fresh profile loaded:', freshProfile);
+				} catch (error) {
+					console.error('Failed to reload profile:', error);
+				}
 			}
 			
 			console.log('Onboarding marked as complete, redirecting to home...');

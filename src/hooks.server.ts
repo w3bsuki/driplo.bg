@@ -170,7 +170,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		
 		if (needsOnboarding) {
 			// Skip redirect for auth pages, API routes, and static assets
-			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api']
+			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api', '/sign-in', '/sign-up']
 			const pathname = event.url.pathname.replace('/bg', '').replace('/en', '') // Remove locale prefix for comparison
 			const shouldRedirect = !skipPaths.some(path => pathname.startsWith(path)) && 
 								   !event.url.pathname.includes('.') &&

@@ -5,7 +5,7 @@
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
-	// REMOVED: Auth stores - using SSR data only
+	import { initializeAuth, setupAuthListener } from '$lib/stores/auth';
 	import { onMount } from 'svelte';
 	import { invalidate, invalidateAll, goto, replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -21,8 +21,7 @@
 
 	let { data } = $props();
 
-	// Auth data comes from server-side data only (SSR)
-	// No client-side auth stores needed
+	// Initialize auth stores with server-side data
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
@@ -77,6 +76,11 @@
 	});
 
 	onMount(() => {
+		// Initialize auth stores with server data
+		initializeAuth(data.user, data.session, data.profile);
+		
+		// Set up auth listener for future changes
+		const unsubscribe = setupAuthListener(data.supabase);
 		
 		// Initialize Web Vitals monitoring
 		if (browser) {
@@ -110,9 +114,9 @@
 		
 		window.addEventListener('scroll', handleScroll);
 		
-		// No client-side auth listeners needed - using SSR
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
+			if (unsubscribe) unsubscribe();
 		};
 	});
 </script>
