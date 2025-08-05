@@ -34,6 +34,8 @@
 	let uploadError = $state('');
 	let uploadProgress = $state(0);
 	let fileInputRef: HTMLInputElement;
+	let showSuccess = $state(false);
+	let createdListingId = $state<string | null>(null);
 	
 	// Image handling
 	function handleFiles(files: FileList) {
@@ -85,7 +87,8 @@
 
 <form 
 	method="POST" 
-	action="?/create" 
+	action="?/create"
+	enctype="multipart/form-data"
 	use:enhance={({ formData }) => {
 		if (!hasPaymentAccount) {
 			uploadError = 'Please add a payment method in your profile before creating listings.';
@@ -101,15 +104,23 @@
 		uploadError = '';
 		uploadProgress = 0;
 		
-		// Prepare form data with images
-		prepareFormData(formData);
+		// Files are automatically included via the file input
 		
 		return async ({ result, update }) => {
 			isSubmitting = false;
 			uploadProgress = 0;
 			
 			if (result.type === 'redirect') {
-				// Success - will redirect automatically
+				// Success - show success state and redirect after delay
+				showSuccess = true;
+				uploadError = '';
+				
+				// Since we redirect to main page directly, no need to extract listing ID
+				// Just show success and redirect
+				setTimeout(() => {
+					window.location.href = '/';
+				}, 3000);
+				
 			} else if (result.type === 'failure') {
 				uploadError = result.data?.error || 'Failed to create listing';
 				console.error('Listing creation failed:', result.data);
@@ -129,6 +140,30 @@
 		};
 	}}
 >
+	<!-- Success State -->
+	{#if showSuccess}
+		<div class="max-w-3xl mx-auto bg-white">
+			<div class="p-8 text-center">
+				<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+					<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+					</svg>
+				</div>
+				<h2 class="text-2xl font-bold text-gray-900 mb-2">Listing Created Successfully!</h2>
+				<p class="text-gray-600 mb-6">Your item has been posted and is now live on the marketplace.</p>
+				
+				<div class="space-y-3">
+					<p class="text-sm text-gray-500">Redirecting to home page in 3 seconds...</p>
+					<button 
+						onclick={() => window.location.href = '/'}
+						class="inline-block px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+					>
+						Go to Home Page Now
+					</button>
+				</div>
+			</div>
+		</div>
+	{:else}
 	<div class="max-w-3xl mx-auto bg-white">
 		<!-- Header -->
 		<div class="border-b px-4 py-4">
@@ -202,6 +237,7 @@
 					<input
 						bind:this={fileInputRef}
 						type="file"
+						name="imageFiles"
 						multiple
 						accept="image/*"
 						onchange={(e) => e.currentTarget.files && handleFiles(e.currentTarget.files)}
@@ -373,15 +409,6 @@
 			</div>
 			
 			<!-- Hidden fields for form submission -->
-			<input type="hidden" name="title" value={formData.title} />
-			<input type="hidden" name="description" value={formData.description} />
-			<input type="hidden" name="category_id" value={formData.category_id} />
-			<input type="hidden" name="brand" value={formData.brand} />
-			<input type="hidden" name="size" value={formData.size} />
-			<input type="hidden" name="color" value={formData.color} />
-			<input type="hidden" name="condition" value={formData.condition} />
-			<input type="hidden" name="price" value={formData.price} />
-			<input type="hidden" name="shipping_type" value={formData.shipping_type} />
 			<input type="hidden" name="location_city" value="Sofia" />
 			<input type="hidden" name="shipping_cost" value="0" />
 			<input type="hidden" name="ships_worldwide" value="false" />
@@ -420,6 +447,7 @@
 			{/if}
 		</div>
 	</div>
+	{/if}
 </form>
 
 <style>

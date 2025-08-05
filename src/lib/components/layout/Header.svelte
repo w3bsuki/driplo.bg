@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { User, ChevronDown } from 'lucide-svelte';
+	import { User as UserIcon, ChevronDown } from 'lucide-svelte';
 	import { DropdownMenu } from '$lib/components/ui';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { user, session, profile } from '$lib/stores/auth';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { Database } from '$lib/types/database.types';
+	import type { User } from '@supabase/supabase-js';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import DriploLogo from '$lib/components/ui/DriploLogo.svelte';
@@ -14,17 +14,20 @@
 	
 	interface Props {
 		supabase: SupabaseClient<Database>;
+		user: User | null;
+		profile: any;
+		categories?: any[];
 	}
 	
-	let { supabase }: Props = $props();
+	let { supabase, user, profile, categories }: Props = $props();
 	
 	let searchQuery = $state('');
 	
 	// Initialize unread count and real-time subscriptions
 	onMount(() => {
-		if ($user) {
+		if (user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates($user.id, supabase);
+			subscribeToUnreadUpdates(user.id, supabase);
 		}
 	});
 
@@ -34,9 +37,9 @@
 
 	// Re-initialize when user changes
 	$effect(() => {
-		if ($user) {
+		if (user) {
 			initializeUnreadCount();
-			subscribeToUnreadUpdates($user.id, supabase);
+			subscribeToUnreadUpdates(user.id, supabase);
 		}
 	});
 	
@@ -45,11 +48,11 @@
 	
 	// Load brand slug when profile changes
 	$effect(async () => {
-		if ($profile?.account_type === 'brand' && $user) {
+		if (profile?.account_type === 'brand' && user) {
 			const { data: brandData } = await supabase
 				.from('brand_profiles')
 				.select('brand_slug')
-				.eq('user_id', $user.id)
+				.eq('user_id', user.id)
 				.single();
 			brandSlug = brandData?.brand_slug || null;
 		} else {
@@ -119,7 +122,7 @@
 
 		<!-- Mobile Actions -->
 		<div class="flex items-center gap-2 md:hidden">
-			{#if $user}
+			{#if user}
 				<a 
 					href="/messages" 
 					class="relative h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-fast"
@@ -140,24 +143,24 @@
 					class="relative rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 					aria-label="Account menu"
 				>
-					{#if $user}
+					{#if user}
 						<img 
-							src={$profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${$profile?.username || $user.email}`} 
+							src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || user.email}`} 
 							alt="Profile" 
 							width="36"
 							height="36"
 							class="h-9 w-9 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
 						/>
-						{#if $profile?.badges?.length && $profile.badges.length > 0}
+						{#if profile?.badges?.length && profile.badges.length > 0}
 							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
-								<span class="text-xs" title={badgeConfig[$profile.badges[0]]?.label}>
-									{badgeConfig[$profile.badges[0]]?.emoji}
+								<span class="text-xs" title={badgeConfig[profile.badges[0]]?.label}>
+									{badgeConfig[profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
 					{:else}
 						<div class="h-9 w-9 rounded-md bg-gray-50 flex items-center justify-center border border-gray-200 hover:border-gray-300 transition-colors duration-fast">
-							<User class="h-4 w-4 text-gray-600" />
+							<UserIcon class="h-4 w-4 text-gray-600" />
 						</div>
 					{/if}
 					<div class="absolute -bottom-0.5 -right-0.5 bg-white rounded-md p-0.5 border border-gray-200">
@@ -169,7 +172,7 @@
 					sideOffset={8}
 					class="w-72 rounded-lg border border-gray-200 bg-white p-0 shadow-lg"
 				>
-					<ProfileDropdownContent user={$user} profile={$profile} {brandSlug} onSignOut={handleSignOut} />
+					<ProfileDropdownContent user={user} profile={profile} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>
@@ -225,22 +228,22 @@
 					class="relative rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
 					aria-label="Account menu"
 				>
-					{#if $user}
+					{#if user}
 						<img 
-							src={$profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${$profile?.username || $user.email}`} 
+							src={profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || user.email}`} 
 							alt="Profile" 
 							class="h-10 w-10 rounded-md object-cover border border-gray-200 hover:border-gray-300 transition-colors duration-fast" 
 						/>
-						{#if $profile?.badges?.length && $profile.badges.length > 0}
+						{#if profile?.badges?.length && profile.badges.length > 0}
 							<div class="absolute -top-1 -right-1 bg-white rounded-md px-1 border border-gray-200">
-								<span class="text-xs" title={badgeConfig[$profile.badges[0]]?.label}>
-									{badgeConfig[$profile.badges[0]]?.emoji}
+								<span class="text-xs" title={badgeConfig[profile.badges[0]]?.label}>
+									{badgeConfig[profile.badges[0]]?.emoji}
 								</span>
 							</div>
 						{/if}
 					{:else}
 						<div class="h-10 w-10 rounded-md bg-gray-50 flex items-center justify-center border border-gray-200 hover:border-gray-300 transition-colors duration-fast">
-							<User class="h-5 w-5 text-gray-600" />
+							<UserIcon class="h-5 w-5 text-gray-600" />
 						</div>
 					{/if}
 					<div class="absolute -bottom-1 -right-1 bg-white rounded-md p-0.5 border border-gray-200">
@@ -252,7 +255,7 @@
 					sideOffset={8}
 					class="w-72 rounded-lg border border-gray-200 bg-white p-0 shadow-lg"
 				>
-					<ProfileDropdownContent user={$user} profile={$profile} {brandSlug} onSignOut={handleSignOut} />
+					<ProfileDropdownContent user={user} profile={profile} {brandSlug} onSignOut={handleSignOut} />
 				</DropdownMenu.Content>
 			</DropdownMenu.Root>
 		</div>

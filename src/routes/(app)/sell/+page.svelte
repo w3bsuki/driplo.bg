@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation'
-	import { user } from '$lib/stores/auth'
+	// REMOVED: import { user } from '$lib/stores/auth' - using server-side auth only
 	import ProductionListingForm from '$lib/components/listings/ProductionListingForm.svelte'
 	import { onMount } from 'svelte'
 	import * as m from '$lib/paraglide/messages.js'
@@ -11,7 +11,7 @@
 	let { data }: { data: PageData } = $props()
 	
 	onMount(() => {
-		if (!$user) {
+		if (!data.user) {
 			goto('/login?redirect=/sell')
 		}
 	})
@@ -22,7 +22,7 @@
 	<meta name="description" content={m.sell_page_description()} />
 </svelte:head>
 
-{#if $user && data.user}
+{#if data.user}
 	<div class="min-h-screen bg-gray-50 py-4">
 		<ProductionListingForm 
 			form={data.form} 

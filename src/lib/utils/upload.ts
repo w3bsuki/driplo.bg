@@ -6,9 +6,13 @@ export async function uploadListingImage(
 	userId: string,
 	index: number
 ): Promise<string> {
-	const fileExt = file.name.split('.').pop()
+	if (!file || !file.name) {
+		throw new Error('Invalid file provided')
+	}
+	
+	const fileExt = file.name.split('.').pop() || 'jpg'
 	const fileName = `${userId}/${Date.now()}_${index}.${fileExt}`
-	const filePath = `listings/${fileName}`
+	const filePath = fileName
 
 	const { error } = await supabase.storage
 		.from('listings')

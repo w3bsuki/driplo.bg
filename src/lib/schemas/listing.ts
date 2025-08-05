@@ -88,7 +88,7 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	category_id: '',
 	subcategory_id: null,
 	images: [],
-	price: undefined, // Changed from 0 to undefined so it doesn't interfere with validation
+	price: 0, // Set to 0 for proper form initialization
 	condition: LISTING_CONDITIONS.NEW_WITH_TAGS,
 	brand: null,
 	size: null,

@@ -129,6 +129,15 @@ export const actions: Actions = {
 		
 		// Extract image files
 		const imageFiles = formData.getAll('imageFiles') as File[]
+		console.log('Number of image files received:', imageFiles.length)
+		imageFiles.forEach((file, i) => {
+			console.log(`File ${i}:`, {
+				name: file?.name,
+				size: file?.size,
+				type: file?.type,
+				constructor: file?.constructor?.name
+			})
+		})
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
@@ -140,36 +149,53 @@ export const actions: Actions = {
 		formData.delete('imageFiles')
 		formData.delete('imageCount')
 		
-		// Upload images first, then validate with real URLs
+		// Upload images to Supabase storage
 		const uploadedImageUrls: string[] = []
 		for (let i = 0; i < imageFiles.length; i++) {
 			try {
 				const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
 				uploadedImageUrls.push(url)
 			} catch (error) {
-				console.error('Image upload failed:', error)
+				console.error('Image upload failed - detailed error:', error)
+				console.error('User ID:', user.id)
+				console.error('File info:', { 
+					name: imageFiles[i].name, 
+					size: imageFiles[i].size, 
+					type: imageFiles[i].type 
+				})
 				const form = await superValidate(formData, zod(createListingSchema))
-				return fail(500, { form, error: 'Failed to upload images. Please try again.' })
+				return fail(500, { form, error: `Failed to upload images: ${error.message}` })
 			}
 		}
 		
-		// Add real image URLs for validation
-		formData.set('images', JSON.stringify(uploadedImageUrls));
+		// Create form data object for validation with proper type conversions
+		const formDataForValidation = Object.fromEntries(formData.entries());
 		
-		// Convert price to number if it's a string
-		const priceValue = formData.get('price');
-		if (priceValue && typeof priceValue === 'string') {
-			formData.set('price', parseFloat(priceValue).toString());
+		// Convert types for validation
+		if (formDataForValidation.price) {
+			formDataForValidation.price = parseFloat(formDataForValidation.price as string);
+		}
+		if (formDataForValidation.shipping_cost) {
+			formDataForValidation.shipping_cost = parseFloat(formDataForValidation.shipping_cost as string);
+		}
+		if (formDataForValidation.ships_worldwide) {
+			formDataForValidation.ships_worldwide = formDataForValidation.ships_worldwide === 'true';
 		}
 		
+		// Set uploaded image URLs as actual array
+		formDataForValidation.images = uploadedImageUrls;
+		
 		// Validate form data
-		const form = await superValidate(formData, zod(createListingSchema))
+		const form = await superValidate(formDataForValidation, zod(createListingSchema))
 		
 		if (!form.valid) {
 			console.error('Form validation failed:', form.errors)
 			console.error('Form data received:', Object.fromEntries(formData.entries()));
 			return fail(400, { form, error: 'Please check all required fields.' })
 		}
+		
+		console.log('Form validation passed successfully')
+		console.log('Validated form data:', form.data)
 		
 		// Check if user profile exists (required by foreign key)
 		const { data: profile, error: profileError } = await locals.supabase
@@ -188,6 +214,10 @@ export const actions: Actions = {
 		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, tags, materials, ships_worldwide } = form.data
 
 		try {
+			console.log('Attempting to create listing...')
+			console.log('User ID:', user.id)
+			console.log('Images to insert:', uploadedImageUrls)
+			
 			// Create the listing
 			const { data: listing, error } = await locals.supabase
 				.from('listings')
@@ -228,8 +258,13 @@ export const actions: Actions = {
 				.select()
 				.single()
 
+			console.log('Database operation result:', { listing, error })
+			
 			if (error) {
-				console.error('Database error:', error)
+				console.error('Database error details:', error)
+				console.error('Error code:', error.code)
+				console.error('Error message:', error.message)
+				console.error('Error details:', error.details)
 				
 				// User-friendly error messages
 				let userError = 'Failed to create listing. Please try again.'
@@ -251,8 +286,9 @@ export const actions: Actions = {
 			// Clear cache to show new listing immediately
 			serverCache.clear()
 			
-			// Redirect to the new listing
-			throw redirect(303, `/listings/${listing.id}`)
+			// Store listing ID in session/cookie for success page if needed
+			// For now, redirect directly to main page
+			throw redirect(303, `/`)
 			
 		} catch (error: any) {
 			// If it's a redirect, rethrow it

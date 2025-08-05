@@ -32,35 +32,35 @@
 		isPrimary?: boolean;
 	}
 	
-	// Optimal C2C e-commerce navigation
-	const navItems: NavItem[] = [
+	// Optimal C2C e-commerce navigation - using paraglide translations
+	const navItems = $derived([
 		{ 
 			href: '/', 
 			emoji: '🏠', 
-			label: 'Home'
+			label: m.header_home()
 		},
 		{ 
 			href: '/browse', 
 			emoji: '🔍', 
-			label: 'Search'
+			label: m.nav_shop()
 		},
 		{ 
 			href: '/sell', 
 			emoji: '💰', 
-			label: 'Sell', 
+			label: m.nav_sell(), 
 			isPrimary: true
 		},
 		{ 
 			href: '/wishlist', 
 			emoji: '❤️', 
-			label: 'Saved'
+			label: m.nav_wishlist()
 		},
 		{ 
 			href: '/profile', 
 			emoji: '👤', 
-			label: 'Profile'
+			label: 'Profile' // This one might need a message key
 		}
-	];
+	]);
 	
 	function handleNavClick(item: NavItem): void {
 		if (item.isAction && item.href === '#filters') {

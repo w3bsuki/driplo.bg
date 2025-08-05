@@ -5,7 +5,7 @@
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
-	import { initializeAuth, setupAuthListener } from '$lib/stores/auth';
+	// REMOVED: Auth stores - using SSR data only
 	import { onMount } from 'svelte';
 	import { invalidate, invalidateAll, goto, replaceState } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -21,13 +21,8 @@
 
 	let { data } = $props();
 
-	// Initialize auth stores from server data
-	initializeAuth(data.user, data.session, data.profile);
-	
-	// Update auth stores when data changes (after login/logout)
-	$effect(() => {
-		initializeAuth(data.user, data.session, data.profile);
-	});
+	// Auth data comes from server-side data only (SSR)
+	// No client-side auth stores needed
 	
 	// Initialize query client
 	const queryClient = createQueryClient();
@@ -50,7 +45,6 @@
 		hiddenPaths.some(path => $page.url.pathname.startsWith(path)) || // Hidden paths
 		$page.url.pathname.includes('/listings/') || // Product detail pages
 		$page.url.pathname.includes('/sell') || // Sell product form
-		($page.url.pathname === '/' && !showMobileNavOnLanding) || // Landing page (show when scrolled)
 		$page.url.pathname.includes('/payment') || // Payment forms
 		$page.url.pathname.includes('/login') || // Login page
 		$page.url.pathname.includes('/register') // Register page
@@ -116,11 +110,8 @@
 		
 		window.addEventListener('scroll', handleScroll);
 		
-		// Set up auth state listener
-		const unsubscribeAuth = setupAuthListener(data.supabase);
-
+		// No client-side auth listeners needed - using SSR
 		return () => {
-			if (unsubscribeAuth) unsubscribeAuth();
 			window.removeEventListener('scroll', handleScroll);
 		};
 	});
@@ -146,7 +137,7 @@
 					variant="gradient"
 				/>
 			{/if}
-			<Header categories={data.categories} supabase={data.supabase} />
+			<Header categories={data.categories} supabase={data.supabase} user={data.user} profile={data.profile} />
 		{/if}
 		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
 			<slot />
