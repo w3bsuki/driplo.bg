@@ -67,34 +67,66 @@
 			
 			console.log('Updating profile with:', profileUpdate);
 			
-			// Use the database function to ensure it completes properly
-			const { data: functionResult, error: updateError } = await data.supabase
-				.rpc('complete_user_onboarding', {
-					p_user_id: $user!.id,
-					p_username: formData?.username || 'user' + Date.now(),
-					p_full_name: formData?.fullName || 'User',
-					p_account_type: formData?.accountType || 'personal'
-				});
-
-			if (updateError) {
-				console.error('Database error completing onboarding:', updateError);
-				console.error('Update error details:', {
-					code: updateError.code,
-					message: updateError.message,
-					details: updateError.details,
-					hint: updateError.hint
-				});
-				
-				// Fallback: Try direct update
-				const { error: fallbackError } = await data.supabase
+			// First check if profile exists
+			const { data: existingProfile, error: profileCheckError } = await data.supabase
+				.from('profiles')
+				.select('id')
+				.eq('id', $user!.id)
+				.single();
+			
+			if (profileCheckError || !existingProfile) {
+				console.error('Profile does not exist, creating one...');
+				// Create profile if it doesn't exist
+				const { error: createError } = await data.supabase
 					.from('profiles')
-					.update(profileUpdate)
-					.eq('id', $user!.id);
+					.insert({
+						id: $user!.id,
+						email: $user!.email,
+						username: formData?.username || 'user' + Date.now(),
+						full_name: formData?.fullName || 'User',
+						account_type: formData?.accountType || 'personal',
+						onboarding_completed: true,
+						setup_completed: true,
+						onboarding_step: 99,
+						needs_username_setup: false
+					});
 				
-				if (fallbackError) {
-					alert(`Failed to complete onboarding: ${fallbackError.message}`);
+				if (createError) {
+					console.error('Failed to create profile:', createError);
+					alert(`Failed to create profile: ${createError.message}`);
 					loading = false;
 					return;
+				}
+			} else {
+				// Use the database function to ensure it completes properly
+				const { data: functionResult, error: updateError } = await data.supabase
+					.rpc('complete_user_onboarding', {
+						p_user_id: $user!.id,
+						p_username: formData?.username || 'user' + Date.now(),
+						p_full_name: formData?.fullName || 'User',
+						p_account_type: formData?.accountType || 'personal'
+					});
+
+				if (updateError) {
+					console.error('Database error completing onboarding:', updateError);
+					console.error('Update error details:', {
+						code: updateError.code,
+						message: updateError.message,
+						details: updateError.details,
+						hint: updateError.hint
+					});
+					
+					// Fallback: Try direct update
+					const { error: fallbackError } = await data.supabase
+						.from('profiles')
+						.update(profileUpdate)
+						.eq('id', $user!.id);
+					
+					if (fallbackError) {
+						alert(`Failed to complete onboarding: ${fallbackError.message}`);
+						loading = false;
+						return;
+					}
 				}
 			}
 

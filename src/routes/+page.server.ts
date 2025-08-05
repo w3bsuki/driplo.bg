@@ -2,12 +2,10 @@ import type { PageServerLoad } from './$types';
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache';
 
 export const load: PageServerLoad = async ({ locals }) => {
-  // Get current locale from locals
-  const currentLocale = locals.locale || 'en'
-  
   // Load critical data first, stream the rest
+  // Don't use locale-specific caching for product data
   const criticalData = await getCachedData(
-    cacheKeys.homepage_critical(currentLocale),
+    'homepage-critical-global',
     async () => {
       // Load only categories and featured listings first (critical for FCP)
       const [categoriesResult, featuredResult] = await Promise.all([
@@ -48,7 +46,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   // Load non-critical data asynchronously
   const nonCriticalData = getCachedData(
-    cacheKeys.homepage_secondary(currentLocale),
+    'homepage-secondary-global',
     async () => {
       const [popularResult, topSellersResult] = await Promise.all([
         // Get most viewed listings

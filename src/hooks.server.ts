@@ -170,17 +170,22 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		
 		if (needsOnboarding) {
 			// Skip redirect for auth pages, API routes, and static assets
-			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app']
-			const shouldRedirect = !skipPaths.some(path => event.url.pathname.startsWith(path)) && 
+			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api']
+			const pathname = event.url.pathname.replace('/bg', '').replace('/en', '') // Remove locale prefix for comparison
+			const shouldRedirect = !skipPaths.some(path => pathname.startsWith(path)) && 
 								   !event.url.pathname.includes('.') &&
 								   // Don't redirect brand accounts from their own brand pages
 								   !(profile.account_type === 'brand' && event.url.pathname.startsWith('/brands/'))
 			
 			if (shouldRedirect) {
+				// Get current locale from event
+				const currentLocale = event.locals.locale || 'en'
+				const onboardingPath = currentLocale === 'bg' ? '/bg/onboarding' : '/onboarding'
+				
 				return new Response(null, {
 					status: 302,
 					headers: {
-						location: '/onboarding'
+						location: onboardingPath
 					}
 				})
 			}
