@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession, supabas
 		.select('id, name, slug, icon')
 		.is('parent_id', null)
 		.eq('is_active', true)
-		.order('sort_order')
+		.order('display_order')
 		.order('name');
 
 	return {
