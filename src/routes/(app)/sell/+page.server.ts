@@ -250,6 +250,7 @@ export const actions: Actions = {
 					is_archived: false,
 					is_draft: false,
 					is_featured: false,
+					status: 'active', // Ensure status is set to active for visibility
 					quantity: 1,
 					view_count: 0,
 					like_count: 0,

@@ -65,17 +65,17 @@ class ServerCache {
 // Singleton cache instance
 export const serverCache = new ServerCache()
 
-// Cache key builders
+// Cache key builders - now locale-aware
 export const cacheKeys = {
-	homepage: 'homepage-data',
-	homepage_critical: 'homepage-critical', // Categories + featured listings only
-	homepage_secondary: 'homepage-secondary', // Popular + top sellers
-	categories: 'categories-nav',
-	categoryPage: (slug: string) => `category-page-${slug}`,
-	browseResults: (filters: any) => `browse-${JSON.stringify(filters)}`,
-	topSellers: (categoryId?: string) => `top-sellers-${categoryId || 'all'}`,
-	featuredListings: 'featured-listings',
-	popularListings: 'popular-listings'
+	homepage: (locale: string = 'en') => `homepage-data-${locale}`,
+	homepage_critical: (locale: string = 'en') => `homepage-critical-${locale}`,
+	homepage_secondary: (locale: string = 'en') => `homepage-secondary-${locale}`,
+	categories: (locale: string = 'en') => `categories-nav-${locale}`,
+	categoryPage: (slug: string, locale: string = 'en') => `category-page-${slug}-${locale}`,
+	browseResults: (filters: any, locale: string = 'en') => `browse-${JSON.stringify(filters)}-${locale}`,
+	topSellers: (categoryId?: string, locale?: string) => `top-sellers-${categoryId || 'all'}-${locale || 'en'}`,
+	featuredListings: (locale: string = 'en') => `featured-listings-${locale}`,
+	popularListings: (locale: string = 'en') => `popular-listings-${locale}`
 }
 
 // Cache TTL configurations (in milliseconds)
