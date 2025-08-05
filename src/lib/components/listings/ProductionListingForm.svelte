@@ -122,14 +122,23 @@
 				}, 3000);
 				
 			} else if (result.type === 'failure') {
-				uploadError = result.data?.error || 'Failed to create listing';
-				console.error('Listing creation failed:', result.data);
-				console.error('Form validation errors:', result.data?.form?.errors);
-				// Show detailed validation errors
-				if (result.data?.form?.errors) {
-					Object.entries(result.data.form.errors).forEach(([field, errors]) => {
-						console.error(`${field}:`, errors);
-					});
+				// Check if it's an onboarding issue
+				if (result.data?.needsOnboarding) {
+					uploadError = '';
+					// Show alert and redirect to onboarding
+					if (confirm('You need to complete your profile setup first. Click OK to go to profile setup.')) {
+						window.location.href = '/onboarding';
+					}
+				} else {
+					uploadError = result.data?.error || 'Failed to create listing';
+					console.error('Listing creation failed:', result.data);
+					console.error('Form validation errors:', result.data?.form?.errors);
+					// Show detailed validation errors
+					if (result.data?.form?.errors) {
+						Object.entries(result.data.form.errors).forEach(([field, errors]) => {
+							console.error(`${field}:`, errors);
+						});
+					}
 				}
 			} else if (result.type === 'error') {
 				uploadError = 'An unexpected error occurred. Please try again.';

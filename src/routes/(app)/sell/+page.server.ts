@@ -198,36 +198,19 @@ export const actions: Actions = {
 		console.log('Form validation passed successfully')
 		console.log('Validated form data:', form.data)
 		
-		// Check if user profile exists (required by foreign key)
+		// Check if user profile exists and onboarding is completed
 		const { data: profile, error: profileError } = await locals.supabase
 			.from('profiles')
 			.select('id, username, onboarding_completed')
 			.eq('id', user.id)
 			.single()
 		
-		if (profileError) {
-			console.error('Profile check error:', profileError)
-			console.error('User ID being checked:', user.id)
-			
-			// If profile doesn't exist, try to create it
-			if (profileError.code === 'PGRST116') { // No rows returned
-				console.log('Profile not found, creating basic profile for user:', user.id)
-				const { error: createError } = await locals.supabase
-					.from('profiles')
-					.insert({
-						id: user.id,
-						email: user.email,
-						username: user.email?.split('@')[0] || 'user' + Date.now(),
-						onboarding_completed: false
-					})
-				
-				if (createError) {
-					console.error('Failed to create profile:', createError)
-					return fail(400, { form, error: 'Failed to create profile. Please try logging out and back in.' })
-				}
-			} else {
-				return fail(400, { form, error: 'Profile not found. Please complete your profile setup.' })
-			}
+		if (profileError || !profile || !profile.onboarding_completed) {
+			return fail(400, { 
+				form, 
+				error: 'Please complete your profile setup first',
+				needsOnboarding: true 
+			})
 		}
 		
 		// Images are now uploaded before validation - use the URLs we already have
