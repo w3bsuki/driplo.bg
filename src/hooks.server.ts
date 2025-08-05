@@ -280,8 +280,8 @@ export const handleError = handleErrorWithSentry((error, event) => {
 	if (!dev) {
 		console.error('Server error:', {
 			error,
-			url: event.url.pathname,
-			method: event.request.method,
+			url: event?.url?.pathname || 'unknown',
+			method: event?.request?.method || 'unknown',
 		});
 	}
 });
