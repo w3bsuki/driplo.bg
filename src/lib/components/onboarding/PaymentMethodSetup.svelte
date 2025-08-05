@@ -2,17 +2,20 @@
 	import { user, profile } from '$lib/stores/auth';
 	import { toast } from 'svelte-sonner';
 	import { CreditCard, Wallet, DollarSign, Info, CheckCircle2 } from 'lucide-svelte';
+	import type { SupabaseClient } from '@supabase/supabase-js';
 
 	interface Props {
 		selectedMethods: string[];
 		revolut_tag?: string;
 		paypal_tag?: string;
+		supabase?: SupabaseClient;
 	}
 
 	let { 
 		selectedMethods = $bindable([]), 
 		revolut_tag = $bindable(''),
-		paypal_tag = $bindable('')
+		paypal_tag = $bindable(''),
+		supabase
 	}: Props = $props();
 
 	// Auth stores are already imported above
@@ -62,16 +65,16 @@
 	}
 
 	async function savePaymentAccounts() {
-		if (selectedMethods.length === 0) return;
+		if (selectedMethods.length === 0 || !supabase || !$user) return;
 
 		loading = true;
 		try {
 			// Save Revolut account
 			if (selectedMethods.includes('revolut') && revolut_tag) {
-				const { error } = await auth.supabase
+				const { error } = await supabase
 					.from('payment_accounts')
 					.insert({
-						user_id: auth.user!.id,
+						user_id: $user.id,
 						provider: 'revolut',
 						account_id: revolut_tag,
 						account_status: 'pending',
@@ -83,10 +86,10 @@
 
 			// Save PayPal account
 			if (selectedMethods.includes('paypal') && paypal_tag) {
-				const { error } = await auth.supabase
+				const { error } = await supabase
 					.from('payment_accounts')
 					.insert({
-						user_id: auth.user!.id,
+						user_id: $user.id,
 						provider: 'paypal',
 						account_id: paypal_tag,
 						account_status: 'pending',

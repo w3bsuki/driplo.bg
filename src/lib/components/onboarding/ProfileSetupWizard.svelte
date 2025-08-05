@@ -214,8 +214,10 @@
 		let counter = 0;
 		
 		while (true) {
-			const client = supabase || auth.supabase;
-			const { data } = await client
+			if (!supabase) {
+				throw new Error('Supabase client is not available');
+			}
+			const { data } = await supabase
 				.from('brand_profiles')
 				.select('id')
 				.eq('brand_slug', slug)
@@ -236,7 +238,9 @@
 
 		loading = true;
 		try {
-			const client = supabase || auth.supabase;
+			if (!supabase) {
+				throw new Error('Supabase client is not available');
+			}
 			const stepData = activeSteps()[currentStepIndex];
 			
 			// Save current step data
@@ -274,7 +278,7 @@
 				case 'Brand Info':
 					if ($form.accountType === 'brand') {
 						const brandSlug = await generateBrandSlug($form.brandName!);
-						await client.from('brand_profiles').insert({
+						await supabase.from('brand_profiles').insert({
 							user_id: user.id,
 							brand_name: $form.brandName,
 							brand_slug: brandSlug,
@@ -288,10 +292,11 @@
 					break;
 			}
 
-			// Update profile - the profile should already exist from auth trigger
+			// Update profile - create if doesn't exist, update if it does
 			console.log('Updating profile for user:', user.id, 'with data:', updateData);
 			
-			const { count, error: updateError } = await client
+			// First try to update
+			const { count, error: updateError } = await supabase
 				.from('profiles')
 				.update(updateData)
 				.eq('id', user.id)
@@ -303,9 +308,35 @@
 			}
 			
 			if (count === 0) {
-				console.error('WARNING: No profile was updated for user:', user.id);
-				// Profile should exist from auth trigger, but log warning
-				console.warn('Profile may not exist - check auth trigger');
+				console.log('Profile does not exist, creating new profile for user:', user.id);
+				// Profile doesn't exist, create it
+				const createData = {
+					id: user.id,
+					email: user.email,
+					username: updateData.username || null,
+					full_name: updateData.full_name || null,
+					bio: updateData.bio || null,
+					location: updateData.location || null,
+					account_type: updateData.account_type || 'personal',
+					onboarding_step: updateData.onboarding_step || 1,
+					needs_username_setup: updateData.needs_username_setup !== undefined ? updateData.needs_username_setup : true,
+					payment_methods: updateData.payment_methods || null,
+					revolut_tag: updateData.revolut_tag || null,
+					paypal_tag: updateData.paypal_tag || null,
+					created_at: new Date().toISOString(),
+					updated_at: new Date().toISOString()
+				};
+				
+				const { error: insertError } = await supabase
+					.from('profiles')
+					.insert(createData);
+					
+				if (insertError) {
+					console.error('Profile creation error:', insertError);
+					throw insertError;
+				}
+				
+				console.log('Profile created successfully');
 			} else {
 				console.log('Profile updated successfully');
 			}
@@ -386,138 +417,171 @@
 	});
 </script>
 
-<!-- Clean Modern Layout -->
-<div class="min-h-screen bg-background">
-	<div class="container max-w-2xl mx-auto px-4 py-6 sm:py-10">
-		<!-- Header -->
-		<div class="text-center mb-8">
-			<div class="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-4">
-				<Sparkles class="w-7 h-7 text-primary" />
+<!-- Premium Modern Layout -->
+<div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+	<div class="container max-w-4xl mx-auto px-4 py-8 sm:py-12">
+		<!-- Premium Header -->
+		<div class="text-center mb-12">
+			<div class="relative inline-flex items-center justify-center w-20 h-20 mb-6">
+				<!-- Gradient background with animated glow -->
+				<div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl animate-pulse opacity-20"></div>
+				<div class="relative w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
+					<Sparkles class="w-8 h-8 text-white" />
+				</div>
 			</div>
-			<h1 class="text-3xl font-bold tracking-tight mb-2">
+			<h1 class="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
 				Welcome to Driplo
 			</h1>
-			<p class="text-muted-foreground">
-				Let's set up your profile in just a few steps
+			<p class="text-lg text-gray-600 max-w-md mx-auto">
+				Let's create your perfect fashion profile in just a few simple steps
 			</p>
 		</div>
 
-		<!-- Progress Indicator -->
-		<div class="mb-6">
-			<ModernProgressIndicator 
-				steps={activeSteps()}
-				{currentStep}
-				{completedSteps}
-				showLabels={true}
-				variant="horizontal"
-			/>
+		<!-- Enhanced Progress Indicator -->
+		<div class="mb-10">
+			<div class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-white/20">
+				<ModernProgressIndicator 
+					steps={activeSteps()}
+					{currentStep}
+					{completedSteps}
+					showLabels={true}
+					variant="horizontal"
+				/>
+			</div>
 		</div>
 
-		<!-- Step Content -->
+		<!-- Premium Step Content -->
 		<div>
 			{#key currentStep}
-				<div class="bg-card rounded-lg border shadow-sm p-6 sm:p-8 mb-6 transition-all duration-300">
-					<!-- Step Header -->
-					<div class="flex items-center gap-3 mb-6 pb-4 border-b">
-						<div class="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
-							<svelte:component 
-								this={activeSteps()[currentStepIndex]?.icon || UserIcon} 
-								class="w-5 h-5 text-primary" 
-							/>
+				<div class="relative">
+					<!-- Glass morphism card with enhanced styling -->
+					<div class="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/30 shadow-2xl p-8 sm:p-10 mb-8 transition-all duration-500 hover:shadow-3xl hover:bg-white/85">
+						<!-- Gradient overlay for depth -->
+						<div class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-3xl pointer-events-none"></div>
+						
+						<!-- Premium Step Header -->
+						<div class="relative flex items-center gap-4 mb-8 pb-6 border-b border-gray-200/50">
+							<!-- Enhanced icon container -->
+							<div class="relative">
+								<div class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl blur-xl opacity-30 animate-pulse"></div>
+								<div class="relative w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+									<svelte:component 
+										this={activeSteps()[currentStepIndex]?.icon || UserIcon} 
+										class="w-6 h-6 text-white" 
+									/>
+								</div>
+							</div>
+							<div>
+								<h2 class="text-2xl font-bold text-gray-900 mb-1">
+									{activeSteps()[currentStepIndex]?.name}
+								</h2>
+								<p class="text-sm text-gray-500">
+									Step {currentStepIndex + 1} of {activeSteps().length}
+								</p>
+							</div>
 						</div>
-						<h2 class="text-xl font-semibold">
-							{activeSteps()[currentStepIndex]?.name}
-						</h2>
-					</div>
 
-					<!-- Render current step component -->
-					{#if activeSteps()[currentStepIndex]?.name === 'Username'}
-						<UsernameSetup 
-							bind:username={$form.username}
-							{user}
-							{supabase}
-						/>
-					{:else if activeSteps()[currentStepIndex]?.name === 'Account Type'}
-						<AccountTypeSelector 
-							bind:accountType={$form.accountType}
-						/>
-					{:else if activeSteps()[currentStepIndex]?.name === 'Profile'}
-						<div class="space-y-6">
-							<!-- Avatar Picker -->
-							<AvatarPicker 
-								userId={user.id}
-								bind:customAvatarUrl={$form.avatarUrl}
-							/>
-							
-							<!-- Personal Info -->
-							<PersonalInfoForm 
-								bind:fullName={$form.fullName}
-								bind:bio={$form.bio}
-								bind:location={$form.location}
-							/>
+						<!-- Step Content Area -->
+						<div class="relative">
+							{#if activeSteps()[currentStepIndex]?.name === 'Username'}
+								<UsernameSetup 
+									bind:username={$form.username}
+									{user}
+									{supabase}
+								/>
+							{:else if activeSteps()[currentStepIndex]?.name === 'Account Type'}
+								<AccountTypeSelector 
+									bind:accountType={$form.accountType}
+								/>
+							{:else if activeSteps()[currentStepIndex]?.name === 'Profile'}
+								<div class="space-y-8">
+									<!-- Avatar Picker -->
+									<AvatarPicker 
+										userId={user.id}
+										bind:customAvatarUrl={$form.avatarUrl}
+									/>
+									
+									<!-- Personal Info -->
+									<PersonalInfoForm 
+										bind:fullName={$form.fullName}
+										bind:bio={$form.bio}
+										bind:location={$form.location}
+									/>
+								</div>
+							{:else if activeSteps()[currentStepIndex]?.name === 'Payment'}
+								<PaymentMethodSetup 
+									bind:selectedMethods={$form.paymentMethods}
+									bind:revolut_tag={$form.revolut_tag}
+									bind:paypal_tag={$form.paypal_tag}
+									{supabase}
+								/>
+							{:else if activeSteps()[currentStepIndex]?.name === 'Brand Info'}
+								<BrandInfoForm 
+									bind:brandName={$form.brandName}
+									bind:brandDescription={$form.brandDescription}
+									bind:socialMediaAccounts={$form.socialMediaAccounts}
+								/>
+							{:else if activeSteps()[currentStepIndex]?.name === 'Complete'}
+								<SetupComplete 
+									accountType={$form.accountType || 'personal'}
+									fullName={$form.fullName || ''}
+									avatarUrl={$form.avatarUrl}
+								/>
+							{/if}
 						</div>
-					{:else if activeSteps()[currentStepIndex]?.name === 'Payment'}
-						<PaymentMethodSetup 
-							bind:selectedMethods={$form.paymentMethods}
-							bind:revolut_tag={$form.revolut_tag}
-							bind:paypal_tag={$form.paypal_tag}
-						/>
-					{:else if activeSteps()[currentStepIndex]?.name === 'Brand Info'}
-						<BrandInfoForm 
-							bind:brandName={$form.brandName}
-							bind:brandDescription={$form.brandDescription}
-							bind:socialMediaAccounts={$form.socialMediaAccounts}
-						/>
-					{:else if activeSteps()[currentStepIndex]?.name === 'Complete'}
-						<SetupComplete 
-							accountType={$form.accountType || 'personal'}
-							fullName={$form.fullName || ''}
-							avatarUrl={$form.avatarUrl}
-						/>
-					{/if}
+					</div>
 				</div>
 			{/key}
 
-			<!-- Navigation -->
-			<div class="flex items-center justify-between gap-3">
-				<Button
-					variant="outline"
+			<!-- Premium Navigation -->
+			<div class="flex items-center justify-between gap-4">
+				<button
 					onclick={handleBack}
 					disabled={currentStepIndex === 0 || loading}
-					class="gap-1.5"
+					class="group flex items-center gap-2 px-6 py-3 text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:bg-gray-50 rounded-2xl"
 				>
-					<ChevronLeft class="w-4 h-4" />
-					<span class="hidden sm:inline">Back</span>
-				</Button>
+					<ChevronLeft class="w-5 h-5 transition-transform group-hover:-translate-x-1" />
+					<span class="font-medium">Back</span>
+				</button>
 
 				{#if isLastStep}
-					<Button
+					<button
 						onclick={handleComplete}
 						disabled={loading}
-						class="gap-2"
+						class="group relative flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 					>
-						{#if loading}
-							<div class="w-4 h-4 border-2 border-primary-foreground/30 border-t-transparent rounded-full animate-spin"></div>
-							Completing...
-						{:else}
-							<Sparkles class="w-4 h-4" />
-							Complete Setup
-						{/if}
-					</Button>
+						<!-- Animated background -->
+						<div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+						
+						<div class="relative flex items-center gap-3">
+							{#if loading}
+								<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+								<span>Completing Setup...</span>
+							{:else}
+								<Sparkles class="w-5 h-5" />
+								<span>Complete Setup</span>
+							{/if}
+						</div>
+					</button>
 				{:else}
-					<Button
+					<button
 						onclick={handleNext}
 						disabled={!canProceed || loading}
-						class="gap-1.5"
+						class="group relative flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
 					>
-						{#if loading}
-							<div class="w-4 h-4 border-2 border-primary-foreground/30 border-t-transparent rounded-full animate-spin"></div>
-							Saving...
-						{:else}
-							Next
-							<ChevronRight class="w-4 h-4" />
-						{/if}
-					</Button>
+						<!-- Animated background -->
+						<div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl blur-xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+						
+						<div class="relative flex items-center gap-3">
+							{#if loading}
+								<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+								<span>Saving...</span>
+							{:else}
+								<span>Continue</span>
+								<ChevronRight class="w-5 h-5 transition-transform group-hover:translate-x-1" />
+							{/if}
+						</div>
+					</button>
 				{/if}
 			</div>
 		</div>
