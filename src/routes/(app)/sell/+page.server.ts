@@ -95,11 +95,25 @@ export const load: PageServerLoad = async ({ locals }) => {
 }
 
 export const actions: Actions = {
-	create: async ({ request, locals }) => {
+	create: async ({ request, locals, cookies }) => {
+		// CRITICAL FIX: Get session first to ensure proper JWT context
+		const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession()
+		if (sessionError || !session) {
+			console.error('No valid session found:', sessionError)
+			return fail(401, { error: 'Please log in to create a listing' })
+		}
+
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
 		if (authError || !user) {
-			return fail(401, { error: 'Unauthorized' })
+			console.error('Auth error:', authError)
+			return fail(401, { error: 'Authentication failed' })
 		}
+
+		console.log('=== AUTH CHECK ===')
+		console.log('Session exists:', !!session)
+		console.log('User ID:', user.id)
+		console.log('JWT present:', !!session.access_token)
+		console.log('==================')
 
 		// Use superValidate to parse the request directly
 		const form = await superValidate(request, zod(createListingSchema))
@@ -154,6 +168,8 @@ export const actions: Actions = {
 				if (!authDebug.auth_matches) {
 					console.error('CRITICAL: auth.uid() does not match user.id!')
 					console.error('This will cause RLS policy to fail')
+					console.error('Expected user.id:', user.id)
+					console.error('Database auth.uid():', authDebug.current_auth_uid)
 					return fail(401, { 
 						form, 
 						error: 'Authentication context error. Please log out and log back in.' 
