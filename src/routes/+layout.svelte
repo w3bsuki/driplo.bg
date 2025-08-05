@@ -23,11 +23,6 @@
 	export let data;
 
 	// Initialize auth context with client-side Supabase client and server data
-	console.log('🔍 Layout init - Server data:', { 
-		hasSupabase: !!data.supabase,
-		user: data.user?.email || 'none',
-		session: data.session ? 'exists' : 'none'
-	});
 	// Always pass the user and session from server data
 	const authContext = setAuthContext(
 		data.supabase, 
@@ -122,16 +117,10 @@
 		
 		// Listen for auth changes and update context
 		const { data: authListener } = data.supabase.auth.onAuthStateChange(async (event, session) => {
-			console.log('🔥 Auth state changed:', event, {
-				hasSession: !!session,
-				userEmail: session?.user?.email || 'none',
-				expiresAt: session?.expires_at || 'none'
-			});
 			
 			// Skip INITIAL_SESSION if we already have server data
 			if (event === 'INITIAL_SESSION' && data.session) {
-				console.log('⏭️ Skipping INITIAL_SESSION - using server data');
-				return;
+					return;
 			}
 			
 			// Update auth context with new session data
@@ -141,8 +130,7 @@
 				authContext.user = session.user;
 				// Load profile when user is authenticated
 				if (authContext.user?.id && !authContext.profile) {
-					console.log('🔄 Loading profile for user:', authContext.user.id);
-					await authContext.loadProfile(authContext.user.id);
+						await authContext.loadProfile(authContext.user.id);
 				}
 			} else if (event === 'SIGNED_OUT') {
 				// Only clear on explicit sign out
@@ -154,12 +142,10 @@
 			
 			// Only invalidate on actual auth changes, not initial load
 			if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-				console.log('🔄 Invalidating auth data due to', event);
-				// Invalidate all data to refresh server data and ensure UI updates
+					// Invalidate all data to refresh server data and ensure UI updates
 				await invalidateAll();
 			} else if (event === 'TOKEN_REFRESHED' && session) {
-				console.log('🔄 Token refreshed');
-				// Update the session to ensure we have the latest tokens
+					// Update the session to ensure we have the latest tokens
 				authContext.session = session;
 			}
 		});
