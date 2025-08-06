@@ -13,8 +13,8 @@ export default defineConfig({
 		}),
 		sentrySvelteKit({
 			sourceMapsUploadOptions: {
-				org: process.env.SENTRY_ORG,
-				project: process.env.SENTRY_PROJECT,
+				org: process.env['SENTRY_ORG'],
+				project: process.env['SENTRY_PROJECT'],
 			},
 		}),
 		sveltekit(),

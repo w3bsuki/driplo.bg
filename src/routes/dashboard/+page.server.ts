@@ -14,7 +14,8 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		{ count: activeListings },
 		{ count: verifiedBrands },
 		{ data: pendingBrands },
-		{ data: recentReports }
+		{ data: recentReports },
+		{ data: monthlyOrders }
 	] = await Promise.all([
 		// Total users
 		locals.supabase
@@ -43,11 +44,20 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 			.limit(10),
 		
 		// Recent reports (placeholder - would need reports table)
-		Promise.resolve({ data: [] })
+		Promise.resolve({ data: [] }),
+		
+		// Calculate monthly revenue from completed orders
+		locals.supabase
+			.from('orders')
+			.select('amount')
+			.eq('payment_status', 'completed')
+			.gte('created_at', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())
 	]);
 	
-	// Calculate monthly revenue (placeholder)
-	const monthlyRevenue = 0;
+	// Calculate monthly revenue
+	const monthlyRevenue = monthlyOrders && monthlyOrders.length > 0
+		? monthlyOrders.reduce((sum, order) => sum + (Number(order.amount) || 0), 0)
+		: 0;
 	
 	return {
 		stats: {

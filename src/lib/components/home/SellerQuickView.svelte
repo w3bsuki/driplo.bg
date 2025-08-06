@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { X, Star, MapPin, Calendar, TrendingUp, Award, ShoppingBag, Users, ExternalLink, UserPlus } from 'lucide-svelte';
+	import { X, Star, MapPin, Calendar, TrendingUp, Award, ShoppingBag, Users, ExternalLink, UserPlus, UserMinus, Loader2 } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import type { Profile, Listing } from '$lib/types/unified';
 	import * as m from '$lib/paraglide/messages.js';
@@ -8,12 +8,15 @@
 		seller: Profile | null;
 		topListings: Listing[];
 		isOpen: boolean;
+		isFollowing?: boolean;
+		followerCount?: number;
+		isFollowLoading?: boolean;
 		onClose?: () => void;
 		onViewStore?: (seller: Profile) => void;
 		onFollowSeller?: (seller: Profile) => void;
 	}
 
-	let { seller, topListings = [], isOpen = false, onClose, onViewStore, onFollowSeller }: Props = $props();
+	let { seller, topListings = [], isOpen = false, isFollowing = false, followerCount = 0, isFollowLoading = false, onClose, onViewStore, onFollowSeller }: Props = $props();
 
 	function close() {
 		onClose?.();
@@ -165,7 +168,7 @@
 						<div class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-sm mb-2 mx-auto">
 							<Users class="h-5 w-5 text-blue-600" />
 						</div>
-						<div class="text-lg font-semibold text-gray-900">{formatNumber(seller.followers_count || 0)}</div>
+						<div class="text-lg font-semibold text-gray-900">{formatNumber(followerCount || seller.followers_count || 0)}</div>
 						<div class="text-xs text-gray-500">Followers</div>
 					</div>
 					
@@ -223,10 +226,24 @@
 				
 				<button 
 					onclick={followSeller}
-					class="w-full bg-white border border-blue-200 text-blue-600 py-3 rounded-sm font-medium hover:bg-blue-50 transition-all active:scale-95 flex items-center justify-center gap-2"
+					disabled={isFollowLoading}
+					class={cn(
+						"w-full py-3 rounded-sm font-medium transition-all active:scale-95 flex items-center justify-center gap-2",
+						isFollowing 
+							? "bg-blue-600 text-white border border-blue-600 hover:bg-blue-700" 
+							: "bg-white border border-blue-200 text-blue-600 hover:bg-blue-50",
+						isFollowLoading && "opacity-50 cursor-not-allowed"
+					)}
 				>
-					<UserPlus class="h-4 w-4" />
-					{m.seller_follow()}
+					{#if isFollowLoading}
+						<Loader2 class="h-4 w-4 animate-spin" />
+					{:else if isFollowing}
+						<UserMinus class="h-4 w-4" />
+						Following
+					{:else}
+						<UserPlus class="h-4 w-4" />
+						{m.seller_follow()}
+					{/if}
 				</button>
 			</div>
 		</div>

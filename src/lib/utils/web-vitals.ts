@@ -152,18 +152,18 @@ export function getVitalsScore(): {
 		
 		// Extract vitals from entries
 		entries.forEach(entry => {
-			if (entry.name.includes('LCP')) scores.lcp = entry.startTime;
-			if (entry.name.includes('FID')) scores.fid = entry.duration;
-			if (entry.name.includes('CLS')) scores.cls = entry.startTime;
+			if (entry.name.includes('LCP')) scores['lcp'] = entry.startTime;
+			if (entry.name.includes('FID')) scores['fid'] = entry.duration;
+			if (entry.name.includes('CLS')) scores['cls'] = entry.startTime;
 		});
 	}
 	
 	// Calculate overall score
-	if (scores.lcp && scores.fid && scores.cls) {
-		const isGood = scores.lcp < 2500 && scores.fid < 100 && scores.cls < 0.1;
-		const isPoor = scores.lcp > 4000 || scores.fid > 300 || scores.cls > 0.25;
+	if (scores['lcp'] && scores['fid'] && scores['cls']) {
+		const isGood = (scores['lcp'] as number) < 2500 && (scores['fid'] as number) < 100 && (scores['cls'] as number) < 0.1;
+		const isPoor = (scores['lcp'] as number) > 4000 || (scores['fid'] as number) > 300 || (scores['cls'] as number) > 0.25;
 		
-		scores.score = isGood ? 'good' : isPoor ? 'poor' : 'needs-improvement';
+		scores['score'] = isGood ? 'good' : isPoor ? 'poor' : 'needs-improvement';
 	}
 	
 	return scores;

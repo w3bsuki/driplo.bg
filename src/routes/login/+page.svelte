@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms'
-	import { page } from '$app/stores'
+	// import { page } from '$app/stores' // unused
 	import { Eye, EyeOff, Github } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import type { PageData, ActionData } from './$types'
@@ -152,11 +152,11 @@
 					await update()
 					loading = false
 					
-					if (result.type === 'failure' && result.data?.error) {
-						toast.error(result.data.error)
+					if (result.type === 'failure' && result.data?.['error']) {
+						toast.error(result.data['error'] as string)
 						// Reset CAPTCHA on error
-						if (captchaWrapper) {
-							captchaWrapper.reset()
+						if (captchaWrapper && 'reset' in captchaWrapper) {
+							(captchaWrapper as any).reset()
 							captchaToken = ''
 						}
 					}
@@ -258,7 +258,7 @@
 			</p>
 
 			<!-- Resend verification link -->
-			{#if form?.showResend}
+			{#if form && 'showResend' in form && form.showResend}
 				<p class="text-center text-sm text-gray-600 mt-2">
 					<a href="/resend-verification" class="text-blue-400 hover:text-blue-500 font-medium">
 						Resend verification email

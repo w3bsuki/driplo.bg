@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/sveltekit';
 // Initialize Sentry only in production
 if (import.meta.env.PROD) {
 	Sentry.init({
-		dsn: import.meta.env.VITE_PUBLIC_SENTRY_DSN,
+		dsn: import.meta.env['VITE_PUBLIC_SENTRY_DSN'],
 		
 		// Performance Monitoring
 		tracesSampleRate: 0.1, // Capture 10% of transactions for performance monitoring
@@ -26,7 +26,7 @@ if (import.meta.env.PROD) {
 		environment: import.meta.env.MODE,
 		
 		// Filter out known issues
-		beforeSend(event, hint) {
+		beforeSend(event, _hint) {
 			// Filter out specific errors you don't care about
 			if (event.exception && event.exception.values) {
 				const error = event.exception.values[0];

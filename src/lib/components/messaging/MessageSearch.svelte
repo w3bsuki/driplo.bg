@@ -72,10 +72,24 @@
     }
 
     function highlightText(text: string, query: string): string {
-        if (!query) return text;
+        if (!query) return escapeHtml(text);
         
-        const regex = new RegExp(`(${query})`, 'gi');
-        return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+        // Escape HTML in both text and query to prevent XSS
+        const escapedText = escapeHtml(text);
+        const escapedQuery = escapeHtml(query);
+        
+        // Use escaped query for regex but only highlight actual matches
+        const regex = new RegExp(`(${escapedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return escapedText.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+    }
+    
+    function escapeHtml(unsafe: string): string {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 
     function selectConversation(conversationId: string) {

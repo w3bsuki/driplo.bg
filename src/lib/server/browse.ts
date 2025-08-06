@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database.types'
+import { getCachedData, cacheTTL } from '$lib/server/cache'
 
 export interface BrowseFilters {
 	category?: string
@@ -41,8 +42,51 @@ export async function browseListings(
 		limit = 24
 	} = filters
 
+	// Only cache simple queries (no search, first page, common filters)
+	const shouldCache = (
+		!search &&
+		page === 1 &&
+		limit <= 24 &&
+		sizes.length === 0 &&
+		brands.length === 0 &&
+		conditions.length === 0 &&
+		!minPrice &&
+		!maxPrice
+	)
+
+	if (shouldCache) {
+		const cacheKey = `browse-listings-${category}-${subcategory}-${sortBy}-${limit}`
+		return getCachedData(cacheKey, () => executeQuery(), cacheTTL.browseResults)
+	}
+	
+	return executeQuery()
+
+	async function executeQuery(): Promise<BrowseResult> {
+
 	try {
-		// Build the base query with proper joins
+		// Get category ID once for reuse
+		let categoryId: string | null = null
+		if (category) {
+			const categoryQuery = category.includes('-')
+				? supabase.from('categories').select('id').eq('slug', category).single()
+				: supabase.from('categories').select('id').eq('name', category).single()
+			
+			const { data: categoryData } = await categoryQuery
+			categoryId = categoryData?.id || null
+		}
+
+		// Get brand IDs once for reuse
+		let brandIds: string[] = []
+		if (brands.length > 0) {
+			const { data: brandData } = await supabase
+				.from('brands')
+				.select('id')
+				.in('name', brands)
+			
+			brandIds = brandData?.map(b => b.id) || []
+		}
+
+		// Build the optimized query with joins to reduce N+1
 		let query = supabase
 			.from('listings')
 			.select(`
@@ -51,7 +95,7 @@ export async function browseListings(
 				description,
 				price,
 				currency,
-				brand_id,
+				brand,
 				size,
 				condition,
 				images,
@@ -61,24 +105,21 @@ export async function browseListings(
 				shipping_price,
 				created_at,
 				user_id,
-				category_id
+				category_id,
+				profiles:user_id (
+					username,
+					avatar_url,
+					account_type,
+					is_verified
+				)
 			`)
 			.eq('is_sold', false)
 			.eq('is_archived', false)
 			.eq('is_draft', false)
 
-		// Apply filters
-		if (category) {
-			// First, get the category ID from slug or name
-			const categoryQuery = category.includes('-')
-				? supabase.from('categories').select('id').eq('slug', category).single()
-				: supabase.from('categories').select('id').eq('name', category).single()
-			
-			const { data: categoryData } = await categoryQuery
-			
-			if (categoryData) {
-				query = query.eq('category_id', categoryData.id)
-			}
+		// Apply filters using pre-fetched IDs
+		if (categoryId) {
+			query = query.eq('category_id', categoryId)
 		}
 
 		if (subcategory) {
@@ -103,16 +144,8 @@ export async function browseListings(
 			query = query.in('size', sizes)
 		}
 
-		if (brands.length > 0) {
-			// Convert brand names to brand_ids by querying brands table first
-			const { data: brandIds } = await supabase
-				.from('brands')
-				.select('id')
-				.in('name', brands)
-			
-			if (brandIds && brandIds.length > 0) {
-				query = query.in('brand_id', brandIds.map(b => b.id))
-			}
+		if (brandIds.length > 0) {
+			query = query.in('brand_id', brandIds)
 		}
 
 		if (conditions.length > 0) {
@@ -144,26 +177,17 @@ export async function browseListings(
 				break
 		}
 
-		// Get total count for pagination
-		const countQuery = supabase
+		// Build optimized count query using the same filters
+		let countQuery = supabase
 			.from('listings')
-			.select('*', { count: 'exact', head: true })
+			.select('id', { count: 'exact', head: true })
 			.eq('is_sold', false)
 			.eq('is_archived', false)
 			.eq('is_draft', false)
 
-		// Apply same filters to count query
-		if (category) {
-			// Use the same category ID we already fetched
-			const categoryQuery = category.includes('-')
-				? supabase.from('categories').select('id').eq('slug', category).single()
-				: supabase.from('categories').select('id').eq('name', category).single()
-			
-			const { data: categoryData } = await categoryQuery
-			
-			if (categoryData) {
-				countQuery.eq('category_id', categoryData.id)
-			}
+		// Apply same filters to count query using pre-fetched IDs
+		if (categoryId) {
+			countQuery = countQuery.eq('category_id', categoryId)
 		}
 
 		if (subcategory) {
@@ -186,16 +210,8 @@ export async function browseListings(
 			countQuery.in('size', sizes)
 		}
 
-		if (brands.length > 0) {
-			// Convert brand names to brand_ids by querying brands table first
-			const { data: brandIds } = await supabase
-				.from('brands')
-				.select('id')
-				.in('name', brands)
-			
-			if (brandIds && brandIds.length > 0) {
-				countQuery.in('brand_id', brandIds.map(b => b.id))
-			}
+		if (brandIds.length > 0) {
+			countQuery = countQuery.in('brand_id', brandIds)
 		}
 
 		if (conditions.length > 0) {
@@ -221,20 +237,29 @@ export async function browseListings(
 		const totalCount = countResult.count || 0
 		const hasMore = offset + limit < totalCount
 
-		return {
-			listings: listingsResult.data || [],
-			totalCount,
-			hasMore,
-			page,
-			limit
+		// Process listings to extract seller data from joins
+		const processedListings = (listingsResult.data || []).map((listing) => {
+			// Extract seller data and attach to listing
+			listing.seller = listing.profiles
+			delete listing.profiles
+			return listing
+		})
+
+			return {
+				listings: processedListings,
+				totalCount,
+				hasMore,
+				page,
+				limit
+			}
+		} catch (err) {
+			console.error('Browse listings error:', err)
+			throw err
 		}
-	} catch (err) {
-		console.error('Browse listings error:', err)
-		throw err
 	}
 }
 
-// Helper function to get unique filter values
+// Helper function to get unique filter values with caching
 export async function getBrowseFilters(
 	supabase: SupabaseClient<Database>,
 	category?: string
@@ -244,12 +269,16 @@ export async function getBrowseFilters(
 	conditions: string[]
 	priceRange: { min: number; max: number } | null
 }> {
-	let query = supabase
-		.from('listings')
-		.select('brand_id, size, condition, price, brands!brand_id(name)')
-		.eq('is_sold', false)
-		.eq('is_archived', false)
-		.eq('is_draft', false)
+	// Use caching for filter data since it changes slowly
+	const cacheKey = `browse-filters-${category || 'all'}`
+	
+	return getCachedData(cacheKey, async () => {
+		let query = supabase
+			.from('listings')
+			.select('brand_id, size, condition, price, brands!brand_id(name)')
+			.eq('is_sold', false)
+			.eq('is_archived', false)
+			.eq('is_draft', false)
 
 	if (category) {
 		if (category.includes('-')) {
@@ -299,10 +328,11 @@ export async function getBrowseFilters(
 		max: Math.max(...prices)
 	} : null
 
-	return {
-		brands,
-		sizes,
-		conditions,
-		priceRange
-	}
+		return {
+			brands,
+			sizes,
+			conditions,
+			priceRange
+		}
+	}, cacheTTL.browseResults)
 }

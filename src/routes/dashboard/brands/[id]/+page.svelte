@@ -198,7 +198,7 @@
 	</div>
 
 	<!-- Social Media Accounts -->
-	{#if data.socialAccounts.length > 0 || (data.request.social_media_accounts && Object.keys(data.request.social_media_accounts).length > 0)}
+	{#if data.socialAccounts.length > 0 || (data.request && 'social_media_accounts' in data.request && data.request.social_media_accounts && Object.keys(data.request.social_media_accounts).length > 0)}
 		<div class="bg-white rounded-lg shadow-sm p-6">
 			<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
 				<Link2 class="w-5 h-5" />
@@ -208,7 +208,7 @@
 			<div class="space-y-3">
 				{#each data.socialAccounts as account}
 					<a
-						href={account.url}
+						href={(account as any)?.url || '#'}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="flex items-center justify-between p-3 bg-gray-50 rounded-lg
@@ -216,16 +216,16 @@
 					>
 						<div class="flex items-center gap-3">
 							<svelte:component 
-								this={socialPlatformIcons[account.platform] || Globe} 
+								this={socialPlatformIcons[(account as any)?.platform] || Globe} 
 								class="w-5 h-5 text-gray-600"
 							/>
 							<div>
-								<p class="font-medium text-gray-900 capitalize">{account.platform}</p>
-								<p class="text-sm text-gray-600">@{account.username}</p>
+								<p class="font-medium text-gray-900 capitalize">{(account as any)?.platform || 'Unknown'}</p>
+								<p class="text-sm text-gray-600">@{(account as any)?.username || 'unknown'}</p>
 							</div>
 						</div>
 						<div class="flex items-center gap-2">
-							{#if account.is_verified}
+							{#if (account as any)?.is_verified}
 								<CheckCircle class="w-4 h-4 text-green-600" />
 							{/if}
 							<ExternalLink class="w-4 h-4 text-gray-400" />
@@ -237,7 +237,7 @@
 	{/if}
 
 	<!-- Documents -->
-	{#if data.request.documents && data.request.documents.length > 0}
+	{#if data.request && 'documents' in data.request && data.request.documents && data.request.documents.length > 0}
 		<div class="bg-white rounded-lg shadow-sm p-6">
 			<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
 				<FileText class="w-5 h-5" />
@@ -245,7 +245,7 @@
 			</h2>
 			
 			<div class="space-y-2">
-				{#each data.request.documents as doc}
+				{#each (data.request as any)?.documents || [] as doc}
 					<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
 						<span class="text-sm text-gray-700">{doc.name}</span>
 						<a
@@ -262,7 +262,7 @@
 	{/if}
 
 	<!-- Admin Actions -->
-	{#if data.request.verification_status === 'pending'}
+	{#if data.request && 'verification_status' in data.request && data.request.verification_status === 'pending'}
 		<div class="bg-white rounded-lg shadow-sm p-6">
 			<h2 class="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h2>
 			
@@ -373,22 +373,22 @@
 		<div class="bg-gray-50 rounded-lg p-6">
 			<div class="flex items-center gap-3 mb-4">
 				<svelte:component 
-					this={data.request.verification_status === 'approved' ? CheckCircle : XCircle}
-					class="w-6 h-6 {data.request.verification_status === 'approved' ? 'text-green-600' : 'text-red-600'}"
+					this={(data.request as any)?.verification_status === 'approved' ? CheckCircle : XCircle}
+					class="w-6 h-6 {(data.request as any)?.verification_status === 'approved' ? 'text-green-600' : 'text-red-600'}"
 				/>
 				<h3 class="text-lg font-semibold text-gray-900">
-					Request {data.request.verification_status.replace('_', ' ')}
+					Request {(data.request as any)?.verification_status?.replace('_', ' ') || 'Unknown'}
 				</h3>
 			</div>
-			{#if data.request.reviewed_at}
+			{#if data.request && 'reviewed_at' in data.request && data.request.reviewed_at}
 				<p class="text-sm text-gray-600 mb-2">
-					Reviewed on {formatDate(data.request.reviewed_at)}
+					Reviewed on {formatDate((data.request as any)?.reviewed_at)}
 				</p>
 			{/if}
-			{#if data.request.admin_notes}
+			{#if data.request && 'admin_notes' in data.request && data.request.admin_notes}
 				<div class="bg-white rounded-lg p-4">
 					<p class="text-sm font-medium text-gray-700 mb-1">Admin Notes:</p>
-					<p class="text-gray-900">{data.request.admin_notes}</p>
+					<p class="text-gray-900">{(data.request as any)?.admin_notes}</p>
 				</div>
 			{/if}
 		</div>

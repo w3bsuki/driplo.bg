@@ -1,20 +1,24 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
 	
-	// Mock data for top sellers
-	let sellers = $state([
-		{ id: 1, rank: 1, name: 'Stylish Store', sales: 1234, rating: 4.9, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller1', movement: 'up' },
-		{ id: 2, rank: 2, name: 'Fashion Hub', sales: 987, rating: 4.8, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller2', movement: 'up' },
-		{ id: 3, rank: 3, name: 'Trendy Threads', sales: 876, rating: 4.7, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller3', movement: 'down' },
-		{ id: 4, rank: 4, name: 'Elite Boutique', sales: 765, rating: 4.9, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller4', movement: 'same' },
-		{ id: 5, rank: 5, name: 'Urban Style', sales: 654, rating: 4.6, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller5', movement: 'up' },
-		{ id: 6, rank: 6, name: 'Classic Collection', sales: 543, rating: 4.8, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller6', movement: 'down' },
-		{ id: 7, rank: 7, name: 'Modern Market', sales: 432, rating: 4.5, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller7', movement: 'up' },
-		{ id: 8, rank: 8, name: 'Vintage Vibes', sales: 321, rating: 4.7, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller8', movement: 'same' },
-		{ id: 9, rank: 9, name: 'Chic Closet', sales: 210, rating: 4.6, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller9', movement: 'up' },
-		{ id: 10, rank: 10, name: 'Designer Dreams', sales: 198, rating: 4.9, avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=seller10', movement: 'down' }
-	]);
+	// Process sellers data from server
+	const sellers = $derived(data.sellers.map((seller, index) => ({
+		id: seller.id,
+		rank: index + 1,
+		name: seller.full_name || seller.username || 'Anonymous Seller',
+		sales: Number(seller.total_sales || 0),
+		rating: Number(seller.seller_rating || 0),
+		avatar: seller.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${seller.username}`,
+		movement: 'same', // TODO: Calculate movement based on historical data
+		username: seller.username,
+		earnings: Number(seller.total_earnings || 0),
+		listings_count: seller.listing_count || 0,
+		level: seller.seller_level || 1
+	})));
 	
 	function getRankBadgeClass(rank: number) {
 		if (rank === 1) return 'bg-gradient-to-br from-yellow-400 to-amber-500 text-white';
@@ -34,19 +38,19 @@
 	<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">Total Sellers</p>
-			<p class="text-2xl font-bold text-gray-900">1,234</p>
+			<p class="text-2xl font-bold text-gray-900">{data.stats.totalSellers.toLocaleString()}</p>
 		</div>
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">Active Today</p>
-			<p class="text-2xl font-bold text-brand-700">342</p>
+			<p class="text-2xl font-bold text-brand-700">{data.stats.activeToday}</p>
 		</div>
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">New This Month</p>
-			<p class="text-2xl font-bold text-green-600">87</p>
+			<p class="text-2xl font-bold text-green-600">{data.stats.newThisMonth}</p>
 		</div>
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">Avg Rating</p>
-			<p class="text-2xl font-bold text-amber-500">4.7⭐</p>
+			<p class="text-2xl font-bold text-amber-500">{data.stats.avgRating.toFixed(1)}⭐</p>
 		</div>
 	</div>
 	
@@ -59,7 +63,7 @@
 		<div class="divide-y divide-gray-100">
 			{#each sellers as seller (seller.id)}
 				<a 
-					href="/shops/{seller.id}"
+					href="/profile/{seller.username}"
 					class="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
 				>
 					<!-- Rank -->
@@ -107,12 +111,12 @@
 	<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
 		<h2 class="text-xl font-bold text-gray-900 mb-4">Browse by Category</h2>
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-			{#each ['Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Beauty', 'Books', 'Toys', 'Food'] as category (category)}
+			{#each data.categories as category (category.slug)}
 				<a 
-					href="/browse?category={category.toLowerCase()}"
+					href="/{category.slug}"
 					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-brand-50 hover:border-brand-500 border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-brand-700"
 				>
-					{category}
+					{category.name}
 				</a>
 			{/each}
 		</div>

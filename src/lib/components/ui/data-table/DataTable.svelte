@@ -8,7 +8,7 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	import type { Snippet } from 'svelte';
+	// import type { Snippet } from 'svelte'; // unused
 
 	interface Column<T> {
 		key: keyof T | string;
@@ -31,7 +31,7 @@
 		columns,
 		class: className,
 		onRowClick,
-		getRowKey = (item, index) => index.toString(),
+		_getRowKey = (_item, index) => index.toString(),
 		emptyMessage = 'No data available'
 	}: Props<T> = $props();
 

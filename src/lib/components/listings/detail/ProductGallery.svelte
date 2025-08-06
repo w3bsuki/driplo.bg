@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import Image from '$lib/components/ui/Image.svelte';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import Image from '$lib/components/ui/Image.svelte';
 
 	let { 
 		images = [],
@@ -72,10 +72,10 @@
 					src={images[currentImageIndex]}
 					alt={title}
 					class="w-full h-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-					aspectRatio="1/1"
-					preferredSize="medium"
+					objectFit="contain"
+					width={512}
+					height={512}
 					loading="eager"
-					priority={true}
 				/>
 			{:else}
 				<div class="w-full h-full bg-gray-100 flex items-center justify-center">

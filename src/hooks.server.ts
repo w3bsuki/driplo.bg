@@ -10,9 +10,9 @@ import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit'
 import * as Sentry from '@sentry/sveltekit'
 
 // Initialize Sentry only in production
-if (!dev && import.meta.env.VITE_PUBLIC_SENTRY_DSN) {
+if (!dev && import.meta.env['VITE_PUBLIC_SENTRY_DSN']) {
 	Sentry.init({
-		dsn: import.meta.env.VITE_PUBLIC_SENTRY_DSN,
+		dsn: import.meta.env['VITE_PUBLIC_SENTRY_DSN'],
 		
 		// Performance Monitoring
 		tracesSampleRate: 0.1,
@@ -21,7 +21,7 @@ if (!dev && import.meta.env.VITE_PUBLIC_SENTRY_DSN) {
 		environment: import.meta.env.MODE || 'production',
 		
 		// Server-specific configuration
-		beforeSend(event, hint) {
+		beforeSend(event, _hint) {
 			// Don't log authentication errors (expected)
 			if (event.exception?.values?.[0]?.value?.includes('AUTH_')) {
 				return null;
@@ -118,7 +118,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		// Get session first to check if we have auth data
 		const {
 			data: { session },
-			error: sessionError
+			error: _sessionError
 		} = await event.locals.supabase.auth.getSession()
 		
 		if (!session) {
@@ -202,8 +202,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		}
 	})
 
-	// Security headers are already set in vercel.json
-	// Only add CSP here to include dynamic values for Supabase and allow Vercel live
+	// Security headers for production hardening
 	const cspDirectives = [
 		"default-src 'self'",
 		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live blob:",
@@ -212,10 +211,23 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 		"font-src 'self' https://fonts.gstatic.com data:",
 		"img-src 'self' data: https: blob:",
-		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live https://*.ingest.de.sentry.io https://*.sentry.io"
+		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live https://*.ingest.de.sentry.io https://*.sentry.io",
+		"object-src 'none'",
+		"base-uri 'self'",
+		"form-action 'self'"
 	]
 	
+	// Set comprehensive security headers
 	response.headers.set('Content-Security-Policy', cspDirectives.join('; '))
+	response.headers.set('X-Frame-Options', 'SAMEORIGIN')
+	response.headers.set('X-Content-Type-Options', 'nosniff')
+	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+	
+	// Add HSTS in production only
+	if (!dev) {
+		response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload')
+	}
 
 	return response
 }

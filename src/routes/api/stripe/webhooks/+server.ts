@@ -4,6 +4,7 @@ import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from '$env/static/private';
 import type { RequestHandler } from './$types';
 import { emailService } from '$lib/server/email';
 import { rateLimiters } from '$lib/server/rate-limit';
+import { logger } from '$lib/services/logger';
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20'
@@ -22,14 +23,14 @@ export const POST: RequestHandler = async (event) => {
   const signature = request.headers.get('stripe-signature');
   
   if (!signature) {
-    console.warn('Webhook request missing signature');
+    logger.warn('Webhook request missing signature', { url: request.url });
     return json({ error: 'Missing signature' }, { status: 400 });
   }
 
   // Check request size to prevent abuse (Stripe webhooks are typically < 1MB)
   const contentLength = request.headers.get('content-length');
   if (contentLength && parseInt(contentLength) > 1024 * 1024) { // 1MB limit
-    console.warn('Webhook request too large:', contentLength);
+    logger.warn('Webhook request too large', { contentLength });
     return json({ error: 'Request too large' }, { status: 413 });
   }
 
@@ -41,7 +42,7 @@ export const POST: RequestHandler = async (event) => {
   try {
     stripeEvent = stripe.webhooks.constructEvent(body, signature, STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err);
+    logger.error('Webhook signature verification failed', { error: err });
     return json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -72,7 +73,7 @@ export const POST: RequestHandler = async (event) => {
         const orderId = paymentIntent.metadata.order_id;
 
         if (!orderId) {
-          console.error('No order_id in payment intent metadata');
+          logger.error('No order_id in payment intent metadata', { paymentIntentId: paymentIntent.id });
           break;
         }
 
@@ -87,7 +88,7 @@ export const POST: RequestHandler = async (event) => {
           .eq('id', orderId);
 
         if (updateError) {
-          console.error('Failed to update transaction:', updateError);
+          logger.error('Failed to update transaction', { error: updateError, orderId: order_id });
           throw updateError;
         }
 
@@ -101,7 +102,7 @@ export const POST: RequestHandler = async (event) => {
           .eq('id', paymentIntent.metadata.listing_id);
 
         if (listingError) {
-          console.error('Failed to update listing:', listingError);
+          logger.error('Failed to update listing availability', { error: listingError, listingId: listing_id });
         }
 
         // Get buyer, seller, and listing details for emails
@@ -381,7 +382,7 @@ export const POST: RequestHandler = async (event) => {
       })
       .eq('stripe_event_id', stripeEvent.id);
 
-    console.error('Webhook processing error:', error);
+    logger.error('Webhook processing failed', { error, eventType: event?.type });
     return json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 

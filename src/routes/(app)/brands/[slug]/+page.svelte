@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { Building2, Globe, Instagram, Facebook, Twitter, MapPin, Calendar, Star, Package, ShoppingBag, Users, TrendingUp, ExternalLink, Check } from 'lucide-svelte';
+	// import { page } from '$app/stores'; // unused
+	import { Building2, Globe, Instagram, Facebook, Twitter, MapPin, Calendar, Star, Package, ExternalLink, Check } from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import ListingCard from '$lib/components/listings/ListingCard.svelte';
 	import * as m from '$lib/paraglide/messages.js';

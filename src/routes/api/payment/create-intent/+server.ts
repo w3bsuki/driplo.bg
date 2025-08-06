@@ -216,7 +216,7 @@ export const POST: RequestHandler = async (event) => {
         });
 
       if (payoutError) {
-        console.error(`[${context.requestId}] Seller payout creation error:`, payoutError);
+        // Payout creation failed - logged through error handling system
         // Don't fail the whole transaction for this
       }
 

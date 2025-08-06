@@ -95,7 +95,7 @@ export function getErrorMessage(error: unknown): string {
   }
 
   // Default message
-  return ERROR_MESSAGES.unknown;
+  return ERROR_MESSAGES['unknown'];
 }
 
 // Retry configuration

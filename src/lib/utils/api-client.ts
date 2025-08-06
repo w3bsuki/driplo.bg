@@ -45,8 +45,8 @@ export async function apiFetch(
         }
 
         throw new AppError(
-          errorData.message || `HTTP ${response.status}`,
-          errorData.code || 'http-error',
+          errorData['message'] || `HTTP ${response.status}`,
+          errorData['code'] || 'http-error',
           response.status,
           errorData
         );

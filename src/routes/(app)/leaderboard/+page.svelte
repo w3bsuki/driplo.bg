@@ -91,13 +91,13 @@
 	// Mock data for stores (physical stores)
 	const allStores = $derived.by(() => {
 		// For now, filter sellers/brands that might have physical stores
-		// In real app, this would be a separate query
+		// In real app, this would be a separate query with actual store locations
 		const stores = [...(data.topSellers || []), ...(data.topBrands || [])]
-			.filter(() => Math.random() > 0.5) // Mock: randomly select some as having stores
-			.map(s => ({
+			.filter(s => s.account_type === 'brand' || s.seller_level >= 3) // Only brands or high-level sellers likely have stores
+			.map((s, index) => ({
 				...s,
 				hasPhysicalStore: true,
-				storeLocation: ['New York', 'Los Angeles', 'Chicago', 'Miami', 'Seattle'][Math.floor(Math.random() * 5)]
+				storeLocation: s.location || 'Location Not Set' // Use actual location if available
 			}));
 		
 		// Filter by search

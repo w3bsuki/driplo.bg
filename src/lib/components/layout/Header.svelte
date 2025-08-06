@@ -10,6 +10,7 @@
 	import LanguageSwitcher from './LanguageSwitcher.svelte';
 	import DriploLogo from '$lib/components/ui/DriploLogo.svelte';
 	import ProfileDropdownContent from './ProfileDropdownContent.svelte';
+	import NotificationDropdown from '$lib/components/notifications/NotificationDropdown.svelte';
 	import { onMount, onDestroy } from 'svelte';
 	
 	interface Props {
@@ -221,6 +222,11 @@
 				{/if}
 				<span class="sr-only">{m.header_messages()}</span>
 			</a>
+
+			<!-- Notifications (only for authenticated users) -->
+			{#if user}
+				<NotificationDropdown />
+			{/if}
 			
 			<!-- Desktop Profile -->
 			<DropdownMenu.Root>

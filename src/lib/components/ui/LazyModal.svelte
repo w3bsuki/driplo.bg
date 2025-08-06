@@ -15,8 +15,9 @@
 		show = false, 
 		preloadOnMount = false, 
 		loadingText = 'Loading...', 
-		preload: preloadProp 
-	}: Props = $props();
+		preload: preloadProp,
+		...restProps
+	}: Props & Record<string, any> = $props();
 	
 	let Component: ComponentType<SvelteComponent> | null = null;
 	let loading = $state(false);
@@ -95,6 +96,6 @@
 			</div>
 		</div>
 	{:else if Component}
-		<svelte:component this={Component} {...$$restProps} />
+		<svelte:component this={Component} {...restProps} />
 	{/if}
 {/if}

@@ -45,33 +45,33 @@
 		}
 		
 		try {
+			const method = isFollowing ? 'DELETE' : 'POST';
+			const response = await fetch(`/api/users/${profile.id}/follow`, {
+				method,
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
+			const responseData = await response.json();
+
+			if (!response.ok) {
+				throw new Error(responseData.error || `Failed to ${isFollowing ? 'unfollow' : 'follow'} user`);
+			}
+
+			// Update state with server response
+			isFollowing = !isFollowing;
+			profile.followers_count = responseData.follower_count;
+
+			// Show success message
 			if (isFollowing) {
-				// Unfollow
-				await supabase
-					.from('user_follows')
-					.delete()
-					.eq('follower_id', currentUser.id)
-					.eq('following_id', profile.id)
-				
-				toast.success(m.profile_unfollow_success())
-				isFollowing = false
-				profile.followers_count -= 1
+				toast.success(responseData.message || m.profile_follow_success())
 			} else {
-				// Follow
-				await supabase
-					.from('user_follows')
-					.insert({
-						follower_id: currentUser.id,
-						following_id: profile.id
-					})
-				
-				toast.success(m.profile_follow_success())
-				isFollowing = true
-				profile.followers_count += 1
+				toast.success(responseData.message || m.profile_unfollow_success())
 			}
 		} catch (error) {
 			console.error('Follow error:', error)
-			toast.error(m.profile_follow_update_error())
+			toast.error(error instanceof Error ? error.message : m.profile_follow_update_error())
 		}
 	}
 	
@@ -80,8 +80,14 @@
 			toast.error(m.profile_message_error())
 			return
 		}
-		// TODO: Implement messaging
-		toast.info(m.profile_messaging_coming_soon())
+		
+		// Check if user has any active listings to message about
+		if (profile?.id) {
+			// For now, redirect to messages page where they can see existing conversations
+			// In the future, we could implement direct profile messaging
+			goto('/messages')
+			toast.info('You can message this seller about their listings in your conversations')
+		}
 	}
 	
 	function handleEditProfile() {

@@ -29,7 +29,7 @@
 	let brandWebsite = $state(form?.brandWebsite || '')
 	
 	// Debounced email availability check
-	let emailCheckTimeout: number | null = null;
+	let emailCheckTimeout: ReturnType<typeof setTimeout> | null = null;
 	
 	function checkEmailAvailability(emailValue: string) {
 		if (!emailValue || !emailValue.includes('@')) {
@@ -63,7 +63,7 @@
 					emailCheckResult = null;
 				}
 			} catch (error) {
-				console.error('Email check failed:', error);
+				// Email check failed - handled by UI state
 				emailCheckResult = null;
 			} finally {
 				emailCheckLoading = false;
@@ -238,8 +238,8 @@
 						await update()
 						loading = false
 						
-						if (result.type === 'failure' && result.data?.error) {
-							toast.error(result.data.error)
+						if (result.type === 'failure' && result.data?.['error']) {
+							toast.error(result.data['error'] as string)
 							// Allow retry on failure
 							hasSubmitted = false;
 						} else if (result.type === 'success') {

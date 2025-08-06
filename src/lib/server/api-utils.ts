@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js';
 import type { Tables } from '$lib/types/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
+import { logger } from '$lib/services/logger';
 
 // Standard API response types
 export interface ApiResponse<T = unknown> {
@@ -76,7 +77,7 @@ export function apiError(
   const timestamp = new Date().toISOString();
   
   // Log the full error server-side for debugging
-  console.error(`[${timestamp}] API Error [${status}]: ${message}`, {
+  logger.error(`API Error [${status}]: ${message}`, {
     type,
     details,
     requestId,
@@ -165,7 +166,7 @@ export async function requireAuth(
     
     return result;
   } catch (error) {
-    console.error('Auth check error:', error);
+    logger.error('Auth check failed', { error });
     return null;
   }
 }
@@ -178,7 +179,7 @@ export async function requireAdmin(
   if (!auth || !auth.profile) return null;
   
   if (auth.profile.role !== 'admin') {
-    console.warn(`User ${auth.userId} attempted admin access without permission`);
+    logger.warn('Unauthorized admin access attempt', { userId: auth.userId });
     return null;
   }
   
@@ -277,7 +278,7 @@ export function paginatedResponse<T>(
 
 // Enhanced database error handler with specific error messages
 export function handleDatabaseError(error: unknown): never {
-  console.error('Database error:', error);
+  logger.error('Database operation failed', { error });
   
   // Supabase/Postgres error codes
   const errorMap: Record<string, { message: string; status: number; type: ApiErrorType }> = {
@@ -473,7 +474,7 @@ export async function handleRequest<T>(
     return apiSuccess(result, 200, context.requestId);
   } catch (err) {
     if (dev) {
-      console.error(`[${context.requestId}] Error:`, err, monitor.getMetrics());
+      logger.error('Request processing failed', { requestId: context.requestId, error: err, metrics: monitor.getMetrics() });
     }
     
     if (err instanceof ApiError) {

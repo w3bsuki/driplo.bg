@@ -1,5 +1,6 @@
 import { browser } from '$app/environment'
 import type { User, Session } from '@supabase/supabase-js'
+import { logger } from '$lib/services/logger'
 
 class AuthStore {
 	#user = $state<User | null>(null)
@@ -46,13 +47,13 @@ class AuthStore {
 							.single()
 						
 						if (error) {
-							console.error('Profile query error:', error)
+							logger.error('Profile query failed', { error })
 							this.#profile = null
 						} else {
 							this.#profile = data
 						}
 					} catch (error) {
-						console.error('Failed to load profile:', error)
+						logger.error('Profile loading failed', { error })
 						this.#profile = null
 					}
 				} else {

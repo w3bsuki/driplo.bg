@@ -7,6 +7,7 @@
 	import { getStripe } from '$lib/stores/stripe';
 	import * as m from '$lib/paraglide/messages.js';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
+	import { logger } from '$lib/services/logger';
 
 	interface Props {
 		listing: any;
@@ -108,12 +109,12 @@
 			try {
 				result = await response.json();
 			} catch (e) {
-				console.error('Failed to parse response:', e);
+				logger.error('Failed to parse checkout response', { error: e });
 				throw new Error('Server error - invalid response');
 			}
 			
 			if (!response.ok) {
-				console.error('Payment error:', result);
+				logger.error('Payment initialization failed', { result });
 				throw new Error(result.error || result.message || 'Failed to initialize payment');
 			}
 			
@@ -143,7 +144,7 @@
 				cardElement.mount(cardElementContainer);
 			}
 		} catch (error) {
-			console.error('Payment initialization error:', error);
+			logger.error('Payment initialization error', { error });
 			toast.error('Failed to initialize payment');
 			goToStep(1);
 		} finally {
@@ -204,7 +205,7 @@
 			}, 3000);
 			
 		} catch (error: any) {
-			console.error('Payment error:', error);
+			logger.error('Payment processing failed', { error });
 			toast.error(error.message || 'Payment failed');
 		} finally {
 			isProcessing = false;
@@ -240,7 +241,7 @@
 			goToStep(3);
 			
 		} catch (error: any) {
-			console.error('Manual payment error:', error);
+			logger.error('Manual payment processing failed', { error });
 			toast.error(error.message || 'Failed to create order');
 		} finally {
 			isProcessing = false;
