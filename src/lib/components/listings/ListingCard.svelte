@@ -73,7 +73,7 @@
 	});
 	
 	const formattedPrice = $derived(formatPrice(price));
-	const avatarGradient = $derived(getAvatarGradient(seller.username));
+	const avatarGradient = $derived(getAvatarGradient(seller?.username || 'anonymous'));
 	
 	// Helper functions
 	function formatPrice(price: number): string {
@@ -106,14 +106,11 @@
 		likeCount = liked ? likeCount + 1 : likeCount - 1;
 		
 		try {
-			const response = await fetchWithRetry('/api/wishlist', {
+			const response = await fetchWithRetry(`/api/listings/${id}/favorite`, {
 				method: liked ? 'POST' : 'DELETE',
 				headers: {
 					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					listing_id: id
-				})
+				}
 			});
 
 			if (!response.ok) {
@@ -218,9 +215,9 @@
 			{/if}
 			
 			<div class="flex items-center gap-1.5 pt-1">
-				{#if seller.avatar}
+				{#if seller?.avatar_url}
 					<img
-						src={seller.avatar}
+						src={seller?.avatar_url}
 						alt=""
 						class="h-5 w-5 rounded-md object-cover"
 						aria-hidden="true"
@@ -231,13 +228,13 @@
 						aria-hidden="true"
 					>
 						<span class="text-xs font-medium text-white">
-							{seller.username.charAt(0).toUpperCase()}
+							{seller?.username?.charAt(0).toUpperCase() || 'A'}
 						</span>
 					</div>
 				{/if}
-				<span class="text-sm text-gray-600 truncate">{seller.username}</span>
-				{#if seller.account_type === 'brand'}
-					<BrandBadge size="xs" isVerified={seller.is_verified} showText={false} />
+				<span class="text-sm text-gray-600 truncate">{seller?.username || 'Anonymous'}</span>
+				{#if seller?.account_type === 'brand'}
+					<BrandBadge size="xs" isVerified={seller?.is_verified} showText={false} />
 				{/if}
 				{#if likeCount > 0}
 					<span class="text-sm text-gray-500 ml-auto flex items-center gap-0.5 tabular-nums" aria-live="polite">

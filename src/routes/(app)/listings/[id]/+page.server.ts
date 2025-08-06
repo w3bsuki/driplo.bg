@@ -9,10 +9,48 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	// Set cache headers for product pages
 	setCacheHeaders({ setHeaders } as any, cachePresets.product)
 
-	// First, get the main listing WITHOUT joins to debug
+	// Get the main listing with proper joins to eliminate separate queries
 	const { data: listing, error: listingError } = await supabase
 		.from('listings')
-		.select('*')
+		.select(`
+			id,
+			title,
+			description,
+			price,
+			currency,
+			images,
+			size,
+			brand,
+			condition,
+			location,
+			view_count,
+			like_count,
+			shipping_price,
+			created_at,
+			user_id,
+			category_id,
+			status,
+			profiles:user_id (
+				id,
+				username,
+				avatar_url,
+				account_type,
+				is_verified,
+				follower_count,
+				seller_rating,
+				buyer_rating_count,
+				total_sales,
+				bio,
+				last_active
+			),
+			categories:category_id (
+				id,
+				name,
+				slug,
+				icon
+			)
+			// Fixed: using icon instead of icon_url
+		`)
 		.eq('id', params.id)
 		.eq('status', 'active')
 		.single()
@@ -23,23 +61,11 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		throw error(404, 'Listing not found')
 	}
 	
-	// Get seller profile separately
-	const { data: sellerProfile } = await supabase
-		.from('profiles')
-		.select('*')
-		.eq('id', listing.user_id)
-		.single()
-	
-	// Get category separately
-	const { data: category } = await supabase
-		.from('categories')
-		.select('*')
-		.eq('id', listing.category_id)
-		.single()
-		
-	// Attach to listing
-	listing.seller = sellerProfile
-	listing.category = category
+	// Rename joined data for compatibility
+	listing.seller = listing.profiles
+	listing.category = listing.categories
+	delete listing.profiles
+	delete listing.categories
 
 	// Now execute all dependent queries in parallel
 	const [
@@ -82,7 +108,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			.neq('id', params.id)
 			.limit(6),
 
-		// Get related listings from same category
+		// Get related listings from same category with seller info in one query
 		supabase
 			.from('listings')
 			.select(`
@@ -93,7 +119,13 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				size,
 				brand,
 				condition,
-				user_id
+				user_id,
+				profiles:user_id (
+					username,
+					avatar_url,
+					account_type,
+					is_verified
+				)
 			`)
 			.eq('category_id', listing.category_id)
 			.eq('status', 'active')
@@ -123,7 +155,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 
 	// Update seller stats
 	if (listing.seller) {
-		listing.seller.followers_count = followersResult.count || 0
+		listing.seller.follower_count = followersResult.count || 0
 		listing.seller.listings_count = listingsCountResult.count || 0
 	}
 
@@ -140,19 +172,13 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// This would require client-side tracking instead
 	}
 
-	// Get seller profiles for related listings
-	const relatedListings = await Promise.all(
-		(relatedListingsResult.data || []).map(async (item) => {
-			const { data: seller } = await supabase
-				.from('profiles')
-				.select('username, avatar_url, account_type, is_verified')
-				.eq('id', item.user_id)
-				.single()
-			
-			item.seller = seller
-			return item
-		})
-	)
+	// Process related listings - seller data already joined
+	const relatedListings = (relatedListingsResult.data || []).map((item) => {
+		// Rename joined data for compatibility
+		item.seller = item.profiles
+		delete item.profiles
+		return item
+	})
 	
 	return {
 		listing,

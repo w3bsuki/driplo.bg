@@ -61,20 +61,19 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="space-y-2">
-	<div class="relative bg-white rounded-sm border border-gray-200/60 p-2">
+	<div class="relative bg-white rounded-sm border border-gray-200/60 p-2 max-w-2xl mx-auto">
 		<button 
 			onclick={() => hasImages && openFullscreenGallery()}
-			class="relative aspect-square overflow-hidden rounded-sm bg-gray-50 w-full group cursor-zoom-in"
+			class="relative aspect-square overflow-hidden rounded-sm bg-gray-50 w-full group cursor-zoom-in max-h-[600px]"
 			disabled={!hasImages}
 		>
 			{#if hasImages && images[currentImageIndex]}
 				<Image
 					src={images[currentImageIndex]}
 					alt={title}
-					class="w-full h-full transition-transform duration-200 group-hover:scale-[1.02]"
+					class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.02]"
 					aspectRatio="1/1"
-					objectFit="contain"
-					preferredSize="large"
+					preferredSize="medium"
 					loading="eager"
 					priority={true}
 				/>
