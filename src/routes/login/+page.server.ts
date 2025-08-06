@@ -130,6 +130,20 @@ export const actions = {
 		// Check if session was actually set
 		const { data: { session: currentSession } } = await supabase.auth.getSession();
 		
+		// Check if user needs onboarding
+		if (data?.user) {
+			const { data: profile } = await supabase
+				.from('profiles')
+				.select('onboarding_completed, username')
+				.eq('id', data.user.id)
+				.single();
+			
+			// If profile exists but onboarding not completed or no username, send to onboarding
+			if (profile && (!profile.onboarding_completed || !profile.username)) {
+				throw redirect(303, '/onboarding');
+			}
+		}
+		
 		// Redirect to the originally requested page or home
 		const redirectTo = url.searchParams.get('redirectTo') || '/'
 		throw redirect(303, redirectTo)

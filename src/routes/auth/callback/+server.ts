@@ -63,9 +63,10 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 	
 	// Handle email confirmation
 	if (type === 'signup') {
-		// User confirmed their email - redirect to onboarding since profile already exists
-		const onboardingUrl = localizeHref('/onboarding', { locale: currentLocale as 'en' | 'bg' })
-		throw redirect(303, onboardingUrl)
+		// User confirmed their email - they need to login first since we signed them out after registration
+		// Redirect to login with success message
+		const loginUrl = localizeHref('/login?message=email_verified', { locale: currentLocale as 'en' | 'bg' })
+		throw redirect(303, loginUrl)
 	}
 	
 	// Handle password reset
