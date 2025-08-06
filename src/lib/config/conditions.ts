@@ -1,7 +1,7 @@
 export const LISTING_CONDITIONS = {
 	NEW_WITH_TAGS: 'new_with_tags',
 	NEW_WITHOUT_TAGS: 'new_without_tags',
-	VERY_GOOD: 'very_good',
+	EXCELLENT: 'excellent',
 	GOOD: 'good',
 	FAIR: 'fair'
 } as const;
@@ -40,10 +40,10 @@ export const CONDITION_CONFIG: Record<ListingCondition, ConditionConfig> = {
 		bgColor: 'bg-blue-500',
 		priority: 2
 	},
-	[LISTING_CONDITIONS.VERY_GOOD]: {
-		value: LISTING_CONDITIONS.VERY_GOOD,
-		label: 'Very good',
-		labelKey: 'condition_very_good',
+	[LISTING_CONDITIONS.EXCELLENT]: {
+		value: LISTING_CONDITIONS.EXCELLENT,
+		label: 'Excellent',
+		labelKey: 'condition_excellent',
 		color: 'violet',
 		textColor: 'text-white',
 		borderColor: 'border-violet-500',

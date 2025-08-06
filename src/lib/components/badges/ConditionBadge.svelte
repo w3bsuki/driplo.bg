@@ -19,7 +19,6 @@
 			'condition_new_without_tags': m.condition_new_without_tags,
 			'condition_like_new': m.condition_like_new,
 			'condition_excellent': m.condition_excellent,
-			'condition_very_good': m.condition_very_good,
 			'condition_good': m.condition_good,
 			'condition_fair': m.condition_fair,
 			'condition_worn': m.condition_worn
@@ -29,7 +28,7 @@
 		return messageFn ? messageFn() : config?.label || '';
 	}
 	
-	function getVariant(condition: string | null | undefined): 'condition-new-with-tags' | 'condition-new-without-tags' | 'condition-very-good' | 'condition-good' | 'condition-fair' | 'default' {
+	function getVariant(condition: string | null | undefined): 'condition-new-with-tags' | 'condition-new-without-tags' | 'condition-excellent' | 'condition-good' | 'condition-fair' | 'default' {
 		if (!condition) return 'default';
 		
 		switch(condition) {
@@ -37,8 +36,8 @@
 				return 'condition-new-with-tags';
 			case 'new_without_tags':
 				return 'condition-new-without-tags';
-			case 'very_good':
-				return 'condition-very-good';
+			case 'excellent':
+				return 'condition-excellent';
 			case 'good':
 				return 'condition-good';
 			case 'fair':

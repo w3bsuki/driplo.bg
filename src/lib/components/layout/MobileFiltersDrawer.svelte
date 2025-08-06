@@ -76,7 +76,7 @@
 	const conditions = [
 		{ label: m.listing_condition_new(), value: 'new' },
 		{ label: m.listing_condition_like_new(), value: 'likenew' },
-		{ label: m.condition_very_good(), value: 'verygood' },
+		{ label: m.condition_excellent(), value: 'excellent' },
 		{ label: m.condition_good(), value: 'good' },
 		{ label: m.condition_fair(), value: 'fair' }
 	];
