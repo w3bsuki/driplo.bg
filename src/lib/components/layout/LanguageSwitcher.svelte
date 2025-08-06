@@ -18,6 +18,9 @@
 			const secure = !dev ? '; secure' : '';
 			document.cookie = `PARAGLIDE_LOCALE=${newLang}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax${secure}`;
 			
+			// Also set in localStorage as a backup
+			localStorage.setItem('PARAGLIDE_LOCALE', newLang);
+			
 			// Update the runtime locale
 			setLocale(newLang as 'en' | 'bg');
 		}
@@ -42,7 +45,7 @@
 		
 		try {
 			// Navigate to the new localized URL
-			await goto(localizedUrl, { replaceState: true });
+			await goto(localizedUrl, { replaceState: false, invalidateAll: true });
 		} finally {
 			// Reset switching state after navigation completes or fails
 			isSwitching = false;

@@ -56,7 +56,7 @@
 		</div>
 		<div class="flex-1">
 			<div class="flex items-center gap-1">
-				<p class="text-sm font-medium">{profile?.username || 'user'}</p>
+				<p class="text-sm font-medium">{profile?.username || profile?.email || user?.email?.split('@')[0] || 'User'}</p>
 				{#if profile?.badges?.length && profile.badges.length > 2}
 					{#each profile.badges.slice(2) as badge}
 						{#if badgeConfig[badge]}
