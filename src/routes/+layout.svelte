@@ -1,8 +1,9 @@
 <script>
 	import '../app.css';
 	import Header from '$lib/components/layout/Header.svelte';
-	import MobileNav from '$lib/components/layout/MobileNav.svelte';
+	import MobileNavBar from '$lib/components/navigation/MobileNavBar.svelte';
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
+	import StickySearchBelowNav from '$lib/components/search/StickySearchBelowNav.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
 	import { Toaster } from 'svelte-sonner';
 	import { initializeAuth, setupAuthListener } from '$lib/stores/auth';
@@ -143,13 +144,16 @@
 			{/if}
 			<Header categories={data.categories} supabase={data.supabase} user={data.user} profile={data.profile} />
 		{/if}
-		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-20 md:pb-0"}>
+		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-14 md:pb-0"}>
 			<slot />
 		</main>
 		{#if !shouldHideMobileNav}
-			<MobileNav />
+			<MobileNavBar />
 		{/if}
 	</div>
+
+	<!-- Sticky search below navbar -->
+	<StickySearchBelowNav />
 
 	<CookieConsent />
 	<Toaster richColors position="top-center" />

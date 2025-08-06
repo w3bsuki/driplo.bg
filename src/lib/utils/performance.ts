@@ -16,22 +16,34 @@ import { browser } from '$app/environment';
 export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
   limit: number
-): (...args: Parameters<T>) => void {
+): ((...args: Parameters<T>) => void) & { cancel: () => void } {
   let inThrottle = false;
   let lastResult: ReturnType<T>;
+  let timeoutId: NodeJS.Timeout | null = null;
   
-  return function (this: unknown, ...args: Parameters<T>) {
+  const throttled = function (this: unknown, ...args: Parameters<T>) {
     if (!inThrottle) {
       lastResult = fn.apply(this, args);
       inThrottle = true;
       
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         inThrottle = false;
+        timeoutId = null;
       }, limit);
     }
     
     return lastResult;
   };
+  
+  throttled.cancel = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+      inThrottle = false;
+    }
+  };
+  
+  return throttled;
 }
 
 /**

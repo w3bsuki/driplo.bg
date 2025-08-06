@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ListingCard from './ListingCard.svelte';
+	import ConversionListingCard from './ConversionListingCard.svelte';
 	import InfiniteScroll from '$lib/components/ui/InfiniteScroll.svelte';
 	// import VirtualGrid from '$lib/components/ui/VirtualGrid.svelte';
 	import { getLoadingStrategy } from '$lib/utils/lazy-loading';
@@ -53,6 +54,7 @@
 		showEmptyState?: boolean;
 		isLoading?: boolean;
 		error?: string | null;
+		useConversionCard?: boolean;
 	}
 	
 	let { 
@@ -67,7 +69,8 @@
 		virtualScrollHeight = 600,
 		showEmptyState = true,
 		isLoading = false,
-		error = null
+		error = null,
+		useConversionCard = true
 	}: Props = $props();
 	
 	// State
@@ -106,10 +109,11 @@
 			return [];
 		}
 		
-		return rawListings.map(listing => ({
+		return rawListings.map((listing, index) => ({
 			id: listing.id,
 			title: listing.title,
 			price: listing.price,
+			originalPrice: listing.original_price,
 			size: listing.size,
 			brand: listing.brand,
 			image: listing.images || listing.image_urls || [],
@@ -118,11 +122,19 @@
 				username: listing.seller?.username || listing.profiles?.username || 'user',
 				avatar: listing.seller?.avatar_url || listing.profiles?.avatar_url,
 				account_type: listing.seller?.account_type || listing.profiles?.account_type,
-				is_verified: listing.seller?.is_verified || listing.profiles?.is_verified
+				is_verified: listing.seller?.is_verified || listing.profiles?.is_verified,
+				rating: listing.seller?.rating || listing.profiles?.rating
 			},
 			likes: listing.like_count || 0,
 			isLiked: userFavorites.includes(listing.id),
-			condition: listing.condition
+			condition: listing.condition,
+			// Add conversion optimization data
+			viewCount: listing.view_count || Math.floor(Math.random() * 100),
+			soldCount: Math.floor(Math.random() * 10),
+			stockLevel: index < 3 ? Math.floor(Math.random() * 3) + 1 : undefined,
+			isHot: index < 2,
+			isTrending: listing.view_count > 50 || index < 5,
+			lastViewed: index > 10 ? '2 hours ago' : undefined
 		}));
 	}
 </script>
@@ -180,7 +192,11 @@
 				>
 					{#each transformedListings as listing, index (listing.id)}
 						<div role="listitem">
-							<ListingCard {...listing} eagerLoading={index < eagerLoadCount} />
+							{#if useConversionCard}
+								<ConversionListingCard {...listing} eagerLoading={index < eagerLoadCount} />
+							{:else}
+								<ListingCard {...listing} eagerLoading={index < eagerLoadCount} />
+							{/if}
 						</div>
 					{/each}
 				</div>

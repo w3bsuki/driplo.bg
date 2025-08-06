@@ -22,9 +22,6 @@
 	
 	let { supabase, user, profile, categories }: Props = $props();
 	
-	let searchQuery = $state('');
-	let isSearchExpanded = $state(false);
-	let searchInputRef: HTMLInputElement;
 	
 	// Initialize unread count and real-time subscriptions
 	onMount(() => {
@@ -63,13 +60,6 @@
 		}
 	});
 
-	function handleSearch() {
-		if (searchQuery.trim()) {
-			goto(`/browse?q=${encodeURIComponent(searchQuery.trim())}`);
-		} else {
-			goto('/browse');
-		}
-	}
 
 	async function handleSignOut() {
 		// Use server-side logout to properly clear cookies
@@ -95,54 +85,8 @@
 			<DriploLogo size="md" className="hidden md:flex" />
 		</a>
 		
-		<!-- Mobile Search Bar - Collapsible -->
-		<div class="flex-1 flex items-center justify-end gap-2 md:hidden">
-			{#if isSearchExpanded}
-				<div class="absolute left-14 right-14 z-10">
-					<div class="relative group bg-white rounded-full shadow-lg border border-gray-200">
-						<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
-						<input
-							bind:this={searchInputRef}
-							type="search"
-							placeholder={m.header_search_placeholder()}
-							bind:value={searchQuery}
-							onkeydown={(e) => {
-								if (e.key === 'Enter') {
-									handleSearch();
-									isSearchExpanded = false;
-								} else if (e.key === 'Escape') {
-									isSearchExpanded = false;
-								}
-							}}
-							onblur={() => setTimeout(() => isSearchExpanded = false, 200)}
-							class="w-full rounded-full border-0 pl-10 pr-9 h-9 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
-							autofocus
-						/>
-						{#if searchQuery.trim()}
-							<button
-								onclick={() => searchQuery = ''}
-								class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
-								type="button"
-								aria-label="Clear search"
-							>
-								<span class="text-gray-400 text-xs">✕</span>
-							</button>
-						{/if}
-					</div>
-				</div>
-			{:else}
-				<button
-					onclick={() => {
-						isSearchExpanded = true;
-						setTimeout(() => searchInputRef?.focus(), 50);
-					}}
-					class="h-9 w-9 flex items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-fast"
-					aria-label="Search"
-				>
-					<span class="text-lg">🔍</span>
-				</button>
-			{/if}
-		</div>
+		<!-- Mobile spacer -->
+		<div class="flex-1 md:hidden"></div>
 
 		<!-- Mobile Actions -->
 		<div class="flex items-center gap-1 md:hidden">
@@ -186,29 +130,8 @@
 			</DropdownMenu.Root>
 		</div>
 
-		<!-- Desktop Search Bar -->
-		<div class="hidden md:block flex-1 max-w-2xl mx-6">
-			<div class="relative group">
-				<span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">🔍</span>
-				<input
-					type="search"
-					placeholder={m.header_search_placeholder()}
-					bind:value={searchQuery}
-					onkeydown={(e) => e.key === 'Enter' && handleSearch()}
-					class="w-full rounded-full border border-gray-200 bg-gray-50 pl-12 pr-4 h-11 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white focus:shadow-sm transition-all duration-200"
-				/>
-				{#if searchQuery.trim()}
-					<button
-						onclick={() => searchQuery = ''}
-						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
-						type="button"
-						aria-label="Clear search"
-					>
-						<span class="text-gray-400 text-sm">✕</span>
-					</button>
-				{/if}
-			</div>
-		</div>
+		<!-- Desktop spacer -->
+		<div class="hidden md:block flex-1"></div>
 
 		<!-- Desktop Actions -->
 		<div class="hidden md:flex items-center gap-2">

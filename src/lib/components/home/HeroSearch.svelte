@@ -1,5 +1,21 @@
 <script lang="ts">
-	import { ChevronDown, Menu, Search, Loader2 } from 'lucide-svelte';
+	import { 
+		ChevronDown, 
+		Menu, 
+		Search, 
+		Loader2,
+		Star,
+		TrendingUp,
+		Users,
+		Clock,
+		Tag,
+		ShirtIcon as Shirt,
+		Footprints,
+		Gem,
+		ShoppingBag,
+		Zap,
+		Heart
+	} from 'lucide-svelte';
 	import { goto } from '$app/navigation';
 	import { cn } from '$lib/utils';
 	import { debounce } from '$lib/utils/performance';
@@ -47,11 +63,12 @@
 	} from '$lib/paraglide/messages.js';
 	
 	interface QuickFilter {
-		icon: string;
+		icon: any; // Lucide icon component
 		name: string;
 		action: string;
 		ariaLabel?: string;
-		color?: 'golden' | 'blue' | 'pink';
+		color?: 'golden' | 'blue' | 'pink' | 'green' | 'purple';
+		urgent?: boolean;
 	}
 	
 	interface Props {
@@ -89,22 +106,18 @@
 		search_north_face_jacket()
 	];
 	
-	// Quick filters with proper accessibility
+	// Professional conversion-optimized quick filters
 	const quickFilters: QuickFilter[] = [
-		{ icon: '⭐', name: quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: quick_filter_top_sellers(), color: 'golden' },
-		{ icon: '👨', name: quick_filter_men(), action: 'men', ariaLabel: category_men(), color: 'blue' },
-		{ icon: '👩', name: quick_filter_women(), action: 'women', ariaLabel: category_women(), color: 'pink' },
-		{ icon: '✨', name: quick_filter_newest(), action: 'newest', ariaLabel: quick_filter_newest() },
-		{ icon: '🔥', name: quick_filter_hot(), action: 'hot', ariaLabel: quick_filter_hot() },
-		{ icon: '🏷️', name: quick_filter_with_tags(), action: 'with-tags', ariaLabel: condition_new_with_tags() },
-		{ icon: '👟', name: quick_filter_shoes(), action: 'shoes', ariaLabel: subcategory_shoes() },
-		{ icon: '👕', name: quick_filter_tshirts(), action: 't-shirts', ariaLabel: subcategory_tshirts() },
-		{ icon: '💍', name: quick_filter_accessories(), action: 'accessories', ariaLabel: subcategory_accessories() },
-		{ icon: '👖', name: quick_filter_jeans(), action: 'jeans', ariaLabel: subcategory_jeans() },
-		{ icon: '👗', name: quick_filter_dresses(), action: 'dresses', ariaLabel: subcategory_dresses() },
-		{ icon: '🧥', name: quick_filter_jackets(), action: 'jackets', ariaLabel: subcategory_jackets() },
-		{ icon: '👜', name: quick_filter_bags(), action: 'bags', ariaLabel: subcategory_bags() },
-		{ icon: '💸', name: quick_filter_sale(), action: 'sale', ariaLabel: filter_browse_all() }
+		{ icon: Star, name: quick_filter_top_sellers(), action: 'top-sellers', ariaLabel: quick_filter_top_sellers(), color: 'golden', urgent: true },
+		{ icon: Users, name: quick_filter_men(), action: 'men', ariaLabel: category_men(), color: 'blue' },
+		{ icon: Heart, name: quick_filter_women(), action: 'women', ariaLabel: category_women(), color: 'pink' },
+		{ icon: Zap, name: quick_filter_newest(), action: 'newest', ariaLabel: quick_filter_newest(), color: 'green' },
+		{ icon: TrendingUp, name: quick_filter_hot(), action: 'hot', ariaLabel: quick_filter_hot(), color: 'golden', urgent: true },
+		{ icon: Tag, name: quick_filter_with_tags(), action: 'with-tags', ariaLabel: condition_new_with_tags(), color: 'purple' },
+		{ icon: Footprints, name: quick_filter_shoes(), action: 'shoes', ariaLabel: subcategory_shoes() },
+		{ icon: Shirt, name: quick_filter_tshirts(), action: 't-shirts', ariaLabel: subcategory_tshirts() },
+		{ icon: Gem, name: quick_filter_accessories(), action: 'accessories', ariaLabel: subcategory_accessories() },
+		{ icon: ShoppingBag, name: quick_filter_bags(), action: 'bags', ariaLabel: subcategory_bags() }
 	];
 	
 	// Initialize component
@@ -336,7 +349,7 @@
 						
 						<!-- Search Input Container - Bigger Touch Target -->
 						<div class="flex-1 min-w-0 flex items-center px-3 md:px-3 relative">
-							<span class="text-gray-400 mr-2 text-lg md:hidden">🔍</span>
+							<Search class="text-gray-400 mr-2 h-5 w-5 md:hidden" />
 							<input
 								bind:this={searchInputRef}
 								type="search"
@@ -403,32 +416,38 @@
 								<!-- Scrollable Filters - Bigger on Mobile -->
 								<div class="flex-1 overflow-x-auto scrollbar-hide">
 									<div class="flex items-center gap-2 md:gap-1.5 pb-1">
-										<!-- Quick Filter Pills - Larger Touch Targets -->
+										<!-- Quick Filter Pills - Professional Icons -->
 										{#each quickFilters.slice(0, 8) as filter}
 											<button
 												onclick={() => handleQuickFilter(filter.action)}
 												class={cn(
-													"flex items-center gap-1.5 md:gap-1 px-3.5 md:px-2.5 py-2.5 md:py-2 rounded-xl md:rounded-sm text-sm md:text-xs font-semibold whitespace-nowrap transition-all duration-100 focus:outline-none focus:ring-2 md:focus:ring-1 focus:ring-blue-500 flex-shrink-0",
-													filter.color === 'golden' && "bg-gradient-to-r from-amber-500 to-yellow-500 border-0 hover:from-amber-600 hover:to-yellow-600 text-white shadow-md",
-													filter.color === 'blue' && "bg-gradient-to-r from-blue-500 to-sky-500 border-0 hover:from-blue-600 hover:to-sky-600 text-white shadow-md",
-													filter.color === 'pink' && "bg-gradient-to-r from-pink-500 to-rose-500 border-0 hover:from-pink-600 hover:to-rose-600 text-white shadow-md",
-													!filter.color && "bg-gray-50 md:bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-100 md:hover:bg-gray-50 text-gray-700 font-medium"
+													"flex items-center gap-1.5 md:gap-1 px-3.5 md:px-2.5 py-2.5 md:py-2 rounded-xl md:rounded-sm text-sm md:text-xs font-semibold whitespace-nowrap transition-all duration-200 focus:outline-none focus:ring-2 md:focus:ring-1 focus:ring-blue-500 flex-shrink-0 relative",
+													filter.color === 'golden' && "bg-gradient-to-r from-amber-500 to-yellow-500 border-0 hover:from-amber-600 hover:to-yellow-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
+													filter.color === 'blue' && "bg-gradient-to-r from-blue-500 to-sky-500 border-0 hover:from-blue-600 hover:to-sky-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
+													filter.color === 'pink' && "bg-gradient-to-r from-pink-500 to-rose-500 border-0 hover:from-pink-600 hover:to-rose-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
+													filter.color === 'green' && "bg-gradient-to-r from-green-500 to-emerald-500 border-0 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
+													filter.color === 'purple' && "bg-gradient-to-r from-purple-500 to-violet-500 border-0 hover:from-purple-600 hover:to-violet-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105",
+													!filter.color && "bg-gray-50 md:bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-100 md:hover:bg-gray-50 text-gray-700 font-medium hover:shadow-md"
 												)}
 												aria-label={filter.ariaLabel}
 												>
-												<span aria-hidden="true" class="text-base md:text-sm">{filter.icon}</span>
+												{#if filter.urgent}
+													<!-- Urgency pulse effect for conversion -->
+													<div class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+												{/if}
+												<svelte:component this={filter.icon} class="h-4 w-4 md:h-3.5 md:w-3.5" />
 												<span>{filter.name}</span>
 											</button>
 										{/each}
 										
-										<!-- Category Quick Links - Hidden on Mobile to Reduce Clutter -->
+										<!-- Category Quick Links - Clean Professional Look -->
 										{#each categories.slice(0, 3) as category}
 											<button
 												onclick={() => handleCategorySelect(category.slug)}
-												class="hidden md:flex items-center gap-1 px-2.5 py-2 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+												class="hidden md:flex items-center gap-1 px-2.5 py-2 rounded-sm bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-blue-500 hover:shadow-sm"
 												aria-label="{filter_categories()}: {getCategoryName(category)}"
 												>
-												<span aria-hidden="true">{category.icon_url || category.icon || '📦'}</span>
+												<ShoppingBag class="h-3 w-3 text-gray-500" />
 												<span>{getCategoryName(category)}</span>
 											</button>
 										{/each}
