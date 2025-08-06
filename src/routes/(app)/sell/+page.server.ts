@@ -82,7 +82,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 				}
 			}
 		}
-	} catch (error: any) {
+	} catch (error: unknown) {
 		// If error is "no rows returned", that's fine
 		if (error?.code !== 'PGRST116') {
 			console.error('Failed to check payment account:', error)
@@ -114,7 +114,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	create: async ({ request, locals, cookies }) => {
-		console.log('Create listing action started');
 		
 		// Get user from auth
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
@@ -123,22 +122,12 @@ export const actions: Actions = {
 			return fail(401, { error: 'Please log in to create a listing' })
 		}
 		
-		console.log('User authenticated:', user.id);
 
 		// Get form data
 		const formData = await request.formData()
 		
 		// Extract image files
 		const imageFiles = formData.getAll('imageFiles') as File[]
-		console.log('Number of image files received:', imageFiles.length)
-		imageFiles.forEach((file, i) => {
-			console.log(`File ${i}:`, {
-				name: file?.name,
-				size: file?.size,
-				type: file?.type,
-				constructor: file?.constructor?.name
-			})
-		})
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
@@ -176,8 +165,8 @@ export const actions: Actions = {
 		if (formDataForValidation.price) {
 			formDataForValidation.price = parseFloat(formDataForValidation.price as string);
 		}
-		if (formDataForValidation.shipping_cost) {
-			formDataForValidation.shipping_cost = parseFloat(formDataForValidation.shipping_cost as string);
+		if (formDataForValidation.shipping_price) {
+			formDataForValidation.shipping_price = parseFloat(formDataForValidation.shipping_price as string);
 		}
 		if (formDataForValidation.ships_worldwide) {
 			formDataForValidation.ships_worldwide = formDataForValidation.ships_worldwide === 'true';
@@ -195,8 +184,6 @@ export const actions: Actions = {
 			return fail(400, { form, error: 'Please check all required fields.' })
 		}
 		
-		console.log('Form validation passed successfully')
-		console.log('Validated form data:', form.data)
 		
 		// Check if user profile exists and onboarding is completed
 		const { data: profile, error: profileError } = await locals.supabase
@@ -215,12 +202,9 @@ export const actions: Actions = {
 		
 		// Images are now uploaded before validation - use the URLs we already have
 		
-		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_cost, brand, size, tags, materials, ships_worldwide } = form.data
+		const { title, description, price, category_id, subcategory_id, condition, color, location_city, shipping_type, shipping_price, brand, size, tags, materials, ships_worldwide } = form.data
 
 		try {
-			console.log('Attempting to create listing...')
-			console.log('User ID:', user.id)
-			console.log('Images to insert:', uploadedImageUrls)
 			
 			// Create the listing
 			const { data: listing, error } = await locals.supabase
@@ -238,7 +222,7 @@ export const actions: Actions = {
 					color,
 					location: location_city,
 					country: 'Bulgaria',
-					shipping_price: shipping_cost || 0,
+					shipping_price: shipping_price || 0,
 					shipping_options: { 
 						standard: shipping_type === 'standard',
 						express: shipping_type === 'express',
@@ -263,7 +247,6 @@ export const actions: Actions = {
 				.select()
 				.single()
 
-			console.log('Database operation result:', { listing, error })
 			
 			if (error) {
 				console.error('Database error details:', error)
@@ -305,7 +288,7 @@ export const actions: Actions = {
 			const localizedUrl = localizeHref('/', { locale: currentLocale as 'en' | 'bg' })
 			throw redirect(303, localizedUrl)
 			
-		} catch (error: any) {
+		} catch (error: unknown) {
 			// If it's a redirect, rethrow it
 			if (error?.status === 303) {
 				throw error

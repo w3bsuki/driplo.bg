@@ -293,7 +293,6 @@
 			}
 
 			// Update profile - create if doesn't exist, update if it does
-			console.log('Updating profile for user:', user.id, 'with data:', updateData);
 			
 			// First try to update
 			const { count, error: updateError } = await supabase
@@ -308,7 +307,6 @@
 			}
 			
 			if (count === 0) {
-				console.log('Profile does not exist, creating new profile for user:', user.id);
 				// Profile doesn't exist, create it
 				const createData = {
 					id: user.id,
@@ -336,12 +334,9 @@
 					throw insertError;
 				}
 				
-				console.log('Profile created successfully');
 			} else {
-				console.log('Profile updated successfully');
 			}
 
-			console.log('Step saved successfully:', updateData);
 
 			// Mark step as completed
 			completedSteps = [...completedSteps, currentStep];
@@ -369,7 +364,6 @@
 	async function handleComplete() {
 		loading = true;
 		try {
-			console.log('ProfileSetupWizard: Starting completion with form data:', $form);
 			
 			// Validate required fields before completion
 			if (!$form.username || $form.username.length < 3) {

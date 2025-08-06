@@ -8,7 +8,7 @@
 		type?: 'button' | 'submit' | 'reset';
 		class?: string;
 		onclick?: (e: MouseEvent) => void;
-		children?: any;
+		children?: import('svelte').Snippet;
 	}
 	
 	let {

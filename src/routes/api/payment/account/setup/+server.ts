@@ -53,7 +53,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		if (existingAccount) {
 			// Update existing account
-			const updateData: any = {
+			const updateData: Record<string, unknown> = {
 				payout_method,
 				verified: false, // Reset verification when details change
 				updated_at: new Date().toISOString()
@@ -105,7 +105,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			});
 		} else {
 			// Create new payment account
-			const insertData: any = {
+			const insertData: Record<string, unknown> = {
 				user_id: userId,
 				payout_method,
 				verified: false,
@@ -143,7 +143,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			});
 		}
 
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error('Payment account setup error:', error);
 		return json({ 
 			error: 'Internal server error', 

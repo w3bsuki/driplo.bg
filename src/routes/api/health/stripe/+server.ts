@@ -25,7 +25,7 @@ export const GET: RequestHandler = async () => {
         country: account.country
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return json({
       status: 'error',
       service: 'stripe',

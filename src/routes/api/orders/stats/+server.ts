@@ -63,13 +63,13 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         // Calculate statistics
         const stats = {
             totalOrders: statusCounts?.length || 0,
-            ordersByStatus: statusCounts?.reduce((acc: any, order: any) => {
+            ordersByStatus: statusCounts?.reduce((acc: Record<string, number>, order: Record<string, unknown>) => {
                 acc[order.status] = (acc[order.status] || 0) + 1;
                 return acc;
             }, {}) || {},
-            totalRevenue: revenueData?.reduce((sum: number, order: any) => sum + order.total_amount, 0) || 0,
+            totalRevenue: revenueData?.reduce((sum: number, order: Record<string, unknown>) => sum + (order.total_amount as number), 0) || 0,
             averageOrderValue: revenueData?.length ? 
-                (revenueData.reduce((sum: number, order: any) => sum + order.total_amount, 0) / revenueData.length) : 0,
+                (revenueData.reduce((sum: number, order: Record<string, unknown>) => sum + (order.total_amount as number), 0) / revenueData.length) : 0,
             recentOrders: recentOrders || []
         };
 
@@ -87,7 +87,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         if (monthlyError) throw monthlyError;
 
         // Group by month
-        const monthlyStats = monthlyData?.reduce((acc: any, order: any) => {
+        const monthlyStats = monthlyData?.reduce((acc: Record<string, unknown>, order: Record<string, unknown>) => {
             const month = new Date(order.created_at).toISOString().substring(0, 7);
             if (!acc[month]) {
                 acc[month] = { orders: 0, revenue: 0 };

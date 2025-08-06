@@ -29,7 +29,6 @@
 			})
 		} catch (error) {
 			// Confetti might fail due to CSP restrictions, but that's okay
-			console.log('Confetti animation skipped due to CSP')
 		}
 		
 		if (listingId && !listing) {

@@ -177,7 +177,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 
         // Calculate totals
         const subtotal = listing.price;
-        const shipping_cost = listing.shipping_cost || 0;
+        const shipping_cost = listing.shipping_price || 0;
         const total_amount = subtotal + shipping_cost;
 
         // Create order

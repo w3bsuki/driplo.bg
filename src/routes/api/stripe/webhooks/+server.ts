@@ -53,7 +53,6 @@ export const POST: RequestHandler = async (event) => {
     .single();
 
   if (existingEvent) {
-    console.log('Event already processed:', stripeEvent.id);
     return json({ received: true });
   }
 
@@ -133,7 +132,6 @@ export const POST: RequestHandler = async (event) => {
           );
         }
 
-        console.log('Payment succeeded for order:', orderId);
         break;
       }
 
@@ -152,7 +150,6 @@ export const POST: RequestHandler = async (event) => {
           })
           .eq('id', orderId);
 
-        console.log('Payment failed for order:', orderId);
         break;
       }
 
@@ -207,7 +204,6 @@ export const POST: RequestHandler = async (event) => {
             );
           }
 
-          console.log('Dispute created for transaction:', transaction.id);
         }
         break;
       }
@@ -286,7 +282,6 @@ export const POST: RequestHandler = async (event) => {
             );
           }
 
-          console.log(`Refund processed for transaction ${transaction.id}: ${isFullRefund ? 'Full' : 'Partial'} refund of ${refundAmount}`);
         }
         break;
       }
@@ -324,7 +319,6 @@ export const POST: RequestHandler = async (event) => {
             );
           }
 
-          console.log('Transfer created for payout:', payoutId);
         }
         break;
       }
@@ -362,13 +356,11 @@ export const POST: RequestHandler = async (event) => {
             );
           }
 
-          console.log('Transfer paid for payout:', payoutId);
         }
         break;
       }
 
       default:
-        console.log('Unhandled event type:', stripeEvent.type);
     }
 
     // Mark event as processed

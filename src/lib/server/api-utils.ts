@@ -432,7 +432,6 @@ export class PerformanceMonitor {
     const duration = endTime - startTime;
     
     if (dev) {
-      console.log(`[${this.context.requestId}] ${name}: ${duration.toFixed(2)}ms`);
     }
     
     return duration;
@@ -473,7 +472,6 @@ export async function handleRequest<T>(
     monitor.measure('handler', 'handler-start');
     
     if (dev) {
-      console.log(`[${context.requestId}] Success:`, monitor.getMetrics());
     }
     
     return apiSuccess(result, 200, context.requestId);

@@ -19,7 +19,7 @@ export interface VitalsConfig {
 	// Sample rate (0-1) for production reporting
 	sampleRate?: number;
 	// Custom metadata to include
-	metadata?: Record<string, any>;
+	metadata?: Record<string, unknown>;
 }
 
 const DEFAULT_CONFIG: VitalsConfig = {
@@ -54,11 +54,6 @@ export async function initWebVitals(config: VitalsConfig = {}) {
 		
 		// Log to console in dev
 		if (options.logToConsole) {
-			console.log(`[Web Vitals] ${metric.name}:`, {
-				value: metric.value,
-				rating: metric.rating,
-				delta: metric.delta
-			});
 		}
 		
 		// Send to analytics
@@ -98,11 +93,11 @@ function getConnectionInfo() {
 /**
  * Store metrics in a buffer for batch sending
  */
-const metricsBuffer: any[] = [];
+const metricsBuffer: unknown[] = [];
 const BUFFER_SIZE = 10;
 const FLUSH_INTERVAL = 30000; // 30 seconds
 
-function storeMetric(metric: any) {
+function storeMetric(metric: unknown) {
 	metricsBuffer.push(metric);
 	
 	if (metricsBuffer.length >= BUFFER_SIZE) {
@@ -148,7 +143,7 @@ export function getVitalsScore(): {
 	inp?: number;
 	score?: 'good' | 'needs-improvement' | 'poor';
 } {
-	const scores: any = {};
+	const scores: Record<string, unknown> = {};
 	
 	// Get from performance observer if available
 	if ('PerformanceObserver' in window) {
@@ -177,7 +172,7 @@ export function getVitalsScore(): {
 /**
  * Report custom performance marks
  */
-export function markPerformance(name: string, metadata?: any) {
+export function markPerformance(name: string, metadata?: Record<string, unknown>) {
 	if (!('performance' in window)) return;
 	
 	performance.mark(name, {
@@ -186,7 +181,6 @@ export function markPerformance(name: string, metadata?: any) {
 	
 	// Log in dev
 	if (import.meta.env['DEV']) {
-		console.log(`[Performance Mark] ${name}`, metadata);
 	}
 }
 
@@ -205,7 +199,6 @@ export function measurePerformance(
 		
 		const measure = performance.getEntriesByName(name, 'measure')[0];
 		if (measure && import.meta.env['DEV']) {
-			console.log(`[Performance Measure] ${name}: ${measure.duration.toFixed(2)}ms`);
 		}
 		
 		return measure?.duration;

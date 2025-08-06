@@ -73,7 +73,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 				username: listing.seller?.username || 'Unknown',
 				avatar: listing.seller?.avatar_url
 			},
-			likes: listing.favorite_count || 0,
+			likes: listing.like_count || 0,
 			condition: listing.condition,
 			// Include full listing data
 			...listing,

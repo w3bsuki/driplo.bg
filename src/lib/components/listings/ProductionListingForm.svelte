@@ -419,7 +419,7 @@
 			
 			<!-- Hidden fields for form submission -->
 			<input type="hidden" name="location_city" value="Sofia" />
-			<input type="hidden" name="shipping_cost" value="0" />
+			<input type="hidden" name="shipping_price" value="0" />
 			<input type="hidden" name="ships_worldwide" value="false" />
 			
 			<!-- Submit Button -->

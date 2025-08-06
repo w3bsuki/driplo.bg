@@ -5,10 +5,10 @@ import type { User, Session } from '@supabase/supabase-js'
 // Simple reactive stores
 export const user = writable<User | null>(null)
 export const session = writable<Session | null>(null)
-export const profile = writable<any>(null)
+export const profile = writable<Record<string, unknown> | null>(null)
 
 // Initialize from page data
-export function initializeAuth(initialUser: User | null, initialSession: Session | null, initialProfile?: any) {
+export function initializeAuth(initialUser: User | null, initialSession: Session | null, initialProfile?: Record<string, unknown>) {
 	if (browser) {
 		user.set(initialUser)
 		session.set(initialSession)
@@ -17,7 +17,7 @@ export function initializeAuth(initialUser: User | null, initialSession: Session
 }
 
 // Listen for auth changes
-export function setupAuthListener(supabase: any) {
+export function setupAuthListener(supabase: unknown) {
 	if (browser) {
 		const {
 			data: { subscription }

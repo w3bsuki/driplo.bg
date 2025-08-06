@@ -59,6 +59,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_audit_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       auth_events: {
@@ -253,6 +260,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "brand_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       brands: {
@@ -329,6 +343,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cart_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -439,10 +460,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conversations_participant1_id_fkey"
+            columns: ["participant1_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_participant2_id_fkey"
             columns: ["participant2_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_participant2_id_fkey"
+            columns: ["participant2_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -492,6 +527,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -559,6 +601,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "coupons_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       disputes: {
@@ -613,6 +662,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "disputes_initiated_by_fkey"
+            columns: ["initiated_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "disputes_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
@@ -624,6 +680,13 @@ export type Database = {
             columns: ["resolved_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -686,10 +749,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "documents_verified_by_fkey"
             columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -728,6 +805,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       listing_drafts: {
@@ -758,6 +842,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_drafts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -808,10 +899,18 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "listing_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       listings: {
         Row: {
+          brand: string | null
           brand_id: string | null
           category_id: string | null
           color: string | null
@@ -838,6 +937,7 @@ export type Database = {
           shipping_price: number | null
           size: string | null
           sold_at: string | null
+          status: string | null
           subcategory_id: string | null
           tags: string[] | null
           thumbnail_url: string | null
@@ -847,6 +947,7 @@ export type Database = {
           view_count: number | null
         }
         Insert: {
+          brand?: string | null
           brand_id?: string | null
           category_id?: string | null
           color?: string | null
@@ -873,6 +974,7 @@ export type Database = {
           shipping_price?: number | null
           size?: string | null
           sold_at?: string | null
+          status?: string | null
           subcategory_id?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -882,6 +984,7 @@ export type Database = {
           view_count?: number | null
         }
         Update: {
+          brand?: string | null
           brand_id?: string | null
           category_id?: string | null
           color?: string | null
@@ -908,6 +1011,7 @@ export type Database = {
           shipping_price?: number | null
           size?: string | null
           sold_at?: string | null
+          status?: string | null
           subcategory_id?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
@@ -943,6 +1047,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1012,10 +1123,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_sender_id_fkey"
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1063,6 +1188,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1167,6 +1299,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "orders_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
@@ -1178,6 +1317,13 @@ export type Database = {
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1222,6 +1368,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1274,6 +1427,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payment_methods_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -1320,12 +1480,15 @@ export type Database = {
           notification_preferences: Json | null
           onboarding_completed: boolean | null
           onboarding_step: number | null
+          payment_methods: Json | null
+          paypal_tag: string | null
           phone: string | null
           privacy_settings: Json | null
           push_notifications_enabled: boolean | null
           referral_code: string | null
           referred_by: string | null
           response_time_hours: number | null
+          revolut_tag: string | null
           security_questions: Json | null
           seller_level: number | null
           seller_rating: number | null
@@ -1393,12 +1556,15 @@ export type Database = {
           notification_preferences?: Json | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
+          payment_methods?: Json | null
+          paypal_tag?: string | null
           phone?: string | null
           privacy_settings?: Json | null
           push_notifications_enabled?: boolean | null
           referral_code?: string | null
           referred_by?: string | null
           response_time_hours?: number | null
+          revolut_tag?: string | null
           security_questions?: Json | null
           seller_level?: number | null
           seller_rating?: number | null
@@ -1466,12 +1632,15 @@ export type Database = {
           notification_preferences?: Json | null
           onboarding_completed?: boolean | null
           onboarding_step?: number | null
+          payment_methods?: Json | null
+          paypal_tag?: string | null
           phone?: string | null
           privacy_settings?: Json | null
           push_notifications_enabled?: boolean | null
           referral_code?: string | null
           referred_by?: string | null
           response_time_hours?: number | null
+          revolut_tag?: string | null
           security_questions?: Json | null
           seller_level?: number | null
           seller_rating?: number | null
@@ -1502,6 +1671,13 @@ export type Database = {
             columns: ["referred_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_referred_by_fkey"
+            columns: ["referred_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1571,10 +1747,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "refund_requests_processed_by_fkey"
+            columns: ["processed_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "refund_requests_requested_by_fkey"
             columns: ["requested_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1613,6 +1803,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shopping_carts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1662,6 +1859,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "social_media_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_achievements: {
@@ -1697,6 +1901,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       user_follows: {
@@ -1727,10 +1938,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "user_follows_following_id_fkey"
             columns: ["following_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1791,10 +2016,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "user_ratings_reviewed_id_fkey"
+            columns: ["reviewed_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "user_ratings_reviewer_id_fkey"
             columns: ["reviewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_ratings_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "user_onboarding_view"
             referencedColumns: ["id"]
           },
         ]
@@ -1853,13 +2092,92 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "user_stats_summary_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_onboarding_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      user_onboarding_view: {
+        Row: {
+          account_status: string | null
+          avatar_url: string | null
+          bio: string | null
+          completion_percentage: number | null
+          created_at: string | null
+          currency_preference: string | null
+          date_of_birth: string | null
+          email: string | null
+          full_name: string | null
+          gender: string | null
+          id: string | null
+          language_preference: string | null
+          location: string | null
+          needs_username_setup: boolean | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          phone: string | null
+          setup_completed: boolean | null
+          updated_at: string | null
+          username: string | null
+        }
+        Insert: {
+          account_status?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          currency_preference?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          language_preference?: string | null
+          location?: string | null
+          needs_username_setup?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          phone?: string | null
+          setup_completed?: boolean | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Update: {
+          account_status?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          completion_percentage?: number | null
+          created_at?: string | null
+          currency_preference?: string | null
+          date_of_birth?: string | null
+          email?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          language_preference?: string | null
+          location?: string | null
+          needs_username_setup?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          phone?: string | null
+          setup_completed?: boolean | null
+          updated_at?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      calculate_profile_completion: {
+        Args: { profile_row: Database["public"]["Tables"]["profiles"]["Row"] }
+        Returns: number
+      }
       check_auth_rate_limit: {
         Args: {
           p_action: string
@@ -1870,18 +2188,6 @@ export type Database = {
         }
         Returns: Json
       }
-      log_auth_event: {
-        Args: {
-          p_event_type: string
-          p_user_id?: string
-          p_event_data?: Json
-          p_ip_address?: unknown
-          p_user_agent?: string
-          p_success?: boolean
-          p_error_message?: string
-        }
-        Returns: string
-      }
       cleanup_auth_rate_limit: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -1889,6 +2195,15 @@ export type Database = {
       cleanup_expired_data: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      complete_user_onboarding: {
+        Args: {
+          p_user_id: string
+          p_username: string
+          p_full_name: string
+          p_account_type?: string
+        }
+        Returns: boolean
       }
       create_order_with_payment: {
         Args: {
@@ -1901,7 +2216,20 @@ export type Database = {
         }
         Returns: string
       }
+      debug_listing_insert: {
+        Args: { p_user_id: string }
+        Returns: {
+          current_auth_uid: string
+          provided_user_id: string
+          auth_matches: boolean
+          profile_exists: boolean
+        }[]
+      }
       generate_order_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_auth_uid: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
@@ -1927,45 +2255,39 @@ export type Database = {
         Args: { p_seller_id: string }
         Returns: Json
       }
+      get_user_onboarding_status: {
+        Args: { user_id: string }
+        Returns: {
+          needs_onboarding: boolean
+          onboarding_step: number
+          completion_percentage: number
+          needs_username_setup: boolean
+          setup_completed: boolean
+        }[]
+      }
       get_user_stats: {
         Args: { p_user_id: string }
         Returns: Json
       }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
+      log_auth_event: {
+        Args: {
+          p_event_type: string
+          p_user_id?: string
+          p_event_data?: Json
+          p_ip_address?: unknown
+          p_user_agent?: string
+          p_success?: boolean
+          p_error_message?: string
+        }
+        Returns: string
       }
       make_user_admin: {
         Args: { user_email: string }
         Returns: boolean
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
+      reset_user_onboarding: {
+        Args: { user_id: string }
+        Returns: boolean
       }
       track_listing_view: {
         Args: {
@@ -1978,17 +2300,17 @@ export type Database = {
         }
         Returns: undefined
       }
-      unaccent: {
-        Args: { "": string }
-        Returns: string
-      }
-      unaccent_init: {
-        Args: { "": unknown }
-        Returns: unknown
+      update_onboarding_step: {
+        Args: { user_id: string; step: number; step_data?: Json }
+        Returns: boolean
       }
       update_user_stats: {
         Args: { p_user_id: string }
         Returns: undefined
+      }
+      user_needs_onboarding: {
+        Args: { user_id: string }
+        Returns: boolean
       }
       validate_coupon_code: {
         Args: { p_code: string; p_user_id: string; p_order_amount: number }

@@ -16,7 +16,7 @@ export interface BrowseFilters {
 }
 
 export interface BrowseResult {
-	listings: any[]
+	listings: unknown[]
 	totalCount: number
 	hasMore: boolean
 	page: number
@@ -51,31 +51,21 @@ export async function browseListings(
 				description,
 				price,
 				currency,
-				brand,
+				brand_id,
 				size,
 				condition,
 				images,
 				location,
 				view_count,
-				favorite_count,
-				shipping_cost,
+				like_count,
+				shipping_price,
 				created_at,
-				seller:profiles!seller_id(
-					id,
-					username,
-					full_name,
-					avatar_url,
-					account_type,
-					is_verified
-				),
-				category:categories!category_id(
-					id,
-					name,
-					slug,
-					icon_url
-				)
+				user_id,
+				category_id
 			`)
-			.eq('status', 'active')
+			.eq('is_sold', false)
+			.eq('is_archived', false)
+			.eq('is_draft', false)
 
 		// Apply filters
 		if (category) {
@@ -97,9 +87,8 @@ export async function browseListings(
 		}
 
 		if (search) {
-			// Use full-text search if available, otherwise fallback to ILIKE
-			const searchTerms = search.split(' ').map(term => `'${term.replace(/'/g, "''")}'`).join(' | ')
-			query = query.or(`title.fts.${searchTerms},description.fts.${searchTerms},brand.ilike.%${search}%,title.ilike.%${search}%,description.ilike.%${search}%`)
+			// Use simple ILIKE search
+			query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
 		}
 
 		if (minPrice !== null && minPrice !== undefined) {
@@ -115,7 +104,15 @@ export async function browseListings(
 		}
 
 		if (brands.length > 0) {
-			query = query.in('brand', brands)
+			// Convert brand names to brand_ids by querying brands table first
+			const { data: brandIds } = await supabase
+				.from('brands')
+				.select('id')
+				.in('name', brands)
+			
+			if (brandIds && brandIds.length > 0) {
+				query = query.in('brand_id', brandIds.map(b => b.id))
+			}
 		}
 
 		if (conditions.length > 0) {
@@ -134,7 +131,7 @@ export async function browseListings(
 				query = query.order('view_count', { ascending: false })
 				break
 			case 'favorites':
-				query = query.order('favorite_count', { ascending: false })
+				query = query.order('like_count', { ascending: false })
 				break
 			case 'ending':
 				// For ending soon, we'd need an end_date field
@@ -151,7 +148,9 @@ export async function browseListings(
 		const countQuery = supabase
 			.from('listings')
 			.select('*', { count: 'exact', head: true })
-			.eq('status', 'active')
+			.eq('is_sold', false)
+			.eq('is_archived', false)
+			.eq('is_draft', false)
 
 		// Apply same filters to count query
 		if (category) {
@@ -172,8 +171,7 @@ export async function browseListings(
 		}
 
 		if (search) {
-			const searchTerms = search.split(' ').map(term => `'${term.replace(/'/g, "''")}'`).join(' | ')
-			countQuery.or(`title.fts.${searchTerms},description.fts.${searchTerms},brand.ilike.%${search}%,title.ilike.%${search}%,description.ilike.%${search}%`)
+			countQuery.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
 		}
 
 		if (minPrice !== null && minPrice !== undefined) {
@@ -189,7 +187,15 @@ export async function browseListings(
 		}
 
 		if (brands.length > 0) {
-			countQuery.in('brand', brands)
+			// Convert brand names to brand_ids by querying brands table first
+			const { data: brandIds } = await supabase
+				.from('brands')
+				.select('id')
+				.in('name', brands)
+			
+			if (brandIds && brandIds.length > 0) {
+				countQuery.in('brand_id', brandIds.map(b => b.id))
+			}
 		}
 
 		if (conditions.length > 0) {
@@ -240,8 +246,10 @@ export async function getBrowseFilters(
 }> {
 	let query = supabase
 		.from('listings')
-		.select('brand, size, condition, price')
-		.eq('status', 'active')
+		.select('brand_id, size, condition, price, brands!brand_id(name)')
+		.eq('is_sold', false)
+		.eq('is_archived', false)
+		.eq('is_draft', false)
 
 	if (category) {
 		if (category.includes('-')) {
@@ -281,7 +289,7 @@ export async function getBrowseFilters(
 	}
 
 	// Extract unique values
-	const brands = [...new Set(data.map(item => item.brand).filter(Boolean) as string[])].sort()
+	const brands = [...new Set(data.map(item => item.brands?.name).filter(Boolean) as string[])].sort()
 	const sizes = [...new Set(data.map(item => item.size).filter(Boolean) as string[])].sort()
 	const conditions = [...new Set(data.map(item => item.condition).filter(Boolean) as string[])].sort()
 	

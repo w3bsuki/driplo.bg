@@ -33,7 +33,7 @@
 			account_type?: string;
 			is_verified?: boolean;
 		};
-		favorite_count?: number;
+		like_count?: number;
 		condition?: string | null;
 		status: string;
 		created_at: string;
@@ -120,7 +120,7 @@
 				account_type: listing.seller?.account_type || listing.profiles?.account_type,
 				is_verified: listing.seller?.is_verified || listing.profiles?.is_verified
 			},
-			likes: listing.favorite_count || 0,
+			likes: listing.like_count || 0,
 			isLiked: userFavorites.includes(listing.id),
 			condition: listing.condition
 		}));

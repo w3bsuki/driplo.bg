@@ -13,14 +13,14 @@ import { browser } from '$app/environment';
  * const throttledScroll = throttle((e) => console.log('Scrolled!'), 200);
  * window.addEventListener('scroll', throttledScroll);
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   fn: T,
   limit: number
 ): (...args: Parameters<T>) => void {
   let inThrottle = false;
   let lastResult: ReturnType<T>;
   
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     if (!inThrottle) {
       lastResult = fn.apply(this, args);
       inThrottle = true;
@@ -40,7 +40,7 @@ export function throttle<T extends (...args: any[]) => any>(
  * @example
  * const throttled = throttleAdvanced(updateUI, 300, { leading: true, trailing: true });
  */
-export function throttleAdvanced<T extends (...args: any[]) => any>(
+export function throttleAdvanced<T extends (...args: unknown[]) => unknown>(
   fn: T,
   wait: number,
   options: { leading?: boolean; trailing?: boolean } = {}
@@ -48,7 +48,7 @@ export function throttleAdvanced<T extends (...args: any[]) => any>(
   let timeout: NodeJS.Timeout | null = null;
   let previous = 0;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: any = null;
+  let lastThis: unknown = null;
   
   const { leading = true, trailing = true } = options;
   
@@ -62,7 +62,7 @@ export function throttleAdvanced<T extends (...args: any[]) => any>(
     }
   };
   
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now();
     
     if (!previous && leading === false) {
@@ -96,13 +96,13 @@ export function throttleAdvanced<T extends (...args: any[]) => any>(
  * const debouncedSearch = debounce((query) => searchAPI(query), 300);
  * input.addEventListener('input', (e) => debouncedSearch(e.target.value));
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   wait: number
 ): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
   
-  const debounced = function (this: any, ...args: Parameters<T>) {
+  const debounced = function (this: unknown, ...args: Parameters<T>) {
     const later = () => {
       timeout = null;
       fn.apply(this, args);
@@ -132,7 +132,7 @@ export function debounce<T extends (...args: any[]) => any>(
  * @example
  * const debounced = debounceAdvanced(saveData, 1000, { immediate: true });
  */
-export function debounceAdvanced<T extends (...args: any[]) => any>(
+export function debounceAdvanced<T extends (...args: unknown[]) => unknown>(
   fn: T,
   wait: number,
   options: { immediate?: boolean; maxWait?: number } = {}
@@ -141,7 +141,7 @@ export function debounceAdvanced<T extends (...args: any[]) => any>(
   let maxTimeout: NodeJS.Timeout | null = null;
   let lastCallTime: number | null = null;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: any = null;
+  let lastThis: unknown = null;
   let result: ReturnType<T>;
   
   const { immediate = false, maxWait } = options;
@@ -207,7 +207,7 @@ export function debounceAdvanced<T extends (...args: any[]) => any>(
     return result;
   };
   
-  const debounced = function (this: any, ...args: Parameters<T>) {
+  const debounced = function (this: unknown, ...args: Parameters<T>) {
     const time = Date.now();
     const isInvoking = shouldInvoke(time);
     
@@ -268,7 +268,7 @@ export function debounceAdvanced<T extends (...args: any[]) => any>(
  * expensiveCalc(5); // Computing... 25
  * expensiveCalc(5); // 25 (cached)
  */
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: unknown[]) => unknown>(
   fn: T,
   options?: {
     maxSize?: number;
@@ -282,7 +282,7 @@ export function memoize<T extends (...args: any[]) => any>(
   const defaultKeyGenerator = (...args: Parameters<T>) => JSON.stringify(args);
   const getKey = keyGenerator || defaultKeyGenerator;
   
-  return function (this: any, ...args: Parameters<T>): ReturnType<T> {
+  return function (this: unknown, ...args: Parameters<T>): ReturnType<T> {
     const key = getKey(...args);
     const cached = cache.get(key);
     
@@ -324,11 +324,11 @@ export function memoize<T extends (...args: any[]) => any>(
  * });
  */
 export function memoizeWeak<
-  T extends (arg: WeakKey, ...args: any[]) => any
+  T extends (arg: WeakKey, ...args: unknown[]) => unknown
 >(fn: T): T {
   const cache = new WeakMap<WeakKey, ReturnType<T>>();
   
-  return function (this: any, ...args: Parameters<T>): ReturnType<T> {
+  return function (this: unknown, ...args: Parameters<T>): ReturnType<T> {
     const [firstArg] = args;
     
     if (!firstArg || (typeof firstArg !== 'object' && typeof firstArg !== 'function')) {
@@ -359,13 +359,13 @@ export function memoizeWeak<
  *   element.style.transform = `translateY(${scrollY}px)`;
  * });
  */
-export function rafThrottle<T extends (...args: any[]) => any>(
+export function rafThrottle<T extends (...args: unknown[]) => unknown>(
   fn: T
 ): (...args: Parameters<T>) => void {
   let rafId: number | null = null;
   let lastArgs: Parameters<T> | null = null;
   
-  const throttled = function (this: any, ...args: Parameters<T>) {
+  const throttled = function (this: unknown, ...args: Parameters<T>) {
     lastArgs = args;
     
     if (rafId === null && browser) {
@@ -399,15 +399,15 @@ export function rafThrottle<T extends (...args: any[]) => any>(
  *   sendAnalytics();
  * });
  */
-export function idleDebounce<T extends (...args: any[]) => any>(
+export function idleDebounce<T extends (...args: unknown[]) => unknown>(
   fn: T,
   options?: IdleRequestOptions
 ): (...args: Parameters<T>) => void {
   let handle: number | null = null;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: any = null;
+  let lastThis: unknown = null;
   
-  const debounced = function (this: any, ...args: Parameters<T>) {
+  const debounced = function (this: unknown, ...args: Parameters<T>) {
     lastArgs = args;
     lastThis = this;
     
@@ -463,13 +463,13 @@ export function idleDebounce<T extends (...args: any[]) => any>(
  * logAfter3(); // nothing
  * logAfter3(); // 'Called 3 times!'
  */
-export function after<T extends (...args: any[]) => any>(
+export function after<T extends (...args: unknown[]) => unknown>(
   n: number,
   fn: T
 ): (...args: Parameters<T>) => ReturnType<T> | undefined {
   let count = 0;
   
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     count++;
     if (count >= n) {
       return fn.apply(this, args);
@@ -490,13 +490,13 @@ export function after<T extends (...args: any[]) => any>(
  * initialize(); // 'Initializing...' { initialized: true }
  * initialize(); // { initialized: true } (cached, no log)
  */
-export function once<T extends (...args: any[]) => any>(
+export function once<T extends (...args: unknown[]) => unknown>(
   fn: T
 ): (...args: Parameters<T>) => ReturnType<T> {
   let called = false;
   let result: ReturnType<T>;
   
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     if (!called) {
       called = true;
       result = fn.apply(this, args);

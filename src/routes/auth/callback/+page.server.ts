@@ -20,10 +20,6 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 				throw redirect(303, '/login?error=no_session')
 			}
 			
-			console.log('✅ Auth callback successful:', {
-				userEmail: session.user?.email,
-				expiresAt: session.expires_at
-			})
 		} catch (err) {
 			console.error('Auth callback exception:', err)
 			throw redirect(303, '/login?error=callback_failed')

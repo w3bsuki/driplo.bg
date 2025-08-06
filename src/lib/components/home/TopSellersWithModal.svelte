@@ -58,7 +58,6 @@
 
 	function handleFollowSeller(seller: Profile) {
 		// TODO: Implement follow functionality
-		console.log('Following seller:', seller.username);
 		// This would typically call an API to follow the seller
 		// For now, we'll just close the modal
 		handleCloseModal();

@@ -36,7 +36,7 @@ declare global {
 			execute: (widgetId?: number) => void
 		}
 		onRecaptchaLoad?: () => void
-		hcaptcha?: any // In case we switch to hCaptcha later
+		hcaptcha?: unknown // In case we switch to hCaptcha later
 	}
 }
 

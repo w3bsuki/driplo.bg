@@ -240,7 +240,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span>Shipping</span>
-                        <span>{formatPrice(order.shipping_cost)}</span>
+                        <span>{formatPrice(order.shipping_amount)}</span>
                     </div>
                     {#if order.tax_amount > 0}
                         <div class="flex justify-between">

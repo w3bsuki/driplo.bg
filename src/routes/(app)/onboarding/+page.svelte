@@ -49,8 +49,6 @@
 	async function handleComplete(formData?: any) {
 		loading = true;
 		try {
-			console.log('Starting onboarding completion for user:', $user?.id);
-			console.log('Form data received:', formData);
 			
 			// Prepare all profile data for final save
 			const profileUpdate: any = { 
@@ -78,7 +76,6 @@
 				if (formData.paypal_tag) profileUpdate.paypal_tag = formData.paypal_tag;
 			}
 			
-			console.log('Updating profile with:', profileUpdate);
 			
 			// First check if profile exists
 			const { data: existingProfile, error: profileCheckError } = await supabase
@@ -143,7 +140,6 @@
 				}
 			}
 
-			console.log('Profile updated successfully via function');
 			
 			// Now fetch the updated profile separately
 			const { data: updatedProfile, error: fetchError } = await supabase
@@ -158,7 +154,6 @@
 			} else {
 				// Update the auth context with new profile data
 				// Profile updated successfully;
-				console.log('Profile fetched:', updatedProfile);
 			}
 			
 			// Reload the profile to ensure all data is fresh
@@ -169,13 +164,11 @@
 						.select('*')
 						.eq('id', $user.id)
 						.single();
-					console.log('Fresh profile loaded:', freshProfile);
 				} catch (error) {
 					console.error('Failed to reload profile:', error);
 				}
 			}
 			
-			console.log('Onboarding marked as complete, redirecting to home...');
 			
 			// Show success toast
 			const { toast } = await import('svelte-sonner');
@@ -189,7 +182,6 @@
 			
 			// Navigate to localized home page using SvelteKit navigation
 			// This maintains client-side state and locale context
-			console.log('Redirecting to homepage with locale context...');
 			const currentLocale = getLocale();
 			const localizedHomeUrl = localizeHref('/', { locale: currentLocale });
 			await goto(localizedHomeUrl, { replaceState: true, invalidateAll: true });

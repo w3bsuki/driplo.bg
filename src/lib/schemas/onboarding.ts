@@ -193,11 +193,11 @@ export const defaultOnboardingValues: Partial<OnboardingFormData> = {
 
 // Form step validation helpers
 export const validateStep = {
-  username: (data: any) => onboardingSchemas.username.safeParse(data),
-  accountType: (data: any) => onboardingSchemas.accountType.safeParse(data),
-  personalInfo: (data: any) => onboardingSchemas.personalInfo.safeParse(data),
-  paymentMethods: (data: any) => onboardingSchemas.paymentMethods.safeParse(data),
-  brandInfo: (data: any) => onboardingSchemas.brandInfo.safeParse(data)
+  username: (data: unknown) => onboardingSchemas.username.safeParse(data),
+  accountType: (data: unknown) => onboardingSchemas.accountType.safeParse(data),
+  personalInfo: (data: unknown) => onboardingSchemas.personalInfo.safeParse(data),
+  paymentMethods: (data: unknown) => onboardingSchemas.paymentMethods.safeParse(data),
+  brandInfo: (data: unknown) => onboardingSchemas.brandInfo.safeParse(data)
 };
 
 // Progress calculation helper

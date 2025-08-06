@@ -73,7 +73,7 @@ export const createListingSchema = z.object({
 		.max(100, 'City name must be less than 100 characters')
 		.trim(),
 	shipping_type: z.enum(['standard', 'express', 'pickup']).default('standard'),
-	shipping_cost: z.number().min(0).default(0),
+	shipping_price: z.number().min(0).default(0),
 	ships_worldwide: z.boolean().default(false),
 	tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional().default([])
 })
@@ -96,7 +96,7 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	materials: [],
 	location_city: 'Sofia', // Set default city
 	shipping_type: 'standard',
-	shipping_cost: 0,
+	shipping_price: 0,
 	ships_worldwide: false,
 	tags: []
 }

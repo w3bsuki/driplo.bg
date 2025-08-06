@@ -368,7 +368,7 @@
 										account_type: listing.profiles?.account_type,
 										is_verified: listing.profiles?.is_verified
 									}}
-									likes={listing.favorite_count || 0}
+									likes={listing.like_count || 0}
 									isLiked={true}
 									condition={listing.condition}
 								/>

@@ -72,7 +72,6 @@ export async function uploadImage(
 						handleHEIC: true
 					})
 					processedFile = compressed[0]
-					console.log(`Processed image: ${file.name} (${file.type || 'unknown'}) from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(processedFile.size / 1024 / 1024).toFixed(2)}MB`)
 				} catch (compressionError) {
 					console.warn('Image compression failed, using original:', compressionError)
 				}
@@ -107,7 +106,7 @@ export async function uploadImage(
 					url: data.url,
 					path: data.path
 				};
-			} catch (fetchError: any) {
+			} catch (fetchError: unknown) {
 				clearTimeout(timeoutId);
 				if (fetchError.name === 'AbortError') {
 					lastError = new Error(`Upload timed out after ${timeout/1000}s. Please try again with a smaller image.`);

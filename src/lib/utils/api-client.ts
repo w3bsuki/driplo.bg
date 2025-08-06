@@ -34,7 +34,7 @@ export async function apiFetch(
       // Handle non-OK responses
       if (!response.ok) {
         const contentType = response.headers.get('content-type');
-        let errorData: any = {};
+        let errorData: Record<string, unknown> = {};
 
         if (contentType?.includes('application/json')) {
           try {
@@ -66,7 +66,7 @@ export async function apiFetch(
     } else {
       return await doFetch();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     clearTimeout(timeoutId);
 
     // Handle abort/timeout
@@ -95,7 +95,7 @@ export const api = {
     return apiFetch(url, { ...options, method: 'GET' });
   },
 
-  async post(url: string, data?: any, options?: ApiOptions) {
+  async post(url: string, data?: unknown, options?: ApiOptions) {
     return apiFetch(url, {
       ...options,
       method: 'POST',
@@ -107,7 +107,7 @@ export const api = {
     });
   },
 
-  async put(url: string, data?: any, options?: ApiOptions) {
+  async put(url: string, data?: unknown, options?: ApiOptions) {
     return apiFetch(url, {
       ...options,
       method: 'PUT',
@@ -123,7 +123,7 @@ export const api = {
     return apiFetch(url, { ...options, method: 'DELETE' });
   },
 
-  async patch(url: string, data?: any, options?: ApiOptions) {
+  async patch(url: string, data?: unknown, options?: ApiOptions) {
     return apiFetch(url, {
       ...options,
       method: 'PATCH',
@@ -167,7 +167,7 @@ export function createApiClient() {
     get: (url: string, options?: ApiOptions) => 
       request(url, { ...options, method: 'GET' }),
     
-    post: (url: string, data?: any, options?: ApiOptions) =>
+    post: (url: string, data?: unknown, options?: ApiOptions) =>
       request(url, {
         ...options,
         method: 'POST',
@@ -178,7 +178,7 @@ export function createApiClient() {
         body: data ? JSON.stringify(data) : undefined
       }),
     
-    put: (url: string, data?: any, options?: ApiOptions) =>
+    put: (url: string, data?: unknown, options?: ApiOptions) =>
       request(url, {
         ...options,
         method: 'PUT',
@@ -192,7 +192,7 @@ export function createApiClient() {
     delete: (url: string, options?: ApiOptions) =>
       request(url, { ...options, method: 'DELETE' }),
     
-    patch: (url: string, data?: any, options?: ApiOptions) =>
+    patch: (url: string, data?: unknown, options?: ApiOptions) =>
       request(url, {
         ...options,
         method: 'PATCH',

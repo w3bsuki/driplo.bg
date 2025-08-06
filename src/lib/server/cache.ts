@@ -8,7 +8,7 @@ interface CacheEntry<T> {
 }
 
 class ServerCache {
-	private cache = new Map<string, CacheEntry<any>>()
+	private cache = new Map<string, CacheEntry<unknown>>()
 	
 	// Get cached data if still valid
 	get<T>(key: string): T | null {
@@ -72,7 +72,7 @@ export const cacheKeys = {
 	homepage_secondary: (locale: string = 'en') => `homepage-secondary-${locale}`,
 	categories: (locale: string = 'en') => `categories-nav-${locale}`,
 	categoryPage: (slug: string, locale: string = 'en') => `category-page-${slug}-${locale}`,
-	browseResults: (filters: any, locale: string = 'en') => `browse-${JSON.stringify(filters)}-${locale}`,
+	browseResults: (filters: Record<string, unknown>, locale: string = 'en') => `browse-${JSON.stringify(filters)}-${locale}`,
 	topSellers: (categoryId?: string, locale?: string) => `top-sellers-${categoryId || 'all'}-${locale || 'en'}`,
 	featuredListings: (locale: string = 'en') => `featured-listings-${locale}`,
 	popularListings: (locale: string = 'en') => `popular-listings-${locale}`

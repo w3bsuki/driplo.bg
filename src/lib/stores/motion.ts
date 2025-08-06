@@ -44,7 +44,7 @@ export const animationDuration = derived(
 )
 
 // Utility function to respect motion preference in animations
-export function withMotion<T extends (...args: any[]) => any>(
+export function withMotion<T extends (...args: unknown[]) => unknown>(
   animationFn: T,
   fallbackFn?: T
 ): T {
@@ -74,7 +74,7 @@ export function createMotionSafeAnimation(
     css?: (t: number, u: number) => string
   }
 ) {
-  return (_node: HTMLElement, params: any = {}) => {
+  return (_node: HTMLElement, params: Record<string, unknown> = {}) => {
     let duration = animationConfig.duration || 200
     
     const unsubscribe = motionEnabled.subscribe(value => {

@@ -36,7 +36,7 @@
 		country: 'BG'
 	});
 
-	let totalAmount = $derived(listing ? listing.price + (listing.shipping_cost || 0) : 0);
+	let totalAmount = $derived(listing ? listing.price + (listing.shipping_price || 0) : 0);
 
 	// Initialize Stripe when modal opens and Stripe is selected  
 	$effect(() => {
@@ -509,7 +509,7 @@
 							</div>
 							<div class="flex justify-between text-sm">
 								<span>{m.checkout_shipping()}</span>
-								<span>{listing.shipping_cost > 0 ? formatCurrency(listing.shipping_cost) : m.checkout_free_shipping()}</span>
+								<span>{listing.shipping_price > 0 ? formatCurrency(listing.shipping_price) : m.checkout_free_shipping()}</span>
 							</div>
 							{#if manualPaymentData?.buyer_fee}
 								<div class="flex justify-between text-sm text-gray-600 mt-2 pt-2 border-t border-gray-100">

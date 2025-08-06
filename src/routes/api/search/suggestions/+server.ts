@@ -15,17 +15,20 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 			supabase
 				.from('listings')
 				.select('title')
-				.eq('status', 'active')
+				.eq('is_sold', false)
+				.eq('is_archived', false)
+				.eq('is_draft', false)
 				.ilike('title', `%${query}%`)
 				.limit(5),
 			
-			// Get matching brands
+			// Get matching brands via join
 			supabase
 				.from('listings')
-				.select('brand')
-				.eq('status', 'active')
-				.not('brand', 'is', null)
-				.ilike('brand', `%${query}%`)
+				.select('brands!brand_id(name)')
+				.eq('is_sold', false)
+				.eq('is_archived', false)
+				.eq('is_draft', false)
+				.not('brand_id', 'is', null)
 				.limit(5)
 		])
 
@@ -42,9 +45,9 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 
 		// Add brand suggestions
 		if (brandSuggestions.data) {
-			const uniqueBrands = [...new Set(brandSuggestions.data.map(item => item.brand).filter(Boolean))]
+			const uniqueBrands = [...new Set(brandSuggestions.data.map(item => item.brands?.name).filter(Boolean))]
 			uniqueBrands.forEach(brand => {
-				if (brand && !suggestions.includes(brand)) {
+				if (brand && brand.toLowerCase().includes(query.toLowerCase()) && !suggestions.includes(brand)) {
 					suggestions.push(brand)
 				}
 			})

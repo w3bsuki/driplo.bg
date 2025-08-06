@@ -74,7 +74,7 @@ export const cacheConfigs = {
 export const cacheKeys = {
 	homepage: ['homepage'],
 	categories: ['categories'],
-	browse: (filters: any) => ['browse', filters],
+	browse: (filters: Record<string, unknown>) => ['browse', filters],
 	category: (slug: string) => ['category', slug],
 	listing: (id: string) => ['listing', id],
 	user: (id: string) => ['user', id],

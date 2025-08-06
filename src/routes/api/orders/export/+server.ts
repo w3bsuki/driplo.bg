@@ -89,7 +89,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
     }
 };
 
-function generateCSV(orders: any[]): string {
+function generateCSV(orders: Record<string, unknown>[]): string {
     const headers = [
         'Order Number',
         'Status',
@@ -107,7 +107,7 @@ function generateCSV(orders: any[]): string {
         (order.total_amount / 100).toFixed(2),
         order.buyer?.username || '',
         order.seller?.username || '',
-        order.order_items?.map((item: any) => `${item.listing?.title || 'Unknown'} (${item.quantity})`).join('; ') || '',
+        order.order_items?.map((item: Record<string, unknown>) => `${item.listing?.title || 'Unknown'} (${item.quantity})`).join('; ') || '',
         new Date(order.created_at).toLocaleDateString(),
         new Date(order.updated_at).toLocaleDateString()
     ]);

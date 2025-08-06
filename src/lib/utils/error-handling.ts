@@ -54,9 +54,9 @@ const ERROR_CODE_MAP: Record<string, string> = {
 export class AppError extends Error {
   code: string;
   statusCode: number;
-  details?: any;
+  details?: unknown;
 
-  constructor(message: string, code: string = 'unknown', statusCode: number = 500, details?: any) {
+  constructor(message: string, code: string = 'unknown', statusCode: number = 500, details?: unknown) {
     super(message);
     this.name = 'AppError';
     this.code = code;
@@ -66,7 +66,7 @@ export class AppError extends Error {
 }
 
 // Get user-friendly error message
-export function getErrorMessage(error: any): string {
+export function getErrorMessage(error: unknown): string {
   // Check if it's our custom AppError
   if (error instanceof AppError) {
     return ERROR_MESSAGES[error.code] || error.message || ERROR_MESSAGES['unknown'];
@@ -103,7 +103,7 @@ interface RetryOptions {
   maxAttempts?: number;
   delayMs?: number;
   backoff?: boolean;
-  onRetry?: (attempt: number, error: any) => void;
+  onRetry?: (attempt: number, error: unknown) => void;
 }
 
 // Retry wrapper for API calls
@@ -118,12 +118,12 @@ export async function withRetry<T>(
     onRetry
   } = options;
 
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
 
       // Don't retry certain errors
@@ -154,7 +154,7 @@ export async function withRetry<T>(
 }
 
 // Global error logger (only in production)
-export function logError(error: any, context?: Record<string, any>) {
+export function logError(error: unknown, context?: Record<string, unknown>) {
   if (browser && import.meta.env['PROD']) {
     // Send to error tracking service (e.g., Sentry)
     console.error('Error:', error, 'Context:', context);
@@ -168,7 +168,7 @@ export function logError(error: any, context?: Record<string, any>) {
 }
 
 // Create standardized error response
-export function createErrorResponse(error: any) {
+export function createErrorResponse(error: unknown) {
   const message = getErrorMessage(error);
   const statusCode = error?.status || error?.statusCode || 500;
   

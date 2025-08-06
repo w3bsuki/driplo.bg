@@ -109,7 +109,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
         }
 
         // Update other allowed fields
-        const allowedUpdates: any = {};
+        const allowedUpdates: Record<string, unknown> = {};
         const allowedFields = ['shipping_carrier', 'tracking_number', 'shipping_label_url', 'notes'];
         
         for (const field of allowedFields) {

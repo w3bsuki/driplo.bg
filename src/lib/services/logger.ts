@@ -3,7 +3,7 @@ export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 export interface LogEntry {
 	level: LogLevel;
 	message: string;
-	data?: any;
+	data?: Record<string, unknown>;
 	timestamp: number;
 }
 
@@ -21,7 +21,7 @@ class Logger {
 		return Logger.instance;
 	}
 	
-	private log(level: LogLevel, message: string, data?: any): void {
+	private log(level: LogLevel, message: string, data?: Record<string, unknown>): void {
 		const entry: LogEntry = {
 			level,
 			message,
@@ -45,19 +45,19 @@ class Logger {
 		}
 	}
 	
-	debug(message: string, data?: any): void {
+	debug(message: string, data?: Record<string, unknown>): void {
 		this.log('debug', message, data);
 	}
 	
-	info(message: string, data?: any): void {
+	info(message: string, data?: Record<string, unknown>): void {
 		this.log('info', message, data);
 	}
 	
-	warn(message: string, data?: any): void {
+	warn(message: string, data?: Record<string, unknown>): void {
 		this.log('warn', message, data);
 	}
 	
-	error(message: string, error?: Error | any): void {
+	error(message: string, error?: Error | unknown): void {
 		const errorData = error instanceof Error ? {
 			message: error.message,
 			stack: error.stack,

@@ -2,16 +2,16 @@
 @layer utilities {
   /* Entrance animations - INSTANT */
   .fade-in-fast {
-    animation: fade-in var(--duration-fast) var(--ease-sharp);
+    animation: fade-in var(--duration-fast) var(--ease-out);
   }
 
   .pop-in {
-    animation: pop-in var(--duration-normal) var(--ease-sharp);
+    animation: pop-in var(--duration-base) var(--ease-out);
   }
 
   /* Page transitions only */
   .slide-in-page {
-    animation: slide-in var(--duration-page) var(--ease-sharp);
+    animation: slide-in var(--duration-page) var(--ease-out);
   }
 
   /* No exit animations - instant removal */

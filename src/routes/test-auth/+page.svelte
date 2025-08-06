@@ -10,7 +10,6 @@
 	let result = $state('')
 	
 	async function testSignup() {
-		console.log('Testing direct Supabase signup...');
 		result = 'Testing...';
 		
 		try {
@@ -25,7 +24,6 @@
 				}
 			})
 			
-			console.log('Signup result:', { data, error });
 			
 			if (error) {
 				result = `Error: ${error.message}\nCode: ${error.code}\nStatus: ${error.status}`;
@@ -41,7 +39,6 @@
 	}
 	
 	async function testConnection() {
-		console.log('Testing Supabase connection...');
 		result = 'Testing connection...';
 		
 		try {

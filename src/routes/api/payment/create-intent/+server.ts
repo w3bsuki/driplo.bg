@@ -38,7 +38,6 @@ type CreatePaymentIntentRequest = z.infer<typeof createPaymentIntentSchema>;
 
 export const POST: RequestHandler = async (event) => {
   return handleRequest(event, async (context) => {
-    console.log(`[${context.requestId}] Payment intent endpoint called`);
     
     // Check rate limit (5 payment attempts per minute per user)
     const auth = await requireAuth(event.locals, { requireProfile: true });
@@ -126,7 +125,7 @@ export const POST: RequestHandler = async (event) => {
 
     // Calculate fees with precision
     const itemPrice = Number(listing.price);
-    const shippingPrice = Number(listing.shipping_cost || 0);
+    const shippingPrice = Number(listing.shipping_price || 0);
     const subtotal = itemPrice + shippingPrice;
     
     // Buyer protection fee: 5% + $1.00
@@ -183,7 +182,6 @@ export const POST: RequestHandler = async (event) => {
         created_at: new Date().toISOString()
       };
       
-      console.log(`[${context.requestId}] Creating transaction:`, orderRef);
       
       const { data: transaction, error: transactionError } = await event.locals.supabase
         .from('transactions')

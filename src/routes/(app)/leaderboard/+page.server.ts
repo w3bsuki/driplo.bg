@@ -80,7 +80,6 @@ export const load: PageServerLoad = async ({ locals }) => {
 		};
 	});
 	
-	console.log('Processed brands:', brands);
 	
 	// For now, we'll use the same data structure as before but with all sellers
 	return {

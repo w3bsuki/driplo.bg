@@ -150,7 +150,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
           results.successful.push(payoutId);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         results.failed.push({ 
           id: payoutId, 
           error: error.message || 'Unknown error' 

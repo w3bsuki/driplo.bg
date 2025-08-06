@@ -41,7 +41,7 @@
 	
 	// Calculated values
 	let itemPrice = $derived(listing?.price || 0);
-	let shippingCost = $derived(listing?.shipping_cost || 0);
+	let shippingCost = $derived(listing?.shipping_price || 0);
 	let buyerFee = $derived(itemPrice * 0.05 + 1); // 5% + $1
 	let totalAmount = $derived(itemPrice + shippingCost + buyerFee);
 	

@@ -19,18 +19,18 @@
 		success: 'bg-emerald-50 text-emerald-600 border-emerald-200',
 		destructive: 'bg-red-50 text-red-600 border-red-200',
 		outline: 'border-gray-200 text-gray-600 bg-transparent',
-		// Condition variants using CSS variables
-		'condition-new-with-tags': 'bg-[hsl(var(--color-condition-new-with-tags))] text-white border-[hsl(var(--color-condition-new-with-tags))]',
-		'condition-new-without-tags': 'bg-[hsl(var(--color-condition-new-without-tags))] text-white border-[hsl(var(--color-condition-new-without-tags))]',
-		'condition-very-good': 'bg-[hsl(var(--color-condition-very-good))] text-gray-950 border-[hsl(var(--color-condition-very-good))]',
-		'condition-good': 'bg-[hsl(var(--color-condition-good))] text-white border-[hsl(var(--color-condition-good))]',
-		'condition-fair': 'bg-[hsl(var(--color-condition-fair))] text-white border-[hsl(var(--color-condition-fair))]'
+		// Condition variants
+		'condition-new-with-tags': 'bg-green-600 text-white border-green-600',
+		'condition-new-without-tags': 'bg-green-500 text-white border-green-500',
+		'condition-very-good': 'bg-yellow-400 text-gray-950 border-yellow-400',
+		'condition-good': 'bg-orange-500 text-white border-orange-500',
+		'condition-fair': 'bg-red-500 text-white border-red-500'
 	};
 
 	const sizes = {
-		sm: 'badge-size-sm',
-		md: 'badge-size-md',
-		lg: 'badge-size-lg'
+		sm: 'h-6 px-2 text-xs',
+		md: 'h-8 px-3 text-sm',
+		lg: 'h-10 px-4 text-base'
 	};
 </script>
 

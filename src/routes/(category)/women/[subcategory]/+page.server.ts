@@ -43,12 +43,25 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
     `, { count: 'exact' })
     .eq('category_id', category.id)
     .eq('subcategory_id', subcategory.id)
-    .eq('status', 'active');
+    .eq('is_sold', false)
+    .eq('is_archived', false)
+    .eq('is_draft', false);
 
   // Apply filters
   if (filters.min_price) query = query.gte('price', parseFloat(filters.min_price));
   if (filters.max_price) query = query.lte('price', parseFloat(filters.max_price));
-  if (filters.brand) query = query.eq('brand', filters.brand);
+  // Convert brand name to brand_id for proper filtering
+  if (filters.brand) {
+    const { data: brand } = await locals.supabase
+      .from('brands')
+      .select('id')
+      .eq('name', filters.brand)
+      .single();
+    
+    if (brand) {
+      query = query.eq('brand_id', brand.id);
+    }
+  }
   if (filters.condition) query = query.eq('condition', filters.condition);
   if (filters.size) query = query.eq('size', filters.size);
   if (filters.color) query = query.eq('color', filters.color);

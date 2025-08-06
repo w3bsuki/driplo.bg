@@ -29,7 +29,7 @@ export function createStreamedData<T>(
  */
 export function createDeferredPromise<T>() {
 	let resolve: (value: T) => void
-	let reject: (error: any) => void
+	let reject: (error: unknown) => void
 	
 	const promise = new Promise<T>((res, rej) => {
 		resolve = res
@@ -51,7 +51,7 @@ export async function* streamPaginatedResults<T>(
 	table: string,
 	query: {
 		select?: string
-		filters?: Array<{ column: string; op: string; value: any }>
+		filters?: Array<{ column: string; op: string; value: unknown }>
 		orderBy?: { column: string; ascending?: boolean }
 		pageSize?: number
 	}
@@ -106,10 +106,10 @@ export interface DashboardStats {
 		monthlyRevenue?: number
 	}
 	detailedData: {
-		pendingBrands?: any[]
-		recentActivity?: any[]
-		topSellers?: any[]
-		popularProducts?: any[]
+		pendingBrands?: unknown[]
+		recentActivity?: unknown[]
+		topSellers?: unknown[]
+		popularProducts?: unknown[]
 	}
 }
 

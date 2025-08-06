@@ -131,14 +131,10 @@ export default {
       },
       boxShadow: {
         none: 'var(--shadow-none)',
-        xs: 'var(--shadow-xs)',
         sm: 'var(--shadow-sm)',
         DEFAULT: 'var(--shadow-md)',
         md: 'var(--shadow-md)',
         lg: 'var(--shadow-lg)',
-        xl: 'var(--shadow-xl)',
-        '2xl': 'var(--shadow-2xl)',
-        inner: 'var(--shadow-inner)',
         border: 'var(--shadow-border)',
         focus: 'var(--shadow-focus)',
         dropdown: 'var(--shadow-dropdown)',
@@ -147,13 +143,13 @@ export default {
       transitionDuration: {
         instant: 'var(--duration-instant)',
         fast: 'var(--duration-fast)',
-        normal: 'var(--duration-normal)',
+        base: 'var(--duration-base)',
         page: 'var(--duration-page)',
       },
       transitionTimingFunction: {
         linear: 'var(--ease-linear)',
         out: 'var(--ease-out)',
-        sharp: 'var(--ease-sharp)',
+        'in-out': 'var(--ease-in-out)',
       },
       zIndex: {
         base: 'var(--z-base)',

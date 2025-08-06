@@ -53,7 +53,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		// Calculate marketplace fees
 		const itemPrice = listing.price;
-		const shippingPrice = listing.shipping_cost || 0;
+		const shippingPrice = listing.shipping_price || 0;
 		const subtotal = itemPrice + shippingPrice;
 		
 		// Buyer protection fee: 5% + $1.00

@@ -81,7 +81,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 				account_type: listing.seller?.account_type,
 				is_verified: listing.seller?.is_verified
 			},
-			likes: listing.favorite_count || 0,
+			likes: listing.like_count || 0,
 			isLiked: userFavorites.includes(listing.id),
 			condition: listing.condition,
 			// Include full listing data for other components

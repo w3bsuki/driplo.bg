@@ -14,8 +14,6 @@ export const POST: RequestHandler = async (event) => {
 	
 	const { session } = await safeGetSession()
 	
-	console.log('Upload endpoint - Session:', session ? 'exists' : 'missing')
-	console.log('Upload endpoint - User ID:', session?.user?.id)
 	
 	if (!session?.user) {
 		console.error('Upload authentication failed - no session')
@@ -38,14 +36,12 @@ export const POST: RequestHandler = async (event) => {
 		const isHEIC = fileExt === 'heic' || fileExt === 'heif'
 		
 		if (!allowedTypes.includes(file.type) && !isHEIC) {
-			console.log(`Invalid file type: ${file.type} for file: ${file.name}`)
 			throw error(400, `Invalid file type: ${file.type || 'unknown'}`)
 		}
 
 		// Validate file size (10MB max)
 		const maxSize = 10 * 1024 * 1024
 		if (file.size > maxSize) {
-			console.log(`File too large: ${file.name} is ${(file.size / 1024 / 1024).toFixed(2)}MB`)
 			throw error(400, `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max 10MB)`)
 		}
 
@@ -66,7 +62,6 @@ export const POST: RequestHandler = async (event) => {
 		
 		for (let attempt = 1; attempt <= 3; attempt++) {
 			try {
-				console.log(`Upload attempt ${attempt} for ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
 				
 				// Set proper content type (HEIC files should be uploaded as JPEG after client conversion)
 				let contentType = file.type
@@ -117,7 +112,7 @@ export const POST: RequestHandler = async (event) => {
 			path: fileName,
 			bucket
 		})
-	} catch (err: any) {
+	} catch (err: unknown) {
 		console.error('Upload error:', err)
 		if (err.status) {
 			throw err
