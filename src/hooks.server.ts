@@ -42,10 +42,6 @@ if (!dev && import.meta.env.VITE_PUBLIC_SENTRY_DSN) {
 
 // Validate environment variables
 if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY) {
-	console.error('Missing required environment variables:', {
-		PUBLIC_SUPABASE_URL: !!PUBLIC_SUPABASE_URL,
-		PUBLIC_SUPABASE_ANON_KEY: !!PUBLIC_SUPABASE_ANON_KEY
-	})
 	if (!dev) {
 		throw new Error('Missing required Supabase environment variables')
 	}
@@ -278,15 +274,6 @@ const handleCaching: Handle = async ({ event, resolve }) => {
 const sentryHandleWrapper = sentryHandle();
 
 // Export error handler
-export const handleError = handleErrorWithSentry((error, event) => {
-	// Log additional context
-	if (!dev) {
-		console.error('Server error:', {
-			error,
-			url: event?.url?.pathname || 'unknown',
-			method: event?.request?.method || 'unknown',
-		});
-	}
-});
+export const handleError = handleErrorWithSentry();
 
 export const handle = sequence(handleParaglide, handleSupabase, sentryHandleWrapper, handleCaching)

@@ -55,10 +55,31 @@
     --color-brand-300: #7dd3fc;
     --color-brand-400: #38bdf8;
     --color-brand-500: #87ceeb;  /* Primary */
-    --color-brand-600: #6bb6d8;
-    --color-brand-700: #4f9fc5;
+    --color-brand-600: #6bb6d8;  /* Secondary brand tone */
+    --color-brand-700: #4f9fc5;  /* Dark brand tone */
     --color-brand-800: #3a88ae;
     --color-brand-900: #1e5a7e;
+
+    /* Google OAuth Brand Colors */
+    --color-google-blue: #4285F4;
+    --color-google-green: #34A853;
+    --color-google-yellow: #FBBC05;
+    --color-google-red: #EA4335;
+
+    /* Product/Clothing Colors - Commonly used in ColorPicker */
+    --color-product-black: #000000;
+    --color-product-white: #FFFFFF;
+    --color-product-gray: #6B7280;
+    --color-product-navy: #1E3A8A;
+    --color-product-blue: #3B82F6;
+    --color-product-red: #EF4444;
+    --color-product-pink: #EC4899;
+    --color-product-green: #10B981;
+    --color-product-yellow: #F59E0B;
+    --color-product-orange: #F97316;
+    --color-product-purple: #8B5CF6;
+    --color-product-brown: #92400E;
+    --color-product-beige: #D4A574;
 
     /* Neutrals - Blue-tinted grays */
     --color-gray-0: #ffffff;
@@ -149,8 +170,14 @@
     --shadow-dropdown: 0 4px 12px rgb(0 0 0 / 0.08);
     --shadow-modal: 0 8px 24px rgb(0 0 0 / 0.12);
 
-    /* Focus Ring */
+    /* Focus Ring and Interactive States */
     --shadow-focus: 0 0 0 2px var(--color-gray-0), 0 0 0 4px var(--color-brand-500);
+    --shadow-focus-brand: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    --shadow-focus-blue: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+    /* Common shadow values used throughout app */
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+    --shadow-card-hover: 0 1px 3px rgba(0, 0, 0, 0.1);
 
     /* ===== Animation Tokens ===== */
     /* Durations - Smooth but fast */

@@ -203,6 +203,6 @@ export function measurePerformance(
 		
 		return measure?.duration;
 	} catch (e) {
-		console.error('Failed to measure performance:', e);
+		// Performance measurement failed
 	}
 }

@@ -14,8 +14,6 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 	// Check for any auth errors first
 	const authError = url.searchParams.get('error')
 	if (authError) {
-		const errorDescription = url.searchParams.get('error_description')
-		console.error('Auth error:', authError, errorDescription)
 		const loginUrl = localizeHref(`/login?error=${authError}`, { locale: currentLocale as 'en' | 'bg' })
 		throw redirect(303, loginUrl)
 	}
@@ -25,7 +23,6 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 		const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 		
 		if (error) {
-			console.error('Auth callback error:', error)
 			const loginUrl = localizeHref('/login?error=auth_callback_error', { locale: currentLocale as 'en' | 'bg' })
 			throw redirect(303, loginUrl)
 		}
@@ -54,9 +51,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, cookies }
 						onboarding_completed: false
 					})
 				
-				if (profileError) {
-					console.error('Profile creation error:', profileError)
-				}
+				// Profile creation error will be handled by the application flow
 			}
 			
 			// Clear the pending account type cookie

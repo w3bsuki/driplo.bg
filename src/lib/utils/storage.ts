@@ -70,7 +70,6 @@ export async function uploadImage(
 				})
 
 			if (error) {
-				console.error('Upload error:', error)
 				return { url: '', error: error.message }
 			}
 
@@ -118,7 +117,6 @@ export async function uploadImage(
 			srcSet
 		}
 	} catch (error) {
-		console.error('Upload error:', error)
 		return { 
 			url: '', 
 			error: error instanceof Error ? error.message : 'Failed to upload image' 
@@ -165,13 +163,11 @@ export async function deleteImage(
 			.remove([path])
 
 		if (error) {
-			console.error('Delete error:', error)
 			return false
 		}
 
 		return true
 	} catch (error) {
-		console.error('Delete error:', error)
 		return false
 	}
 }

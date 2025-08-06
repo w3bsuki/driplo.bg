@@ -145,23 +145,23 @@
 		background: white;
 		padding: 1.5rem;
 		border-radius: 0.5rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--shadow-card-hover);
 	}
 	
 	.stat-card h3 {
 		font-size: 0.875rem;
-		color: #6b7280;
+		color: var(--color-gray-500);
 		margin-bottom: 0.5rem;
 	}
 	
 	.stat-value {
 		font-size: 2rem;
 		font-weight: 600;
-		color: #111827;
+		color: var(--color-gray-900);
 	}
 	
 	.loading-placeholder {
-		color: #9ca3af;
+		color: var(--color-gray-400);
 		font-size: 1rem;
 		animation: pulse 2s infinite;
 	}
@@ -175,7 +175,7 @@
 		background: white;
 		padding: 1.5rem;
 		border-radius: 0.5rem;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		box-shadow: var(--shadow-card-hover);
 	}
 	
 	section h2 {
@@ -186,7 +186,7 @@
 	
 	.skeleton .skeleton-loader {
 		height: 100px;
-		background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+		background: linear-gradient(90deg, var(--color-gray-100) 25%, var(--color-gray-200) 50%, var(--color-gray-100) 75%);
 		background-size: 200% 100%;
 		animation: loading 1.5s infinite;
 		border-radius: 0.25rem;
@@ -203,7 +203,7 @@
 		align-items: center;
 		gap: 1rem;
 		padding: 0.75rem;
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--color-border-primary);
 		border-radius: 0.375rem;
 	}
 	
@@ -225,7 +225,7 @@
 	.product-card {
 		text-align: center;
 		padding: 1rem;
-		border: 1px solid #e5e7eb;
+		border: 1px solid var(--color-border-primary);
 		border-radius: 0.375rem;
 	}
 	
@@ -243,8 +243,8 @@
 	}
 	
 	.error-message {
-		background: #fee;
-		color: #c00;
+		background: var(--color-error-50);
+		color: var(--color-error-600);
 		padding: 1rem;
 		border-radius: 0.375rem;
 		margin-top: 1rem;

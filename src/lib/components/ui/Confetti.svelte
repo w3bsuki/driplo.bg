@@ -19,7 +19,7 @@
 			this.y = y;
 			this.vx = (Math.random() - 0.5) * 10;
 			this.vy = Math.random() * -15 - 5;
-			this.color = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B'][Math.floor(Math.random() * 5)];
+			this.color = ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B'][Math.floor(Math.random() * 5)]; // Product colors - Canvas requires hex values
 			this.size = Math.random() * 6 + 4;
 			this.angle = Math.random() * Math.PI * 2;
 			this.angularVelocity = (Math.random() - 0.5) * 0.2;

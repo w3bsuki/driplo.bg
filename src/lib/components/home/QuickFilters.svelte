@@ -315,7 +315,7 @@
 	
 	.filter-select:focus {
 		outline: none !important;
-		box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2) !important;
-		border-color: #60A5FA !important;
+		box-shadow: var(--shadow-focus-brand) !important;
+		border-color: var(--color-brand-400) !important;
 	}
 </style>

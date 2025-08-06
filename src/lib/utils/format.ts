@@ -15,7 +15,6 @@ export function formatRelativeTime(date: string | Date): string {
 		const dateObj = typeof date === 'string' ? parseISO(date) : date;
 		return formatDistanceToNow(dateObj, { addSuffix: true });
 	} catch (error) {
-		console.error('Invalid date:', date);
 		return 'Invalid date';
 	}
 }

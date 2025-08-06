@@ -38,7 +38,6 @@
 
 			sellerTopListings = listings || [];
 		} catch (error) {
-			console.error('Error fetching seller listings:', error);
 			sellerTopListings = [];
 		} finally {
 			isLoadingListings = false;

@@ -135,8 +135,8 @@
 					style: {
 						base: {
 							fontSize: '16px',
-							color: '#424770',
-							'::placeholder': { color: '#aab7c4' }
+							color: '#475569', // gray-600
+							'::placeholder': { color: '#94a3b8' } // gray-400
 						}
 					}
 				});

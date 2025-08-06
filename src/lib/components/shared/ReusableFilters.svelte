@@ -249,13 +249,13 @@
 	/* Style the dropdown options */
 	select option {
 		background-color: white;
-		color: #374151;
+		color: var(--color-gray-700);
 		padding: 0.5rem;
 	}
 	
 	/* Focus styles */
 	select:focus {
 		outline: none;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+		box-shadow: var(--shadow-focus-blue);
 	}
 </style>

@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte'
+  interface Props {
+    onVerify: (token: string) => void;
+    onExpire?: () => void;
+    onError?: () => void;
+    reset?: () => void;
+  }
   
-  export let onVerify: (token: string) => void
-  export let onExpire: () => void = () => {}
-  export let onError: () => void = () => {}
+  let { onVerify, onExpire = () => {}, onError = () => {}, reset: resetProp }: Props = $props();
   
   // You'll need to add this to your .env file:
   // PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_v2_site_key
@@ -12,9 +15,8 @@
   let recaptchaContainer: HTMLDivElement
   let widgetId: number | null = null
   
-  onMount(() => {
+  $effect(() => {
     if (!siteKey) {
-      console.warn('reCAPTCHA site key not configured - CAPTCHA will be disabled')
       // In development, auto-verify with a test token
       if (import.meta.env.MODE === 'development') {
         onVerify('development-test-token')
@@ -45,36 +47,43 @@
             }
           })
         } catch (error) {
-          console.error('Failed to render reCAPTCHA:', error)
+          onError()
         }
       }
     }
     
     document.head.appendChild(script)
-  })
-  
-  onDestroy(() => {
-    // Clean up
-    if (window.grecaptcha && widgetId !== null) {
-      try {
-        window.grecaptcha.reset(widgetId)
-      } catch (error) {
-        // Widget might already be destroyed
+    
+    return () => {
+      // Clean up
+      if (window.grecaptcha && widgetId !== null) {
+        try {
+          window.grecaptcha.reset(widgetId)
+        } catch (error) {
+          // Widget might already be destroyed
+        }
+      }
+      
+      // Remove the global callback
+      if (window.onRecaptchaLoad) {
+        delete window.onRecaptchaLoad
       }
     }
-    
-    // Remove the global callback
-    if (window.onRecaptchaLoad) {
-      delete window.onRecaptchaLoad
-    }
   })
   
-  // Expose reset method
-  export function reset() {
+  // Reset method for parent component to use via callback prop
+  function reset() {
     if (typeof window !== 'undefined' && window.grecaptcha && widgetId !== null) {
       window.grecaptcha.reset(widgetId)
     }
   }
+  
+  // Call parent's reset prop if provided
+  $effect(() => {
+    if (resetProp) {
+      resetProp = reset;
+    }
+  });
 </script>
 
 {#if siteKey}

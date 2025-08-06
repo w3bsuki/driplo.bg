@@ -202,7 +202,7 @@
                         <span class="hidden sm:inline md:hidden">Stats</span>
                     </button>
                     <div class="relative dropdown dropdown-end sm:flex-1 md:flex-initial">
-                        <div tabindex="0" role="button" class="w-full px-3 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-[#6BB8DB] transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
+                        <div tabindex="0" role="button" class="w-full px-3 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors flex items-center justify-center gap-2 cursor-pointer min-h-[44px]">
                             <Download class="w-4 h-4" />
                             Export
                         </div>

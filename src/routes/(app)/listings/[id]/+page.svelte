@@ -338,7 +338,7 @@
 	
 	/* Compact modern styles */
 	:global(.compact-shadow) {
-		box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+		box-shadow: var(--shadow-card);
 	}
 	
 	/* Hover states */

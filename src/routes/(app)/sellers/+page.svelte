@@ -38,7 +38,7 @@
 		</div>
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">Active Today</p>
-			<p class="text-2xl font-bold text-[#4F9FC5]">342</p>
+			<p class="text-2xl font-bold text-brand-700">342</p>
 		</div>
 		<div class="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
 			<p class="text-sm text-gray-500">New This Month</p>
@@ -93,7 +93,7 @@
 					</div>
 					
 					<!-- Action -->
-					<button class="text-[#4F9FC5] hover:text-[#3d7a96] transition-colors">
+					<button class="text-brand-700 hover:text-brand-800 transition-colors">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
 						</svg>
@@ -110,7 +110,7 @@
 			{#each ['Fashion', 'Electronics', 'Home & Garden', 'Sports', 'Beauty', 'Books', 'Toys', 'Food'] as category (category)}
 				<a 
 					href="/browse?category={category.toLowerCase()}"
-					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-primary/10 hover:border-primary border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-[#4F9FC5]"
+					class="px-4 py-3 rounded-xl bg-gray-50 hover:bg-brand-50 hover:border-brand-500 border border-transparent transition-all text-center text-sm font-medium text-gray-700 hover:text-brand-700"
 				>
 					{category}
 				</a>

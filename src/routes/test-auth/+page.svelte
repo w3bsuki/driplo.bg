@@ -33,7 +33,6 @@
 				toast.success('Signup successful!');
 			}
 		} catch (err) {
-			console.error('Caught error:', err);
 			result = `Exception: ${err}`;
 		}
 	}
@@ -52,7 +51,6 @@
 				toast.success('Connected to Supabase');
 			}
 		} catch (err) {
-			console.error('Connection error:', err);
 			result = `Exception: ${err}`;
 		}
 	}

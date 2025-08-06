@@ -184,4 +184,21 @@
       inset: -0.5rem; /* Expands tap area by 8px on all sides */
     }
   }
+
+  /* Google OAuth SVG Colors */
+  .google-blue {
+    fill: var(--color-google-blue);
+  }
+
+  .google-green {
+    fill: var(--color-google-green);
+  }
+
+  .google-yellow {
+    fill: var(--color-google-yellow);
+  }
+
+  .google-red {
+    fill: var(--color-google-red);
+  }
 }

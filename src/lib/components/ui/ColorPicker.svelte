@@ -12,21 +12,21 @@
 	
 	let { value = $bindable(), onchange, label, required = false, class: className }: Props = $props()
 	
-	// Popular clothing colors with proper hex values
+	// Popular clothing colors using design tokens
 	const colors = [
-		{ name: 'Black', value: '#000000', emoji: '⚫' },
-		{ name: 'White', value: '#FFFFFF', emoji: '⚪' },
-		{ name: 'Gray', value: '#6B7280', emoji: '🩶' },
-		{ name: 'Navy', value: '#1E3A8A', emoji: '🔵' },
-		{ name: 'Blue', value: '#3B82F6', emoji: '💙' },
-		{ name: 'Red', value: '#EF4444', emoji: '❤️' },
-		{ name: 'Pink', value: '#EC4899', emoji: '💗' },
-		{ name: 'Green', value: '#10B981', emoji: '💚' },
-		{ name: 'Yellow', value: '#F59E0B', emoji: '💛' },
-		{ name: 'Orange', value: '#F97316', emoji: '🧡' },
-		{ name: 'Purple', value: '#8B5CF6', emoji: '💜' },
-		{ name: 'Brown', value: '#92400E', emoji: '🤎' },
-		{ name: 'Beige', value: '#D4A574', emoji: '🟤' },
+		{ name: 'Black', value: 'var(--color-product-black)', emoji: '⚫' },
+		{ name: 'White', value: 'var(--color-product-white)', emoji: '⚪' },
+		{ name: 'Gray', value: 'var(--color-product-gray)', emoji: '🩶' },
+		{ name: 'Navy', value: 'var(--color-product-navy)', emoji: '🔵' },
+		{ name: 'Blue', value: 'var(--color-product-blue)', emoji: '💙' },
+		{ name: 'Red', value: 'var(--color-product-red)', emoji: '❤️' },
+		{ name: 'Pink', value: 'var(--color-product-pink)', emoji: '💗' },
+		{ name: 'Green', value: 'var(--color-product-green)', emoji: '💚' },
+		{ name: 'Yellow', value: 'var(--color-product-yellow)', emoji: '💛' },
+		{ name: 'Orange', value: 'var(--color-product-orange)', emoji: '🧡' },
+		{ name: 'Purple', value: 'var(--color-product-purple)', emoji: '💜' },
+		{ name: 'Brown', value: 'var(--color-product-brown)', emoji: '🤎' },
+		{ name: 'Beige', value: 'var(--color-product-beige)', emoji: '🟤' },
 		{ name: 'Multi', value: 'multi', emoji: '🌈' },
 	]
 	
@@ -36,11 +36,11 @@
 	}
 	
 	// Helper to determine if we need dark or light text
-	function needsDarkText(hex: string): boolean {
-		if (hex === 'multi') return false
-		if (hex === '#FFFFFF') return true
-		if (hex === '#F59E0B') return true // Yellow
-		if (hex === '#D4A574') return true // Beige
+	function needsDarkText(colorValue: string): boolean {
+		if (colorValue === 'multi') return false
+		if (colorValue === 'var(--color-product-white)') return true
+		if (colorValue === 'var(--color-product-yellow)') return true
+		if (colorValue === 'var(--color-product-beige)') return true
 		return false
 	}
 </script>
@@ -67,7 +67,7 @@
 						? "ring-2 ring-offset-2 ring-blue-500 shadow-lg" 
 						: "hover:shadow-md"
 				)}
-				style={color.value !== 'multi' ? `background-color: ${color.value}` : 'background: linear-gradient(to br, #EF4444, #F59E0B, #10B981, #3B82F6, #8B5CF6)'}
+				style={color.value !== 'multi' ? `background-color: ${color.value}` : 'background: linear-gradient(to br, var(--color-product-red), var(--color-product-yellow), var(--color-product-green), var(--color-product-blue), var(--color-product-purple))'}
 				aria-label={`Select ${color.name}`}
 			>
 				<!-- Emoji indicator -->

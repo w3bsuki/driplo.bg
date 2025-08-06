@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
-	import { createEventDispatcher } from 'svelte';
-	import type { ComponentEvents } from 'svelte';
 	import Input from '$lib/components/ui/input.svelte';
 	import Label from '$lib/components/ui/label.svelte';
 	import { AlertCircle, Check, Info } from 'lucide-svelte';
@@ -24,6 +22,9 @@
 		inputClass?: string;
 		validator?: (value: string) => string | null;
 		debounceValidation?: number;
+		oninput?: (event: { value: string }) => void;
+		onblur?: (event: { value: string }) => void;
+		onfocus?: (event: { value: string }) => void;
 	}
 
 	let {
@@ -43,14 +44,11 @@
 		class: className,
 		inputClass,
 		validator,
-		debounceValidation = 300
+		debounceValidation = 300,
+		oninput,
+		onblur,
+		onfocus
 	}: Props = $props();
-
-	const dispatch = createEventDispatcher<{
-		input: { value: string };
-		blur: { value: string };
-		focus: { value: string };
-	}>();
 
 	let validationTimeout: NodeJS.Timeout;
 	let isTouched = $state(false);
@@ -74,7 +72,7 @@
 		const newValue = target.value;
 		value = newValue;
 		
-		dispatch('input', { value: newValue });
+		oninput?.({ value: newValue });
 		
 		// Debounced validation
 		if (validator && isTouched) {
@@ -92,7 +90,7 @@
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
 		const currentValue = target.value;
 		
-		dispatch('blur', { value: currentValue });
+		onblur?.({ value: currentValue });
 		
 		// Immediate validation on blur
 		if (validator) {
@@ -102,7 +100,7 @@
 
 	function handleFocus(event: Event) {
 		const target = event.target as HTMLInputElement | HTMLTextAreaElement;
-		dispatch('focus', { value: target.value });
+		onfocus?.({ value: target.value });
 	}
 
 	// Input variant styles based on validation state

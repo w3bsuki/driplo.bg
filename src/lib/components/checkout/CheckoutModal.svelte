@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import { formatCurrency } from '$lib/utils/currency';
-	import { X, CreditCard, Lock, Truck, Smartphone, Check, ExternalLink } from 'lucide-svelte';
+	import { X, Lock } from 'lucide-svelte';
 	import { fade, scale } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';
 	import { getStripe } from '$lib/stores/stripe';
 	import * as m from '$lib/paraglide/messages.js';
 	import { logger } from '$lib/services/logger';
+	import OrderSummary from './OrderSummary.svelte';
+	import ShippingAddress from './ShippingAddress.svelte';
+	import PaymentMethodSelector from './PaymentMethodSelector.svelte';
+	import PaymentForm from './PaymentForm.svelte';
 
 	interface Props {
 		listing: any;
@@ -139,10 +143,10 @@
 				appearance: {
 					theme: 'stripe',
 					variables: {
-						colorPrimary: '#60a5fa',
-						colorBackground: '#ffffff',
-						colorText: '#1f2937',
-						borderRadius: '8px',
+						colorPrimary: '#4f9fc5', // brand-700
+						colorBackground: '#ffffff', // white
+						colorText: '#1e293b', // gray-800
+						borderRadius: '6px', // radius-md
 					},
 				},
 			});
@@ -155,10 +159,10 @@
 				style: {
 					base: {
 						fontSize: '16px',
-						color: '#1f2937',
+						color: '#1e293b', // gray-800
 						fontFamily: 'system-ui, sans-serif',
 						'::placeholder': {
-							color: '#9ca3af',
+							color: '#94a3b8', // gray-400
 						},
 					},
 				},
@@ -485,260 +489,24 @@
 
 			<!-- Content -->
 			<div class="p-6">
-				<!-- Order Summary -->
-				<div class="mb-6">
-					<h3 class="text-lg font-semibold text-gray-900 mb-4">{m.checkout_order_summary()}</h3>
-					<div class="bg-gray-50 rounded-xl p-4">
-						<div class="flex gap-4">
-							<img
-								src={listing.images[0]}
-								alt={listing.title}
-								class="w-16 h-16 object-cover rounded-lg"
-							/>
-							<div class="flex-1">
-								<h4 class="font-semibold text-gray-900">{listing.title}</h4>
-								<p class="text-sm text-gray-600">Size: {listing.size || m.checkout_size_na()}</p>
-								<p class="text-sm text-gray-600">Condition: {listing.condition}</p>
-							</div>
-						</div>
-						
-						<div class="mt-4 border-t border-gray-200 pt-4">
-							<div class="flex justify-between text-sm">
-								<span>{m.checkout_item_price()}</span>
-								<span>{formatCurrency(listing.price)}</span>
-							</div>
-							<div class="flex justify-between text-sm">
-								<span>{m.checkout_shipping()}</span>
-								<span>{listing.shipping_price > 0 ? formatCurrency(listing.shipping_price) : m.checkout_free_shipping()}</span>
-							</div>
-							{#if manualPaymentData?.buyer_fee}
-								<div class="flex justify-between text-sm text-gray-600 mt-2 pt-2 border-t border-gray-100">
-									<span>{m.checkout_buyer_protection_fee()}</span>
-									<span>{formatCurrency(manualPaymentData.buyer_fee)}</span>
-								</div>
-							{/if}
-							<div class="flex justify-between font-semibold text-lg mt-2 pt-2 border-t border-gray-200">
-								<span>{m.checkout_total()}</span>
-								<span class="text-blue-400">{formatCurrency(manualPaymentData?.total_amount || totalAmount)}</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Shipping Address -->
-				<div class="mb-6">
-					<h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-						<Truck class="w-5 h-5" />
-						{m.checkout_shipping_address()}
-					</h3>
-					<div class="space-y-4">
-						<input
-							bind:value={shippingAddress.name}
-							placeholder="{m.checkout_full_name()}"
-							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-							required
-						/>
-						<input
-							bind:value={shippingAddress.address_line1}
-							placeholder="{m.checkout_address_line1()}"
-							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-							required
-						/>
-						<input
-							bind:value={shippingAddress.address_line2}
-							placeholder="{m.checkout_address_line2()}"
-							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-						/>
-						<div class="grid grid-cols-2 gap-4">
-							<input
-								bind:value={shippingAddress.city}
-								placeholder="{m.checkout_city()}"
-								class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-								required
-							/>
-							<input
-								bind:value={shippingAddress.state}
-								placeholder="{m.checkout_state()}"
-								class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-								required
-							/>
-						</div>
-						<input
-							bind:value={shippingAddress.postal_code}
-							placeholder="{m.checkout_zip_code()}"
-							class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-blue-400"
-							required
-						/>
-					</div>
-				</div>
-
-				<!-- Payment Provider Selection -->
-				<div class="mb-6">
-					<h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-						<CreditCard class="w-5 h-5" />
-						{m.checkout_payment_method()}
-					</h3>
-					
-					<!-- Payment Method Selection -->
-					<div class="space-y-3 mb-6">
-						<!-- Stripe Card Payment -->
-						<button
-							onclick={() => handleProviderChange('stripe')}
-							class="w-full text-left border-2 rounded-lg p-4 transition-all {paymentProvider === 'stripe' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}"
-						>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center gap-3">
-									<CreditCard class="w-6 h-6 {paymentProvider === 'stripe' ? 'text-blue-600' : 'text-gray-600'}" />
-									<div>
-										<h4 class="font-semibold {paymentProvider === 'stripe' ? 'text-blue-900' : 'text-gray-900'}">{m.checkout_credit_card()}</h4>
-										<p class="text-sm {paymentProvider === 'stripe' ? 'text-blue-600' : 'text-gray-600'}">{m.checkout_credit_card_desc()}</p>
-									</div>
-								</div>
-								{#if paymentProvider === 'stripe'}
-									<Check class="w-5 h-5 text-blue-600" />
-								{/if}
-							</div>
-						</button>
-
-						<!-- Manual Revolut Transfer -->
-						<button
-							onclick={() => handleProviderChange('revolut_manual')}
-							class="w-full text-left border-2 rounded-lg p-4 transition-all {paymentProvider === 'revolut_manual' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}"
-						>
-							<div class="flex items-center justify-between">
-								<div class="flex items-center gap-3">
-									<div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-										<span class="text-white font-bold">R</span>
-									</div>
-									<div>
-										<h4 class="font-semibold {paymentProvider === 'revolut_manual' ? 'text-blue-900' : 'text-gray-900'}">{m.checkout_revolut_transfer()}</h4>
-										<p class="text-sm {paymentProvider === 'revolut_manual' ? 'text-blue-600' : 'text-gray-600'}">{m.checkout_revolut_transfer_desc()}</p>
-									</div>
-								</div>
-								{#if paymentProvider === 'revolut_manual'}
-									<Check class="w-5 h-5 text-blue-600" />
-								{/if}
-							</div>
-						</button>
-					</div>
-
-					<!-- Payment Provider Content -->
-					{#if paymentProvider === 'stripe'}
-						<!-- Stripe Card Payment Form -->
-						<div class="border border-gray-200 rounded-lg p-4">
-							<div id="card-element" class="p-3 border border-gray-300 rounded-md min-h-[50px]"></div>
-							{#if clientSecret}
-								<p class="text-sm text-green-600 mt-2 flex items-center gap-2">
-									<Lock class="w-4 h-4" />
-									{m.checkout_secure_payment()}
-								</p>
-							{/if}
-						</div>
-					{:else if paymentProvider === 'revolut_manual'}
-						{#if !showPaymentInstructions}
-							<div class="border border-gray-300 rounded-lg p-4">
-								<div class="flex items-center gap-3 mb-4">
-									<div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
-										<span class="text-white font-bold text-lg">R</span>
-									</div>
-									<div>
-										<h4 class="font-semibold text-gray-900">{m.checkout_revolut_transfer()}</h4>
-										<p class="text-sm text-gray-600">{m.checkout_revolut_direct_transfer()}</p>
-									</div>
-								</div>
-								<div class="bg-green-50 border border-green-200 rounded-lg p-3">
-									<p class="text-sm text-green-700">
-										{m.checkout_revolut_benefits()}
-									</p>
-								</div>
-							</div>
-						{:else}
-							<!-- Payment Instructions -->
-							<div class="border border-green-300 rounded-lg p-4 bg-green-50">
-								<h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-									<div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-										<span class="text-white font-bold text-sm">R</span>
-									</div>
-									{m.checkout_revolut_instructions()}
-								</h4>
-								
-								<div class="space-y-3 mb-4">
-									<div class="bg-white rounded-lg p-3 border border-green-200">
-										<p class="text-sm font-medium text-gray-700 mb-2">{m.checkout_send_exact_amount()}</p>
-										<p class="text-2xl font-bold text-green-600">${manualPaymentData?.total_amount}</p>
-									</div>
-									
-									<div class="bg-white rounded-lg p-3 border border-green-200">
-										<p class="text-sm font-medium text-gray-700 mb-2">{m.checkout_to_driplo_account()}</p>
-										<div class="space-y-1">
-											<p class="font-mono text-sm"><strong>{m.checkout_revtag()}</strong> {manualPaymentData?.payment_instructions?.recipient_revtag}</p>
-											<p class="font-mono text-sm"><strong>{m.checkout_phone()}</strong> {manualPaymentData?.payment_instructions?.recipient_phone}</p>
-											<p class="font-mono text-sm"><strong>{m.checkout_name()}</strong> {manualPaymentData?.payment_instructions?.recipient_name}</p>
-											<div class="flex items-center gap-1 text-blue-600 mt-2">
-												<Check class="w-4 h-4" />
-												<span class="text-sm font-medium">{m.checkout_driplo_platform()}</span>
-											</div>
-										</div>
-									</div>
-									
-									<div class="bg-white rounded-lg p-3 border border-green-200">
-										<p class="text-sm font-medium text-gray-700 mb-2">{m.checkout_include_reference()}</p>
-										<p class="font-mono text-lg font-bold text-blue-600 bg-blue-50 px-3 py-2 rounded border border-blue-200">
-											{manualPaymentData?.order_reference}
-										</p>
-									</div>
-								</div>
-								
-								<div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-									<p class="text-sm text-blue-800">
-										{m.checkout_buyer_protection()}
-									</p>
-								</div>
-								
-								<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-									<p class="text-sm text-yellow-800">
-										{m.checkout_important_reference()}
-									</p>
-								</div>
-								
-								<!-- Quick Pay Button -->
-								<div class="mb-4">
-									<button
-										onclick={handleOpenRevolutPaymentLink}
-										class="w-full bg-black text-white py-4 rounded-lg font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
-									>
-										<div class="w-6 h-6 bg-white rounded-full flex items-center justify-center">
-											<span class="text-black font-bold text-sm">R</span>
-										</div>
-										{m.checkout_pay_with_revolut({ amount: `$${manualPaymentData?.total_amount}` })}
-										<ExternalLink class="w-4 h-4" />
-									</button>
-									<p class="text-xs text-gray-500 text-center mt-2">
-										{m.checkout_revolut_prefilled()}
-									</p>
-								</div>
-								
-								<div class="relative mb-4">
-									<div class="absolute inset-0 flex items-center">
-										<div class="w-full border-t border-gray-300"></div>
-									</div>
-									<div class="relative flex justify-center text-sm">
-										<span class="bg-white px-2 text-gray-500">{m.checkout_or_pay_manually()}</span>
-									</div>
-								</div>
-								
-								<button
-									onclick={handleConfirmManualPayment}
-									disabled={isProcessing}
-									class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 transition-colors"
-								>
-									{isProcessing ? m.checkout_confirming() : m.checkout_payment_sent()}
-								</button>
-							</div>
-						{/if}
-					{/if}
-
-				</div>
+				<OrderSummary {listing} {manualPaymentData} />
+				
+				<ShippingAddress bind:shippingAddress />
+				
+				<PaymentMethodSelector
+					{paymentProvider}
+					onProviderChange={handleProviderChange}
+				/>
+				
+				<PaymentForm
+					{paymentProvider}
+					{clientSecret}
+					{showPaymentInstructions}
+					{manualPaymentData}
+					{isProcessing}
+					onOpenRevolutPaymentLink={handleOpenRevolutPaymentLink}
+					onConfirmManualPayment={confirmManualPayment}
+				/>
 
 				<!-- Security Notice -->
 				<div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">

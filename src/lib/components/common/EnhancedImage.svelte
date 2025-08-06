@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
 	import {
 		supportsNativeLazyLoading,
@@ -9,26 +8,46 @@
 		type LazyLoadingOptions
 	} from '$lib/utils/lazy-loading';
 	
-	export let src: string;
-	export let alt: string;
-	export let width: number | undefined = undefined;
-	export let height: number | undefined = undefined;
-	export let loading: 'lazy' | 'eager' = 'lazy';
-	export let priority: boolean = false;
-	export let sizes: string = getSizesAttribute();
-	export let srcsetSizes: number[] = [320, 640, 768, 1024, 1280, 1536];
-	export let usePlaceholder: boolean = true;
-	export let placeholderSrc: string | undefined = undefined;
-	export let className: string = '';
-	export let style: string = '';
-	export let fetchpriority: 'high' | 'low' | 'auto' = 'auto';
-	export let decoding: 'sync' | 'async' | 'auto' = 'async';
-	export let lazyOptions: LazyLoadingOptions = {};
+	interface Props {
+		src: string;
+		alt: string;
+		width?: number;
+		height?: number;
+		loading?: 'lazy' | 'eager';
+		priority?: boolean;
+		sizes?: string;
+		srcsetSizes?: number[];
+		usePlaceholder?: boolean;
+		placeholderSrc?: string;
+		className?: string;
+		style?: string;
+		fetchpriority?: 'high' | 'low' | 'auto';
+		decoding?: 'sync' | 'async' | 'auto';
+		lazyOptions?: LazyLoadingOptions;
+	}
+	
+	let {
+		src,
+		alt,
+		width,
+		height,
+		loading = 'lazy',
+		priority = false,
+		sizes = getSizesAttribute(),
+		srcsetSizes = [320, 640, 768, 1024, 1280, 1536],
+		usePlaceholder = true,
+		placeholderSrc,
+		className = '',
+		style = '',
+		fetchpriority = 'auto',
+		decoding = 'async',
+		lazyOptions = {}
+	}: Props = $props();
 	
 	let imgElement: HTMLImageElement;
-	let isLoaded = false;
-	let isIntersecting = false;
-	let hasError = false;
+	let isLoaded = $state(false);
+	let isIntersecting = $state(false);
+	let hasError = $state(false);
 	
 	// Generate placeholder if needed
 	const placeholder = placeholderSrc || (usePlaceholder ? generatePlaceholder(40, 40) : '');
@@ -54,8 +73,8 @@
 	}
 	
 	// Set up intersection observer for browsers without native lazy loading
-	onMount(() => {
-		if (!browser || loading === 'eager' || supportsNativeLazyLoading()) {
+	$effect(() => {
+		if (!browser || loading === 'eager' || supportsNativeLazyLoading() || !imgElement) {
 			return;
 		}
 		
@@ -79,14 +98,10 @@
 			});
 		}, options);
 		
-		if (imgElement) {
-			observer.observe(imgElement);
-		}
+		observer.observe(imgElement);
 		
 		return () => {
-			if (imgElement) {
-				observer.unobserve(imgElement);
-			}
+			observer.unobserve(imgElement);
 		};
 	});
 </script>

@@ -132,7 +132,7 @@
 					
 					<div class="flex flex-col gap-2">
 						<Button 
-							class="w-full bg-gradient-to-r from-primary to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+							class="w-full bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-medium text-sm py-2 shadow-sm"
 							onclick={() => goto(`/listings/${listing.id}`)}
 						>
 							<span class="mr-1">👁️</span>
@@ -167,7 +167,7 @@
 				<div class="text-5xl mb-3">🎉</div>
 				<p class="text-gray-600 mb-4">Your listing has been created successfully!</p>
 				<Button 
-					class="bg-gradient-to-r from-primary to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+					class="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-medium text-sm py-2 shadow-sm"
 					onclick={() => goto('/profile')}
 				>
 					View Your Listings
@@ -240,7 +240,7 @@
 		<div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4">
 			<div class="max-w-lg mx-auto flex gap-2">
 				<Button 
-					class="flex-1 bg-gradient-to-r from-primary to-[#6BB6D8] hover:from-[#6BB6D8] hover:to-[#4F9FC5] text-white font-medium text-sm py-2 shadow-sm"
+					class="flex-1 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white font-medium text-sm py-2 shadow-sm"
 					onclick={() => goto('/profile')}
 				>
 					View My Profile

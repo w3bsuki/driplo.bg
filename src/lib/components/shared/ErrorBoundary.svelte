@@ -1,22 +1,27 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { page } from '$app/stores';
   import { getErrorMessage, logError } from '$lib/utils/error-handling';
   import * as m from '$lib/paraglide/messages.js';
 
-  export let error: any = null;
-  export let reset: (() => void) | null = null;
-
-  let errorMessage = '';
-  let showDetails = false;
-
-  $: if (error) {
-    errorMessage = getErrorMessage(error);
-    logError(error, {
-      url: $page.url.pathname,
-      errorBoundary: true
-    });
+  interface Props {
+    error?: any;
+    reset?: (() => void) | null;
   }
+
+  let { error = null, reset = null }: Props = $props();
+
+  let errorMessage = $state('');
+  let showDetails = $state(false);
+
+  $effect(() => {
+    if (error) {
+      errorMessage = getErrorMessage(error);
+      logError(error, {
+        url: $page.url.pathname,
+        errorBoundary: true
+      });
+    }
+  });
 
   function handleReset() {
     if (reset) {
@@ -27,7 +32,7 @@
     }
   }
 
-  onMount(() => {
+  $effect(() => {
     // Set up global error handler for uncaught errors
     const handleError = (event: ErrorEvent) => {
       event.preventDefault();

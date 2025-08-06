@@ -1,16 +1,26 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { ComponentType, SvelteComponent } from 'svelte';
 	import Spinner from './Spinner.svelte';
 	
-	export let loader: () => Promise<{ default: ComponentType<SvelteComponent> }>;
-	export let show = false;
-	export let preloadOnMount = false;
-	export let loadingText = 'Loading...';
+	interface Props {
+		loader: () => Promise<{ default: ComponentType<SvelteComponent> }>;
+		show?: boolean;
+		preloadOnMount?: boolean;
+		loadingText?: string;
+		preload?: () => void;
+	}
+	
+	let { 
+		loader, 
+		show = false, 
+		preloadOnMount = false, 
+		loadingText = 'Loading...', 
+		preload: preloadProp 
+	}: Props = $props();
 	
 	let Component: ComponentType<SvelteComponent> | null = null;
-	let loading = false;
-	let error: Error | null = null;
+	let loading = $state(false);
+	let error: Error | null = $state(null);
 	
 	async function loadComponent() {
 		if (Component || loading) return;
@@ -30,22 +40,32 @@
 	}
 	
 	// Load when modal opens
-	$: if (show && !Component) {
-		loadComponent();
-	}
+	$effect(() => {
+		if (show && !Component) {
+			loadComponent();
+		}
+	});
 	
 	// Preload on mount if requested
-	onMount(() => {
+	$effect(() => {
 		if (preloadOnMount) {
 			loadComponent();
 		}
 	});
 	
-	export function preload() {
+	// Preload function exposed via prop
+	function preload() {
 		if (!Component && !loading) {
 			loadComponent();
 		}
 	}
+	
+	// Set up preload prop callback
+	$effect(() => {
+		if (preloadProp) {
+			preloadProp = preload;
+		}
+	});
 </script>
 
 {#if show}

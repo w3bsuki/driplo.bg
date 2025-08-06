@@ -36,34 +36,6 @@
 	// Check if viewing own profile (derived)
 	const isOwnProfile = $derived(data.isOwnProfile)
 	
-	// async function trackProfileView() {
-	// 	const currentUser = $authUser
-	// 	if (!profile || !currentUser) return
-		
-	// 	try {
-	// 		// Check if user already viewed this profile today
-	// 		const today = new Date().toISOString().split('T')[0]
-	// 		const { data: existingView } = await supabase
-	// 			.from('profile_views')
-	// 			.select('id')
-	// 			.eq('profile_id', profile.id)
-	// 			.eq('viewer_id', currentUser.id)
-	// 			.gte('created_at', `${today}T00:00:00Z`)
-	// 			.single()
-			
-	// 		if (!existingView) {
-	// 			await supabase
-	// 				.from('profile_views')
-	// 				.insert({
-	// 					profile_id: profile.id,
-	// 					viewer_id: currentUser.id
-	// 				})
-	// 		}
-	// 	} catch (error) {
-	// 		// Ignore errors for view tracking
-	// 		console.log('View tracking error:', error)
-	// 	}
-	// }
 	
 	async function handleFollow() {
 		const currentUser = data.user

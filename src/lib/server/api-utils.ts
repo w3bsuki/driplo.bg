@@ -125,7 +125,6 @@ export async function requireAuth(
     const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession();
     
     if (sessionError || !session) {
-      console.warn('No session found:', sessionError);
       return null;
     }
     
@@ -133,7 +132,6 @@ export async function requireAuth(
     if (!options?.allowExpired && session.expires_at) {
       const expiresAt = new Date(session.expires_at * 1000);
       if (expiresAt < new Date()) {
-        console.warn('Session expired:', session.expires_at);
         return null;
       }
     }
@@ -142,7 +140,6 @@ export async function requireAuth(
     const { data: { user }, error: userError } = await locals.supabase.auth.getUser();
     
     if (userError || !user) {
-      console.warn('JWT validation failed:', userError);
       return null;
     }
     
@@ -160,7 +157,6 @@ export async function requireAuth(
         .single();
         
       if (profileError || !profile) {
-        console.warn('Profile fetch failed:', profileError);
         return null;
       }
       
