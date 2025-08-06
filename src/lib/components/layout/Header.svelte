@@ -72,12 +72,8 @@
 	}
 
 	async function handleSignOut() {
-		// Sign out using Supabase client directly
-		await supabase.auth.signOut();
-		// Invalidate all server-side data
-		await invalidateAll();
-		// Redirect to home
-		await goto('/');
+		// Use server-side logout to properly clear cookies
+		await goto('/logout');
 	}
 	
 	// Badge mapping
