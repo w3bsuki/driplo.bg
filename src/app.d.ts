@@ -20,23 +20,39 @@ declare global {
 		// interface Platform {}
 	}
 	
-	// reCAPTCHA types
+	// Turnstile CAPTCHA types
 	interface Window {
-		grecaptcha?: {
+		turnstile?: {
 			render: (container: HTMLElement, options: {
 				sitekey: string
 				callback?: (token: string) => void
 				'expired-callback'?: () => void
 				'error-callback'?: () => void
-				theme?: 'light' | 'dark'
-				size?: 'normal' | 'compact'
-			}) => number
-			reset: (widgetId?: number) => void
-			getResponse: (widgetId?: number) => string
-			execute: (widgetId?: number) => void
+				'timeout-callback'?: () => void
+				'before-interactive-callback'?: () => void
+				'after-interactive-callback'?: () => void
+				'unsupported-callback'?: () => void
+				theme?: 'light' | 'dark' | 'auto'
+				size?: 'normal' | 'compact' | 'flexible'
+				appearance?: 'always' | 'execute' | 'interaction-only'
+				'response-field'?: boolean
+				'response-field-name'?: string
+				'retry'?: 'auto' | 'never'
+				'retry-interval'?: number
+				'refresh-expired'?: 'auto' | 'manual' | 'never'
+				'refresh-timeout'?: 'auto' | 'manual' | 'never'
+				language?: string
+				execution?: 'render' | 'execute'
+				cData?: string
+				action?: string
+			}) => string
+			reset: (widgetId?: string) => void
+			remove: (widgetId?: string) => void
+			getResponse: (widgetId?: string) => string | undefined
+			execute: (container?: string | HTMLElement, options?: object) => void
+			isExpired: (widgetId?: string) => boolean
 		}
-		onRecaptchaLoad?: () => void
-		hcaptcha?: unknown // In case we switch to hCaptcha later
+		onTurnstileLoad?: () => void
 	}
 }
 

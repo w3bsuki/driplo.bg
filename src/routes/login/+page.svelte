@@ -5,7 +5,7 @@
 	import { toast } from 'svelte-sonner'
 	import type { PageData, ActionData } from './$types'
 	import Spinner from '$lib/components/ui/Spinner.svelte'
-	import CaptchaWrapper from '$lib/components/auth/CaptchaWrapper.svelte'
+	import TurnstileWrapper from '$lib/components/auth/TurnstileWrapper.svelte'
 	import { onMount } from 'svelte'
 
 	let { data, form }: { data: PageData, form: ActionData } = $props()
@@ -17,7 +17,7 @@
 	let loading = $state(false)
 	let oauthLoading = $state(false)
 	let captchaToken = $state('')
-	let captchaWrapper: CaptchaWrapper
+	let captchaWrapper: TurnstileWrapper
 
 	// Show error messages based on URL parameters or form errors
 	onMount(() => {
@@ -228,7 +228,7 @@
 
 				<!-- CAPTCHA -->
 				<div class="flex justify-center">
-					<CaptchaWrapper 
+					<TurnstileWrapper 
 						bind:this={captchaWrapper}
 						onVerify={(token) => captchaToken = token}
 						onExpire={() => captchaToken = ''}

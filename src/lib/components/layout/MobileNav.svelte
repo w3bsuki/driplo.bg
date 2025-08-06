@@ -14,14 +14,19 @@
 	const navItems = $derived(() => {
 		const items = [];
 		
-		// Only show home if not on homepage
-		if ($page.url.pathname !== '/') {
+		// Only show home if not on homepage (check with and without locale prefix)
+		const isHomepage = $page.url.pathname === '/' || 
+			$page.url.pathname === '/en' || 
+			$page.url.pathname === '/bg';
+		
+		if (!isHomepage) {
 			items.push({ href: '/', emoji: '🏠', label: m.header_home() });
 		}
 		
-		// Core navigation items
+		// Core navigation items - Wishlist / Search / Sell / Messages / Profile
 		items.push(
-			{ href: '/browse', emoji: '🔍', label: m.nav_shop() },
+			{ href: '/wishlist', emoji: '❤️', label: m.nav_wishlist() },
+			{ href: '/browse', emoji: '🔍', label: 'Search' },
 			{ href: '/sell', emoji: '💰', label: m.nav_sell() },
 			{ href: '/messages', emoji: '💬', label: m.header_messages(), badge: $unreadCount },
 			{ href: '/profile', emoji: '👤', label: 'Profile' }

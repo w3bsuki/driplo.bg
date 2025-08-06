@@ -57,14 +57,14 @@ export const actions = {
 			})
 		}
 		
-		// Verify CAPTCHA in production
-		if (captchaToken && process.env.RECAPTCHA_SECRET_KEY) {
+		// Verify Turnstile CAPTCHA in production
+		if (captchaToken && process.env.TURNSTILE_SECRET_KEY) {
 			try {
-				const captchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+				const captchaResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
-						secret: process.env.RECAPTCHA_SECRET_KEY,
+						secret: process.env.TURNSTILE_SECRET_KEY,
 						response: captchaToken,
 						remoteip: clientIP
 					})
@@ -78,7 +78,7 @@ export const actions = {
 					})
 				}
 			} catch (captchaError) {
-				logger.error('CAPTCHA verification error', captchaError)
+				logger.error('Turnstile verification error', captchaError)
 				return fail(400, {
 					error: 'CAPTCHA verification failed. Please try again.',
 					email
