@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { logger } from '$lib/services/logger'
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	try {
@@ -18,7 +19,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		
 		if (error && error.code !== 'PGRST116') {
 			// PGRST116 is "no rows returned" which means email is available
-			console.error('Email check error:', error)
+			logger.error('Email check error', error)
 			return json({ error: 'Failed to check email availability' }, { status: 500 })
 		}
 		
@@ -28,7 +29,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		return json({ available, email })
 		
 	} catch (error) {
-		console.error('Email check endpoint error:', error)
+		logger.error('Email check endpoint error', error)
 		return json({ error: 'Failed to check email availability' }, { status: 500 })
 	}
 }

@@ -2,6 +2,7 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import type { Database } from '$lib/types/database.types';
+import { logger } from '$lib/services/logger';
 
 // Store for global unread message count
 export const unreadCount = writable<number>(0);
@@ -21,7 +22,7 @@ export async function initializeUnreadCount() {
             unreadCount.set(data.total_unread);
         }
     } catch (error) {
-        console.error('Error initializing unread count:', error);
+        logger.error('Error initializing unread count', error);
     }
 }
 

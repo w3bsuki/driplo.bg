@@ -1,16 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { Search, X } from 'lucide-svelte';
-	import { Button } from '$lib/components/native';
-	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
+	import { X } from 'lucide-svelte';
 	import StickySearchBar from '$lib/components/search/StickySearchBar.svelte';
-	import { cn } from '$lib/utils';
 	import { throttle, debounce } from '$lib/utils/performance';
 	import type { PageData } from './$types';
 	import * as m from '$lib/paraglide/messages.js';
-	import { createQuery } from '@tanstack/svelte-query';
 	import { browser } from '$app/environment';
+	
+	// Import new components
+	import TopSellersSection from '$lib/components/browse/TopSellersSection.svelte';
+	import BrowseHeader from '$lib/components/browse/BrowseHeader.svelte';
+	import FilterSidebar from '$lib/components/browse/FilterSidebar.svelte';
+	import ProductGrid from '$lib/components/browse/ProductGrid.svelte';
+	import ActiveFilters from '$lib/components/browse/ActiveFilters.svelte';
+	import NoResultsMessage from '$lib/components/browse/NoResultsMessage.svelte';
+	import LoadingState from '$lib/components/browse/LoadingState.svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -19,34 +24,9 @@
 	let showQuickSearch = $state(false);
 	let showStickySearch = $state(false);
 
-	// Quick search suggestions
-	const quickSearchSuggestions = [
-		{ text: 'Vintage', emoji: '🕰️' },
-		{ text: 'Designer', emoji: '💎' },
-		{ text: 'Streetwear', emoji: '🛹' },
-		{ text: 'Formal', emoji: '👔' },
-		{ text: 'Shoes', emoji: '👟' },
-		{ text: 'Bags', emoji: '👜' },
-		{ text: 'Jewelry', emoji: '💍' },
-		{ text: 'Watches', emoji: '⌚' }
-	];
 
 	// Flag to prevent reactive loops during navigation - define early
 	let isNavigating = $state(false);
-
-	// Top sellers query - optimized to prevent hydration issues
-	const topSellersQuery = createQuery({
-		queryKey: ['topSellers', 'month'],
-		queryFn: async () => {
-			const response = await fetch('/api/sellers/top?period=month&limit=12');
-			if (!response.ok) throw new Error('Failed to fetch top sellers');
-			return response.json();
-		},
-		enabled: browser && !isNavigating, // Don't run during navigation
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		refetchOnWindowFocus: false, // Prevent refetch on focus
-		refetchOnMount: false, // Don't refetch on remount during navigation
-	});
 
 	// Reactive filter states from server data - prevent reactive loops
 	let searchInput = $state(data.filters.search || '');
@@ -65,28 +45,6 @@
 	let hasMoreItems = $state(data.pagination.hasNextPage);
 	let loadingMore = $state(false);
 
-	// Derive categories with "All" option
-	const categoriesWithAll = $derived([
-		{ id: '', name: m.browse_all(), slug: '', icon_url: null, parent_id: null },
-		...data.categories
-	]);
-
-	// Available condition options
-	const conditionOptions = [
-		{ value: 'new_with_tags', label: m.condition_new_with_tags() },
-		{ value: 'like_new', label: m.condition_like_new() },
-		{ value: 'good', label: m.condition_good() },
-		{ value: 'fair', label: m.condition_fair() },
-		{ value: 'poor', label: m.condition_poor() }
-	];
-
-	const sortOptions = [
-		{ value: 'recent', label: m.sort_recent() },
-		{ value: 'price-low', label: m.sort_price_low() },
-		{ value: 'price-high', label: m.sort_price_high() },
-		{ value: 'popular', label: m.sort_popular() },
-		{ value: 'liked', label: m.sort_liked() }
-	];
 
 	function buildFilterUrl(updates: Record<string, any> = {}) {
 		const url = new URL($page.url);
@@ -225,10 +183,6 @@
 		throttledNavigate('/browse');
 	}
 
-
-	// Size options
-	const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '8', '10', '12', '14', '16'];
-
 	// Reset infinite scroll state when data changes (filter applied)
 	// Only update if we're not currently navigating to prevent loops
 	$effect(() => {
@@ -303,164 +257,21 @@
 </svelte:head>
 
 <div class="min-h-screen bg-gray-50">
-	<!-- Hero Section with Emoji Search -->
+	<!-- Hero Section with Top Sellers and Search -->
 	<section class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
 		<div class="container mx-auto px-4">
 			<div class="max-w-3xl mx-auto">
+				<!-- Top Sellers Section -->
+				<TopSellersSection {isNavigating} />
 				
-				<!-- Drippers Ranklist Section -->
-				<div class="mb-3">
-					{#if $topSellersQuery.isLoading}
-						<!-- Loading skeleton -->
-						<div class="text-center">
-							<div class="h-7 w-48 bg-gray-200 rounded-sm mx-auto mb-3 animate-pulse"></div>
-							<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
-								{#each Array(6) as _, index (index)}
-									<div class="text-center">
-										<div class="relative">
-											<div class="w-16 h-16 md:w-20 md:h-20 bg-gray-200 rounded-full animate-pulse"></div>
-										</div>
-										<div class="mt-2 space-y-2">
-											<div class="h-4 bg-gray-200 rounded mx-auto w-20 animate-pulse"></div>
-											<div class="h-3 bg-gray-200 rounded mx-auto w-16 animate-pulse"></div>
-											<div class="h-3 bg-gray-200 rounded mx-auto w-14 animate-pulse"></div>
-										</div>
-									</div>
-								{/each}
-							</div>
-						</div>
-					{:else if $topSellersQuery.error}
-						<!-- Error state - silently fail, don't show section -->
-					{:else if $topSellersQuery.data?.sellers && $topSellersQuery.data.sellers.length > 0}
-						<div class="text-center mb-4">
-							<h2 class="text-sm md:text-base font-bold text-gray-900 mb-1 flex items-center justify-center gap-2">
-								<span>🔥</span>
-								<span>Top Drippers</span>
-								<span>🔥</span>
-							</h2>
-							<p class="text-xs text-gray-600">This month's hottest sellers, brands & buyers</p>
-						</div>
-						<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
-							{#each $topSellersQuery.data.sellers.slice(0, 6) as seller, index (seller.id)}
-								<a href="/profile/{seller.username}" class="text-center group relative">
-									<!-- Rank Badge -->
-									<div class="absolute -top-1 -left-1 z-20">
-										{#if index === 0}
-											<div class="w-6 h-6 bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center shadow-lg">
-												<span class="text-white text-xs font-bold">1</span>
-											</div>
-										{:else if index === 1}
-											<div class="w-6 h-6 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full flex items-center justify-center shadow-lg">
-												<span class="text-white text-xs font-bold">2</span>
-											</div>
-										{:else if index === 2}
-											<div class="w-6 h-6 bg-gradient-to-r from-amber-600 to-amber-700 rounded-full flex items-center justify-center shadow-lg">
-												<span class="text-white text-xs font-bold">3</span>
-											</div>
-										{:else}
-											<div class="w-6 h-6 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center shadow-lg">
-												<span class="text-white text-xs font-bold">{index + 1}</span>
-											</div>
-										{/if}
-									</div>
-									
-									<!-- Crown for #1 -->
-									{#if index === 0}
-										<div class="absolute -top-3 -right-1 text-xl z-10 animate-pulse">👑</div>
-									{/if}
-									
-									<div class="relative">
-										<div class="relative">
-											<!-- Enhanced glow effect -->
-											<div class="absolute inset-0 bg-gradient-to-r {index === 0 ? 'from-yellow-400 to-yellow-600' : index === 1 ? 'from-gray-300 to-gray-500' : index === 2 ? 'from-amber-600 to-amber-700' : 'from-blue-400 to-blue-600'} rounded-full blur opacity-20 group-hover:opacity-40 transition-all duration-200"></div>
-											<div class="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-2 {index === 0 ? 'ring-yellow-300' : index === 1 ? 'ring-gray-300' : index === 2 ? 'ring-amber-300' : 'ring-blue-300'} border-2 border-white group-hover:scale-105 transition-all duration-200 shadow-lg">
-												{#if seller.avatar_url}
-													<img src={seller.avatar_url} alt={seller.username} class="w-full h-full object-cover" />
-												{:else}
-													<div class="w-full h-full bg-gradient-to-br {index === 0 ? 'from-yellow-400 to-yellow-600' : index === 1 ? 'from-gray-300 to-gray-500' : index === 2 ? 'from-amber-600 to-amber-700' : 'from-blue-400 to-blue-600'} flex items-center justify-center">
-														<span class="text-white font-bold text-sm md:text-base">{seller.username[0].toUpperCase()}</span>
-													</div>
-												{/if}
-											</div>
-										</div>
-									</div>
-									<div class="mt-2">
-										<p class="text-sm font-semibold text-gray-900 truncate group-hover:text-blue-600 transition-colors duration-200">{seller.username}</p>
-										<div class="flex items-center justify-center gap-1 text-xs text-gray-600">
-											<div class="flex items-center gap-0.5">
-												{#each Array(5) as _, i}
-													<span class="text-xs {(seller.average_rating || 4.8) > i ? 'text-yellow-400' : 'text-gray-300'}">★</span>
-												{/each}
-											</div>
-											<span class="font-medium">{seller.average_rating || '4.8'}</span>
-										</div>
-										<p class="text-xs text-gray-500 mt-0.5 font-medium">
-											🔥 {seller.total_sales || 0} sales
-										</p>
-										{#if index < 3}
-											<div class="mt-1 text-xs font-bold {index === 0 ? 'text-yellow-600' : index === 1 ? 'text-gray-600' : 'text-amber-600'}">
-												{index === 0 ? '🥇 LEGEND' : index === 1 ? '🥈 ELITE' : '🥉 PRO'}
-											</div>
-										{:else}
-											<div class="mt-1 text-xs font-medium text-blue-600">
-												🔥 DRIPPER
-											</div>
-										{/if}
-									</div>
-								</a>
-							{/each}
-						</div>
-					{/if}
-				</div>
-				
-				<!-- Search Bar with Emoji -->
-				<div class="relative group">
-					<div class="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-sm blur-xl opacity-20 transition-all duration-100 group-focus-within:opacity-30 group-focus-within:blur-2xl"></div>
-					
-					<div class="relative bg-white rounded-sm border border-gray-200 transition-all duration-100">
-						<div class="flex items-center">
-							<div class="pl-3 pr-2">
-								<span class="text-2xl">🔍</span>
-							</div>
-							
-							<input
-								type="search"
-								placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
-								bind:value={searchInput}
-								onfocus={() => { searchFocused = true; showQuickSearch = true; }}
-								onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}
-								onkeydown={(e) => { if (e.key === 'Enter') { handleSearch(searchInput); } }}
-								class="flex-1 py-2 md:py-3 pr-3 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
-							/>
-							
-							<button
-								onclick={() => handleSearch(searchInput)}
-								class="mr-2 px-3 md:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-sm text-sm hover:from-blue-600 hover:to-blue-700 transition-all duration-100 active:scale-95"
-							>
-								Search
-							</button>
-						</div>
-						
-						<!-- Quick Search Suggestions -->
-						{#if showQuickSearch}
-							<div class="absolute top-full left-0 right-0 mt-2 bg-white rounded-sm shadow-md border border-gray-200 p-3 z-50">
-								<p class="text-sm font-medium text-gray-700 mb-2">Quick searches:</p>
-								<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-									{#each quickSearchSuggestions as suggestion (suggestion.text)}
-										<button
-											onmousedown={() => handleQuickSearch(suggestion.text)}
-											class="flex items-center gap-2 px-2 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-sm transition-colors duration-100 text-sm"
-										>
-											<span class="text-lg">{suggestion.emoji}</span>
-											<span class="text-gray-700">{suggestion.text}</span>
-										</button>
-									{/each}
-								</div>
-							</div>
-						{/if}
-					</div>
-				</div>
-				
+				<!-- Search Header -->
+				<BrowseHeader
+					bind:searchInput
+					bind:searchFocused
+					bind:showQuickSearch
+					onSearch={handleSearch}
+					onQuickSearch={handleQuickSearch}
+				/>
 			</div>
 		</div>
 	</section>
@@ -478,243 +289,59 @@
 
 	<div class="container mx-auto px-4 py-3">
 		<div class="flex gap-3">
-			<!-- Desktop Sidebar -->
-			<aside class="hidden md:block w-72 flex-shrink-0">
-				<div class="sticky top-24 space-y-3">
-					<!-- Desktop filters are now shown after hero section -->
-
-					<!-- Categories Card -->
-					<div class="bg-white rounded-sm border border-gray-200 p-3">
-						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_categories()}</h3>
-						<div class="space-y-1">
-							{#each categoriesWithAll as category (category.slug)}
-								<button
-									onclick={() => updateCategory(category.slug)}
-									class={cn(
-										"w-full text-left px-2 py-2 rounded-sm text-sm transition-all duration-100 flex items-center gap-2",
-										data.filters.category === category.slug
-											? "bg-blue-50 text-blue-700 font-medium"
-											: "hover:bg-gray-50 text-gray-700"
-									)}
-								>
-									<span class="text-sm">{category.icon_url || '📦'}</span>
-									<span>{category.name}</span>
-								</button>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Price Range Card -->
-					<div class="bg-white rounded-sm border border-gray-200 p-3">
-						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_price_range()}</h3>
-						<div class="space-y-2">
-							<div class="flex gap-2">
-								<input
-									type="number"
-									placeholder={m.browse_price_min()}
-									bind:value={priceRange.min}
-									onblur={updatePriceRange}
-									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
-								/>
-								<span class="text-gray-400 self-center">-</span>
-								<input
-									type="number"
-									placeholder={m.browse_price_max()}
-									bind:value={priceRange.max}
-									onblur={updatePriceRange}
-									class="w-full rounded-sm border border-gray-300 px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
-								/>
-							</div>
-							<button
-								onclick={updatePriceRange}
-								class="w-full px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-sm hover:bg-blue-100 transition-colors duration-100"
-							>
-								Apply Price Range
-							</button>
-						</div>
-					</div>
-
-					<!-- Sizes Card -->
-					<div class="bg-white rounded-sm border border-gray-200 p-3">
-						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_size()}</h3>
-						<div class="grid grid-cols-3 gap-2">
-							{#each sizeOptions as size (size)}
-								<button
-									onclick={() => toggleSize(size)}
-									class={cn(
-										"px-2 py-1.5 rounded-sm text-sm font-medium transition-all duration-100",
-										selectedSizes.has(size)
-											? "bg-blue-300 text-white border border-blue-400"
-											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
-									)}
-								>
-									{size}
-								</button>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Conditions Card -->
-					<div class="bg-white rounded-sm border border-gray-200 p-3">
-						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_condition()}</h3>
-						<div class="space-y-2">
-							{#each conditionOptions as condition (condition.value)}
-								<label class="flex items-center gap-3 py-1 cursor-pointer group">
-									<input
-										type="checkbox"
-										checked={selectedConditions.has(condition.value)}
-										onchange={() => toggleCondition(condition.value)}
-										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-1"
-									/>
-									<span class="text-sm text-gray-700 group-hover:text-gray-900">{condition.label}</span>
-								</label>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Brands Card -->
-					<div class="bg-white rounded-sm border border-gray-200 p-3">
-						<h3 class="font-semibold text-gray-900 mb-2 text-sm">{m.browse_brand()}</h3>
-						<div class="space-y-2 max-h-48 overflow-y-auto">
-							{#each data.popularBrands as brand (brand)}
-								<label class="flex items-center gap-3 py-1 cursor-pointer group">
-									<input
-										type="checkbox"
-										checked={selectedBrands.has(brand)}
-										onchange={() => toggleBrand(brand)}
-										class="w-4 h-4 text-blue-300 bg-gray-100 border-gray-300 rounded focus:ring-blue-300 focus:ring-1"
-									/>
-									<span class="text-sm text-gray-700 group-hover:text-gray-900">{brand}</span>
-								</label>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Clear Filters Button -->
-					{#if data.filters.search || data.filters.category || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || data.filters.minPrice || data.filters.maxPrice}
-						<button
-							onclick={clearAllFilters}
-							class="w-full px-3 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-sm hover:bg-red-50 transition-colors duration-100"
-						>
-							{m.browse_clear_filters()}
-						</button>
-					{/if}
-				</div>
-			</aside>
+			<!-- Filter Sidebar -->
+			<FilterSidebar
+				categories={data.categories}
+				popularBrands={data.popularBrands}
+				filters={data.filters}
+				bind:selectedSizes
+				bind:selectedBrands
+				bind:selectedConditions
+				bind:priceRange
+				onCategoryUpdate={updateCategory}
+				onPriceUpdate={updatePriceRange}
+				onSizeToggle={toggleSize}
+				onBrandToggle={toggleBrand}
+				onConditionToggle={toggleCondition}
+				onClearFilters={clearAllFilters}
+			/>
 
 			<!-- Main Content -->
 			<main class="flex-1">
-				<!-- Results Header with Sort Options -->
-				<div class="bg-white rounded-sm border border-gray-200 p-3 mb-3">
-					<div class="flex items-center justify-between">
-						<div>
-							<h2 class="text-sm font-semibold text-gray-900">
-								{data.filters.category ? categoriesWithAll.find(c => c.slug === data.filters.category)?.name : 'All Items'}
-							</h2>
-							{#if data.filters.search}
-								<p class="text-sm text-gray-500 mt-1">
-									Results for "{data.filters.search}"
-								</p>
-							{/if}
-						</div>
-						<div class="flex items-center gap-2">
-							<span class="text-sm text-gray-500">{data.totalCount.toLocaleString()} items</span>
-							<select
-								bind:value={sortBy}
-								onchange={(e) => updateSort(e.currentTarget.value)}
-								class="rounded-sm border border-gray-300 px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-transparent"
-							>
-								{#each sortOptions as option (option.value)}
-									<option value={option.value}>{option.label}</option>
-								{/each}
-							</select>
-						</div>
-					</div>
-				</div>
-
-				<!-- Active Filters Display -->
-				{#if data.filters.search || data.filters.category || selectedSizes.size > 0 || selectedBrands.size > 0 || selectedConditions.size > 0 || data.filters.minPrice || data.filters.maxPrice}
-					<div class="bg-white rounded-sm border border-gray-200 p-3 mb-3">
-						<div class="flex items-center justify-between mb-2">
-							<h3 class="text-sm font-semibold text-gray-900">Active Filters</h3>
-							<button
-								onclick={clearAllFilters}
-								class="text-sm text-blue-600 hover:text-blue-800 font-medium"
-							>
-								{m.browse_clear_filters()}
-							</button>
-						</div>
-						<div class="flex flex-wrap gap-2">
-							{#if data.filters.search}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									Search: "{data.filters.search}"
-									<button onclick={() => throttledNavigate(buildFilterUrl({ search: null }))} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/if}
-							{#if data.filters.category}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									{categoriesWithAll.find(c => c.slug === data.filters.category)?.name}
-									<button onclick={() => updateCategory('')} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/if}
-							{#each Array.from(selectedSizes) as size (size)}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									Size {size}
-									<button onclick={() => toggleSize(size)} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/each}
-							{#each Array.from(selectedBrands) as brand (brand)}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									{brand}
-									<button onclick={() => toggleBrand(brand)} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/each}
-							{#each Array.from(selectedConditions) as condition (condition)}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									{conditionOptions.find(c => c.value === condition)?.label}
-									<button onclick={() => toggleCondition(condition)} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/each}
-							{#if data.filters.minPrice || data.filters.maxPrice}
-								<span class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 text-blue-700 rounded-sm text-sm font-medium">
-									${data.filters.minPrice || 0} - ${data.filters.maxPrice || '∞'}
-									<button onclick={() => throttledNavigate(buildFilterUrl({ minPrice: null, maxPrice: null }))} class="hover:text-blue-900">
-										<X class="h-3.5 w-3.5" />
-									</button>
-								</span>
-							{/if}
-						</div>
-					</div>
-				{/if}
-
-				<!-- Product Grid -->
-				<ListingGrid 
-					listings={allListings} 
-					title="" 
-					infiniteScroll={true}
-					hasMore={hasMoreItems}
-					onLoadMore={loadMoreItems}
-					userFavorites={data.userFavorites}
+				<!-- Active Filters -->
+				<ActiveFilters
+					filters={data.filters}
+					categories={data.categories}
+					{selectedSizes}
+					{selectedBrands}
+					{selectedConditions}
+					onClearSearch={() => throttledNavigate(buildFilterUrl({ search: null }))}
+					onClearCategory={() => updateCategory('')}
+					onClearSize={toggleSize}
+					onClearBrand={toggleBrand}
+					onClearCondition={toggleCondition}
+					onClearPrice={() => throttledNavigate(buildFilterUrl({ minPrice: null, maxPrice: null }))}
+					onClearAllFilters={clearAllFilters}
 				/>
 
-				<!-- Items Counter -->
+				<!-- Product Grid or Empty State -->
 				{#if allListings.length > 0}
-					<div class="mt-4 text-center text-sm text-muted-foreground">
-						Showing {allListings.length.toLocaleString()} of {data.totalCount.toLocaleString()} results
-						{#if hasMoreItems}
-							• Scroll down to load more
-						{/if}
-					</div>
+					<ProductGrid
+						listings={allListings}
+						userFavorites={data.userFavorites}
+						hasMore={hasMoreItems}
+						onLoadMore={loadMoreItems}
+						totalCount={data.totalCount}
+						filters={data.filters}
+						categories={data.categories}
+						bind:sortBy
+						onSortUpdate={updateSort}
+					/>
+				{:else}
+					<NoResultsMessage
+						searchTerm={data.filters.search}
+						onClearFilters={clearAllFilters}
+					/>
 				{/if}
 			</main>
 		</div>

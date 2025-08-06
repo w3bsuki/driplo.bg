@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
+import { logger } from '$lib/services/logger'
 
 export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 	const code = url.searchParams.get('code')
@@ -10,7 +11,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 			// Exchange the code for a session
 			const { error } = await supabase.auth.exchangeCodeForSession(code)
 			if (error) {
-				console.error('Auth callback error:', error)
+				logger.error('Auth callback error', error)
 				throw redirect(303, '/login?error=auth_failed')
 			}
 			
@@ -21,7 +22,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 			}
 			
 		} catch (err) {
-			console.error('Auth callback exception:', err)
+			logger.error('Auth callback exception', err)
 			throw redirect(303, '/login?error=callback_failed')
 		}
 	}

@@ -99,7 +99,7 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 						event.cookies.set(name, value, { 
 							...options, 
 							path: '/',
-							httpOnly: false, // Allow client-side access for auth cookies
+							httpOnly: true, // Secure auth cookies from XSS attacks
 							secure: !dev,
 							sameSite: 'lax'
 						})

@@ -1,6 +1,7 @@
 import type { RequestHandler } from './$types';
 import { apiError, apiSuccess, ApiErrorType, requireAuth, validateRequest, ApiError } from '$lib/server/api-utils';
 import { z } from 'zod';
+import { logger } from '$lib/services/logger';
 
 const createPaymentSchema = z.object({
 	listing_id: z.string().uuid()
@@ -117,7 +118,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 
 		if (payoutError) {
 			// Don't fail the transaction, just log the error
-			console.warn(`[${requestId}] Payout record creation warning:`, payoutError.message);
+			logger.warn(`[${requestId}] Payout record creation warning`, { error: payoutError.message });
 		}
 
 		return apiSuccess({

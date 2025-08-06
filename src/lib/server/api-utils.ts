@@ -374,12 +374,30 @@ export function checkRateLimit(
   return rateLimiter.check(key, limit, windowMs);
 }
 
-// CORS utility
+// CORS utility with secure origin validation
+const ALLOWED_ORIGINS = [
+  'https://driplo.bg',
+  'https://www.driplo.bg',
+  'https://driplo.vercel.app',
+  // Add development origins only in dev mode
+  ...(process.env.NODE_ENV === 'development' ? [
+    'http://localhost:5173',
+    'http://localhost:4173',
+    'http://127.0.0.1:5173'
+  ] : [])
+];
+
 export function corsHeaders(origin?: string): HeadersInit {
+  // Validate origin against whitelist
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) 
+    ? origin 
+    : ALLOWED_ORIGINS[0]; // Default to primary domain if origin not in whitelist
+    
   return {
-    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
     'Access-Control-Max-Age': '86400'
   };
 }

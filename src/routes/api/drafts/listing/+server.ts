@@ -1,5 +1,6 @@
 import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { logger } from '$lib/services/logger'
 
 // Save or update draft
 export const POST: RequestHandler = async ({ request, locals: { supabase } }) => {
@@ -25,7 +26,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 			.single()
 		
 		if (dbError) {
-			console.error('Draft save error:', dbError)
+			logger.error('Draft save error', dbError)
 			throw error(500, 'Failed to save draft')
 		}
 		
@@ -35,7 +36,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 			updated_at: data.updated_at 
 		})
 	} catch (err: any) {
-		console.error('Draft save error:', err)
+		logger.error('Draft save error', err)
 		if (err.status) throw err
 		throw error(500, 'Internal server error')
 	}
@@ -61,7 +62,7 @@ export const GET: RequestHandler = async ({ locals: { supabase } }) => {
 			if (dbError.code === 'PGRST116') {
 				return json({ draft: null })
 			}
-			console.error('Draft load error:', dbError)
+			logger.error('Draft load error', dbError)
 			throw error(500, 'Failed to load draft')
 		}
 		
@@ -70,7 +71,7 @@ export const GET: RequestHandler = async ({ locals: { supabase } }) => {
 			updated_at: data.updated_at
 		})
 	} catch (err: any) {
-		console.error('Draft load error:', err)
+		logger.error('Draft load error', err)
 		if (err.status) throw err
 		throw error(500, 'Internal server error')
 	}
@@ -91,13 +92,13 @@ export const DELETE: RequestHandler = async ({ locals: { supabase } }) => {
 			.eq('user_id', user.id)
 		
 		if (dbError) {
-			console.error('Draft delete error:', dbError)
+			logger.error('Draft delete error', dbError)
 			throw error(500, 'Failed to delete draft')
 		}
 		
 		return json({ success: true })
 	} catch (err: any) {
-		console.error('Draft delete error:', err)
+		logger.error('Draft delete error', err)
 		if (err.status) throw err
 		throw error(500, 'Internal server error')
 	}

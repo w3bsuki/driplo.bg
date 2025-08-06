@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/services/logger';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -135,7 +136,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
             payout_scheduled: !!order.transaction
         });
     } catch (error) {
-        console.error('Error completing order:', error);
+        logger.error('Error completing order', error);
         return json({ error: 'Failed to complete order' }, { status: 500 });
     }
 };

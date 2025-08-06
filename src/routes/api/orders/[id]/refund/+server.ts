@@ -3,6 +3,7 @@ import type { RequestHandler } from './$types';
 import { STRIPE_SECRET_KEY } from '$env/static/private';
 import Stripe from 'stripe';
 import { emailService } from '$lib/server/email';
+import { logger } from '$lib/services/logger';
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20'
@@ -106,7 +107,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
       .single();
 
     if (refundError) {
-      console.error('Error creating refund request:', refundError);
+      logger.error('Error creating refund request', refundError);
       return json({ error: 'Failed to create refund request' }, { status: 500 });
     }
 
@@ -136,7 +137,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
     });
 
   } catch (error) {
-    console.error('Error processing refund request:', error);
+    logger.error('Error processing refund request', error);
     return json({ error: 'Failed to process refund request' }, { status: 500 });
   }
 };
@@ -241,7 +242,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
             .eq('id', orderId);
 
         } catch (stripeError) {
-          console.error('Stripe refund error:', stripeError);
+          logger.error('Stripe refund error', stripeError);
           // Update refund request to failed
           await supabase
             .from('refund_requests')
@@ -307,7 +308,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
     }
 
   } catch (error) {
-    console.error('Error responding to refund request:', error);
+    logger.error('Error responding to refund request', error);
     return json({ error: 'Failed to respond to refund request' }, { status: 500 });
   }
 };

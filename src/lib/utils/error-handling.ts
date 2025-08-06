@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { logger } from '$lib/services/logger';
 
 // User-friendly error messages
 const ERROR_MESSAGES: Record<string, string> = {
@@ -155,16 +156,11 @@ export async function withRetry<T>(
 
 // Global error logger (only in production)
 export function logError(error: unknown, context?: Record<string, unknown>) {
-  if (browser && import.meta.env['PROD']) {
-    // Send to error tracking service (e.g., Sentry)
-    console.error('Error:', error, 'Context:', context);
-    
-    // You would typically send to an error tracking service here
-    // Example: Sentry.captureException(error, { extra: context });
-  } else {
-    // In development, just log to console
-    console.error('Error:', error, 'Context:', context);
-  }
+  // Use our secure logger service instead of direct console access
+  logger.error('Application error', { error, context });
+  
+  // You would typically send to an error tracking service here
+  // Example: Sentry.captureException(error, { extra: context });
 }
 
 // Create standardized error response

@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
+import { logger } from '$lib/services/logger'
 
 export const load: PageServerLoad = async ({ url }) => {
 	// Don't check session - let users access login page
@@ -48,8 +49,12 @@ export const actions = {
 				})
 			}
 		} catch (rateLimitError) {
-			// If rate limit check fails, continue but log the error
-			console.error('Rate limit check failed:', rateLimitError)
+			// Fail securely - if rate limiting service is unavailable, deny the request
+			logger.error('Rate limit check failed', rateLimitError)
+			return fail(503, {
+				error: 'Service temporarily unavailable. Please try again later.',
+				email
+			})
 		}
 		
 		// Verify CAPTCHA in production
@@ -73,7 +78,7 @@ export const actions = {
 					})
 				}
 			} catch (captchaError) {
-				console.error('CAPTCHA verification error:', captchaError)
+				logger.error('CAPTCHA verification error', captchaError)
 				return fail(400, {
 					error: 'CAPTCHA verification failed. Please try again.',
 					email

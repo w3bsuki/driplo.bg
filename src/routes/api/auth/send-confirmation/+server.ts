@@ -2,6 +2,7 @@ import { json } from '@sveltejs/kit';
 import { emailService } from '$lib/server/email';
 import { createAdminClient } from '$lib/server/supabase-admin';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/services/logger';
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
@@ -24,7 +25,7 @@ export const POST: RequestHandler = async ({ request }) => {
         });
         
         if (error || !data?.properties?.action_link) {
-            console.error('Error generating confirmation link:', error);
+            logger.error('Error generating confirmation link', error);
             return json({ error: 'Failed to generate confirmation link' }, { status: 500 });
         }
 
@@ -120,7 +121,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
         return json({ success: true });
     } catch (err) {
-        console.error('Error in send-confirmation endpoint:', err);
+        logger.error('Error in send-confirmation endpoint', err);
         return json({ error: 'Internal server error' }, { status: 500 });
     }
 };

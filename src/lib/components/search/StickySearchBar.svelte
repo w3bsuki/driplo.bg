@@ -108,22 +108,22 @@
 		style="top: {headerHeight}px"
 		transition:fly={{ y: -20, duration: 150 }}
 	>
-		<div class="container mx-auto px-3 md:px-4 py-2">
-			<div class="flex items-center gap-2 max-w-3xl mx-auto">
-				<!-- Category Dropdown Button (matching hero style) -->
+		<div class="container mx-auto px-2 md:px-4 py-1.5 md:py-2">
+			<div class="flex items-center gap-1.5 md:gap-2 max-w-3xl mx-auto">
+				<!-- Category Dropdown Button (compact on mobile) -->
 				<div class="relative flex-shrink-0">
 					<button
 						data-categories-button
 						onclick={handleToggleCategoryDropdown}
 						class={cn(
-							"px-2.5 h-9 rounded-sm text-sm font-medium transition-all focus:outline-none focus:ring-1 focus:ring-blue-500 flex items-center gap-1",
+							"px-2 md:px-2.5 h-8 md:h-9 rounded-md md:rounded-sm text-xs md:text-sm font-medium transition-all focus:outline-none focus:ring-1 focus:ring-blue-500 flex items-center gap-1",
 							isCategoryDropdownOpen 
 								? "bg-blue-500 text-white hover:bg-blue-600" 
 								: "bg-gray-900 text-white hover:bg-gray-800"
 						)}
 						aria-label="Categories"
 					>
-						<Menu class="h-4 w-4" />
+						<Menu class="h-3.5 md:h-4 w-3.5 md:w-4" />
 						<span class="hidden sm:inline">{m.header_categories()}</span>
 					</button>
 					
@@ -136,7 +136,7 @@
 					/>
 				</div>
 
-				<!-- Search Input -->
+				<!-- Search Input (compact on mobile) -->
 				<div class="relative flex-1">
 					<input
 						type="search"
@@ -144,9 +144,9 @@
 						{placeholder}
 						onkeydown={handleKeydown}
 						class={cn(
-							"w-full px-3 pr-10 h-9 text-sm",
-							"bg-white border border-gray-200 rounded-sm",
-							"placeholder:text-gray-500",
+							"w-full px-2.5 md:px-3 pr-8 md:pr-10 h-8 md:h-9 text-xs md:text-sm",
+							"bg-white border border-gray-200 rounded-md md:rounded-sm",
+							"placeholder:text-gray-400 md:placeholder:text-gray-500",
 							"focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500",
 							"transition-all duration-100"
 						)}
@@ -155,10 +155,10 @@
 					<button
 						onclick={handleSearch}
 						type="button"
-						class="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 rounded-sm transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+						class="absolute right-1.5 md:right-2 top-1/2 -translate-y-1/2 p-0.5 md:p-1 hover:bg-gray-100 rounded-sm transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
 						aria-label="Search"
 					>
-						<span class="text-base">🔍</span>
+						<span class="text-sm md:text-base">🔍</span>
 					</button>
 				</div>
 			</div>

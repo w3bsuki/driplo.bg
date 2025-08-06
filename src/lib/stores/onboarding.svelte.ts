@@ -1,5 +1,6 @@
 import { browser } from '$app/environment';
 import type { User } from '@supabase/supabase-js';
+import { logger } from '$lib/services/logger';
 
 interface OnboardingState {
 	hasSeenWelcome: boolean;
@@ -92,7 +93,7 @@ class OnboardingStore {
 				const savedState = JSON.parse(saved);
 				this.state = { ...defaultState, ...savedState };
 			} catch (e) {
-				console.error('Failed to parse onboarding state:', e);
+				logger.error('Failed to parse onboarding state', e);
 			}
 		} else {
 			// New user - don't show modal immediately

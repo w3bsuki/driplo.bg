@@ -1,6 +1,7 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
 import type { User, Session } from '@supabase/supabase-js'
+import { logger } from '$lib/services/logger'
 
 // Simple reactive stores
 export const user = writable<User | null>(null)
@@ -35,13 +36,13 @@ export function setupAuthListener(supabase: unknown) {
 						.single()
 					
 					if (error) {
-						console.error('Profile query error:', error)
+						logger.debug('Profile query error', error)
 						profile.set(null)
 					} else {
 						profile.set(data)
 					}
 				} catch (error) {
-					console.error('Failed to load profile:', error)
+					logger.debug('Failed to load profile', error)
 					profile.set(null)
 				}
 			} else {

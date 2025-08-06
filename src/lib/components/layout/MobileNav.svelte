@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import MobileFiltersDrawer from './MobileFiltersDrawer.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { unreadCount } from '$lib/stores/messages';
 
 	let { class: className = '' }: { class?: string } = $props();
 	let showFilters = $state(false);
@@ -9,13 +10,25 @@
 	const HIDDEN_PATHS = ['/orders', '/wishlist', '/checkout', '/messages', '/settings', '/profile/edit', '/onboarding'];
 	const isVisible = $derived(!HIDDEN_PATHS.some(path => $page.url.pathname.startsWith(path)));
 
-	const navItems = [
-		{ href: '/', emoji: '🏠', label: m.header_home() },
-		{ href: '/browse', emoji: '🔍', label: m.nav_shop() },
-		{ href: '/sell', emoji: '💰', label: m.nav_sell() },
-		{ href: '/wishlist', emoji: '❤️', label: m.nav_wishlist() },
-		{ href: '/profile', emoji: '👤', label: 'Profile' }
-	];
+	// Dynamic nav items - remove home when on homepage
+	const navItems = $derived(() => {
+		const items = [];
+		
+		// Only show home if not on homepage
+		if ($page.url.pathname !== '/') {
+			items.push({ href: '/', emoji: '🏠', label: m.header_home() });
+		}
+		
+		// Core navigation items
+		items.push(
+			{ href: '/browse', emoji: '🔍', label: m.nav_shop() },
+			{ href: '/sell', emoji: '💰', label: m.nav_sell() },
+			{ href: '/messages', emoji: '💬', label: m.header_messages(), badge: $unreadCount },
+			{ href: '/profile', emoji: '👤', label: 'Profile' }
+		);
+		
+		return items;
+	});
 
 	const isActive = (href: string) => $page.url.pathname === href || ($page.url.pathname.startsWith('/profile') && href === '/profile');
 </script>
@@ -27,13 +40,18 @@
 	aria-label="Mobile navigation"
 >
 	<div class="flex">
-		{#each navItems as item}
+		{#each navItems() as item}
 			<a
 				href={item.href}
-				class="flex-1 flex flex-col items-center py-2.5"
+				class="flex-1 flex flex-col items-center py-2.5 relative"
 				aria-current={isActive(item.href) ? 'page' : undefined}
 			>
 				<span class="text-xl mb-0.5">{item.emoji}</span>
+				{#if item.badge && item.badge > 0}
+					<span class="absolute top-1 right-1/2 translate-x-3 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] font-medium flex items-center justify-center">
+						{item.badge > 9 ? '9+' : item.badge}
+					</span>
+				{/if}
 				<span class="text-[10px] {isActive(item.href) ? 'text-black font-medium' : 'text-gray-600'}">{item.label}</span>
 			</a>
 		{/each}

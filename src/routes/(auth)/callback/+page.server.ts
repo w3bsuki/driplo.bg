@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
+import { logger } from '$lib/services/logger'
 
 export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession } }) => {
 	const code = url.searchParams.get('code')
@@ -9,7 +10,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 
 	// Handle OAuth errors
 	if (error) {
-		console.error('OAuth error:', error, errorDescription)
+		logger.error('OAuth error', { error, errorDescription })
 		redirect(303, `/login?error=${error}&message=${encodeURIComponent(errorDescription || 'Authentication failed')}`)
 	}
 
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 			const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 			
 			if (exchangeError) {
-				console.error('Code exchange error:', exchangeError)
+				logger.error('Code exchange error', exchangeError)
 				redirect(303, '/login?error=auth_callback_error&message=' + encodeURIComponent(exchangeError.message))
 			}
 
@@ -27,7 +28,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 			const { session, user } = await safeGetSession()
 			
 			if (!session || !user) {
-				console.error('No session after code exchange')
+				logger.error('No session after code exchange')
 				redirect(303, '/login?error=session_creation_failed')
 			}
 
@@ -36,12 +37,12 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 				p_user_id: user.id,
 				p_action: 'oauth_login',
 				p_success: true
-			}).catch(console.error)
+			}).catch(err => logger.error('Failed to log auth event', err))
 
 			// Successfully authenticated, redirect to next page
 			redirect(303, `/${next.slice(1)}`)
 		} catch (err) {
-			console.error('Callback error:', err)
+			logger.error('Callback error', err)
 			redirect(303, '/login?error=auth_callback_error')
 		}
 	}

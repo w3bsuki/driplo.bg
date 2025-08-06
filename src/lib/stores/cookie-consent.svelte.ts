@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { logger } from '$lib/services/logger';
 
 export interface CookiePreferences {
 	necessary: boolean;
@@ -66,7 +67,7 @@ class CookieConsentStore {
 				}
 			}
 		} catch (error) {
-			console.error('Failed to load cookie consent:', error);
+			logger.debug('Failed to load cookie consent', error);
 		}
 	}
 
@@ -79,7 +80,7 @@ class CookieConsentStore {
 				consent: this._consent
 			}));
 		} catch (error) {
-			console.error('Failed to save cookie consent:', error);
+			logger.debug('Failed to save cookie consent', error);
 		}
 	}
 

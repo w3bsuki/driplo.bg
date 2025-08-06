@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import { apiSuccess, apiError, requireAuth, getPagination } from '$lib/server/api-utils';
+import { logger } from '$lib/services/logger';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
     try {
@@ -72,7 +73,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         const { data: transactions, error, count } = await query;
 
         if (error) {
-            console.error('Error fetching transactions:', error);
+            logger.error('Error fetching transactions', error);
             return apiError('Failed to fetch transactions', 500);
         }
 
@@ -87,7 +88,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
         });
 
     } catch (error) {
-        console.error('Transactions API error:', error);
+        logger.error('Transactions API error', error);
         return apiError('Internal server error', 500);
     }
 };

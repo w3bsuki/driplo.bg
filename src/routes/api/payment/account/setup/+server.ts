@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/services/logger';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const supabase = locals.supabase;
@@ -94,7 +95,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				.single();
 
 			if (updateError) {
-				console.error('Payment account update error:', updateError);
+				logger.error('Payment account update error', updateError);
 				return json({ error: 'Failed to update payment account' }, { status: 500 });
 			}
 
@@ -132,7 +133,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				.single();
 
 			if (createError) {
-				console.error('Payment account creation error:', createError);
+				logger.error('Payment account creation error', createError);
 				return json({ error: 'Failed to create payment account' }, { status: 500 });
 			}
 
@@ -144,11 +145,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		}
 
 	} catch (error: unknown) {
-		console.error('Payment account setup error:', error);
+		logger.error('Payment account setup error', error);
 		return json({ 
-			error: 'Internal server error', 
-			details: error.message,
-			stack: error.stack 
+			error: 'Internal server error'
 		}, { status: 500 });
 	}
 };
@@ -172,7 +171,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 			.single();
 
 		if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned"
-			console.error('Payment account fetch error:', error);
+			logger.error('Payment account fetch error', error);
 			return json({ error: 'Failed to fetch payment account' }, { status: 500 });
 		}
 
@@ -182,7 +181,7 @@ export const GET: RequestHandler = async ({ locals }) => {
 		});
 
 	} catch (error) {
-		console.error('Payment account fetch error:', error);
+		logger.error('Payment account fetch error', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

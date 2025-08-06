@@ -6,20 +6,24 @@
 	
 	interface Props {
 		message: string;
+		secondaryMessage?: string;
 		ctaText?: string;
 		ctaHref?: string;
 		dismissible?: boolean;
 		variant?: 'default' | 'gradient' | 'launch';
 		onDismiss?: () => void;
+		countdown?: boolean;
 	}
 	
 	let { 
-		message, 
+		message,
+		secondaryMessage, 
 		ctaText, 
 		ctaHref, 
 		dismissible = true,
 		variant = 'gradient',
-		onDismiss
+		onDismiss,
+		countdown = false
 	}: Props = $props();
 	
 	let isDismissed = $state(false);
@@ -47,19 +51,26 @@
 
 {#if !isDismissed}
 	<div 
-		class="relative text-center py-2 px-3 text-xs md:text-sm font-medium {variant === 'gradient' ? 'bg-gray-900 text-white' : 'bg-blue-50 text-blue-900'}"
+		class="relative text-center py-1.5 md:py-2 px-2 md:px-3 text-[11px] md:text-sm font-medium {variant === 'gradient' ? 'bg-gray-900 text-white' : variant === 'launch' ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' : 'bg-blue-50 text-blue-900'}"
 		role="banner"
 		aria-live="polite"
 	>
-		<div class="container mx-auto flex items-center justify-center gap-3">
-			<span>{message}</span>
+		<div class="container mx-auto flex items-center justify-center gap-1.5 md:gap-3">
+			<!-- Mobile: Single line | Desktop: Full message -->
+			<span class="truncate md:whitespace-normal">
+				<span class="inline md:hidden">{message.split('.')[0]}</span>
+				<span class="hidden md:inline">{message}</span>
+				{#if secondaryMessage}
+					<span class="hidden md:inline ml-1">{secondaryMessage}</span>
+				{/if}
+			</span>
 			{#if ctaText && ctaHref}
 				<a 
 					href={ctaHref}
-					class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-colors {variant === 'gradient' ? 'bg-white text-gray-900 hover:bg-gray-100' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}"
+					class="inline-flex items-center gap-0.5 md:gap-1 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-semibold transition-colors flex-shrink-0 {variant === 'gradient' ? 'bg-white text-gray-900 hover:bg-gray-100' : variant === 'launch' ? 'bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'}"
 				>
 					{ctaText}
-					<span>→</span>
+					<span class="hidden md:inline">→</span>
 				</a>
 			{/if}
 		</div>

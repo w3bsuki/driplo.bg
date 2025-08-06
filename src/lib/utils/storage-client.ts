@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/types/database.types'
 import { compressImages } from './image-compression'
+import { logger } from '$lib/services/logger'
 
 export type UploadResult = {
 	url: string
@@ -73,7 +74,7 @@ export async function uploadImage(
 					})
 					processedFile = compressed[0]
 				} catch (compressionError) {
-					console.warn('Image compression failed, using original:', compressionError)
+					logger.warn('Image compression failed, using original', { error: compressionError })
 				}
 			}
 
@@ -116,7 +117,7 @@ export async function uploadImage(
 				
 				// If not the last attempt, wait before retrying
 				if (attempt < maxRetries) {
-					console.warn(`Upload attempt ${attempt} failed, retrying in ${attempt}s...`, lastError.message);
+					logger.debug(`Upload attempt ${attempt} failed, retrying in ${attempt}s`, { error: lastError.message });
 					await new Promise(resolve => setTimeout(resolve, attempt * 1000));
 				}
 			}
@@ -125,14 +126,14 @@ export async function uploadImage(
 			
 			// If not the last attempt, wait before retrying
 			if (attempt < maxRetries) {
-				console.warn(`Upload attempt ${attempt} failed, retrying in ${attempt}s...`, lastError.message);
+				logger.debug(`Upload attempt ${attempt} failed, retrying in ${attempt}s`, { error: lastError.message });
 				await new Promise(resolve => setTimeout(resolve, attempt * 1000));
 			}
 		}
 	}
 
 	// All attempts failed
-	console.error('All upload attempts failed:', lastError)
+	logger.error('All upload attempts failed', { error: lastError })
 	return { 
 		url: '', 
 		error: lastError?.message || 'Failed to upload image after multiple attempts' 
@@ -191,7 +192,7 @@ export async function deleteImage(
 		.remove([path])
 	
 	if (error) {
-		console.error('Delete error:', error)
+		logger.error('Delete error', { error })
 		return { error: error.message }
 	}
 	
