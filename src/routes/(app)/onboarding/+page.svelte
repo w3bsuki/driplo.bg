@@ -81,7 +81,7 @@
 			const { data: existingProfile, error: profileCheckError } = await supabase
 				.from('profiles')
 				.select('id')
-				.eq('id', $user!.id)
+				.eq('id', data.user!.id)
 				.single();
 			
 			if (profileCheckError || !existingProfile) {
@@ -90,8 +90,8 @@
 				const { error: createError } = await supabase
 					.from('profiles')
 					.insert({
-						id: $user!.id,
-						email: $user!.email,
+						id: data.user!.id,
+						email: data.user!.email,
 						username: formData?.username || 'user' + Date.now(),
 						full_name: formData?.fullName || 'User',
 						account_type: formData?.accountType || 'personal',
@@ -111,7 +111,7 @@
 				// Use the database function to ensure it completes properly
 				const { data: functionResult, error: updateError } = await supabase
 					.rpc('complete_user_onboarding', {
-						p_user_id: $user!.id,
+						p_user_id: data.user!.id,
 						p_username: formData?.username || 'user' + Date.now(),
 						p_full_name: formData?.fullName || 'User',
 						p_account_type: formData?.accountType || 'personal'
@@ -130,7 +130,7 @@
 					const { error: fallbackError } = await supabase
 						.from('profiles')
 						.update(profileUpdate)
-						.eq('id', $user!.id);
+						.eq('id', data.user!.id);
 					
 					if (fallbackError) {
 						alert(`Failed to complete onboarding: ${fallbackError.message}`);
@@ -145,7 +145,7 @@
 			const { data: updatedProfile, error: fetchError } = await supabase
 				.from('profiles')
 				.select('*')
-				.eq('id', $user!.id)
+				.eq('id', data.user!.id)
 				.single();
 			
 			if (fetchError || !updatedProfile) {
@@ -157,12 +157,12 @@
 			}
 			
 			// Reload the profile to ensure all data is fresh
-			if ($user) {
+			if (data.user) {
 				try {
 					const { data: freshProfile } = await supabase
 						.from('profiles')
 						.select('*')
-						.eq('id', $user.id)
+						.eq('id', data.user.id)
 						.single();
 				} catch (error) {
 					console.error('Failed to reload profile:', error);
@@ -214,7 +214,7 @@
 			</div>
 		</div>
 	</div>
-{:else if showSetup && $user && supabase}
+{:else if showSetup && data.user && supabase}
 	<div class="min-h-[100dvh] bg-background relative">
 		{#if loading}
 			<!-- Overlay loading state -->
@@ -229,7 +229,7 @@
 			</div>
 		{/if}
 		<ProfileSetupWizard 
-			user={$user} 
+			user={data.user} 
 			profile={data.profile}
 			onComplete={handleComplete}
 			{supabase}
