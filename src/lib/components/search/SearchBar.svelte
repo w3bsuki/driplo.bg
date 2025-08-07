@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Search, X } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
+	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
 		value: string;
@@ -41,8 +42,8 @@
 
 <div class={cn(
 	"relative bg-white shadow-lg transition-all duration-200",
-	showCategories ? "rounded-t-2xl border-t-2 border-x-2 border-b-0" : "rounded-2xl border-2",
-	isFocused ? "border-gray-900 shadow-xl" : "border-gray-200"
+	showCategories ? "rounded-t-2xl border border-gray-200 border-b-0" : "rounded-2xl border border-gray-200",
+	showCategories ? "shadow-xl" : "shadow-lg"
 )}>
 	<div class="flex items-center px-4 md:px-6 h-14 md:h-16">
 		<Search class="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
@@ -78,7 +79,7 @@
 			onclick={onSearch}
 			disabled={isSearching || (!value.trim())}
 			class={cn(
-				"px-4 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold transition-all duration-200",
+				"px-2 md:px-6 py-1.5 md:py-2.5 rounded-lg md:rounded-xl text-sm md:text-base font-semibold transition-all duration-200",
 				"text-white",
 				"disabled:opacity-50 disabled:cursor-not-allowed",
 				"focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
@@ -88,7 +89,7 @@
 			onmouseleave={(e) => e.currentTarget.style.backgroundColor = 'oklch(27% 0.12 256)'}
 			aria-label="Search"
 		>
-			{isSearching ? 'Searching...' : 'Search'}
+			{isSearching ? '...' : m.quick_filter_search_button()}
 		</button>
 	</div>
 </div>

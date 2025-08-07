@@ -1,6 +1,5 @@
 <script lang="ts">
-	import ListingCard from './ListingCard.svelte';
-	import ConversionListingCard from './ConversionListingCard.svelte';
+	import ProductCard from './ProductCard.svelte';
 	import InfiniteScroll from '$lib/components/ui/InfiniteScroll.svelte';
 	// import VirtualGrid from '$lib/components/ui/VirtualGrid.svelte';
 	import { getLoadingStrategy } from '$lib/utils/lazy-loading';
@@ -186,17 +185,13 @@
 			{:else}
 				<!-- Regular responsive grid -->
 				<div 
-					class="grid gap-2 md:gap-3"
+					class="grid gap-2"
 					style="grid-template-columns: repeat({columns}, minmax(0, 1fr));"
 					role="list"
 				>
 					{#each transformedListings as listing, index (listing.id)}
 						<div role="listitem">
-							{#if useConversionCard}
-								<ConversionListingCard {...listing} eagerLoading={index < eagerLoadCount} />
-							{:else}
-								<ListingCard {...listing} eagerLoading={index < eagerLoadCount} />
-							{/if}
+							<ProductCard {...listing} eagerLoading={index < eagerLoadCount} />
 						</div>
 					{/each}
 				</div>

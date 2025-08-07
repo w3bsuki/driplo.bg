@@ -2,7 +2,7 @@
 	// import { page } from '$app/stores'; // unused
 	import { Building2, Globe, Instagram, Facebook, Twitter, MapPin, Calendar, Star, Package, ExternalLink, Check } from 'lucide-svelte';
 	import type { PageData } from './$types';
-	import ListingCard from '$lib/components/listings/ListingCard.svelte';
+	import ProductCard from '$lib/components/listings/ProductCard.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
 	interface Props {
@@ -217,7 +217,7 @@
 			{#if listings.length > 0}
 				<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
 					{#each listings as listing}
-						<ListingCard {listing} />
+						<ProductCard {...listing} />
 					{/each}
 				</div>
 

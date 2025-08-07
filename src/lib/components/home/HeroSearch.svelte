@@ -23,6 +23,7 @@
 	import TrendingSearches from '$lib/components/search/TrendingSearches.svelte';
 	import type { Category } from '$lib/types';
 	import { onMount } from 'svelte';
+	import { navigation } from '$lib/stores/navigation.svelte';
 	import {
 		header_categories,
 		browse_search_placeholder,
@@ -138,6 +139,7 @@
 		const observer = new IntersectionObserver(
 			([entry]) => {
 				isSticky = !entry.isIntersecting;
+				// Note: Global hero observer in +layout.svelte handles navigation.setInHeroSection
 			},
 			{ threshold: 0, rootMargin: INTERSECTION_ROOT_MARGIN }
 		);
@@ -286,10 +288,14 @@
 	
 	function toggleCategoryDropdown() {
 		isCategoryDropdownOpen = !isCategoryDropdownOpen;
+		// Notify navigation store about dropdown state
+		navigation.setCategoryDropdownOpen(isCategoryDropdownOpen);
 	}
 	
 	function closeCategoryDropdown() {
 		isCategoryDropdownOpen = false;
+		// Notify navigation store about dropdown state
+		navigation.setCategoryDropdownOpen(false);
 	}
 	
 	function handleCategorySelect(categorySlug: string) {
@@ -303,7 +309,7 @@
 	}
 </script>
 
-<section bind:this={heroRef} class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6">
+<section bind:this={heroRef} data-hero-search class="relative bg-gradient-to-b from-blue-50 to-white py-4 md:py-6">
 	<div class="container px-3 md:px-4">
 		<div class="max-w-3xl mx-auto">
 			<!-- Mobile-Optimized Search Container -->
@@ -367,18 +373,17 @@
 								autocomplete="off"
 							/>
 							
-							<!-- Search Button - Bigger on Mobile -->
+							<!-- Search Button - Hidden on Mobile -->
 							<button
 								onclick={handleSearch}
 								disabled={isLoading}
-								class="p-2.5 md:p-2 hover:bg-gray-100 rounded-lg md:rounded-sm transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+								class="hidden md:block p-2 hover:bg-gray-100 rounded-sm transition-colors duration-100 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
 								aria-label={quick_filter_search_button()}
 							>
 								{#if isLoading}
-									<Loader2 class="h-5 w-5 md:h-4 md:w-4 animate-spin text-gray-600" />
+									<Loader2 class="h-4 w-4 animate-spin text-gray-600" />
 								{:else}
-									<Search class="h-5 w-5 md:h-4 md:w-4 text-gray-600 hidden md:block" />
-									<span class="text-base md:hidden">→</span>
+									<Search class="h-4 w-4 text-gray-600" />
 								{/if}
 							</button>
 						</div>

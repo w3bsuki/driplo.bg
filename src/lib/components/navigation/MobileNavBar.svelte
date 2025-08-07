@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { Home, Heart, Search, Plus, User } from 'lucide-svelte';
+	import { Heart, Search, Plus, User, MessageCircle } from 'lucide-svelte';
 	import MobileNavItem from './MobileNavItem.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { cn } from '$lib/utils';
+	import { navigation } from '$lib/stores/navigation.svelte';
 
 	interface Props {
 		class?: string;
@@ -11,17 +12,20 @@
 	
 	let { class: className = '' }: Props = $props();
 
-	// Check if navbar should be visible
-	const HIDDEN_PATHS = ['/orders', '/wishlist', '/checkout', '/messages', '/settings', '/profile/edit', '/onboarding'];
-	const isVisible = $derived(!HIDDEN_PATHS.some(path => $page.url.pathname.startsWith(path)));
+	// Check if navbar should be visible based on path
+	const HIDDEN_PATHS = ['/orders', '/checkout', '/messages', '/settings', '/profile/edit', '/onboarding'];
+	const isPathVisible = $derived(!HIDDEN_PATHS.some(path => $page.url.pathname.startsWith(path)));
+	
+	// Combine path visibility with smart navigation state
+	const isVisible = $derived(isPathVisible && navigation.shouldShowBottomNav);
 
 	// Always show consistent nav items - no conditional rendering based on page
 
 	// Check if a route is active
 	const isActive = (href: string) => {
-		if (href === '/') return $page.url.pathname === '/' || $page.url.pathname === '/en' || $page.url.pathname === '/bg';
 		if (href === '/profile') return $page.url.pathname.startsWith('/profile');
 		if (href === '/browse') return $page.url.pathname.startsWith('/browse');
+		if (href === '/messages') return $page.url.pathname.startsWith('/messages');
 		return $page.url.pathname === href;
 	};
 </script>
@@ -39,16 +43,16 @@
 >
 	<div class="flex items-center justify-around px-2 py-0.5">
 		<MobileNavItem 
-			href="/" 
-			icon={Home} 
-			label={m.header_home()}
-			active={isActive('/')}
+			href="/messages" 
+			icon={MessageCircle} 
+			label={m.nav_messages()}
+			active={isActive('/messages')}
 		/>
 		
 		<MobileNavItem 
 			href="/browse" 
 			icon={Search} 
-			label="Search"
+			label={m.nav_search()}
 			active={isActive('/browse')}
 		/>
 		
@@ -70,7 +74,7 @@
 		<MobileNavItem 
 			href="/profile" 
 			icon={User} 
-			label="Profile"
+			label={m.nav_profile()}
 			active={isActive('/profile')}
 		/>
 	</div>

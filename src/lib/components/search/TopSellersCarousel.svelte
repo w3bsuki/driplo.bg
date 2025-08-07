@@ -2,6 +2,7 @@
 	import { ChevronLeft, ChevronRight, Star } from 'lucide-svelte';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
+	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Seller {
 		id: string;
@@ -46,7 +47,7 @@
 	}
 	
 	onMount(() => {
-		const interval = setInterval(next, 5000);
+		const interval = setInterval(next, 7000); // Slower timing
 		return () => clearInterval(interval);
 	});
 </script>
@@ -56,11 +57,11 @@
 		<div class="flex items-center justify-center gap-2 mb-2">
 			<Star class="h-5 w-5 text-yellow-500 fill-current" />
 			<h1 class="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-gray-900">
-				Top Sellers This Week
+				{m.home_top_sellers_title()}
 			</h1>
 			<Star class="h-5 w-5 text-yellow-500 fill-current" />
 		</div>
-		<p class="text-sm text-gray-600">Discover fashion from the best sellers on our platform</p>
+		<p class="text-sm text-gray-600">{m.home_top_sellers_description()}</p>
 	</div>
 	
 	<div class="flex items-center justify-center gap-4">
@@ -73,11 +74,11 @@
 		</button>
 		
 		<div class="flex items-center gap-3 sm:gap-4 md:gap-6">
-			{#each visibleSellers() as seller}
+			{#each visibleSellers() as seller (seller.id)}
 				<button
 					onclick={() => onSellerClick(seller.username)}
 					class="group cursor-pointer w-20 sm:w-24 md:w-28 flex-shrink-0"
-					in:fade={{ duration: 300 }}
+					in:fade={{ duration: 500 }}
 				>
 					<div class="flex flex-col items-center">
 						<div class="relative mb-2">

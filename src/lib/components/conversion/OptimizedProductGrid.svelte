@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { cn } from '$lib/utils';
-	import ConversionOptimizedListingCard from './ConversionOptimizedListingCard.svelte';
+	import ProductCard from '$lib/components/listings/ProductCard.svelte';
 	import { Loader2, Grid3X3, List } from 'lucide-svelte';
 	
 	interface Product {
@@ -146,10 +146,10 @@
 			)}
 		>
 			{#each visibleProducts as product, index}
-				<ConversionOptimizedListingCard
+				<ProductCard
 					{...product}
 					eagerLoading={index < 8}
-					class="animate-fade-in"
+					className="animate-fade-in"
 					style="animation-delay: {index * 50}ms"
 				/>
 			{/each}

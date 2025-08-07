@@ -64,17 +64,17 @@
 	<div class="relative bg-white rounded-sm border border-gray-200/60 p-4">
 		<button 
 			onclick={() => hasImages && openFullscreenGallery()}
-			class="relative aspect-square overflow-hidden rounded-sm bg-gray-50 w-full group cursor-zoom-in max-w-lg mx-auto block"
+			class="relative aspect-[4/5] overflow-hidden rounded-sm bg-gray-50 w-full group cursor-zoom-in max-w-lg mx-auto block"
 			disabled={!hasImages}
 		>
 			{#if hasImages && images[currentImageIndex]}
-				<Image
+				<img
 					src={images[currentImageIndex]}
 					alt={title}
-					class="w-full h-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-					objectFit="contain"
+					class="w-full h-full transition-transform duration-200 group-hover:scale-[1.02]"
+					style="object-fit: contain !important;"
 					width={512}
-					height={512}
+					height={640}
 					loading="eager"
 				/>
 			{:else}

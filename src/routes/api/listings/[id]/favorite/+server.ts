@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ params, cookies }) => {
 		// Check if listing exists
 		const { data: listing, error: listingError } = await supabase
 			.from('listings')
-			.select('id, title, seller_id')
+			.select('id, title, user_id, seller_id, like_count')
 			.eq('id', listingId)
 			.single();
 
@@ -69,6 +69,20 @@ export const POST: RequestHandler = async ({ params, cookies }) => {
 			return json({ error: 'Failed to add to favorites' }, { status: 500 });
 		}
 
+		// Get the updated like_count (trigger has already updated it)
+		const { data: updatedListing, error: fetchError } = await supabase
+			.from('listings')
+			.select('like_count')
+			.eq('id', listingId)
+			.single();
+
+		if (fetchError) {
+			logger.error('Error fetching updated like count', { 
+				listing_id: listingId,
+				error: fetchError.message 
+			});
+		}
+
 		logger.info('Listing favorited', { 
 			user_id: user.id, 
 			listing_id: listingId,
@@ -77,7 +91,8 @@ export const POST: RequestHandler = async ({ params, cookies }) => {
 
 		return json({ 
 			success: true, 
-			message: 'Added to favorites'
+			message: 'Added to favorites',
+			likeCount: updatedListing?.like_count || 1
 		});
 
 	} catch (error) {
@@ -139,6 +154,20 @@ export const DELETE: RequestHandler = async ({ params, cookies }) => {
 			return json({ error: 'Failed to remove from favorites' }, { status: 500 });
 		}
 
+		// Get the updated like_count (trigger has already updated it)
+		const { data: updatedListing, error: fetchError } = await supabase
+			.from('listings')
+			.select('like_count')
+			.eq('id', listingId)
+			.single();
+
+		if (fetchError) {
+			logger.error('Error fetching updated like count', { 
+				listing_id: listingId,
+				error: fetchError.message 
+			});
+		}
+
 		logger.info('Listing unfavorited', { 
 			user_id: user.id, 
 			listing_id: listingId 
@@ -146,7 +175,8 @@ export const DELETE: RequestHandler = async ({ params, cookies }) => {
 
 		return json({ 
 			success: true, 
-			message: 'Removed from favorites'
+			message: 'Removed from favorites',
+			likeCount: updatedListing?.like_count || 0
 		});
 
 	} catch (error) {

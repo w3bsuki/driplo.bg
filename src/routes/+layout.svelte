@@ -1,7 +1,8 @@
-<script>
+<script lang="ts">
 	import '../app.css';
 	import Header from '$lib/components/layout/Header.svelte';
 	import MobileNavBar from '$lib/components/navigation/MobileNavBar.svelte';
+	import MobileCategoryMenu from '$lib/components/navigation/MobileCategoryMenu.svelte';
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import StickySearchBelowNav from '$lib/components/search/StickySearchBelowNav.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
@@ -18,6 +19,7 @@
 	import { onboarding } from '$lib/stores/onboarding.svelte.ts';
 	import { browser, dev } from '$app/environment';
 	import { initWebVitals } from '$lib/utils/web-vitals';
+	import { navigation } from '$lib/stores/navigation.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 
 	let { data } = $props();
@@ -27,13 +29,9 @@
 	// Initialize query client
 	const queryClient = createQueryClient();
 	
-	// Track scroll position for landing page
-	let showMobileNavOnLanding = false;
-	
 	// Define pages where bottom nav should be hidden
 	const hiddenPaths = [
 		'/orders',
-		'/wishlist',
 		'/checkout',
 		'/messages',
 		'/settings',
@@ -105,18 +103,41 @@
 			});
 		}
 		
-		// Handle scroll for showing mobile nav on landing page
-		const handleScroll = () => {
-			if ($page.url.pathname === '/') {
-				// Show nav immediately after first scroll
-				showMobileNavOnLanding = window.scrollY > 50;
+		// Set up intersection observer for hero section detection
+		let observer: IntersectionObserver | null = null;
+		
+		const setupHeroObserver = () => {
+			// Look for the hero search section
+			const heroSection = document.querySelector('[data-hero-search]');
+			if (!heroSection) {
+				// If no hero section, show the navbar
+				navigation.setInHeroSection(false);
+				return;
 			}
+			
+			observer = new IntersectionObserver(
+				([entry]) => {
+					// When hero is visible, hide bottom nav
+					// When hero is not visible, show bottom nav
+					navigation.setInHeroSection(entry.isIntersecting);
+				},
+				{ 
+					threshold: 0.1, // Trigger when 10% of hero is visible
+					rootMargin: '0px 0px -100px 0px' // Adjust for better UX
+				}
+			);
+			
+			observer.observe(heroSection);
 		};
 		
-		window.addEventListener('scroll', handleScroll);
+		// Small delay to ensure DOM is ready
+		const timeoutId = setTimeout(() => {
+			setupHeroObserver();
+		}, 100);
 		
 		return () => {
-			window.removeEventListener('scroll', handleScroll);
+			clearTimeout(timeoutId);
+			if (observer) observer.disconnect();
 			if (unsubscribe) unsubscribe();
 		};
 	});
@@ -150,6 +171,9 @@
 		{#if !shouldHideMobileNav}
 			<MobileNavBar />
 		{/if}
+		
+		<!-- Mobile Category Menu -->
+		<MobileCategoryMenu categories={data.categories} />
 	</div>
 
 	<!-- Sticky search below navbar -->

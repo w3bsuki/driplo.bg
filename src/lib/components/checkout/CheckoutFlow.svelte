@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { formatCurrency } from '$lib/utils/currency';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 	import { X, CreditCard, Lock, Truck, Check, ChevronRight, ChevronLeft } from 'lucide-svelte';
 	import { fade, scale, slide } from 'svelte/transition';
 	import { toast } from 'svelte-sonner';

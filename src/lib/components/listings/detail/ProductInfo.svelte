@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { Heart, Share2, Eye } from 'lucide-svelte';
+	import { Heart, Share2 } from 'lucide-svelte';
 	import { formatCurrency } from '$lib/utils/currency';
+	import { getLocale } from '$lib/paraglide/runtime.js';
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
@@ -57,9 +58,9 @@
 		</div>
 		
 		<div class="flex items-center gap-3">
-			<span class="text-xl font-bold text-gray-900">{formatCurrency(listing.price)}</span>
+			<span class="text-xl font-bold text-gray-900">{formatCurrency(listing.price, getLocale())}</span>
 			{#if listing.original_price && listing.original_price > listing.price}
-				<span class="text-sm text-gray-500 line-through">{formatCurrency(listing.original_price)}</span>
+				<span class="text-sm text-gray-500 line-through">{formatCurrency(listing.original_price, getLocale())}</span>
 				<Badge variant="destructive" class="text-xs px-1.5 py-0.5">
 					{Math.round((1 - listing.price / listing.original_price) * 100)}% off
 				</Badge>
@@ -67,18 +68,26 @@
 		</div>
 
 		<!-- Quick info badges -->
-		<div class="flex items-center gap-2 flex-wrap">
+		<div class="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 pb-1">
 			{#if listing.condition}
-				<ConditionBadge condition={listing.condition} size="md" />
+				<div class="flex-shrink-0">
+					<ConditionBadge condition={listing.condition} size="md" />
+				</div>
 			{/if}
 			{#if listing.size}
-				<SizeBadge size={listing.size} badgeSize="md" />
+				<div class="flex-shrink-0">
+					<SizeBadge size={listing.size} badgeSize="md" />
+				</div>
 			{/if}
 			{#if listing.category}
-				<CategoryBadge category={listing.category.name} size="md" />
+				<div class="flex-shrink-0">
+					<CategoryBadge category={listing.category.name} size="md" />
+				</div>
 			{/if}
 			{#if listing.brand}
-				<BrandBadge brand={listing.brand} size="md" isVerified={false} />
+				<div class="flex-shrink-0">
+					<BrandBadge brand={listing.brand} size="md" isVerified={false} />
+				</div>
 			{/if}
 		</div>
 
@@ -142,15 +151,6 @@
 					<span class="text-sm text-gray-500">Listed</span>
 					<span class="text-sm text-gray-900 font-medium">{new Date(listing.created_at).toLocaleDateString()}</span>
 				</div>
-				{#if listing.view_count}
-					<div class="flex justify-between items-center py-2 border-b border-gray-100">
-						<span class="text-sm text-gray-500">Views</span>
-						<span class="text-sm text-gray-900 font-medium flex items-center gap-1">
-							<Eye class="w-3 h-3" />
-							{listing.view_count}
-						</span>
-					</div>
-				{/if}
 			</div>
 			
 			{#if listing.tags && listing.tags.length > 0}
@@ -172,7 +172,7 @@
 						<p class="text-sm font-medium text-gray-900">Standard Shipping</p>
 						<p class="text-sm text-gray-600">3-5 business days</p>
 						<p class="text-sm font-medium text-gray-900 mt-1">
-							{listing.shipping_price > 0 ? formatCurrency(listing.shipping_price) : 'Free'}
+							{listing.shipping_price > 0 ? formatCurrency(listing.shipping_price, getLocale()) : 'Free'}
 						</p>
 					</div>
 				</div>

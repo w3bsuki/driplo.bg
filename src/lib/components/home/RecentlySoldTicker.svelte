@@ -35,22 +35,22 @@
 
 <div class="relative bg-gradient-to-r from-green-50 to-blue-50 border-y border-gray-200" style="z-index: 1;">
 	<div class="container px-4 py-2">
-		<div class="flex items-center justify-center gap-3 text-sm">
-			<div class="flex items-center gap-1.5 text-green-600">
+		<div class="flex items-center justify-center gap-2 md:gap-3 text-sm whitespace-nowrap overflow-hidden">
+			<div class="flex items-center gap-1 md:gap-1.5 text-green-600 flex-shrink-0">
 				<Package class="h-4 w-4" />
-				<span class="font-semibold">Just Sold!</span>
+				<span class="font-semibold text-xs md:text-sm">Just Sold!</span>
 			</div>
 			
-			<div class="flex items-center gap-2 transition-all duration-300 {isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}">
-				<span class="font-medium text-gray-900">{currentSale.item}</span>
-				<span class="text-gray-500">in</span>
-				<span class="text-gray-700">{currentSale.location}</span>
-				<span class="text-gray-500">•</span>
-				<span class="text-gray-600">{currentSale.time}</span>
-				<span class="font-semibold text-green-600">{currentSale.price}</span>
+			<div class="flex items-center gap-1 md:gap-2 transition-all duration-300 min-w-0 {isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-1'}">
+				<span class="font-medium text-gray-900 truncate text-xs md:text-sm">{currentSale.item}</span>
+				<span class="text-gray-500 text-xs md:text-sm flex-shrink-0">in</span>
+				<span class="text-gray-700 text-xs md:text-sm flex-shrink-0">{currentSale.location}</span>
+				<span class="text-gray-500 text-xs md:text-sm flex-shrink-0">•</span>
+				<span class="text-gray-600 text-xs md:text-sm flex-shrink-0">{currentSale.time}</span>
+				<span class="font-semibold text-green-600 text-xs md:text-sm flex-shrink-0">{currentSale.price}</span>
 			</div>
 			
-			<div class="hidden md:flex items-center gap-1 text-orange-600">
+			<div class="hidden lg:flex items-center gap-1 text-orange-600 flex-shrink-0">
 				<TrendingUp class="h-4 w-4" />
 				<span class="text-xs">High demand</span>
 			</div>

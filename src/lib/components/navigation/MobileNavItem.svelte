@@ -71,9 +71,6 @@
 		</span>
 	{/if}
 	
-	{#if active && variant !== 'primary'}
-		<div class="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-3 h-0.5 bg-gray-900 rounded-full"></div>
-	{/if}
 </a>
 
 <style>

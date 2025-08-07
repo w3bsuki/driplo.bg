@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
+	import { X } from 'lucide-svelte';
 	import CategoryAccordion from './CategoryAccordion.svelte';
 	import TrendingSearches from './TrendingSearches.svelte';
+	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
 		isOpen: boolean;
@@ -10,6 +12,7 @@
 		onCategoryToggle: (slug: string) => void;
 		onCategorySelect: (category: string, subcategory?: string) => void;
 		onTrendingClick: (term: string) => void;
+		onClose?: () => void;
 	}
 	
 	let { 
@@ -18,7 +21,8 @@
 		expandedCategories,
 		onCategoryToggle,
 		onCategorySelect,
-		onTrendingClick
+		onTrendingClick,
+		onClose
 	}: Props = $props();
 	
 	let dropdownRef: HTMLDivElement;
@@ -26,31 +30,31 @@
 	// Categories with subcategories
 	const categoryTree = [
 		{
-			name: 'Women',
+			name: m.category_women(),
 			slug: 'women',
 			subcategories: [
-				{ name: 'Dresses', slug: 'dresses' },
-				{ name: 'Tops', slug: 'tops' },
-				{ name: 'Jeans', slug: 'jeans' },
-				{ name: 'Jackets', slug: 'jackets' },
-				{ name: 'Shoes', slug: 'shoes' },
-				{ name: 'Bags', slug: 'bags' }
+				{ name: m.subcategory_dresses(), slug: 'dresses' },
+				{ name: m.subcategory_tops(), slug: 'tops' },
+				{ name: m.subcategory_jeans(), slug: 'jeans' },
+				{ name: m.subcategory_jackets(), slug: 'jackets' },
+				{ name: m.subcategory_shoes(), slug: 'shoes' },
+				{ name: m.subcategory_bags(), slug: 'bags' }
 			]
 		},
 		{
-			name: 'Men',
+			name: m.category_men(),
 			slug: 'men',
 			subcategories: [
-				{ name: 'T-Shirts', slug: 't-shirts' },
-				{ name: 'Shirts', slug: 'shirts' },
-				{ name: 'Jeans', slug: 'jeans' },
-				{ name: 'Jackets', slug: 'jackets' },
+				{ name: m.subcategory_tshirts(), slug: 't-shirts' },
+				{ name: m.men_shirts(), slug: 'shirts' },
+				{ name: m.subcategory_jeans(), slug: 'jeans' },
+				{ name: m.subcategory_jackets(), slug: 'jackets' },
 				{ name: 'Sneakers', slug: 'sneakers' },
-				{ name: 'Accessories', slug: 'accessories' }
+				{ name: m.subcategory_accessories(), slug: 'accessories' }
 			]
 		},
 		{
-			name: 'Designer',
+			name: m.category_designer(),
 			slug: 'designer',
 			subcategories: [
 				{ name: 'Gucci', slug: 'gucci' },
@@ -62,7 +66,7 @@
 			]
 		},
 		{
-			name: 'Shoes',
+			name: m.subcategory_shoes(),
 			slug: 'shoes',
 			subcategories: [
 				{ name: 'Sneakers', slug: 'sneakers' },
@@ -74,7 +78,7 @@
 			]
 		},
 		{
-			name: 'Bags',
+			name: m.subcategory_bags(),
 			slug: 'bags',
 			subcategories: [
 				{ name: 'Handbags', slug: 'handbags' },
@@ -88,21 +92,36 @@
 	];
 	
 	const trendingSearches = [
-		'Vintage Levi\'s',
-		'Designer bags',
-		'Nike Air Max',
-		'Zara dresses'
+		m.search_vintage_levis(),
+		m.search_designer_bags(),
+		m.search_nike_trainers(),
+		m.search_zara_dress()
 	];
 </script>
 
 {#if isOpen}
 	<div 
 		bind:this={dropdownRef}
-		class="absolute top-full -mt-px left-0 right-0 bg-white rounded-b-2xl shadow-xl border-b-2 border-x-2 max-h-[400px] overflow-y-auto {isFocused ? 'border-gray-900' : 'border-gray-200'}"
+		data-search-dropdown
+		class="absolute top-full -mt-px left-0 right-0 bg-white rounded-b-lg shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto"
 		style="z-index: 20;"
 		transition:fly={{ y: -10, duration: 200 }}
+		onclick={(e) => e.stopPropagation()}
 	>
-		<div class="p-3">
+		<!-- Close Button -->
+		{#if onClose}
+			<div class="flex justify-end p-2 pb-0">
+				<button
+					onclick={onClose}
+					class="p-1 hover:bg-gray-100 rounded-full transition-colors"
+					aria-label="Close dropdown"
+				>
+					<X class="h-4 w-4 text-gray-400" />
+				</button>
+			</div>
+		{/if}
+		
+		<div class="p-3 {onClose ? 'pt-0' : ''}">
 			<!-- Compact Category List -->
 			<div class="space-y-1">
 				{#each categoryTree as category}

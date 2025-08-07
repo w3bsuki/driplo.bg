@@ -3,13 +3,9 @@
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
 	import BrandBadge from '$lib/components/ui/BrandBadge.svelte';
-	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
-	import * as m from '$lib/paraglide/messages.js';
-	import { localizeHref } from '$lib/paraglide/runtime.js';
-	
-	// Constants
-	const PRICE_CURRENCY = 'GBP';
-	const PRICE_LOCALE = 'en-GB';
+		import * as m from '$lib/paraglide/messages.js';
+	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
+	import { formatCurrency } from '$lib/utils/currency';
 	const AVATAR_GRADIENT_COLORS = [
 		'from-blue-500 to-purple-500',
 		'from-green-500 to-blue-500', 
@@ -72,19 +68,10 @@
 		return img;
 	});
 	
-	const formattedPrice = $derived(formatPrice(price));
+	const formattedPrice = $derived(formatCurrency(price, getLocale()));
 	const avatarGradient = $derived(getAvatarGradient(seller?.username || 'anonymous'));
 	
 	// Helper functions
-	function formatPrice(price: number): string {
-		return new Intl.NumberFormat(PRICE_LOCALE, {
-			style: 'currency',
-			currency: PRICE_CURRENCY,
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 2
-		}).format(price);
-	}
-
 	function getAvatarGradient(username: string): string {
 		const index = username.charCodeAt(0) % AVATAR_GRADIENT_COLORS.length;
 		return AVATAR_GRADIENT_COLORS[index];
@@ -145,7 +132,7 @@
 	}
 </script>
 
-<article class="relative bg-white rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-fast group product-card shadow-sm hover:shadow-md">
+<article class="relative bg-white rounded-md border border-gray-200 hover:border-gray-300 transition-all duration-200 group shadow-sm hover:shadow-md">
 	<a 
 		href={localizeHref(`/listings/${id}`)} 
 		class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-md no-underline"
@@ -156,7 +143,7 @@
 				<img
 					src={primaryImageUrl()}
 					alt={title}
-					class="absolute inset-0 h-full w-full object-cover transition-transform duration-base group-hover:scale-105"
+					class="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
 					loading={eagerLoading ? 'eager' : 'lazy'}
 					onerror={handleImageError}
 					sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
@@ -175,8 +162,7 @@
 			<button
 				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-2 right-2 w-8 h-8 rounded-md bg-white/95 backdrop-blur-sm border border-gray-200 hover:border-gray-300 transition-all duration-fast flex items-center justify-center active:scale-95 shadow-sm",
-					"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+					"absolute top-2 right-2 w-8 h-8 rounded-md bg-white/90 backdrop-blur-sm border border-gray-200 hover:border-gray-300 transition-colors flex items-center justify-center",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
 				aria-label={liked ? m.listing_unlike() : m.listing_like()}
@@ -192,54 +178,70 @@
 			
 			{#if condition}
 				<div class="absolute top-2 left-2">
-					<ConditionBadge {condition} size="sm" />
+					{#if condition === 'new_with_tags'}
+						<div class="bg-green-500 text-white px-2 py-0.5 rounded text-xs font-semibold">
+							NEW
+						</div>
+					{:else if condition === 'like_new'}
+						<div class="bg-blue-500 text-white px-2 py-0.5 rounded text-xs font-semibold">
+							LIKE NEW
+						</div>
+					{:else if condition === 'very_good'}
+						<div class="bg-purple-500 text-white px-2 py-0.5 rounded text-xs font-semibold">
+							VERY GOOD
+						</div>
+					{:else if condition === 'good'}
+						<div class="bg-yellow-500 text-white px-2 py-0.5 rounded text-xs font-semibold">
+							GOOD
+						</div>
+					{:else if condition === 'fair'}
+						<div class="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-semibold">
+							FAIR
+						</div>
+					{/if}
 				</div>
 			{/if}
 		</div>
 		
-		<div class="p-3 space-y-1">
-			<div class="flex items-start justify-between gap-2">
-				<div class="flex-1 min-w-0">
-					<h3 class="text-base font-medium text-gray-900 truncate leading-snug">{title}</h3>
-					{#if brand}
-						<p class="text-sm text-gray-600 leading-snug">{brand}</p>
-					{/if}
-				</div>
-				<p class="text-base font-semibold text-gray-900 tabular-nums" aria-label={m.listing_price({ price: formattedPrice })}>
-					{formattedPrice}
-				</p>
+		<div class="p-3 space-y-1.5">
+			<!-- Title -->
+			<h3 class="text-sm font-medium text-gray-900 line-clamp-1">{title}</h3>
+			
+			<!-- Brand and Size -->
+			<div class="flex items-center gap-2 text-xs text-gray-600">
+				{#if brand}
+					<span class="truncate">{brand}</span>
+				{/if}
+				{#if size}
+					{#if brand}•{/if}
+					<span class="font-medium">Size {size}</span>
+				{/if}
 			</div>
 			
-			{#if size}
-				<p class="text-sm text-gray-500 leading-snug">{m.listing_size({ size })}</p>
-			{/if}
+			<!-- Price -->
+			<p class="text-base font-semibold text-gray-900">{formattedPrice}</p>
 			
-			<div class="flex items-center gap-1.5 pt-1">
-				{#if seller?.avatar_url}
-					<img
-						src={seller?.avatar_url}
-						alt=""
-						class="h-5 w-5 rounded-md object-cover"
-						aria-hidden="true"
-					/>
-				{:else}
-					<div 
-						class="h-5 w-5 rounded-md bg-gradient-to-br {avatarGradient} flex items-center justify-center"
-						aria-hidden="true"
-					>
-						<span class="text-xs font-medium text-white">
-							{seller?.username?.charAt(0).toUpperCase() || 'A'}
-						</span>
-					</div>
-				{/if}
-				<span class="text-sm text-gray-600 truncate">{seller?.username || 'Anonymous'}</span>
-				{#if seller?.account_type === 'brand'}
-					<BrandBadge size="xs" isVerified={seller?.is_verified} showText={false} />
-				{/if}
+			<!-- Seller -->
+			<div class="flex items-center justify-between text-xs">
+				<div class="flex items-center gap-1 text-gray-600">
+					{#if seller?.avatar_url}
+						<img src={seller.avatar_url} alt="" class="h-4 w-4 rounded-full" />
+					{:else}
+						<div class="h-4 w-4 rounded-full bg-gradient-to-br {avatarGradient} flex items-center justify-center">
+							<span class="text-[10px] text-white font-medium">
+								{seller?.username?.charAt(0).toUpperCase() || 'A'}
+							</span>
+						</div>
+					{/if}
+					<span>{seller?.username || 'Anonymous'}</span>
+					{#if seller?.seller_rating}
+						<span class="text-yellow-500">★{seller.seller_rating}</span>
+					{/if}
+				</div>
 				{#if likeCount > 0}
-					<span class="text-sm text-gray-500 ml-auto flex items-center gap-0.5 tabular-nums" aria-live="polite">
+					<span class="flex items-center gap-0.5 text-gray-500">
+						<Heart class="h-3 w-3 fill-current" />
 						{likeCount}
-						<Heart class="h-3 w-3 fill-current" aria-hidden="true" />
 					</span>
 				{/if}
 			</div>

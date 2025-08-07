@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { User as UserIcon, ChevronDown } from 'lucide-svelte';
+	import { User as UserIcon, ChevronDown, Menu } from 'lucide-svelte';
 	import { DropdownMenu } from '$lib/components/ui';
 	import { goto, invalidateAll } from '$app/navigation';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
@@ -12,6 +12,7 @@
 	import ProfileDropdownContent from './ProfileDropdownContent.svelte';
 	import NotificationDropdown from '$lib/components/notifications/NotificationDropdown.svelte';
 	import { onMount, onDestroy } from 'svelte';
+	import { navigation } from '$lib/stores/navigation.svelte';
 	
 	interface Props {
 		supabase: SupabaseClient<Database>;
@@ -79,17 +80,33 @@
 
 <header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-white">
 	<div class="container flex h-14 md:h-16 items-center gap-3 px-4">
-		<!-- Logo -->
-		<a href="/" class="flex items-center" aria-label="Driplo Home">
-			<DriploLogo size="sm" className="md:hidden" />
-			<DriploLogo size="md" className="hidden md:flex" />
+		<!-- Mobile: Hamburger Menu + Logo -->
+		<div class="flex items-center -gap-1 md:hidden">
+			<!-- Hamburger Menu Button -->
+			<button
+				onclick={() => navigation.toggleMobileMenu()}
+				class="p-2 -ml-2 rounded-md hover:bg-gray-50 transition-colors duration-fast focus:outline-none focus:ring-2 focus:ring-blue-500"
+				aria-label={m.header_menu()}
+			>
+				<Menu class="h-5 w-5 text-gray-700" />
+			</button>
+			
+			<!-- Logo - No emoji on mobile, closer to hamburger -->
+			<a href="/" class="flex items-center -ml-1" aria-label="Driplo Home">
+				<DriploLogo size="sm" showEmoji={false} />
+			</a>
+		</div>
+		
+		<!-- Desktop Logo -->
+		<a href="/" class="hidden md:flex items-center" aria-label="Driplo Home">
+			<DriploLogo size="md" />
 		</a>
 		
 		<!-- Mobile spacer -->
 		<div class="flex-1 md:hidden"></div>
 
 		<!-- Mobile Actions -->
-		<div class="flex items-center gap-1 md:hidden">
+		<div class="flex items-center gap-2 md:hidden">
 			<!-- Profile Dropdown -->
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger

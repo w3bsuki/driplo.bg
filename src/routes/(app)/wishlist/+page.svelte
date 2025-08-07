@@ -17,7 +17,7 @@
 		Tag,
 		AlertCircle
 	} from 'lucide-svelte'
-	import ListingCard from '$lib/components/listings/ListingCard.svelte'
+	import ProductCard from '$lib/components/listings/ProductCard.svelte'
 	import type { PageData } from './$types'
 	import { onMount } from 'svelte'
 	import { formatDistanceToNow } from 'date-fns'
@@ -355,7 +355,7 @@
 								</button>
 								
 								<!-- Listing Card -->
-								<ListingCard
+								<ProductCard
 									id={listing.id}
 									title={listing.title}
 									price={listing.price}
