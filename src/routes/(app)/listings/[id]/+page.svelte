@@ -6,12 +6,12 @@
 	import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
 	import ProductGallery from '$lib/components/listings/detail/ProductGallery.svelte';
 	import ProductInfo from '$lib/components/listings/detail/ProductInfo.svelte';
-	import SellerInfo from '$lib/components/listings/detail/SellerInfo.svelte';
 	import ProductActions from '$lib/components/listings/detail/ProductActions.svelte';
 	import RelatedProducts from '$lib/components/listings/detail/RelatedProducts.svelte';
 	import { onMount } from 'svelte';
 	import { listingStore } from '$lib/stores/listing.svelte.ts';
 	import { createListingContext } from '$lib/contexts/listing.svelte.ts';
+	import { translateCategory } from '$lib/utils/translate-category';
 
 	let { data }: { data: PageData } = $props();
 
@@ -114,7 +114,9 @@
 				{#if listing.category}
 					<BreadcrumbSeparator />
 					<BreadcrumbItem>
-						<BreadcrumbLink href="/browse?category={listing.category}">{listing.category}</BreadcrumbLink>
+						<BreadcrumbLink href="/browse?category={listing.category}">
+							{translateCategory(listing.category)}
+						</BreadcrumbLink>
 					</BreadcrumbItem>
 				{/if}
 				<BreadcrumbSeparator />
@@ -136,8 +138,6 @@
 				<div class="space-y-3">
 					<!-- Components use context, no props needed -->
 					<ProductInfo />
-
-					<SellerInfo />
 
 					<ProductActions 
 						onBuyNow={handleBuyNow}

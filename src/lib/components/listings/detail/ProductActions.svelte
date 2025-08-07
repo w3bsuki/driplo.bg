@@ -1,15 +1,17 @@
 <script lang="ts">
 	import { Heart, ShoppingBag } from 'lucide-svelte';
-	import { cn } from '$lib/utils';
-	import { formatCurrency } from '$lib/utils/currency';
 	import { goto } from '$app/navigation';
+	import Button from '$lib/components/ui/button.svelte';
+	import { Card, CardContent } from '$lib/components/ui/card';
+	import * as m from '$lib/paraglide/messages.js';
 	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
+	import MobileBottomBar from './sections/MobileBottomBar.svelte';
 
-	// Mix of context and props - context for listing data, props for specific UI behavior
+	// Props for specific UI behavior
 	let { 
 		onBuyNow = () => {},
 		checkoutFlowRef,
-		showStickyBar = true
+		showMobileBar = true
 	} = $props();
 
 	// Get context data
@@ -20,121 +22,55 @@
 	const canPurchase = $derived(!isOwner() && listing?.status !== 'sold');
 	const isSold = $derived(listing?.status === 'sold');
 
-	// Centralized button styling functions
-	const getLikeButtonClass = (variant: 'default' | 'compact') => {
-		const baseClasses = "transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-medium";
-		const sizeClasses = variant === 'compact' ? "p-2.5" : "py-2.5 px-4";
-		const layoutClasses = variant === 'compact' ? "" : "flex-1";
-		const activeClasses = isLiked() 
-			? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100" 
-			: "bg-gray-100 text-gray-600 hover:bg-gray-200";
-		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
-		const loadingClasses = isLikeLoading() ? "opacity-50 cursor-not-allowed" : "";
-		
-		return cn(baseClasses, sizeClasses, layoutClasses, activeClasses, scaleClasses, loadingClasses);
-	};
-
-	const getBuyButtonClass = (variant: 'default' | 'compact') => {
-		const baseClasses = "bg-primary text-white rounded-sm font-medium hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2";
-		const sizeClasses = variant === 'compact' ? "px-4 py-2" : "py-2.5 px-4";
-		const layoutClasses = variant === 'compact' ? "" : "flex-1";
-		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
-		
-		return cn(baseClasses, sizeClasses, layoutClasses, scaleClasses);
-	};
-
-	const getEditButtonClass = (variant: 'default' | 'compact') => {
-		const baseClasses = "bg-primary text-white rounded-sm font-medium hover:bg-primary/90 transition-all duration-200 text-sm";
-		const sizeClasses = variant === 'compact' ? "px-4 py-2" : "py-2.5 px-4";
-		const layoutClasses = variant === 'compact' ? "" : "flex-1";
-		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
-		
-		return cn(baseClasses, sizeClasses, layoutClasses, scaleClasses);
-	};
-
-	// Centralized event handlers
-	const handleLike = () => toggleLike();
+	// Event handlers
 	const handleBuy = () => onBuyNow();
 	const handleEdit = () => goto(`/listings/${listing?.id}/edit`);
 	const preloadCheckout = () => checkoutFlowRef?.preload();
 </script>
 
-<!-- Inline Action Buttons -->
-{#if canPurchase}
-	<div class="flex gap-2 mt-3">
-		<button
-			onclick={handleLike}
-			disabled={isLikeLoading()}
-			class={getLikeButtonClass('default')}
-		>
-			<Heart class={cn("w-4 h-4", isLiked() && "fill-current")} />
-			<span class="text-sm">{isLiked() ? "Liked" : "Like"}</span>
-		</button>
-		<button
-			onclick={handleBuy}
-			onmouseenter={preloadCheckout}
-			onfocus={preloadCheckout}
-			class={getBuyButtonClass('default')}
-		>
-			<ShoppingBag class="w-4 h-4" />
-			<span class="text-sm">Buy Now</span>
-		</button>
-	</div>
-{:else if isOwner()}
-	<div class="flex gap-2 mt-3">
-		<button
-			onclick={handleEdit}
-			class={getEditButtonClass('default')}
-		>
-			Edit Listing
-		</button>
-	</div>
-{:else if isSold}
-	<div class="mt-3">
-		<div class="bg-red-50 border border-red-200 rounded-sm py-2.5 px-4 text-center">
-			<span class="text-red-600 font-medium text-sm">This item has been sold</span>
-		</div>
-	</div>
-{/if}
-
-<!-- Sticky Bottom Bar -->
-{#if showStickyBar}
-	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-		<div class="max-w-7xl mx-auto flex items-center gap-2">
-			<!-- Price Info -->
-			<div class="flex-1">
-				<div class="text-base font-bold text-gray-900">{formatCurrency(listing?.price || 0)}</div>
-				<div class="text-xs text-gray-500">
-					{listing?.shipping_price > 0 ? `+ ${formatCurrency(listing.shipping_price)} shipping` : 'Free shipping'}
-				</div>
-			</div>
-			
-			<!-- Compact Action Buttons -->
-			{#if canPurchase}
-				<button
-					onclick={handleLike}
+<!-- Desktop Action Buttons -->
+<Card class="hidden md:block">
+	<CardContent class="p-4">
+		{#if canPurchase}
+			<div class="flex gap-2">
+				<Button
+					onclick={toggleLike}
 					disabled={isLikeLoading()}
-					class={getLikeButtonClass('compact')}
+					variant="outline"
+					class="flex-1 gap-2"
 				>
-					<Heart class={cn("w-5 h-5", isLiked() && "fill-current")} />
-				</button>
-				<button
+					<Heart class={isLiked() ? "h-4 w-4 fill-current" : "h-4 w-4"} />
+					{isLiked() ? m.liked() : m.like()}
+				</Button>
+				<Button
 					onclick={handleBuy}
 					onmouseenter={preloadCheckout}
 					onfocus={preloadCheckout}
-					class={getBuyButtonClass('compact')}
+					class="flex-1 gap-2"
 				>
-					<ShoppingBag class="w-4 h-4" />
-					<span class="text-sm">Buy Now</span>
-				</button>
-			{:else if isOwner()}
-				<button
-					onclick={handleEdit}
-					class={getEditButtonClass('compact')}
-				>
-					Edit Listing
-				</button>
-			{/if}
-		</div>
-	</div>
-{/if}
+					<ShoppingBag class="h-4 w-4" />
+					{m.buy_now()}
+				</Button>
+			</div>
+		{:else if isOwner()}
+			<Button
+				onclick={handleEdit}
+				class="w-full"
+			>
+				{m.edit_listing()}
+			</Button>
+		{:else if isSold}
+			<div class="rounded-md bg-muted px-4 py-3 text-center">
+				<p class="text-sm font-medium text-muted-foreground">
+					{m.item_sold()}
+				</p>
+			</div>
+		{/if}
+	</CardContent>
+</Card>
+
+<!-- Mobile Bottom Bar -->
+<MobileBottomBar 
+	{onBuyNow}
+	show={showMobileBar}
+/>
