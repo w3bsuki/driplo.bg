@@ -23,20 +23,20 @@
 
 {#if show && listing}
 	<div 
-		class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden"
+		class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-lg md:hidden"
 		transition:slide={{ duration: 200, axis: 'y' }}
 	>
-		<div class="px-3 py-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))]">
+		<div class="px-3 py-2 safe-area-pb">
 			<div class="flex items-center gap-2">
 				<!-- Title and Price Info - Compact -->
 				<div class="flex-1 min-w-0">
-					<div class="text-xs text-muted-foreground truncate">
+					<div class="text-[11px] text-muted-foreground truncate leading-tight">
 						{listing.title || ''}
 					</div>
-					<div class="text-base font-semibold text-foreground">
+					<div class="text-sm font-bold text-foreground">
 						{formatCurrency(listing.price || 0)}
 						{#if listing.shipping_price > 0}
-							<span class="text-xs font-normal text-muted-foreground ml-1">
+							<span class="text-[10px] font-normal text-muted-foreground ml-1">
 								+{formatCurrency(listing.shipping_price)}
 							</span>
 						{/if}
@@ -48,28 +48,28 @@
 					<Button
 						onclick={toggleLike}
 						disabled={isLikeLoading()}
-						variant="ghost"
+						variant="outline"
 						size="icon"
 						class={cn(
-							"h-9 w-9 shrink-0",
-							isLiked() && "text-red-500"
+							"h-8 w-8 shrink-0 border",
+							isLiked() && "text-red-500 border-red-200 bg-red-50"
 						)}
 					>
-						<Heart class={cn("h-5 w-5", isLiked() && "fill-current")} />
+						<Heart class={cn("h-4 w-4", isLiked() && "fill-current")} />
 					</Button>
 					<Button
 						onclick={onBuyNow}
 						size="sm"
-						class="gap-1.5 h-9 px-4"
+						class="gap-1 h-8 px-3 text-xs font-medium"
 					>
-						<ShoppingBag class="h-4 w-4" />
+						<ShoppingBag class="h-3.5 w-3.5" />
 						{m.buy_now()}
 					</Button>
 				{:else if isOwner()}
 					<Button
 						onclick={() => goto(`/listings/${listing.id}/edit`)}
 						size="sm"
-						class="gap-1.5 h-9"
+						class="gap-1 h-8 text-xs"
 					>
 						{m.edit_listing()}
 					</Button>
@@ -78,7 +78,7 @@
 						disabled
 						variant="secondary"
 						size="sm"
-						class="h-9"
+						class="h-8 text-xs"
 					>
 						{m.item_sold()}
 					</Button>
@@ -87,3 +87,9 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	.safe-area-pb {
+		padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+	}
+</style>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import AccordionSection from '$lib/components/ui/AccordionSection.svelte';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
+	import { getListingContext } from '$lib/contexts/listing.svelte';
 	
 	// Import modular components
 	import ProductHeader from './sections/ProductHeader.svelte';
@@ -21,7 +21,7 @@
 	let sellerOpen = $state(false);
 </script>
 
-<div class="space-y-4">
+<div class="space-y-2.5">
 	<!-- Product Header with title, price, badges -->
 	<ProductHeader />
 	

@@ -4,7 +4,7 @@
 	import Button from '$lib/components/ui/button.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import * as m from '$lib/paraglide/messages.js';
-	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
+	import { getListingContext } from '$lib/contexts/listing.svelte';
 	import MobileBottomBar from './sections/MobileBottomBar.svelte';
 
 	// Props for specific UI behavior
