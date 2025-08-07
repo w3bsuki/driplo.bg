@@ -3,37 +3,83 @@
 	import { cn } from '$lib/utils';
 	import { formatCurrency } from '$lib/utils/currency';
 	import { goto } from '$app/navigation';
+	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
 
+	// Mix of context and props - context for listing data, props for specific UI behavior
 	let { 
-		listing,
-		isOwner = false,
-		isLiked = false,
-		onLike = () => {},
 		onBuyNow = () => {},
-		checkoutFlowRef
+		checkoutFlowRef,
+		showStickyBar = true
 	} = $props();
+
+	// Get context data (eliminates most prop drilling)
+	const { 
+		listing, 
+		isOwner, 
+		isLiked, 
+		isLikeLoading, 
+		toggleLike 
+	} = getListingContext();
+
+	// Computed states
+	const canPurchase = $derived(!isOwner() && listing.status !== 'sold');
+	const isSold = $derived(listing.status === 'sold');
+
+	// Centralized button styling functions
+	const getLikeButtonClass = (variant: 'default' | 'compact') => {
+		const baseClasses = "transition-all duration-200 flex items-center justify-center gap-2 rounded-sm font-medium";
+		const sizeClasses = variant === 'compact' ? "p-2.5" : "py-2.5 px-4";
+		const layoutClasses = variant === 'compact' ? "" : "flex-1";
+		const activeClasses = isLiked() 
+			? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100" 
+			: "bg-gray-100 text-gray-600 hover:bg-gray-200";
+		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
+		const loadingClasses = isLikeLoading() ? "opacity-50 cursor-not-allowed" : "";
+		
+		return cn(baseClasses, sizeClasses, layoutClasses, activeClasses, scaleClasses, loadingClasses);
+	};
+
+	const getBuyButtonClass = (variant: 'default' | 'compact') => {
+		const baseClasses = "bg-primary text-white rounded-sm font-medium hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2";
+		const sizeClasses = variant === 'compact' ? "px-4 py-2" : "py-2.5 px-4";
+		const layoutClasses = variant === 'compact' ? "" : "flex-1";
+		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
+		
+		return cn(baseClasses, sizeClasses, layoutClasses, scaleClasses);
+	};
+
+	const getEditButtonClass = (variant: 'default' | 'compact') => {
+		const baseClasses = "bg-primary text-white rounded-sm font-medium hover:bg-primary/90 transition-all duration-200 text-sm";
+		const sizeClasses = variant === 'compact' ? "px-4 py-2" : "py-2.5 px-4";
+		const layoutClasses = variant === 'compact' ? "" : "flex-1";
+		const scaleClasses = variant === 'compact' ? "transform active:scale-[0.98]" : "";
+		
+		return cn(baseClasses, sizeClasses, layoutClasses, scaleClasses);
+	};
+
+	// Centralized event handlers
+	const handleLike = () => toggleLike();
+	const handleBuy = () => onBuyNow();
+	const handleEdit = () => goto(`/listings/${listing.id}/edit`);
+	const preloadCheckout = () => checkoutFlowRef?.preload();
 </script>
 
-<!-- Action Buttons -->
-{#if !isOwner && listing.status !== 'sold'}
+<!-- Inline Action Buttons -->
+{#if canPurchase}
 	<div class="flex gap-2 mt-3">
 		<button
-			onclick={onLike}
-			class={cn(
-				"flex-1 py-2.5 px-4 rounded-sm font-medium transition-all duration-200 flex items-center justify-center gap-2",
-				isLiked 
-					? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100" 
-					: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-			)}
+			onclick={handleLike}
+			disabled={isLikeLoading()}
+			class={getLikeButtonClass('default')}
 		>
-			<Heart class={cn("w-4 h-4", isLiked && "fill-current")} />
-			<span class="text-sm">{isLiked ? "Liked" : "Like"}</span>
+			<Heart class={cn("w-4 h-4", isLiked() && "fill-current")} />
+			<span class="text-sm">{isLiked() ? "Liked" : "Like"}</span>
 		</button>
 		<button
-			onclick={onBuyNow}
-			onmouseenter={() => checkoutFlowRef?.preload()}
-			onfocus={() => checkoutFlowRef?.preload()}
-			class="flex-1 bg-primary text-white rounded-sm py-2.5 px-4 font-medium hover:bg-primary/90 transition-all duration-200 flex items-center justify-center gap-2"
+			onclick={handleBuy}
+			onmouseenter={preloadCheckout}
+			onfocus={preloadCheckout}
+			class={getBuyButtonClass('default')}
 		>
 			<ShoppingBag class="w-4 h-4" />
 			<span class="text-sm">Buy Now</span>
@@ -42,13 +88,13 @@
 {:else if isOwner}
 	<div class="flex gap-2 mt-3">
 		<button
-			onclick={() => goto(`/listings/${listing.id}/edit`)}
-			class="flex-1 bg-primary text-white rounded-sm py-2.5 px-4 font-medium hover:bg-primary/90 transition-all duration-200 text-sm"
+			onclick={handleEdit}
+			class={getEditButtonClass('default')}
 		>
 			Edit Listing
 		</button>
 	</div>
-{:else if listing.status === 'sold'}
+{:else if isSold}
 	<div class="mt-3">
 		<div class="bg-red-50 border border-red-200 rounded-sm py-2.5 px-4 text-center">
 			<span class="text-red-600 font-medium text-sm">This item has been sold</span>
@@ -56,40 +102,44 @@
 	</div>
 {/if}
 
-<!-- Compact Bottom Bar -->
-<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-	<div class="max-w-7xl mx-auto flex items-center gap-2">
-		<div class="flex-1">
-			<div class="text-base font-bold text-gray-900">{formatCurrency(listing.price)}</div>
-			<div class="text-xs text-gray-500">{listing.shipping_price > 0 ? `+ ${formatCurrency(listing.shipping_price)} shipping` : 'Free shipping'}</div>
+<!-- Sticky Bottom Bar -->
+{#if showStickyBar}
+	<div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
+		<div class="max-w-7xl mx-auto flex items-center gap-2">
+			<!-- Price Info -->
+			<div class="flex-1">
+				<div class="text-base font-bold text-gray-900">{formatCurrency(listing.price)}</div>
+				<div class="text-xs text-gray-500">
+					{listing.shipping_price > 0 ? `+ ${formatCurrency(listing.shipping_price)} shipping` : 'Free shipping'}
+				</div>
+			</div>
+			
+			<!-- Compact Action Buttons -->
+			{#if canPurchase}
+				<button
+					onclick={handleLike}
+					disabled={isLikeLoading()}
+					class={getLikeButtonClass('compact')}
+				>
+					<Heart class={cn("w-5 h-5", isLiked() && "fill-current")} />
+				</button>
+				<button
+					onclick={handleBuy}
+					onmouseenter={preloadCheckout}
+					onfocus={preloadCheckout}
+					class={getBuyButtonClass('compact')}
+				>
+					<ShoppingBag class="w-4 h-4" />
+					<span class="text-sm">Buy Now</span>
+				</button>
+			{:else if isOwner}
+				<button
+					onclick={handleEdit}
+					class={getEditButtonClass('compact')}
+				>
+					Edit Listing
+				</button>
+			{/if}
 		</div>
-		{#if !isOwner}
-			<button
-				onclick={onLike}
-				class={cn(
-					"p-2.5 rounded-sm transition-all duration-200 transform active:scale-[0.98]",
-					isLiked 
-						? "bg-red-50 text-red-600 border border-red-200" 
-						: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-				)}
-			>
-				<Heart class={cn("w-5 h-5", isLiked && "fill-current")} />
-			</button>
-			<button
-				onclick={onBuyNow}
-				onmouseenter={() => checkoutFlowRef?.preload()}
-				onfocus={() => checkoutFlowRef?.preload()}
-				class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-100 transform active:scale-[0.98]"
-			>
-				Buy Now
-			</button>
-		{:else}
-			<button
-				onclick={() => goto(`/listings/${listing.id}/edit`)}
-				class="bg-primary text-white rounded-sm px-4 py-2 font-medium hover:bg-primary/90 transition-all duration-100 transform active:scale-[0.98]"
-			>
-				Edit Listing
-			</button>
-		{/if}
 	</div>
-</div>
+{/if}

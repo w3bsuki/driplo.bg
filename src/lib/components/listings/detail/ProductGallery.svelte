@@ -1,9 +1,12 @@
 <script lang="ts">
-	import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-svelte';
+	import { Maximize2, X } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
 	import Image from '$lib/components/ui/Image.svelte';
+	import ImageThumbnail from '$lib/components/gallery/ImageThumbnail.svelte';
+	import NavigationButton from '$lib/components/gallery/NavigationButton.svelte';
+	import ImageIndicators from '$lib/components/gallery/ImageIndicators.svelte';
 
 	let { 
 		images = [],
@@ -97,30 +100,24 @@
 		
 			{#if hasMultipleImages}
 				<!-- Navigation buttons -->
-				<button
-					onclick={(e) => { e.stopPropagation(); prevImage(); }}
-					class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-100"
-				>
-					<ChevronLeft class="w-4 h-4" />
-				</button>
-				<button
-					onclick={(e) => { e.stopPropagation(); nextImage(); }}
-					class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center border border-gray-200 hover:bg-white transition-all duration-100"
-				>
-					<ChevronRight class="w-4 h-4" />
-				</button>
+				<NavigationButton 
+					direction="prev" 
+					onClick={() => prevImage()}
+					variant="default"
+				/>
+				<NavigationButton 
+					direction="next" 
+					onClick={() => nextImage()}
+					variant="default"
+				/>
 
 				<!-- Image indicators -->
-				<div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-					{#each images as _, index (index)}
-						<button
-							onclick={(e) => { e.stopPropagation(); currentImageIndex = index; }}
-							class={cn("w-1 h-1 rounded-full transition-all", 
-								index === currentImageIndex ? "bg-white w-4" : "bg-white/60"
-							)}
-						/>
-					{/each}
-				</div>
+				<ImageIndicators 
+					{images}
+					currentIndex={currentImageIndex}
+					onSelect={(index) => currentImageIndex = index}
+					variant="default"
+				/>
 			{/if}
 		</button>
 	</div>
@@ -129,25 +126,14 @@
 	{#if hasMultipleImages}
 		<div class="flex gap-1.5 overflow-x-auto scrollbar-hide">
 			{#each images as image, index (index)}
-				<button
-					onclick={() => currentImageIndex = index}
-					class={cn("flex-shrink-0 w-12 h-12 rounded overflow-hidden border transition-all",
-						index === currentImageIndex ? "border-primary " : "border-gray-200 opacity-80 hover:opacity-100"
-					)}
-				>
-					{#if image}
-						<Image 
-							src={image} 
-							alt="Product {index + 1}" 
-							class="w-full h-full" 
-							objectFit="cover"
-							preferredSize="thumb"
-							loading="eager"
-						/>
-					{:else}
-						<div class="w-full h-full bg-gray-100"></div>
-					{/if}
-				</button>
+				<ImageThumbnail
+					{image}
+					{index}
+					isActive={index === currentImageIndex}
+					onClick={() => currentImageIndex = index}
+					variant="default"
+					alt="Product {index + 1}"
+				/>
 			{/each}
 		</div>
 	{/if}
@@ -189,41 +175,31 @@
 
 				{#if hasMultipleImages}
 					<!-- Navigation buttons -->
-					<button
-						onclick={(e) => { e.stopPropagation(); prevImage(); }}
-						class="absolute left-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-100"
-					>
-						<ChevronLeft class="w-6 h-6" />
-					</button>
-					<button
-						onclick={(e) => { e.stopPropagation(); nextImage(); }}
-						class="absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors duration-100"
-					>
-						<ChevronRight class="w-6 h-6" />
-					</button>
+					<NavigationButton 
+						direction="prev" 
+						onClick={() => prevImage()}
+						variant="fullscreen"
+					/>
+					<NavigationButton 
+						direction="next" 
+						onClick={() => nextImage()}
+						variant="fullscreen"
+					/>
 				{/if}
 			</div>
 
 			<!-- Thumbnail strip -->
 			{#if hasMultipleImages}
 				<div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-					{#each images as _, index (index)}
-						<button
-							onclick={(e) => { e.stopPropagation(); currentImageIndex = index; }}
-							class={cn("w-12 h-12 rounded-sm overflow-hidden border-2 transition-all",
-								index === currentImageIndex ? "border-white" : "border-white/30 opacity-60 hover:opacity-100"
-							)}
-						>
-							<Image 
-								src={images[index]} 
-								alt="Thumbnail {index + 1}" 
-								class="w-full h-full"
-								aspectRatio="1/1"
-								objectFit="cover"
-								preferredSize="thumb"
-								loading="eager"
-							/>
-						</button>
+					{#each images as image, index (index)}
+						<ImageThumbnail
+							{image}
+							{index}
+							isActive={index === currentImageIndex}
+							onClick={() => currentImageIndex = index}
+							variant="fullscreen"
+							alt="Thumbnail {index + 1}"
+						/>
 					{/each}
 				</div>
 			{/if}

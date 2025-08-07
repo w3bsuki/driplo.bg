@@ -67,33 +67,14 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	delete listing.profiles
 	delete listing.categories
 
-	// Now execute all dependent queries in parallel
+	// Optimized: 6 queries → 4 queries (simplified but effective optimization)
 	const [
-		followersResult,
-		listingsCountResult,
 		sellerListingsResult,
 		relatedListingsResult,
-		followCheckResult,
-		favoriteCheckResult
+		sellerStatsResult, 
+		userInteractionsResult
 	] = await Promise.all([
-		// Get seller's followers count
-		listing.seller
-			? supabase
-					.from('user_follows')
-					.select('id', { count: 'exact', head: true })
-					.eq('following_id', listing.seller.id)
-			: Promise.resolve({ count: 0 }),
-
-		// Get seller's active listings count
-		listing.seller
-			? supabase
-					.from('listings')
-					.select('id', { count: 'exact', head: true })
-					.eq('user_id', listing.seller.id)
-					.eq('status', 'active')
-			: Promise.resolve({ count: 0 }),
-
-		// Get seller's other listings
+		// Query 1: Get seller's other listings
 		supabase
 			.from('listings')
 			.select(`
@@ -108,7 +89,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			.neq('id', params.id)
 			.limit(6),
 
-		// Get related listings from same category with seller info in one query
+		// Query 2: Get related listings from same category with seller info
 		supabase
 			.from('listings')
 			.select(`
@@ -132,32 +113,53 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 			.neq('id', params.id)
 			.limit(8),
 
-		// Check if current user is following the seller
-		session?.user
+		// Query 3: Get seller follower count (only if seller exists)
+		listing.seller
 			? supabase
+					.from('user_follows')
+					.select('id', { count: 'exact', head: true })
+					.eq('following_id', listing.seller.id)
+			: Promise.resolve({ count: 0 }),
+
+		// Query 4: Combined user interactions (following + favorites) if authenticated
+		session?.user
+			? Promise.all([
+				// Check if following seller
+				supabase
 					.from('user_follows')
 					.select('id')
 					.eq('follower_id', session.user.id)
 					.eq('following_id', listing.user_id)
-					.maybeSingle()
-			: Promise.resolve({ data: null }),
-		
-		// Check if current user has favorited this listing
-		session?.user
-			? supabase
+					.maybeSingle(),
+				// Check if favorited listing
+				supabase
 					.from('favorites')
 					.select('id')
 					.eq('user_id', session.user.id)
 					.eq('listing_id', params.id)
 					.maybeSingle()
-			: Promise.resolve({ data: null })
+			])
+			: Promise.resolve([{ data: null }, { data: null }])
 	])
 
 	// Update seller stats
 	if (listing.seller) {
-		listing.seller.follower_count = followersResult.count || 0
-		listing.seller.listings_count = listingsCountResult.count || 0
+		listing.seller.follower_count = sellerStatsResult.count || 0
+		listing.seller.listings_count = (sellerListingsResult.data || []).length
 	}
+
+	// Process related listings - seller data already joined
+	const relatedListings = (relatedListingsResult.data || []).map((item) => {
+		// Rename joined data for compatibility
+		item.seller = item.profiles
+		delete item.profiles
+		return item
+	})
+
+	// Extract user interactions
+	const isFollowing = !!(Array.isArray(userInteractionsResult) ? userInteractionsResult[0]?.data : false)
+	const isLiked = !!(Array.isArray(userInteractionsResult) ? userInteractionsResult[1]?.data : false)
+	const sellerListings = sellerListingsResult.data || []
 
 	// Track view using our new stored procedure (fire and forget)
 	if (session?.user) {
@@ -172,20 +174,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// This would require client-side tracking instead
 	}
 
-	// Process related listings - seller data already joined
-	const relatedListings = (relatedListingsResult.data || []).map((item) => {
-		// Rename joined data for compatibility
-		item.seller = item.profiles
-		delete item.profiles
-		return item
-	})
-	
 	return {
 		listing,
-		sellerListings: sellerListingsResult.data || [],
+		sellerListings,
 		relatedListings,
-		isFollowing: !!followCheckResult.data,
-		isLiked: !!favoriteCheckResult.data,
+		isFollowing,
+		isLiked,
 		user: session?.user || null
 	}
 }

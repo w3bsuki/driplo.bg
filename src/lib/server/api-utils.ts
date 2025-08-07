@@ -122,10 +122,10 @@ export async function requireAuth(
   }
 ): Promise<{ userId: string; session: Session; profile?: Tables<'profiles'> } | null> {
   try {
-    // First get the session (without validation)
-    const { data: { session }, error: sessionError } = await locals.supabase.auth.getSession();
+    // Use safeGetSession for secure session validation
+    const { session } = await locals.safeGetSession();
     
-    if (sessionError || !session) {
+    if (!session) {
       return null;
     }
     

@@ -9,25 +9,18 @@
 	import CategoryBadge from '$lib/components/badges/CategoryBadge.svelte';
 	import SizeBadge from '$lib/components/badges/SizeBadge.svelte';
 	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
-	import { Truck, RotateCcw, MapPin, Star, MessageCircle } from 'lucide-svelte';
-	import Image from '$lib/components/ui/Image.svelte';
-	import { goto } from '$app/navigation';
+	import { Truck, RotateCcw, MapPin } from 'lucide-svelte';
+	import SellerProfile from '$lib/components/seller/SellerProfile.svelte';
+	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
 
-	let { 
-		listing,
-		isLiked = false,
-		isOwner = false,
-		onLike = () => {},
-		onShare = () => {}
-	} = $props();
-
-	function getAvatarColor(username) {
-		const colors = [
-			'bg-blue-400', 'bg-blue-300', 'bg-blue-500', 
-			'bg-cyan-400', 'bg-sky-400', 'bg-indigo-400'
-		];
-		return colors[username.charCodeAt(0) % colors.length];
-	}
+	// Get context instead of props (eliminates prop drilling)
+	const { 
+		listing, 
+		isLiked, 
+		isOwner,
+		toggleLike, 
+		share
+	} = getListingContext();
 
 	let isDescriptionExpanded = $state(false);
 </script>
@@ -41,15 +34,15 @@
 			</h1>
 			<div class="flex items-center gap-1">
 				<button
-					onclick={onLike}
+					onclick={toggleLike}
 					class={cn("p-1.5 rounded-sm hover:bg-gray-100 transition-colors duration-100",
-						isLiked ? "text-red-500" : "text-gray-500 hover:text-red-500"
+						isLiked() ? "text-red-500" : "text-gray-500 hover:text-red-500"
 					)}
 				>
-					<Heart class={cn("w-4 h-4", isLiked && "fill-current")} />
+					<Heart class={cn("w-4 h-4", isLiked() && "fill-current")} />
 				</button>
 				<button 
-					onclick={onShare}
+					onclick={share}
 					class="p-1.5 rounded-sm text-gray-500 hover:bg-gray-100 transition-colors duration-100"
 				>
 					<Share2 class="w-4 h-4" />
@@ -199,78 +192,14 @@
 		</TabsContent>
 		
 		<TabsContent value="seller" class="mt-4 space-y-4 overflow-hidden">
-			<div class="flex items-start gap-3">
-				{#if listing.seller.avatar_url}
-					<div class="relative flex-shrink-0">
-						<Image
-							src={listing.seller.avatar_url}
-							alt={listing.seller.username}
-							class="w-12 h-12 rounded-full border-2 border-white shadow-sm"
-							objectFit="cover"
-							preferredSize="thumb"
-						/>
-						{#if listing.seller.seller_verified}
-							<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-								<span class="text-white text-xs">✓</span>
-							</div>
-						{/if}
-					</div>
-				{:else}
-					<div class="relative flex-shrink-0">
-						<div class={cn("w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm", getAvatarColor(listing.seller.username))}>
-							<span class="text-white font-medium">{listing.seller.username.charAt(0).toUpperCase()}</span>
-						</div>
-						{#if listing.seller.seller_verified}
-							<div class="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-								<span class="text-white text-xs">✓</span>
-							</div>
-						{/if}
-					</div>
-				{/if}
-				<div class="flex-1 min-w-0">
-					<div class="flex items-center gap-2">
-						<h3 class="text-sm font-medium text-gray-900 truncate">{listing.seller.username}</h3>
-						{#if listing.seller.seller_verified}
-							<BrandBadge size="xs" isVerified={listing.seller.seller_verified} showText={false} />
-						{/if}
-					</div>
-					<!-- Enhanced rating display -->
-					<div class="flex items-center gap-2 mt-1">
-						<div class="flex items-center gap-1">
-							{#each Array(5) as _, i}
-								<Star class={cn("w-3 h-3", (listing.seller.seller_rating || 4.8) > i ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200")} />
-							{/each}
-						</div>
-						<span class="text-sm font-medium text-gray-900">{listing.seller.seller_rating || 4.8}</span>
-						<span class="text-xs text-gray-500">({listing.seller.seller_rating_count || 42} reviews)</span>
-					</div>
-					<div class="flex items-center gap-2 mt-1 text-xs text-gray-600 flex-wrap">
-						<span class="flex items-center gap-1">
-							<span>🏆</span>
-							<span>{listing.seller.total_sales || 0} sales</span>
-						</span>
-						<span>•</span>
-						<span>Joined {new Date(listing.seller.created_at || Date.now()).getFullYear()}</span>
-					</div>
-					<div class="flex gap-2 mt-3">
-						<a 
-							href="/profile/{listing.seller.username}" 
-							class="flex-1 py-2 px-3 bg-gray-100 hover:bg-gray-200 rounded-sm text-center text-sm font-medium text-gray-700 transition-colors duration-100 min-w-0"
-						>
-							<span class="truncate">View Profile</span>
-						</a>
-						{#if !isOwner}
-							<button 
-								class="p-2 bg-gray-100 hover:bg-gray-200 rounded-sm transition-colors duration-100 flex-shrink-0"
-								onclick={() => goto(`/messages?user=${listing.seller.username}`)}
-								title="Message seller"
-							>
-								<MessageCircle class="w-4 h-4 text-gray-700" />
-							</button>
-						{/if}
-					</div>
-				</div>
-			</div>
+			<SellerProfile 
+				seller={listing.seller}
+				{isOwner}
+				variant="tab"
+				actions={['viewProfile', 'message']}
+				showJoinDate={true}
+				showStats={true}
+			/>
 		</TabsContent>
 		</Tabs>
 	</div>

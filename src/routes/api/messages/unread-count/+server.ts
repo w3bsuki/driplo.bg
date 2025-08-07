@@ -12,16 +12,16 @@ export const GET: RequestHandler = async ({ locals }) => {
             return apiSuccess(response, 200, requestId);
         }
         
-        // Get session directly without requireAuth to avoid errors
-        const { data: { session } } = await locals.supabase.auth.getSession();
+        // Get session with secure validation
+        const { session, user } = await locals.safeGetSession();
         
-        if (!session || !session.user) {
+        if (!session || !user) {
             // Return 0 for unauthenticated users
             const response: UnreadCountResponse = { count: 0 };
             return apiSuccess(response, 200, requestId);
         }
         
-        const userId = session.user.id;
+        const userId = user.id;
 
         // Get user's conversations first
         const { data: conversations, error: convError } = await locals.supabase

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import type { PageData } from './$types';
-	import { toast } from 'svelte-sonner';
 	import * as m from '$lib/paraglide/messages.js';
 	import LazyCheckoutFlow from '$lib/components/checkout/LazyCheckoutFlow.svelte';
 	import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator } from '$lib/components/ui/breadcrumb';
@@ -11,6 +10,8 @@
 	import ProductActions from '$lib/components/listings/detail/ProductActions.svelte';
 	import RelatedProducts from '$lib/components/listings/detail/RelatedProducts.svelte';
 	import { onMount } from 'svelte';
+	import { listingStore } from '$lib/stores/listing.svelte.ts';
+	import { createListingContext } from '$lib/contexts/listing.svelte.ts';
 
 	let { data }: { data: PageData } = $props();
 
@@ -18,16 +19,32 @@
 	let listing = $derived(data.listing);
 	let currentUser = $derived(data.user);
 	let relatedListings = $derived(data.relatedListings);
-	let isFollowing = $state(data.isFollowing || false);
 
-	let isLiked = $state(data.isLiked || false);
+	// Local UI state (non-shared state stays local)
 	let showCheckout = $state(false);
-	let isFollowLoading = $state(false);
-	let isLikeLoading = $state(false);
 	let showFullscreenGallery = $state(false);
 	let checkoutFlowRef = $state<any>();
 
-	let isOwner = $derived(currentUser?.id === listing?.seller_id);
+	// Initialize store with server data
+	$effect(() => {
+		if (listing && currentUser !== undefined) {
+			listingStore.initialize({
+				isLiked: data.isLiked,
+				isFollowing: data.isFollowing,
+				listingId: listing.id,
+				sellerId: listing.seller?.id || listing.user_id
+			});
+		}
+	});
+
+	// Create context for child components (eliminates prop drilling)
+	let listingContext: ReturnType<typeof createListingContext>;
+	$effect(() => {
+		if (listing && currentUser !== undefined) {
+			listingContext = createListingContext(listing, currentUser, supabase);
+		}
+	});
+	// Derived computed values
 	let images = $derived(() => {
 		if (!listing || !listing.images) return [];
 		
@@ -39,99 +56,16 @@
 		return [];
 	});
 
-	async function handleLike() {
-		if (!currentUser) {
-			goto('/login');
-			return;
-		}
-		
-		if (isLikeLoading || !listing) return;
-		
-		// Optimistic update
-		const previousLiked = isLiked;
-		isLiked = !isLiked;
-		isLikeLoading = true;
-		
-		try {
-			const response = await fetch('/api/wishlist', {
-				method: isLiked ? 'POST' : 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ listing_id: listing.id })
-			});
-			
-			if (!response.ok) {
-				// Revert on error
-				isLiked = previousLiked;
-				const error = await response.json();
-				toast.error(error.message || 'Failed to update favorites');
-			} else {
-				// Update like count if it exists in the listing type
-				// Note: like_count might not be in the current listing type
-			}
-		} catch (error) {
-			// Revert on error
-			isLiked = previousLiked;
-			toast.error('Failed to update favorites');
-		} finally {
-			isLikeLoading = false;
-		}
-	}
-
+	// Simplified buy now handler (purchase tracking handled by store)
 	function handleBuyNow() {
 		if (!currentUser) {
 			goto('/login');
 			return;
 		}
-		showCheckout = true;
-	}
-
-	async function handleShare() {
-		if (navigator.share) {
-			try {
-				await navigator.share({
-					title: listing?.title,
-					text: listing?.description,
-					url: window.location.href
-				});
-			} catch (err) {
-				}
-		}
-	}
-
-	async function handleFollow() {
-		if (!currentUser || !listing) {
-			goto('/login');
-			return;
-		}
 		
-		isFollowLoading = true;
-		try {
-			if (isFollowing) {
-				await supabase
-					.from('user_follows')
-					.delete()
-					.eq('follower_id', currentUser.id)
-					.eq('following_id', listing.seller_id);
-				isFollowing = false;
-				toast.success(m.profile_unfollow_success());
-			} else {
-				await supabase
-					.from('user_follows')
-					.insert({
-						follower_id: currentUser.id,
-						following_id: listing.seller_id
-					});
-				isFollowing = true;
-				toast.success(m.profile_follow_success());
-			}
-		} catch (error) {
-			console.error('Follow error:', error);
-			toast.error(m.profile_follow_update_error());
-		} finally {
-			isFollowLoading = false;
-		}
+		// Track purchase intent
+		listingStore.startPurchase(listing.id);
+		showCheckout = true;
 	}
 
 	// Track view for anonymous users on mount
@@ -202,27 +136,12 @@
 
 				<!-- Product Details Section -->
 				<div class="space-y-3">
-					<ProductInfo 
-						{listing}
-						{isLiked}
-						{isOwner}
-						onLike={handleLike}
-						onShare={handleShare}
-					/>
+					<!-- Components now use context instead of props -->
+					<ProductInfo />
 
-					<SellerInfo 
-						seller={listing.seller}
-						{isOwner}
-						{isFollowing}
-						{isFollowLoading}
-						onFollow={handleFollow}
-					/>
+					<SellerInfo />
 
 					<ProductActions 
-						{listing}
-						{isOwner}
-						{isLiked}
-						onLike={handleLike}
 						onBuyNow={handleBuyNow}
 						{checkoutFlowRef}
 					/>
