@@ -26,14 +26,14 @@
 	}
 </script>
 
-<div class={cn("border-b border-gray-200 last:border-b-0", className)}>
+<div class={cn("border-b border-gray-100", className)}>
 	<!-- Accordion Header -->
 	<button
 		onclick={toggle}
 		class={cn(
 			"flex w-full items-center justify-between py-4 px-0 text-left",
-			"min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2",
-			"hover:bg-gray-50/50 transition-colors duration-100 rounded-sm",
+			"min-h-[44px] focus:outline-none",
+			"hover:bg-gray-50/50 transition-colors duration-100",
 			"text-sm font-medium text-foreground",
 			headerClass
 		)}
