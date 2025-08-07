@@ -37,12 +37,11 @@
 		}
 	});
 
-	// Create context for child components (eliminates prop drilling)
-	$effect(() => {
-		if (listing && currentUser !== undefined && supabase) {
-			createListingContext(listing, currentUser, supabase);
-		}
-	});
+	// Create context for child components during initialization
+	// Context must be set during component init, not in effects
+	if (listing && supabase) {
+		createListingContext(listing, currentUser, supabase);
+	}
 	// Derived computed values
 	let images = $derived(() => {
 		if (!listing || !listing.images) return [];
@@ -135,14 +134,12 @@
 
 				<!-- Product Details Section -->
 				<div class="space-y-3">
-					<!-- Components now use context instead of props -->
-					<ProductInfo {listing} {currentUser} />
+					<!-- Components use context, no props needed -->
+					<ProductInfo />
 
-					<SellerInfo {listing} {currentUser} />
+					<SellerInfo />
 
 					<ProductActions 
-						{listing}
-						{currentUser}
 						onBuyNow={handleBuyNow}
 						{checkoutFlowRef}
 					/>

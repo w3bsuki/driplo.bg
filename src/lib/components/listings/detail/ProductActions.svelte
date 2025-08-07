@@ -4,50 +4,21 @@
 	import { formatCurrency } from '$lib/utils/currency';
 	import { goto } from '$app/navigation';
 	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
-	import { listingStore } from '$lib/stores/listing.svelte.ts';
 
 	// Mix of context and props - context for listing data, props for specific UI behavior
 	let { 
-		listing = null,
-		currentUser = null,
 		onBuyNow = () => {},
 		checkoutFlowRef,
 		showStickyBar = true
-	}: { 
-		listing?: any, 
-		currentUser?: any, 
-		onBuyNow?: () => void, 
-		checkoutFlowRef?: any, 
-		showStickyBar?: boolean 
 	} = $props();
 
-	// Try to get context, fallback to props
-	let context = $state.raw(() => {
-		try {
-			return getListingContext();
-		} catch {
-			// Context not available, use props and store directly
-			return null;
-		}
-	});
-
-	// Use context if available, otherwise use props and store
-	const listingData = $derived(context ? context.listing : listing);
-	const isOwner = $derived(() => context ? context.isOwner() : (currentUser?.id === listingData?.user_id));
-	const isLiked = $derived(() => context ? context.isLiked() : listingStore.isLiked(listingData?.id || ''));
-	const isLikeLoading = $derived(() => context ? context.isLikeLoading() : false);
-	
-	const toggleLike = () => {
-		if (context) {
-			context.toggleLike();
-		} else if (listingData) {
-			listingStore.toggleLike(listingData.id);
-		}
-	};
+	// Get context data
+	const context = getListingContext();
+	const { listing, isOwner, isLiked, isLikeLoading, toggleLike } = context;
 
 	// Computed states
-	const canPurchase = $derived(!isOwner() && listingData?.status !== 'sold');
-	const isSold = $derived(listingData?.status === 'sold');
+	const canPurchase = $derived(!isOwner() && listing?.status !== 'sold');
+	const isSold = $derived(listing?.status === 'sold');
 
 	// Centralized button styling functions
 	const getLikeButtonClass = (variant: 'default' | 'compact') => {
@@ -84,7 +55,7 @@
 	// Centralized event handlers
 	const handleLike = () => toggleLike();
 	const handleBuy = () => onBuyNow();
-	const handleEdit = () => goto(`/listings/${listingData?.id}/edit`);
+	const handleEdit = () => goto(`/listings/${listing?.id}/edit`);
 	const preloadCheckout = () => checkoutFlowRef?.preload();
 </script>
 
@@ -109,7 +80,7 @@
 			<span class="text-sm">Buy Now</span>
 		</button>
 	</div>
-{:else if isOwner}
+{:else if isOwner()}
 	<div class="flex gap-2 mt-3">
 		<button
 			onclick={handleEdit}
@@ -132,9 +103,9 @@
 		<div class="max-w-7xl mx-auto flex items-center gap-2">
 			<!-- Price Info -->
 			<div class="flex-1">
-				<div class="text-base font-bold text-gray-900">{formatCurrency(listingData?.price || 0)}</div>
+				<div class="text-base font-bold text-gray-900">{formatCurrency(listing?.price || 0)}</div>
 				<div class="text-xs text-gray-500">
-					{listingData?.shipping_price > 0 ? `+ ${formatCurrency(listingData.shipping_price)} shipping` : 'Free shipping'}
+					{listing?.shipping_price > 0 ? `+ ${formatCurrency(listing.shipping_price)} shipping` : 'Free shipping'}
 				</div>
 			</div>
 			
@@ -156,7 +127,7 @@
 					<ShoppingBag class="w-4 h-4" />
 					<span class="text-sm">Buy Now</span>
 				</button>
-			{:else if isOwner}
+			{:else if isOwner()}
 				<button
 					onclick={handleEdit}
 					class={getEditButtonClass('compact')}
