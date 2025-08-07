@@ -227,21 +227,38 @@
 		
 		<!-- Text Container - 25% of card height -->
 		<div class="p-2 space-y-0.5">
-			<!-- Price - Most prominent -->
-			<p class="text-sm font-bold text-gray-900">{formattedPrice}</p>
+			<!-- Title -->
+			<p class="text-[11px] text-gray-700 truncate font-medium">{title}</p>
 			
-			<!-- Condition Badge -->
-			{#if condition}
-				<div class="inline-block">
-					<Badge 
-						variant={getConditionVariant(condition)}
-						size="sm"
-						class="text-[9px] font-bold px-1 py-0 h-4"
-					>
-						{getConditionText(condition)}
-					</Badge>
+			<!-- Condition Badge - Below Title -->
+			{#if condition === 'new_with_tags'}
+				<div class="text-[9px] font-semibold text-green-600 uppercase">
+					New with tags
+				</div>
+			{:else if condition === 'new_without_tags'}
+				<div class="text-[9px] font-semibold text-green-600 uppercase">
+					New without tags
+				</div>
+			{:else if condition === 'like_new'}
+				<div class="text-[9px] font-semibold text-blue-600 uppercase">
+					Like new
+				</div>
+			{:else if condition === 'very_good'}
+				<div class="text-[9px] font-semibold text-blue-500 uppercase">
+					Very good
+				</div>
+			{:else if condition === 'good'}
+				<div class="text-[9px] font-semibold text-gray-600 uppercase">
+					Good
+				</div>
+			{:else if condition === 'fair'}
+				<div class="text-[9px] font-semibold text-gray-500 uppercase">
+					Fair
 				</div>
 			{/if}
+			
+			<!-- Price - Most prominent -->
+			<p class="text-sm font-bold text-gray-900">{formattedPrice}</p>
 			
 			<!-- Brand and Size - Very small -->
 			{#if brand || size}
