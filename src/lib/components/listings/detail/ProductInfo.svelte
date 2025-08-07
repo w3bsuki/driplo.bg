@@ -1,47 +1,64 @@
 <script lang="ts">
-	import { Tabs, TabsList, TabsTrigger, TabsContent } from '$lib/components/ui/tabs';
+	import AccordionSection from '$lib/components/ui/AccordionSection.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { getListingContext } from '$lib/contexts/listing.svelte.ts';
 	
 	// Import modular components
 	import ProductHeader from './sections/ProductHeader.svelte';
-	import ProductDescription from './sections/ProductDescription.svelte';
-	import ProductSpecs from './sections/ProductSpecs.svelte';
+	import ProductStats from './sections/ProductStats.svelte';
+	import SellerBadge from './sections/SellerBadge.svelte';
+	import ProductDetailsContent from './sections/ProductDetailsContent.svelte';
 	import ShippingCard from './cards/ShippingCard.svelte';
 	import SellerProfile from '$lib/components/seller/SellerProfile.svelte';
 
 	// Get context
 	const context = getListingContext();
 	const { listing, isOwner, isFollowing, isFollowLoading, toggleFollow } = context;
+	
+	// Accordion state - first section open by default
+	let productDetailsOpen = $state(true);
+	let shippingOpen = $state(false);
+	let sellerOpen = $state(false);
 </script>
 
 <div class="space-y-4">
 	<!-- Product Header with title, price, badges -->
 	<ProductHeader />
+	
+	<!-- Social Proof Stats -->
+	<ProductStats />
+	
+	<!-- Seller Badge -->
+	<SellerBadge />
 
-	<!-- Product Description -->
-	<ProductDescription />
-
-	<!-- Product Information Tabs -->
-	<Tabs defaultValue="details" class="w-full">
-		<TabsList class="grid w-full grid-cols-3">
-			<TabsTrigger value="details">{m.product_details()}</TabsTrigger>
-			<TabsTrigger value="shipping">{m.shipping_info()}</TabsTrigger>
-			<TabsTrigger value="seller">{m.seller_info()}</TabsTrigger>
-		</TabsList>
+	<!-- Vertical Accordion Sections -->
+	<div class="bg-white rounded-sm border border-gray-200">
+		<!-- Product Details Section -->
+		<AccordionSection 
+			title={m.product_details()}
+			bind:isOpen={productDetailsOpen}
+			class="px-4"
+		>
+			<ProductDetailsContent />
+		</AccordionSection>
 		
-		<!-- Details Tab -->
-		<TabsContent value="details" class="mt-4">
-			<ProductSpecs />
-		</TabsContent>
+		<!-- Shipping & Returns Section -->
+		<AccordionSection 
+			title={m.shipping_and_returns()}
+			bind:isOpen={shippingOpen}
+			class="px-4"
+		>
+			<div class="-mx-4">
+				<ShippingCard />
+			</div>
+		</AccordionSection>
 		
-		<!-- Shipping Tab -->
-		<TabsContent value="shipping" class="mt-4">
-			<ShippingCard />
-		</TabsContent>
-		
-		<!-- Seller Tab -->
-		<TabsContent value="seller" class="mt-4">
+		<!-- Seller Section -->
+		<AccordionSection 
+			title={m.seller_info()}
+			bind:isOpen={sellerOpen}
+			class="px-4"
+		>
 			<SellerProfile 
 				seller={listing?.seller}
 				isOwner={isOwner()}
@@ -52,6 +69,6 @@
 				actions={['follow', 'message']}
 				showStats={true}
 			/>
-		</TabsContent>
-	</Tabs>
+		</AccordionSection>
+	</div>
 </div>
