@@ -196,7 +196,14 @@
 			{/if}
 			
 			<!-- Condition Badge - Top Left -->
-			{#if condition}
+			{#if condition === 'new_with_tags'}
+				<div class="absolute top-2 left-2">
+					<div class="bg-green-500 text-white px-2 py-1 rounded-sm text-[10px] font-bold shadow-sm flex items-center gap-1">
+						<span>✨</span>
+						<span>NEW WITH TAGS</span>
+					</div>
+				</div>
+			{:else if condition}
 				<div class="absolute top-2 left-2">
 					<Badge 
 						variant={getConditionVariant(condition)}
@@ -210,8 +217,8 @@
 			
 			<!-- Discount Badge - Below Condition -->
 			{#if discountPercentage > 0}
-				<div class="absolute top-9 left-2">
-					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[10px] font-bold">
+				<div class="absolute {condition === 'new_with_tags' ? 'top-10' : 'top-9'} left-2">
+					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[10px] font-bold shadow-sm">
 						-{discountPercentage}%
 					</div>
 				</div>
