@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Maximize2, X } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import { fade, scale } from 'svelte/transition';
+	import { fade, scale as scaleTransition } from 'svelte/transition';
 	import { onMount, tick } from 'svelte';
 	import Image from '$lib/components/ui/Image.svelte';
 	import ImageThumbnail from '$lib/components/gallery/ImageThumbnail.svelte';
@@ -451,7 +451,7 @@
 				<button
 					onclick={resetZoom}
 					class="absolute top-20 right-4 p-2 rounded-sm bg-white/10 text-white hover:bg-white/20 transition-colors text-xs z-20 touch-auto"
-					transition:scale={{ duration: 200 }}
+					transition:scaleTransition={{ duration: 200 }}
 				>
 					Reset
 				</button>
