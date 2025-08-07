@@ -4,10 +4,7 @@
 	import { Badge } from '$lib/components/ui';
 	import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref } from '$lib/paraglide/runtime.js';
-	
-	// Constants
-	const PRICE_CURRENCY = 'GBP';
-	const PRICE_LOCALE = 'en-GB';
+	import { formatCurrency } from '$lib/utils/currency';
 	
 	interface Props {
 		id: string;
@@ -66,14 +63,7 @@
 		return img;
 	});
 	
-	const formattedPrice = $derived(
-		new Intl.NumberFormat(PRICE_LOCALE, {
-			style: 'currency',
-			currency: PRICE_CURRENCY,
-			minimumFractionDigits: 0,
-			maximumFractionDigits: 0
-		}).format(price)
-	);
+	const formattedPrice = $derived(formatCurrency(price));
 	
 	const discountPercentage = $derived(
 		originalPrice && originalPrice > price 
