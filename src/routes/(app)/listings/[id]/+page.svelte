@@ -38,10 +38,9 @@
 	});
 
 	// Create context for child components (eliminates prop drilling)
-	let listingContext: ReturnType<typeof createListingContext>;
 	$effect(() => {
-		if (listing && currentUser !== undefined) {
-			listingContext = createListingContext(listing, currentUser, supabase);
+		if (listing && currentUser !== undefined && supabase) {
+			createListingContext(listing, currentUser, supabase);
 		}
 	});
 	// Derived computed values
@@ -137,11 +136,13 @@
 				<!-- Product Details Section -->
 				<div class="space-y-3">
 					<!-- Components now use context instead of props -->
-					<ProductInfo />
+					<ProductInfo {listing} {currentUser} />
 
-					<SellerInfo />
+					<SellerInfo {listing} {currentUser} />
 
 					<ProductActions 
+						{listing}
+						{currentUser}
 						onBuyNow={handleBuyNow}
 						{checkoutFlowRef}
 					/>
