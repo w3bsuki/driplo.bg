@@ -210,6 +210,7 @@ export const actions: Actions = {
 			const { data: listing, error } = await locals.supabase
 				.from('listings')
 				.insert({
+					seller_id: user.id,
 					user_id: user.id,
 					title,
 					description,
