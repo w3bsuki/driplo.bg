@@ -3,7 +3,6 @@
 	import { cn } from '$lib/utils';
 	import { fade, scale as scaleTransition } from 'svelte/transition';
 	import { onMount, tick } from 'svelte';
-	import Image from '$lib/components/ui/Image.svelte';
 	import ImageThumbnail from '$lib/components/gallery/ImageThumbnail.svelte';
 	import NavigationButton from '$lib/components/gallery/NavigationButton.svelte';
 	import ImageIndicators from '$lib/components/gallery/ImageIndicators.svelte';
