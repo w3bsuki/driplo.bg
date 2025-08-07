@@ -18,9 +18,16 @@
 <div class="space-y-2">
 	<!-- Title and Actions -->
 	<div class="flex items-start justify-between gap-2">
-		<h1 class="text-base font-medium text-foreground flex-1 leading-tight">
-			{listing?.title || ''}
-		</h1>
+		<div class="flex-1">
+			<h1 class="text-base font-medium text-foreground leading-tight">
+				{listing?.title || ''}
+			</h1>
+			{#if listing?.condition}
+				<div class="mt-1">
+					<ConditionBadge condition={listing.condition} variant="default" size="sm" />
+				</div>
+			{/if}
+		</div>
 		<div class="flex items-center gap-0.5">
 			<Button
 				onclick={toggleLike}
@@ -67,9 +74,6 @@
 		{/if}
 		{#if listing?.brand}
 			<BrandBadge brand={listing.brand} variant="default" />
-		{/if}
-		{#if listing?.condition}
-			<ConditionBadge condition={listing.condition} variant="default" />
 		{/if}
 		{#if listing?.size}
 			<SizeBadge size={listing.size} />
