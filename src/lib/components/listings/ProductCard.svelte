@@ -195,22 +195,10 @@
 				</div>
 			{/if}
 			
-			<!-- Condition Badge - Top Left -->
-			{#if condition}
-				<div class="absolute top-2 left-2">
-					<Badge 
-						variant={getConditionVariant(condition)}
-						size="sm"
-						class="text-[10px] font-bold px-1.5 py-0.5 h-5"
-					>
-						{getConditionText(condition)}
-					</Badge>
-				</div>
-			{/if}
 			
-			<!-- Discount Badge - Below Condition -->
+			<!-- Discount Badge - Top Left -->
 			{#if discountPercentage > 0}
-				<div class="absolute top-9 left-2">
+				<div class="absolute top-2 left-2">
 					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[10px] font-bold">
 						-{discountPercentage}%
 					</div>
@@ -241,6 +229,19 @@
 		<div class="p-2 space-y-0.5">
 			<!-- Price - Most prominent -->
 			<p class="text-sm font-bold text-gray-900">{formattedPrice}</p>
+			
+			<!-- Condition Badge -->
+			{#if condition}
+				<div class="inline-block">
+					<Badge 
+						variant={getConditionVariant(condition)}
+						size="sm"
+						class="text-[9px] font-bold px-1 py-0 h-4"
+					>
+						{getConditionText(condition)}
+					</Badge>
+				</div>
+			{/if}
 			
 			<!-- Brand and Size - Very small -->
 			{#if brand || size}
