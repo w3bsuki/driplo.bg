@@ -18,16 +18,9 @@
 <div class="space-y-2">
 	<!-- Title and Actions -->
 	<div class="flex items-start justify-between gap-2">
-		<div class="flex-1">
-			<h1 class="text-base font-medium text-foreground leading-tight">
-				{listing?.title || ''}
-			</h1>
-			{#if listing?.condition === 'new_with_tags'}
-				<span class="inline-flex items-center gap-1 mt-1">
-					<span class="text-[10px] font-bold text-green-600 uppercase">✨ New with tags</span>
-				</span>
-			{/if}
-		</div>
+		<h1 class="text-base font-medium text-foreground flex-1 leading-tight">
+			{listing?.title || ''}
+		</h1>
 		<div class="flex items-center gap-0.5">
 			<Button
 				onclick={toggleLike}
