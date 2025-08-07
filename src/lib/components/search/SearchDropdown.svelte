@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { fly } from 'svelte/transition';
-	import { X } from 'lucide-svelte';
 	import CategoryAccordion from './CategoryAccordion.svelte';
 	import TrendingSearches from './TrendingSearches.svelte';
 	import * as m from '$lib/paraglide/messages.js';
@@ -49,44 +48,30 @@
 				{ name: m.men_shirts(), slug: 'shirts' },
 				{ name: m.subcategory_jeans(), slug: 'jeans' },
 				{ name: m.subcategory_jackets(), slug: 'jackets' },
-				{ name: 'Sneakers', slug: 'sneakers' },
+				{ name: m.subcategory_sneakers(), slug: 'sneakers' },
 				{ name: m.subcategory_accessories(), slug: 'accessories' }
 			]
 		},
 		{
-			name: m.category_designer(),
-			slug: 'designer',
+			name: m.category_kids(),
+			slug: 'kids',
 			subcategories: [
-				{ name: 'Gucci', slug: 'gucci' },
-				{ name: 'Louis Vuitton', slug: 'louis-vuitton' },
-				{ name: 'Prada', slug: 'prada' },
-				{ name: 'Balenciaga', slug: 'balenciaga' },
-				{ name: 'Burberry', slug: 'burberry' },
-				{ name: 'Versace', slug: 'versace' }
+				{ name: m.subcategory_boys(), slug: 'boys' },
+				{ name: m.subcategory_girls(), slug: 'girls' },
+				{ name: m.subcategory_baby(), slug: 'baby' },
+				{ name: m.subcategory_toys(), slug: 'toys' },
+				{ name: m.subcategory_school(), slug: 'school' }
 			]
 		},
 		{
-			name: m.subcategory_shoes(),
-			slug: 'shoes',
+			name: m.category_pets(),
+			slug: 'pets',
 			subcategories: [
-				{ name: 'Sneakers', slug: 'sneakers' },
-				{ name: 'Boots', slug: 'boots' },
-				{ name: 'Heels', slug: 'heels' },
-				{ name: 'Flats', slug: 'flats' },
-				{ name: 'Sandals', slug: 'sandals' },
-				{ name: 'Sport Shoes', slug: 'sport-shoes' }
-			]
-		},
-		{
-			name: m.subcategory_bags(),
-			slug: 'bags',
-			subcategories: [
-				{ name: 'Handbags', slug: 'handbags' },
-				{ name: 'Backpacks', slug: 'backpacks' },
-				{ name: 'Clutches', slug: 'clutches' },
-				{ name: 'Totes', slug: 'totes' },
-				{ name: 'Crossbody', slug: 'crossbody' },
-				{ name: 'Wallets', slug: 'wallets' }
+				{ name: m.subcategory_dogs(), slug: 'dogs' },
+				{ name: m.subcategory_cats(), slug: 'cats' },
+				{ name: m.subcategory_pet_accessories(), slug: 'accessories' },
+				{ name: m.subcategory_pet_food(), slug: 'food' },
+				{ name: m.subcategory_pet_toys(), slug: 'toys' }
 			]
 		}
 	];
@@ -108,20 +93,7 @@
 		transition:fly={{ y: -10, duration: 200 }}
 		onclick={(e) => e.stopPropagation()}
 	>
-		<!-- Close Button -->
-		{#if onClose}
-			<div class="flex justify-end p-2 pb-0">
-				<button
-					onclick={onClose}
-					class="p-1 hover:bg-gray-100 rounded-full transition-colors"
-					aria-label="Close dropdown"
-				>
-					<X class="h-4 w-4 text-gray-400" />
-				</button>
-			</div>
-		{/if}
-		
-		<div class="p-3 {onClose ? 'pt-0' : ''}">
+		<div class="p-3">
 			<!-- Compact Category List -->
 			<div class="space-y-1">
 				{#each categoryTree as category}

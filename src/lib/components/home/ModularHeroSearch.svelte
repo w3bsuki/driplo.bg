@@ -8,9 +8,10 @@
 	
 	interface Props {
 		categories?: any[];
+		topSellers?: any[];
 	}
 	
-	let { categories = [] }: Props = $props();
+	let { categories = [], topSellers = [] }: Props = $props();
 	
 	// State
 	let searchQuery = $state('');
@@ -127,7 +128,7 @@
 		<div class="max-w-5xl mx-auto">
 			
 			<!-- Top Sellers as Main Headline -->
-			<TopSellersCarousel onSellerClick={handleSellerClick} />
+			<TopSellersCarousel sellers={topSellers} onSellerClick={handleSellerClick} />
 
 			<!-- Search Section -->
 			<div bind:this={searchContainerRef} class="relative max-w-2xl mx-auto search-container" style="z-index: 10;">

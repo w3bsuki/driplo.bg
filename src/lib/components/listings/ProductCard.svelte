@@ -2,6 +2,7 @@
 	import { Heart } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
+	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref } from '$lib/paraglide/runtime.js';
 	import { formatCurrency } from '$lib/utils/currency';
@@ -71,37 +72,6 @@
 			: 0
 	);
 	
-	// Get condition badge variant
-	const getConditionVariant = (condition: string | null | undefined): string => {
-		if (!condition) return 'default';
-		
-		const conditionMap: Record<string, string> = {
-			'new_with_tags': 'condition-new-with-tags',
-			'new_without_tags': 'condition-new-without-tags',
-			'like_new': 'condition-new-without-tags',
-			'very_good': 'condition-very-good',
-			'good': 'condition-good',
-			'fair': 'condition-fair'
-		};
-		
-		return conditionMap[condition] || 'default';
-	};
-	
-	// Get condition display text
-	const getConditionText = (condition: string | null | undefined): string => {
-		if (!condition) return '';
-		
-		const textMap: Record<string, string> = {
-			'new_with_tags': 'NEW',
-			'new_without_tags': 'NEW',
-			'like_new': 'LIKE NEW',
-			'very_good': 'VERY GOOD',
-			'good': 'GOOD',
-			'fair': 'FAIR'
-		};
-		
-		return textMap[condition] || condition.toUpperCase();
-	};
 	
 	async function handleToggleLike(e: MouseEvent) {
 		e.preventDefault();
@@ -188,13 +158,7 @@
 			<!-- Condition Badge - Top Left -->
 			{#if condition}
 				<div class="absolute top-2 left-2">
-					<Badge 
-						variant={getConditionVariant(condition)}
-						size="sm"
-						class="text-[10px] font-bold px-1.5 py-0.5 h-5"
-					>
-						{getConditionText(condition)}
-					</Badge>
+					<ConditionBadge condition={condition} size="sm" class="text-[10px] font-bold px-1.5 py-0.5 h-5" />
 				</div>
 			{/if}
 			

@@ -71,17 +71,15 @@ export const load: PageServerLoad = async ({ locals }) => {
             username,
             avatar_url,
             seller_rating,
-            seller_rating_count,
+            buyer_rating_count,
             total_sales,
             bio,
             location,
             created_at
           `)
-          .not('total_sales', 'is', null)
-          .gte('total_sales', 1)
-          .gte('seller_rating', 1.0)
-          .order('total_sales', { ascending: false })
-          .order('seller_rating', { ascending: false })
+          .not('username', 'is', null)
+          .order('total_sales', { ascending: false, nullsFirst: false })
+          .order('seller_rating', { ascending: false, nullsFirst: false })
           .limit(5)
       ]);
 

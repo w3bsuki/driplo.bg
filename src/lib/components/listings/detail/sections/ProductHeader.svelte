@@ -70,7 +70,7 @@
 	<!-- Badges -->
 	<div class="flex flex-wrap gap-1.5">
 		{#if listing?.category}
-			<CategoryBadge category={listing.category} variant="default" />
+			<CategoryBadge category={typeof listing.category === 'object' ? listing.category.name : listing.category} variant="default" />
 		{/if}
 		{#if listing?.brand}
 			<BrandBadge brand={listing.brand} variant="default" />

@@ -114,8 +114,8 @@
 				{#if listing.category}
 					<BreadcrumbSeparator />
 					<BreadcrumbItem>
-						<BreadcrumbLink href="/browse?category={listing.category}">
-							{translateCategory(listing.category)}
+						<BreadcrumbLink href="/browse?category={typeof listing.category === 'object' ? listing.category.slug : listing.category}">
+							{translateCategory(typeof listing.category === 'object' ? listing.category.name : listing.category)}
 						</BreadcrumbLink>
 					</BreadcrumbItem>
 				{/if}
