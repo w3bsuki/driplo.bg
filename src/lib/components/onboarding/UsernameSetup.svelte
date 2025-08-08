@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { Check, X, Loader2 } from 'lucide-svelte';
-	import { onboardingValidators } from '$lib/schemas/onboarding';
+	// Inline username validation to avoid circular imports
+	function validateUsername(username: string): string | null {
+		if (!username) return 'Username is required';
+		if (username.length < 3) return 'Username must be at least 3 characters';
+		if (username.length > 20) return 'Username must be less than 20 characters';
+		if (!/^[a-zA-Z0-9_]+$/.test(username)) return 'Username can only contain letters, numbers, and underscores';
+		return null;
+	}
 	import type { SupabaseClient } from '@supabase/supabase-js';
 	import type { User as AuthUser } from '@supabase/supabase-js';
 
@@ -24,7 +31,7 @@
 			return;
 		}
 
-		const validationError = onboardingValidators.username(usernameToCheck);
+		const validationError = validateUsername(usernameToCheck);
 		if (validationError) {
 			checkError = validationError;
 			isAvailable = false;

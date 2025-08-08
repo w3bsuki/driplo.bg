@@ -1,7 +1,6 @@
 import type { Actions, PageServerLoad } from './$types'
 import { fail, redirect } from '@sveltejs/kit'
 import { superValidate } from 'sveltekit-superforms'
-import { zod } from 'sveltekit-superforms/adapters'
 import { sellPageDefaults, sellPageSchema } from '$lib/schemas/sell-isolated'
 import { serverCache } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
@@ -25,6 +24,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tags: sellPageDefaults.tags || [],
 		materials: sellPageDefaults.materials || []
 	}
+	// Dynamically import zod adapter to avoid SSR circular init
+	const { zod } = await import('sveltekit-superforms/adapters')
 	const form = await superValidate(formDefaults, zod(sellPageSchema))
 	
 	// Fetch categories
@@ -105,6 +106,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		
 		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
+		const { zod } = await import('sveltekit-superforms/adapters')
 		return {
 			form: await superValidate(sellPageDefaults, zod(sellPageSchema)),
 			user: null,
@@ -133,6 +135,7 @@ export const actions: Actions = {
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
+			const { zod } = await import('sveltekit-superforms/adapters')
 			const form = await superValidate(formData, zod(sellPageSchema))
 			return fail(400, { form, error: 'Please add at least one image.' })
 		}
@@ -155,6 +158,7 @@ export const actions: Actions = {
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
 				})
+				const { zod } = await import('sveltekit-superforms/adapters')
 				const form = await superValidate(formData, zod(sellPageSchema))
 				return fail(500, { form, error: `Failed to upload images` })
 			}
@@ -178,6 +182,7 @@ export const actions: Actions = {
 		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
+		const { zod } = await import('sveltekit-superforms/adapters')
 		const form = await superValidate(formDataForValidation, zod(sellPageSchema))
 		
 		if (!form.valid) {

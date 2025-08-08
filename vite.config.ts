@@ -51,7 +51,7 @@ export default defineConfig({
 						if (id.includes('bits-ui')) return 'ui';
 						if (id.includes('lucide-svelte')) return 'icons';
 						if (id.includes('@tanstack/')) return 'query';
-						if (id.includes('zod')) return 'validation';
+						// NOTE: Avoid isolating validation/zod into its own SSR chunk to prevent circular init
 						return 'vendor';
 					}
 					
