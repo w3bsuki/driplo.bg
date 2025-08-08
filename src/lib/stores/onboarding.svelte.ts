@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import type { User } from '@supabase/supabase-js';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 interface OnboardingState {
 	hasSeenWelcome: boolean;

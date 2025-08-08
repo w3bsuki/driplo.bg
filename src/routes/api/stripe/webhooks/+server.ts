@@ -4,7 +4,7 @@ import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from '$env/static/private';
 import type { RequestHandler } from './$types';
 import { emailService } from '$lib/server/email';
 import { rateLimiters } from '$lib/server/rate-limit';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20'

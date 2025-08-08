@@ -7,7 +7,11 @@
 	import * as m from '$lib/paraglide/messages';
 	import type { User } from '@supabase/supabase-js';
 	
-	export let user: User;
+	interface Props {
+		user: User;
+	}
+	
+	let { user }: Props = $props();
 	
 	let currentSlide = 0;
 	

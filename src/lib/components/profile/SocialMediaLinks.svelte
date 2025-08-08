@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Instagram, Globe, Link2, ShoppingBag } from 'lucide-svelte';
-	import type { Database } from '$lib/types/database.types';
+	import type { Database } from '$lib/database.types';
 
 	type Profile = Database['public']['Tables']['profiles']['Row'];
 	type SocialMediaAccount = Database['public']['Tables']['social_media_accounts']['Row'];
@@ -157,6 +157,6 @@
 <style>
 	/* Smooth hover transitions */
 	a {
-		@apply transform-gpu;
+		transform: translateZ(0);
 	}
 </style>

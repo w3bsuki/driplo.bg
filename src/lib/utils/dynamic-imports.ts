@@ -6,6 +6,7 @@
  */
 
 import type { ComponentType, SvelteComponent } from 'svelte';
+import { logger } from '$lib/utils/logger';
 
 /**
  * Lazy load a Svelte component with loading and error states
@@ -17,7 +18,7 @@ export async function lazyLoadComponent<T extends SvelteComponent>(
 		const module = await loader();
 		return module.default;
 	} catch (error) {
-		console.error('Failed to load component:', error);
+		logger.error('Failed to load component:', error);
 		throw error;
 	}
 }

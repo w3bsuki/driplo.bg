@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import SearchBar from '$lib/components/search/SearchBar.svelte';
 	import SearchDropdown from '$lib/components/search/SearchDropdown.svelte';
-	import TopSellersCarousel from '$lib/components/search/TopSellersCarousel.svelte';
+	import SimplifiedTopSellers from '$lib/components/home/SimplifiedTopSellers.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
@@ -38,7 +38,6 @@
 	}
 	
 	function handleCategorySelect(category: string, subcategory?: string) {
-		// Only close dropdown and navigate when actually selecting a category/subcategory
 		showCategories = false;
 		if (subcategory) {
 			goto(`/${category}/${subcategory}`);
@@ -48,7 +47,6 @@
 	}
 	
 	function toggleCategory(categorySlug: string) {
-		console.log('Toggling category:', categorySlug);
 		const newExpanded = new Set(expandedCategories);
 		if (newExpanded.has(categorySlug)) {
 			newExpanded.delete(categorySlug);
@@ -56,16 +54,11 @@
 			newExpanded.add(categorySlug);
 		}
 		expandedCategories = newExpanded;
-		console.log('Expanded categories:', expandedCategories);
 	}
 	
 	function handleTrendingClick(term: string) {
 		searchQuery = term;
 		handleSearch();
-	}
-	
-	function handleSellerClick(username: string) {
-		goto(`/profile/${username}`);
 	}
 	
 	function handleCloseDropdown() {
@@ -85,8 +78,6 @@
 	function handleSearchBlur(e: FocusEvent) {
 		setTimeout(() => {
 			isFocused = false;
-			// Don't close dropdown on blur - let user interact with dropdown
-			// Only close when explicitly clicking outside or selecting an item
 		}, 200);
 	}
 	
@@ -104,12 +95,10 @@
 	function handleDocumentClick(e: MouseEvent) {
 		const target = e.target as HTMLElement;
 		
-		// Don't close if clicking inside our search container
 		if (searchContainerRef?.contains(target)) {
 			return;
 		}
 		
-		// Close dropdown when clicking outside
 		showCategories = false;
 	}
 
@@ -121,17 +110,14 @@
 	});
 </script>
 
-<section data-hero-search class="relative bg-white py-8 md:py-12">
-	<div class="absolute inset-0 bg-gradient-to-b from-gray-50/50 to-white pointer-events-none"></div>
+<section data-hero-search class="relative bg-white">
+	<!-- Clean Top Sellers Section -->
+	<SimplifiedTopSellers sellers={topSellers} />
 	
-	<div class="container px-4 relative">
-		<div class="max-w-5xl mx-auto">
-			
-			<!-- Top Sellers as Main Headline -->
-			<TopSellersCarousel sellers={topSellers} onSellerClick={handleSellerClick} />
-
-			<!-- Search Section -->
-			<div bind:this={searchContainerRef} class="relative max-w-2xl mx-auto search-container" style="z-index: 10;">
+	<!-- Search Section -->
+	<div class="container px-4 py-3">
+		<div class="max-w-2xl mx-auto">
+			<div bind:this={searchContainerRef} class="relative">
 				<SearchBar
 					bind:this={searchBarRef}
 					bind:value={searchQuery}
@@ -161,7 +147,6 @@
 					onClose={handleCloseDropdown}
 				/>
 			</div>
-
 		</div>
 	</div>
 </section>

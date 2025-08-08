@@ -5,7 +5,7 @@
 		htmlFor?: string
 		class?: string
 		required?: boolean
-		children?: any
+		children?: import('svelte').Snippet
 	}
 	
 	let { htmlFor, class: className, required = false, children }: Props = $props()

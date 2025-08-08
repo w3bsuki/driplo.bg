@@ -5,6 +5,7 @@
 	import UrgencyIndicator from './UrgencyIndicator.svelte';
 	import TrustSignals from './TrustSignals.svelte';
 	import * as m from '$lib/paraglide/messages.js';
+	import { logger } from '$lib/utils/logger';
 	
 	// Modern Svelte 5 patterns with conversion psychology
 	interface Props {
@@ -109,7 +110,7 @@
 			// Revert on error
 			liked = originalLiked;
 			likeCount = originalCount;
-			console.error('Error toggling like:', error);
+			logger.error('Error toggling like', error);
 		} finally {
 			likeLoading = false;
 		}

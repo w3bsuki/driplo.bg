@@ -1,3 +1,5 @@
+import { logger } from '$lib/utils/logger'
+
 interface CompressionOptions {
 	maxWidth?: number
 	maxHeight?: number
@@ -46,7 +48,7 @@ export async function compressImages(
 			const compressed = await compressImage(file, { maxWidth, maxHeight, quality, maxSizeMB })
 			compressedFiles.push(compressed)
 		} catch (error) {
-			console.error('Failed to compress image:', error)
+			logger.error('Failed to compress image', error)
 			// Fall back to original if compression fails
 			compressedFiles.push(file)
 		}

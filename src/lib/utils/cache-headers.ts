@@ -136,5 +136,28 @@ export const cachePresets = {
 		private: true,
 		maxAge: 0,
 		mustRevalidate: true
+	},
+
+	/**
+	 * Images - long cache with validation
+	 */
+	image: {
+		maxAge: 604800, // 1 week browser
+		sMaxAge: 31536000, // 1 year CDN
+		mustRevalidate: true
+	},
+
+	/**
+	 * API data - stale-while-revalidate pattern
+	 */
+	apiStale: {
+		custom: 'public, max-age=60, stale-while-revalidate=300'
+	},
+
+	/**
+	 * Component chunks - immutable with long cache
+	 */
+	chunks: {
+		custom: 'public, max-age=31536000, immutable'
 	}
 } as const

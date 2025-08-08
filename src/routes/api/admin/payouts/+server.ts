@@ -10,6 +10,7 @@ import {
   handleDatabaseError 
 } from '$lib/server/api-utils';
 import { logAdminAction, AdminActions, ResourceTypes } from '$lib/server/audit';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
 	try {
@@ -148,7 +149,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				.eq('id', updatedPayout.transaction_id);
 
 			if (transactionError) {
-				console.error('Transaction update error:', transactionError);
+				logger.error('Transaction update error:', transactionError);
 				// Don't fail the request, just log the error
 			}
 
@@ -199,7 +200,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				.eq('id', updatedPayout.transaction_id);
 
 			if (transactionError) {
-				console.error('Transaction update error:', transactionError);
+				logger.error('Transaction update error:', transactionError);
 				// Don't fail the request, just log the error
 			}
 

@@ -64,15 +64,18 @@
 	>
 		{@render children()}
 		{#if dismissible}
-			<button
-				onclick={handleDismiss}
-				class="ml-1.5 -mr-1 p-0.5 rounded-sm hover:bg-black/10 transition-colors duration-100"
+			<span
+				onclick={(e) => { e.stopPropagation(); handleDismiss(); }}
+				onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleDismiss(); } }}
+				class="ml-1.5 -mr-1 p-0.5 rounded-sm hover:bg-black/10 transition-colors duration-100 cursor-pointer"
+				role="button"
+				tabindex="0"
 				aria-label="Remove"
 			>
 				<svg class="w-3 h-3" viewBox="0 0 12 12" fill="currentColor">
 					<path d="M9 3L3 9M3 3l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
 				</svg>
-			</button>
+			</span>
 		{/if}
 	</button>
 {:else}

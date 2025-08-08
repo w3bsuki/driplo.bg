@@ -18,3 +18,12 @@ export { default as Skeleton } from './skeleton.svelte';
 export { default as PasswordStrength } from './PasswordStrength.svelte';
 export { default as Confetti } from './Confetti.svelte';
 
+// Error handling components
+export { default as ErrorMessage } from './ErrorMessage.svelte';
+export { default as LoadingSpinner } from './LoadingSpinner.svelte';
+export { default as EmptyState } from './EmptyState.svelte';
+export { default as RetryButton } from './RetryButton.svelte';
+
+// Performance components
+export { default as LazyComponent } from './LazyComponent.svelte';
+

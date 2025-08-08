@@ -1,12 +1,20 @@
 import { getContext, setContext } from 'svelte';
 import { listingStore } from '$lib/stores/listing.svelte.ts';
+import type { Tables } from '$lib/database.types';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 const LISTING_CONTEXT_KEY = Symbol('listing');
 
+type Profile = Tables<'profiles'>;
+type Listing = Tables<'listings'> & {
+	seller?: Profile;
+	user_id: string;
+};
+
 export interface ListingContextData {
-	listing: any;
-	currentUser: any;
-	supabase: any;
+	listing: Listing;
+	currentUser: Profile | null;
+	supabase: SupabaseClient;
 	store: typeof listingStore;
 	// Derived reactive values
 	isLiked: () => boolean;
@@ -28,9 +36,9 @@ export interface ListingContextData {
  * This eliminates prop drilling throughout the component tree
  */
 export function createListingContext(
-	listing: any, 
-	currentUser: any, 
-	supabase: any
+	listing: Listing, 
+	currentUser: Profile | null, 
+	supabase: SupabaseClient
 ): ListingContextData {
 	const context: ListingContextData = {
 		listing,

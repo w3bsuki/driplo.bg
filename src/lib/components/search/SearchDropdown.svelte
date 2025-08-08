@@ -88,9 +88,9 @@
 	<div 
 		bind:this={dropdownRef}
 		data-search-dropdown
-		class="absolute top-full -mt-px left-0 right-0 bg-white rounded-b-lg shadow-lg border border-gray-200 max-h-[400px] overflow-y-auto"
+		class="absolute top-full -mt-px left-0 right-0 bg-white rounded-b-xl shadow-md border border-gray-200 border-t-0 max-h-[360px] overflow-y-auto"
 		style="z-index: 20;"
-		transition:fly={{ y: -10, duration: 200 }}
+		transition:fly={{ y: -8, duration: 150 }}
 		onclick={(e) => e.stopPropagation()}
 	>
 		<div class="p-3">

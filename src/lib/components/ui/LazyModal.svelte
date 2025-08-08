@@ -34,7 +34,7 @@
 			Component = module.default;
 		} catch (e) {
 			error = e as Error;
-			console.error('Failed to load modal component:', e);
+			logger.error('Failed to load modal component:', e);
 		} finally {
 			loading = false;
 		}

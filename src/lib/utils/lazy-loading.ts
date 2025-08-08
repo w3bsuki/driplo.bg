@@ -177,3 +177,160 @@ export function getSizesAttribute(defaultSize: string = '100vw'): string {
 		${defaultSize}
 	`.trim();
 }
+
+/**
+ * Generate LQIP (Low Quality Image Placeholder) from original URL
+ */
+export function generateLQIP(src: string, width: number = 40, quality: number = 10): string {
+	// For Supabase storage URLs, add transformation parameters
+	if (src.includes('supabase')) {
+		return `${src}?width=${width}&quality=${quality}&format=webp`;
+	}
+	
+	// For other CDNs, use generic parameters
+	return `${src}${src.includes('?') ? '&' : '?'}w=${width}&q=${quality}`;
+}
+
+/**
+ * Generate progressive loading sizes
+ */
+export function getProgressiveSizes(targetWidth: number): number[] {
+	const sizes = [Math.max(40, Math.floor(targetWidth * 0.1))];
+	
+	if (targetWidth > 200) {
+		sizes.push(Math.floor(targetWidth * 0.3));
+	}
+	
+	if (targetWidth > 500) {
+		sizes.push(Math.floor(targetWidth * 0.6));
+	}
+	
+	sizes.push(targetWidth);
+	return sizes;
+}
+
+/**
+ * Adaptive image quality based on connection speed
+ */
+export function getAdaptiveQuality(): number {
+	if (!browser) return 85;
+	
+	const connection = (navigator as any).connection;
+	if (!connection) return 85;
+	
+	// Adjust quality based on effective connection type
+	switch (connection.effectiveType) {
+		case 'slow-2g':
+		case '2g':
+			return 60;
+		case '3g':
+			return 75;
+		case '4g':
+		default:
+			return 85;
+	}
+}
+
+/**
+ * Image preload queue for managing bandwidth
+ */
+class ImagePreloadQueue {
+	private queue: Array<{ src: string; priority: 'high' | 'low'; resolve: () => void }> = [];
+	private loading = new Set<string>();
+	private maxConcurrent = 3;
+	private currentLoading = 0;
+
+	add(src: string, priority: 'high' | 'low' = 'low'): Promise<void> {
+		return new Promise((resolve) => {
+			// Skip if already loading or loaded
+			if (this.loading.has(src)) {
+				resolve();
+				return;
+			}
+
+			this.queue.push({ src, priority, resolve });
+			this.processQueue();
+		});
+	}
+
+	private processQueue() {
+		if (this.currentLoading >= this.maxConcurrent || this.queue.length === 0) {
+			return;
+		}
+
+		// Sort by priority (high first)
+		this.queue.sort((a, b) => {
+			if (a.priority === 'high' && b.priority === 'low') return -1;
+			if (a.priority === 'low' && b.priority === 'high') return 1;
+			return 0;
+		});
+
+		const item = this.queue.shift();
+		if (!item) return;
+
+		this.currentLoading++;
+		this.loading.add(item.src);
+
+		const img = new Image();
+		img.onload = img.onerror = () => {
+			this.currentLoading--;
+			this.loading.delete(item.src);
+			item.resolve();
+			this.processQueue();
+		};
+		img.src = item.src;
+	}
+}
+
+export const imagePreloadQueue = new ImagePreloadQueue();
+
+/**
+ * Batch image preloading with intersection observer
+ */
+export function createImagePreloader(images: string[], options: LazyLoadingOptions = {}) {
+	if (!browser) return { cleanup: () => {} };
+
+	const { rootMargin = '100px', threshold = 0.1 } = options;
+	const preloadedImages = new Set<string>();
+
+	const observer = new IntersectionObserver(
+		(entries) => {
+			entries.forEach((entry) => {
+				if (entry.isIntersecting) {
+					const img = entry.target as HTMLElement;
+					const src = img.dataset['src'];
+					
+					if (src && !preloadedImages.has(src)) {
+						preloadedImages.add(src);
+						imagePreloadQueue.add(src, 'low');
+						observer.unobserve(img);
+					}
+				}
+			});
+		},
+		{ rootMargin, threshold }
+	);
+
+	// Create placeholder elements for each image
+	const placeholders = images.map((src) => {
+		const div = document.createElement('div');
+		div.dataset['src'] = src;
+		div.style.width = '1px';
+		div.style.height = '1px';
+		div.style.opacity = '0';
+		div.style.pointerEvents = 'none';
+		document.body.appendChild(div);
+		observer.observe(div);
+		return div;
+	});
+
+	return {
+		cleanup: () => {
+			placeholders.forEach((placeholder) => {
+				observer.unobserve(placeholder);
+				document.body.removeChild(placeholder);
+			});
+			observer.disconnect();
+		}
+	};
+}

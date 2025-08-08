@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 // Save or update draft
 export const POST: RequestHandler = async ({ request, locals: { supabase } }) => {
@@ -35,9 +35,9 @@ export const POST: RequestHandler = async ({ request, locals: { supabase } }) =>
 			message: 'Draft saved',
 			updated_at: data.updated_at 
 		})
-	} catch (err: any) {
+	} catch (err: unknown) {
 		logger.error('Draft save error', err)
-		if (err.status) throw err
+		if (err && typeof err === 'object' && 'status' in err) throw err
 		throw error(500, 'Internal server error')
 	}
 }
@@ -70,9 +70,9 @@ export const GET: RequestHandler = async ({ locals: { supabase } }) => {
 			draft: data.form_data,
 			updated_at: data.updated_at
 		})
-	} catch (err: any) {
+	} catch (err: unknown) {
 		logger.error('Draft load error', err)
-		if (err.status) throw err
+		if (err && typeof err === 'object' && 'status' in err) throw err
 		throw error(500, 'Internal server error')
 	}
 }
@@ -97,9 +97,9 @@ export const DELETE: RequestHandler = async ({ locals: { supabase } }) => {
 		}
 		
 		return json({ success: true })
-	} catch (err: any) {
+	} catch (err: unknown) {
 		logger.error('Draft delete error', err)
-		if (err.status) throw err
+		if (err && typeof err === 'object' && 'status' in err) throw err
 		throw error(500, 'Internal server error')
 	}
 }

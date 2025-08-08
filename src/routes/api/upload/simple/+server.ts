@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { v4 as uuidv4 } from 'uuid'
@@ -16,7 +17,7 @@ export const POST: RequestHandler = async (event) => {
 	
 	
 	if (!session?.user) {
-		console.error('Upload authentication failed - no session')
+		logger.error('Upload authentication failed - no session')
 		throw error(401, 'Unauthorized - Please log in again')
 	}
 
@@ -78,7 +79,7 @@ export const POST: RequestHandler = async (event) => {
 				
 				if (result.error) {
 					uploadError = result.error
-					console.error(`Upload attempt ${attempt} failed:`, result.error)
+					logger.error(`Upload attempt ${attempt} failed:`, result.error)
 					if (attempt < 3) {
 						// Wait before retry
 						await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
@@ -90,7 +91,7 @@ export const POST: RequestHandler = async (event) => {
 				}
 			} catch (err) {
 				uploadError = err
-				console.error(`Upload attempt ${attempt} error:`, err)
+				logger.error(`Upload attempt ${attempt} error:`, err)
 				if (attempt < 3) {
 					await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
 				}
@@ -98,7 +99,7 @@ export const POST: RequestHandler = async (event) => {
 		}
 
 		if (uploadError) {
-			console.error('All upload attempts failed:', uploadError)
+			logger.error('All upload attempts failed:', uploadError)
 			throw error(500, uploadError.message || 'Upload failed after 3 attempts')
 		}
 
@@ -113,7 +114,7 @@ export const POST: RequestHandler = async (event) => {
 			bucket
 		})
 	} catch (err: unknown) {
-		console.error('Upload error:', err)
+		logger.error('Upload error:', err)
 		if (err.status) {
 			throw err
 		}

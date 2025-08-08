@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
-import type { Database } from '$lib/types/database';
+import type { Database } from '$lib/database.types';
 import type { RequestEvent } from '@sveltejs/kit';
 
 /**

@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
     const { session } = await locals.safeGetSession();
@@ -107,7 +108,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
         return json(stats);
     } catch (error) {
-        console.error('Error fetching order statistics:', error);
+        logger.error('Error fetching order statistics', error);
         return json({ error: 'Failed to fetch statistics' }, { status: 500 });
     }
 };

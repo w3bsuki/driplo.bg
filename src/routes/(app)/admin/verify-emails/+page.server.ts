@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const { supabase, user } = locals;
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.rpc('get_unverified_users_for_admin');
 	
 	if (usersError) {
-		console.error('Error fetching unverified users:', usersError);
+		logger.error('Error fetching unverified users:', usersError);
 		return {
 			unverifiedUsers: []
 		};
@@ -63,7 +64,7 @@ export const actions = {
 			
 			return { success: true };
 		} catch (err) {
-			console.error('Error verifying email:', err);
+			logger.error('Error verifying email:', err);
 			throw error(500, 'Failed to verify email');
 		}
 	}

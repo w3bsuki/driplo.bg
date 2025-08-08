@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
 import { apiSuccess, apiError, requireAuth, getPagination } from '$lib/server/api-utils';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
     try {

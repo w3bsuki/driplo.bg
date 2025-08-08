@@ -64,25 +64,25 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         .range(offset, offset + limit - 1);
 
         // Filter by role
-        if (filters.role === 'buyer') {
+        if (filters['role'] === 'buyer') {
             query = query.eq('buyer_id', auth.userId);
-        } else if (filters.role === 'seller') {
+        } else if (filters['role'] === 'seller') {
             query = query.eq('seller_id', auth.userId);
         } else {
             query = query.or(`buyer_id.eq.${auth.userId},seller_id.eq.${auth.userId}`);
         }
 
         // Filter by status
-        if (filters.status) {
-            query = query.eq('status', filters.status);
+        if (filters['status']) {
+            query = query.eq('status', filters['status']);
         }
 
         // Filter by date range
-        if (filters.dateFrom) {
-            query = query.gte('created_at', filters.dateFrom);
+        if (filters['dateFrom']) {
+            query = query.gte('created_at', filters['dateFrom']);
         }
-        if (filters.dateTo) {
-            query = query.lte('created_at', filters.dateTo + 'T23:59:59.999Z');
+        if (filters['dateTo']) {
+            query = query.lte('created_at', filters['dateTo'] + 'T23:59:59.999Z');
         }
 
         const { data: orders, error } = await query;

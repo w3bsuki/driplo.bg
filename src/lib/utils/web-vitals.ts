@@ -77,7 +77,11 @@ export async function initWebVitals(config: VitalsConfig = {}) {
  * Get connection information
  */
 function getConnectionInfo() {
-	const nav = navigator as any;
+	const nav = navigator as Navigator & {
+		connection?: NetworkInformation;
+		mozConnection?: NetworkInformation;
+		webkitConnection?: NetworkInformation;
+	};
 	const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
 	
 	if (!connection) return null;
@@ -160,8 +164,12 @@ export function getVitalsScore(): {
 	
 	// Calculate overall score
 	if (scores['lcp'] && scores['fid'] && scores['cls']) {
-		const isGood = (scores['lcp'] as number) < 2500 && (scores['fid'] as number) < 100 && (scores['cls'] as number) < 0.1;
-		const isPoor = (scores['lcp'] as number) > 4000 || (scores['fid'] as number) > 300 || (scores['cls'] as number) > 0.25;
+		const lcpValue = typeof scores['lcp'] === 'number' ? scores['lcp'] : 0;
+		const fidValue = typeof scores['fid'] === 'number' ? scores['fid'] : 0;
+		const clsValue = typeof scores['cls'] === 'number' ? scores['cls'] : 0;
+		
+		const isGood = lcpValue < 2500 && fidValue < 100 && clsValue < 0.1;
+		const isPoor = lcpValue > 4000 || fidValue > 300 || clsValue > 0.25;
 		
 		scores['score'] = isGood ? 'good' : isPoor ? 'poor' : 'needs-improvement';
 	}

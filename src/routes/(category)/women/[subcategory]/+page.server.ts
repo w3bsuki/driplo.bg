@@ -48,26 +48,26 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
     .eq('is_draft', false);
 
   // Apply filters
-  if (filters.min_price) query = query.gte('price', parseFloat(filters.min_price));
-  if (filters.max_price) query = query.lte('price', parseFloat(filters.max_price));
+  if (filters['min_price']) query = query.gte('price', parseFloat(filters['min_price']));
+  if (filters['max_price']) query = query.lte('price', parseFloat(filters['max_price']));
   // Convert brand name to brand_id for proper filtering
-  if (filters.brand) {
+  if (filters['brand']) {
     const { data: brand } = await locals.supabase
       .from('brands')
       .select('id')
-      .eq('name', filters.brand)
+      .eq('name', filters['brand'])
       .single();
     
     if (brand) {
       query = query.eq('brand_id', brand.id);
     }
   }
-  if (filters.condition) query = query.eq('condition', filters.condition);
-  if (filters.size) query = query.eq('size', filters.size);
-  if (filters.color) query = query.eq('color', filters.color);
+  if (filters['condition']) query = query.eq('condition', filters['condition']);
+  if (filters['size']) query = query.eq('size', filters['size']);
+  if (filters['color']) query = query.eq('color', filters['color']);
 
   // Apply sorting
-  const sortBy = filters.sort || 'newest';
+  const sortBy = filters['sort'] || 'newest';
   switch (sortBy) {
     case 'price_low':
       query = query.order('price', { ascending: true });
@@ -83,7 +83,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
   }
 
   // Pagination
-  const page = parseInt(filters.page || '1');
+  const page = parseInt(filters['page'] || '1');
   const limit = 24;
   const from = (page - 1) * limit;
   const to = from + limit - 1;

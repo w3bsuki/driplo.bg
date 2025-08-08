@@ -70,7 +70,7 @@
 				toast.success(responseData.message || m.profile_unfollow_success())
 			}
 		} catch (error) {
-			console.error('Follow error:', error)
+			logger.error('Follow error:', error)
 			toast.error(error instanceof Error ? error.message : m.profile_follow_update_error())
 		}
 	}
@@ -102,7 +102,7 @@
 		}
 			toast.success(m.profile_signout_success())
 		} catch (error) {
-			console.error('Sign out error:', error)
+			logger.error('Sign out error:', error)
 			toast.error(m.profile_signout_error())
 		}
 	}

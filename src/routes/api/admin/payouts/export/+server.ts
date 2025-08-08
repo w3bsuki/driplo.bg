@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import { apiError, requireAdmin } from '$lib/server/api-utils';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
   try {
@@ -144,7 +145,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     }
 
   } catch (error) {
-    console.error('Payout export error:', error);
+    logger.error('Payout export error:', error);
     return apiError('Failed to export payouts', 500);
   }
 };

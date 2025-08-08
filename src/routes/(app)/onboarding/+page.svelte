@@ -85,7 +85,7 @@
 				.single();
 			
 			if (profileCheckError || !existingProfile) {
-				console.error('Profile does not exist, creating one...');
+				logger.error('Profile does not exist, creating one...');
 				// Create profile if it doesn't exist
 				const { error: createError } = await supabase
 					.from('profiles')
@@ -102,7 +102,7 @@
 					});
 				
 				if (createError) {
-					console.error('Failed to create profile:', createError);
+					logger.error('Failed to create profile:', createError);
 					alert(`Failed to create profile: ${createError.message}`);
 					loading = false;
 					return;
@@ -118,8 +118,8 @@
 					});
 
 				if (updateError) {
-					console.error('Database error completing onboarding:', updateError);
-					console.error('Update error details:', {
+					logger.error('Database error completing onboarding:', updateError);
+					logger.error('Update error details:', {
 						code: updateError.code,
 						message: updateError.message,
 						details: updateError.details,
@@ -149,7 +149,7 @@
 				.single();
 			
 			if (fetchError || !updatedProfile) {
-				console.error('Failed to fetch updated profile:', fetchError);
+				logger.error('Failed to fetch updated profile:', fetchError);
 				// Continue anyway, the update succeeded
 			} else {
 				// Update the auth context with new profile data
@@ -165,7 +165,7 @@
 						.eq('id', data.user.id)
 						.single();
 				} catch (error) {
-					console.error('Failed to reload profile:', error);
+					logger.error('Failed to reload profile:', error);
 				}
 			}
 			
@@ -186,7 +186,7 @@
 			const localizedHomeUrl = localizeHref('/', { locale: currentLocale });
 			await goto(localizedHomeUrl, { replaceState: true, invalidateAll: true });
 		} catch (err) {
-			console.error('Onboarding completion error:', err);
+			logger.error('Onboarding completion error:', err);
 			alert(`An error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`);
 			loading = false;
 		}

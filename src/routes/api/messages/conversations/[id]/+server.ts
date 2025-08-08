@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, params, url }) => {
     const supabase = locals.supabase;
@@ -47,7 +48,7 @@ export const GET: RequestHandler = async ({ locals, params, url }) => {
     const { data: messages, error: msgError } = await query;
 
     if (msgError) {
-        console.error('Error fetching messages:', msgError);
+        logger.error('Error fetching messages:', msgError);
         return json({ error: 'Failed to fetch messages' }, { status: 500 });
     }
 

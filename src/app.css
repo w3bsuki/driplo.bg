@@ -1,67 +1,196 @@
 @import 'tailwindcss';
-
-/* Import our custom token system */
-@import './lib/styles/tokens.css';
 @import './lib/styles/base.css';
-@import './lib/styles/utilities.css';
 @import './lib/styles/animations.css';
-@import './lib/styles/ecommerce.css';
 
-/* Font imports - Local font files */
+/* Tailwind v4 @theme configuration */
+@theme {
+  /* Colors */
+  --color-brand-50: #f0f9ff;
+  --color-brand-100: #e0f2fe;
+  --color-brand-200: #bae6fd;
+  --color-brand-300: #7dd3fc;
+  --color-brand-400: #38bdf8;
+  --color-brand-500: #87ceeb;
+  --color-brand-600: #6bb6d8;
+  --color-brand-700: #4f9fc5;
+  --color-brand-800: #3a88ae;
+  --color-brand-900: #1e5a7e;
+
+  --color-google-blue: #4285F4;
+  --color-google-green: #34A853;
+  --color-google-yellow: #FBBC05;
+  --color-google-red: #EA4335;
+
+  --color-product-black: #000000;
+  --color-product-white: #FFFFFF;
+  --color-product-gray: #6B7280;
+  --color-product-navy: #1E3A8A;
+  --color-product-blue: #3B82F6;
+  --color-product-red: #EF4444;
+  --color-product-pink: #EC4899;
+  --color-product-green: #10B981;
+  --color-product-yellow: #F59E0B;
+  --color-product-orange: #F97316;
+  --color-product-purple: #8B5CF6;
+  --color-product-brown: #92400E;
+  --color-product-beige: #D4A574;
+
+  --color-gray-0: #ffffff;
+  --color-gray-50: #f8fafc;
+  --color-gray-100: #f1f5f9;
+  --color-gray-200: #e2e8f0;
+  --color-gray-300: #cbd5e1;
+  --color-gray-400: #94a3b8;
+  --color-gray-500: #64748b;
+  --color-gray-600: #475569;
+  --color-gray-700: #334155;
+  --color-gray-800: #1e293b;
+  --color-gray-900: #0f172a;
+  --color-gray-950: #020617;
+
+  /* Legacy shadcn color compatibility */
+  --color-input: hsl(var(--input, 210 40% 98%));
+  --color-ring: hsl(var(--ring, 222.2 84% 4.9%));
+  --color-primary: hsl(var(--primary, 221.2 83.2% 53.3%));
+  --color-primary-foreground: hsl(var(--primary-foreground, 210 40% 98%));
+  --color-secondary: hsl(var(--secondary, 210 40% 96%));
+  --color-secondary-foreground: hsl(var(--secondary-foreground, 222.2 84% 4.9%));
+  --color-destructive: hsl(var(--destructive, 0 84.2% 60.2%));
+  --color-destructive-foreground: hsl(var(--destructive-foreground, 210 40% 98%));
+  --color-muted: hsl(var(--muted, 210 40% 96%));
+  --color-muted-foreground: hsl(var(--muted-foreground, 215.4 16.3% 46.9%));
+  --color-accent: hsl(var(--accent, 210 40% 96%));
+  --color-accent-foreground: hsl(var(--accent-foreground, 222.2 84% 4.9%));
+  --color-popover: hsl(var(--popover, 0 0% 100%));
+  --color-popover-foreground: hsl(var(--popover-foreground, 222.2 84% 4.9%));
+  --color-card: hsl(var(--card, 0 0% 100%));
+  --color-card-foreground: hsl(var(--card-foreground, 222.2 84% 4.9%));
+  --color-success: hsl(var(--success, 142.1 76.2% 36.3%));
+  --color-success-foreground: hsl(var(--success-foreground, 0 0% 100%));
+  --color-warning: hsl(var(--warning, 32.9 94.6% 43.7%));
+  --color-warning-foreground: hsl(var(--warning-foreground, 0 0% 6%));
+
+  /* Semantic color mappings */
+  --color-background: var(--color-gray-0);
+  --color-surface: var(--color-gray-0);
+  --color-foreground: var(--color-gray-900);
+  --color-border: var(--color-gray-200);
+
+  /* Font families */
+  --font-family-sans: Inter, system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Plus Jakarta Sans', var(--font-family-sans);
+  --font-family-mono: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* Font sizes */
+  --font-size-2xs: 0.6875rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.8125rem;
+  --font-size-base: 0.875rem;
+  --font-size-md: 0.9375rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 2.5rem;
+
+  /* Border radius */
+  --border-radius-none: 0;
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius: 0.375rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --border-radius-full: 9999px;
+
+  /* Spacing */
+  --spacing-0: 0;
+  --spacing-px: 1px;
+  --spacing-0_5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1_5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2_5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+
+  /* Box shadows */
+  --box-shadow-none: none;
+  --box-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  --box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --box-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --box-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --box-shadow-border: 0 0 0 1px var(--color-border);
+  --box-shadow-focus: 0 0 0 2px var(--color-gray-0), 0 0 0 4px var(--color-brand-500);
+  --box-shadow-focus-brand: 0 0 0 2px rgba(96, 165, 250, 0.2);
+  --box-shadow-focus-blue: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  --box-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --box-shadow-card-hover: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --box-shadow-dropdown: 0 4px 12px rgb(0 0 0 / 0.08);
+  --box-shadow-modal: 0 8px 24px rgb(0 0 0 / 0.12);
+
+  /* Transition durations */
+  --transition-duration-instant: 0ms;
+  --transition-duration-fast: 75ms;
+  --transition-duration-base: 150ms;
+  --transition-duration-slow: 200ms;
+  --transition-duration-page: 250ms;
+
+  /* Heights */
+  --height-button-xs: 1.75rem;
+  --height-button-sm: 2.25rem;
+  --height-button-md: 2.5rem;
+  --height-button-lg: 2.75rem;
+  --height-button-xl: 3rem;
+  --height-input-sm: 2.25rem;
+  --height-input-md: 2.5rem;
+  --height-input-lg: 2.75rem;
+
+  /* Z-index */
+  --z-index-base: 0;
+  --z-index-dropdown: 10;
+  --z-index-sticky: 20;
+  --z-index-fixed: 30;
+  --z-index-modal-backdrop: 40;
+  --z-index-modal: 50;
+  --z-index-popover: 60;
+  --z-index-tooltip: 70;
+  --z-index-notification: 80;
+  --z-index-max: 99999;
+}
+
+/* Gradient animation for top sellers */
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Font imports - Optimized for performance */
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 400;
-  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2'),
-       url('/fonts/inter-latin-400-normal.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 500;
-  src: url('/fonts/inter-latin-500-normal.woff2') format('woff2'),
-       url('/fonts/inter-latin-500-normal.woff') format('woff');
+  src: url('/fonts/inter-latin-400-normal.woff2') format('woff2');
+  font-display: swap;
 }
 
 @font-face {
   font-family: 'Inter';
   font-style: normal;
   font-weight: 600;
-  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2'),
-       url('/fonts/inter-latin-600-normal.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 700;
-  src: url('/fonts/inter-latin-700-normal.woff2') format('woff2'),
-       url('/fonts/inter-latin-700-normal.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 600;
-  src: url('/fonts/plus-jakarta-sans-latin-600-normal.woff2') format('woff2'),
-       url('/fonts/plus-jakarta-sans-latin-600-normal.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'Plus Jakarta Sans';
-  font-style: normal;
-  font-weight: 700;
-  src: url('/fonts/plus-jakarta-sans-latin-700-normal.woff2') format('woff2'),
-       url('/fonts/plus-jakarta-sans-latin-700-normal.woff') format('woff');
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2'),
-       url('/fonts/jetbrains-mono-latin-400-normal.woff') format('woff');
+  src: url('/fonts/inter-latin-600-normal.woff2') format('woff2');
+  font-display: swap;
 }
 
 /* Fix for dropdown portals */

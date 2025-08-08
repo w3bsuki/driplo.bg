@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
     const { session } = await locals.safeGetSession();
@@ -84,7 +85,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 
         return json({ error: 'Invalid format' }, { status: 400 });
     } catch (error) {
-        console.error('Export error:', error);
+        logger.error('Export error:', error);
         return json({ error: 'Export failed' }, { status: 500 });
     }
 };

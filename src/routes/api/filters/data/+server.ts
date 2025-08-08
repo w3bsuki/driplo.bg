@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals }) => {
 	const { supabase } = locals;

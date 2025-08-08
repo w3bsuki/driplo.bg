@@ -28,7 +28,7 @@
 				goto(`/profile/${profile.username}`)
 			}
 		} catch (error) {
-			console.error('Error loading profile:', error)
+			logger.error('Error loading profile:', error)
 			goto('/profile/settings')
 		}
 	})

@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createSupabaseServerClient } from '$lib/utils/supabase/server';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 // GET - Fetch user's conversations
 export const GET: RequestHandler = async ({ url, cookies }) => {
@@ -45,7 +45,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
 		// Get the latest message for each conversation separately since the join is complex
 		const conversationIds = conversations?.map(c => c.id) || [];
-		let lastMessages: any[] = [];
+		let lastMessages: Record<string, unknown>[] = [];
 		
 		if (conversationIds.length > 0) {
 			const { data: messages } = await supabase
@@ -60,7 +60,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 					acc[msg.conversation_id] = msg;
 				}
 				return acc;
-			}, {} as Record<string, any>) || {};
+			}, {} as Record<string, Record<string, unknown>>) || {};
 
 			lastMessages = conversationIds.map(id => messagesByConv[id]).filter(Boolean);
 		}

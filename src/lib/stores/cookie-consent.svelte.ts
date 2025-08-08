@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 export interface CookiePreferences {
 	necessary: boolean;
@@ -94,20 +94,20 @@ class CookieConsentStore {
 		window.dispatchEvent(event);
 
 		// Make consent available globally
-		(window as any).cookieConsent = this._consent;
+		window.cookieConsent = this._consent;
 
 		// Handle Google Analytics
 		if (this._consent.preferences.analytics) {
 			// Enable GA if it exists
-			if ((window as any).gtag) {
-				(window as any).gtag('consent', 'update', {
+			if (window.gtag) {
+				window.gtag('consent', 'update', {
 					analytics_storage: 'granted'
 				});
 			}
 		} else {
 			// Disable GA
-			if ((window as any).gtag) {
-				(window as any).gtag('consent', 'update', {
+			if (window.gtag) {
+				window.gtag('consent', 'update', {
 					analytics_storage: 'denied'
 				});
 			}
@@ -116,8 +116,8 @@ class CookieConsentStore {
 		// Handle marketing cookies
 		if (this._consent.preferences.marketing) {
 			// Enable marketing cookies
-			if ((window as any).gtag) {
-				(window as any).gtag('consent', 'update', {
+			if (window.gtag) {
+				window.gtag('consent', 'update', {
 					ad_storage: 'granted',
 					ad_user_data: 'granted',
 					ad_personalization: 'granted'
@@ -125,8 +125,8 @@ class CookieConsentStore {
 			}
 		} else {
 			// Disable marketing cookies
-			if ((window as any).gtag) {
-				(window as any).gtag('consent', 'update', {
+			if (window.gtag) {
+				window.gtag('consent', 'update', {
 					ad_storage: 'denied',
 					ad_user_data: 'denied',
 					ad_personalization: 'denied'
@@ -211,3 +211,11 @@ class CookieConsentStore {
 }
 
 export const cookieConsent = new CookieConsentStore();
+
+// Extend window interface for global objects
+declare global {
+	interface Window {
+		gtag?: (...args: unknown[]) => void;
+		cookieConsent?: CookieConsent;
+	}
+}

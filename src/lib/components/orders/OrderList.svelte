@@ -1,9 +1,10 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import { formatDistanceToNow } from 'date-fns';
-    import type { Database } from '$lib/types/database.types';
+    import type { Database } from '$lib/database.types';
     import { Package, ShoppingBag, Clock, ChevronRight, Check, X, Truck, AlertCircle, MoreVertical } from 'lucide-svelte';
     import Spinner from '$lib/components/ui/Spinner.svelte';
+    import { logger } from '$lib/utils/logger';
     
     type Transaction = {
         id: string;
@@ -31,10 +32,14 @@
         };
     };
 
-    export let role: 'buyer' | 'seller' | 'all' = 'all';
-    export let status: string | null = null;
-    export let dateFrom: string = '';
-    export let dateTo: string = '';
+    interface Props {
+        role?: 'buyer' | 'seller' | 'all';
+        status?: string | null;
+        dateFrom?: string;
+        dateTo?: string;
+    }
+    
+    let { role = 'all', status = null, dateFrom = '', dateTo = '' }: Props = $props();
     
     let transactions: Transaction[] = [];
     let loading = true;
@@ -76,7 +81,7 @@
                 offset += limit;
             }
         } catch (error) {
-            console.error('Error loading transactions:', error);
+            logger.error('Error loading transactions', error);
         } finally {
             loading = false;
         }
@@ -133,7 +138,7 @@
                 await loadTransactions();
             }
         } catch (error) {
-            console.error('Bulk action failed:', error);
+            logger.error('Bulk action failed', error);
         } finally {
             bulkActionLoading = false;
         }
@@ -179,9 +184,9 @@
                             type="checkbox" 
                             class="w-5 h-5 sm:w-4 sm:h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
                             checked={selectedOrders.size === transactions.length}
-                            onchange={handleToggleAllOrders}
+                            onchange={toggleAllOrders}
                         />
-                        <label class="text-sm font-medium text-gray-700 cursor-pointer select-none" onclick={handleToggleAllOrders}>
+                        <label class="text-sm font-medium text-gray-700 cursor-pointer select-none" onclick={toggleAllOrders}>
                             Select All
                             {#if selectedOrders.size > 0}
                                 <span class="text-gray-500 font-normal">({selectedOrders.size} selected)</span>
@@ -325,7 +330,7 @@
             <div class="mt-6 text-center">
                 <button
                     class="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
-                    onclick={handleLoadTransactions}
+                    onclick={loadTransactions}
                     disabled={loading}
                 >
                     {#if loading}

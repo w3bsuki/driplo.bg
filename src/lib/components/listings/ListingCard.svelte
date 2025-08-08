@@ -6,6 +6,7 @@
 		import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
 	import { formatCurrency } from '$lib/utils/currency';
+	import { logger } from '$lib/utils/logger';
 	const AVATAR_GRADIENT_COLORS = [
 		'from-blue-500 to-purple-500',
 		'from-green-500 to-blue-500', 
@@ -109,7 +110,7 @@
 			liked = originalLiked;
 			likeCount = originalCount;
 			apiError = error instanceof Error ? error.message : m.listing_favorite_error();
-			console.error('Error toggling like:', error);
+			logger.error('Error toggling like:', error);
 		} finally {
 			likeLoading = false;
 		}

@@ -1,7 +1,8 @@
 <script lang="ts">
     import { formatDistanceToNow } from 'date-fns';
     import { createEventDispatcher } from 'svelte';
-    import type { Database } from '$lib/types/database.types';
+    import type { Database } from '$lib/database.types';
+    import { logger } from '$lib/utils/logger';
     
     type Message = Database['public']['Tables']['messages']['Row'] & {
         sender: {
@@ -29,8 +30,12 @@
         messages: Message[];
     };
 
-    export let isOpen = false;
-    export let userId: string;
+    interface Props {
+        isOpen?: boolean;
+        userId: string;
+    }
+    
+    let { isOpen = false, userId }: Props = $props();
 
     const dispatch = createEventDispatcher<{
         close: void;
@@ -42,14 +47,16 @@
     let searching = false;
     let searchTimeout: NodeJS.Timeout;
 
-    $: if (searchQuery.trim().length >= 2) {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            performSearch();
-        }, 300);
-    } else {
-        searchResults = [];
-    }
+    $effect(() => {
+        if (searchQuery.trim().length >= 2) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        } else {
+            searchResults = [];
+        }
+    });
 
     async function performSearch() {
         if (searchQuery.trim().length < 2) return;
@@ -62,10 +69,10 @@
             if (response.ok) {
                 searchResults = data.results;
             } else {
-                console.error('Search failed:', data.error);
+                logger.error('Search failed:', data.error);
             }
         } catch (error) {
-            console.error('Search error:', error);
+            logger.error('Search error:', error);
         } finally {
             searching = false;
         }

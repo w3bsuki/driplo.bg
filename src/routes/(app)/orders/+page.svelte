@@ -46,7 +46,7 @@
                 document.body.removeChild(a);
             }
         } catch (error) {
-            console.error('Export failed:', error);
+            logger.error('Export failed:', error);
         }
     }
 
@@ -65,7 +65,7 @@
                 showStats = true;
             }
         } catch (error) {
-            console.error('Failed to load stats:', error);
+            logger.error('Failed to load stats:', error);
         }
     }
 

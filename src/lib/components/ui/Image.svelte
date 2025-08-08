@@ -195,7 +195,7 @@
 	}
 
 	function handleError(e: Event) {
-		console.error('Image failed to load:', src);
+		logger.error('Image failed to load:', src);
 		hasError = true;
 		onerror?.(e);
 	}

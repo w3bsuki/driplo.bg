@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -99,7 +100,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
             shipping_carrier
         });
     } catch (error) {
-        console.error('Error shipping order:', error);
+        logger.error('Error shipping order', error);
         return json({ error: 'Failed to ship order' }, { status: 500 });
     }
 };

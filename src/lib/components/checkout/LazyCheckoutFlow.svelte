@@ -2,10 +2,17 @@
 	import { onMount } from 'svelte';
 	import type { Listing } from '$lib/types';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
+	import { logger } from '$lib/utils/logger';
 	
-	export let listing: Listing;
-	export let isOpen: boolean;
+	interface Props {
+		listing: Listing;
+		isOpen: boolean;
+		[key: string]: unknown; // for rest props
+	}
 	
+	let { listing, isOpen, ...restProps }: Props = $props();
+	
+	// TODO: Add proper component type once Svelte component typing is improved
 	let CheckoutFlow: any = null;
 	let loading = false;
 	let error: Error | null = null;
@@ -19,16 +26,18 @@
 			CheckoutFlow = module.default;
 		} catch (e) {
 			error = e as Error;
-			console.error('Failed to load checkout flow:', e);
+			logger.error('Failed to load checkout flow', e);
 		} finally {
 			loading = false;
 		}
 	}
 	
 	// Load when modal opens
-	$: if (isOpen && !CheckoutFlow) {
-		loadCheckoutFlow();
-	}
+	$effect(() => {
+		if (isOpen && !CheckoutFlow) {
+			loadCheckoutFlow();
+		}
+	});
 	
 	// Preload on hover/focus of buy button
 	export function preload() {
@@ -65,6 +74,6 @@
 			</div>
 		</div>
 	{:else if CheckoutFlow}
-		<svelte:component this={CheckoutFlow} {listing} {isOpen} {...$$restProps} />
+		<svelte:component this={CheckoutFlow} {listing} {isOpen} {...restProps} />
 	{/if}
 {/if}

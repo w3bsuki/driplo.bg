@@ -2,7 +2,7 @@
 	import { ChevronDown, Search } from 'lucide-svelte'
 	import { cn } from '$lib/utils'
 	import Input from '$lib/components/ui/input.svelte'
-	import type { Database } from '$lib/types/database.types'
+	import type { Database } from '$lib/database.types'
 	
 	type Category = Database['public']['Tables']['categories']['Row']
 	

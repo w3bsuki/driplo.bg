@@ -103,7 +103,7 @@
 				}
 			}
 		} catch (error) {
-			console.error('Failed to fetch brands:', error);
+			logger.error('Failed to fetch brands:', error);
 			// Keep default brands
 		}
 	});

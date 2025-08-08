@@ -1,7 +1,7 @@
 <script lang="ts">
     import { format } from 'date-fns';
     import ShippingForm from './ShippingForm.svelte';
-    import type { Database } from '$lib/types/database.types';
+    import type { Database } from '$lib/database.types';
     
     type Order = Database['public']['Tables']['orders']['Row'] & {
         buyer: {
@@ -76,7 +76,7 @@
                 order = data.order;
             }
         } catch (error) {
-            console.error('Error loading order:', error);
+            logger.error('Error loading order:', error);
         }
     }
 
@@ -97,7 +97,7 @@
                 await loadOrder();
             }
         } catch (error) {
-            console.error('Error updating order:', error);
+            logger.error('Error updating order:', error);
         }
     }
 
@@ -144,7 +144,7 @@
                 await loadOrder();
             }
         } catch (error) {
-            console.error('Error cancelling order:', error);
+            logger.error('Error cancelling order:', error);
         }
     }
 
@@ -167,7 +167,7 @@
                 await loadOrder();
             }
         } catch (error) {
-            console.error('Error completing order:', error);
+            logger.error('Error completing order:', error);
         }
     }
 

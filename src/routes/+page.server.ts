@@ -1,5 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { getCachedData, cacheKeys, cacheTTL } from '$lib/server/cache';
+import { dev } from '$app/environment';
 
 export const load: PageServerLoad = async ({ locals }) => {
   // Load critical data first, stream the rest
@@ -46,7 +47,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 
   // Load non-critical data asynchronously
   const nonCriticalData = getCachedData(
-    'homepage-secondary-global',
+    `homepage-secondary-global-${Date.now()}`,
     async () => {
       const [popularResult, topSellersResult] = await Promise.all([
         // Get most viewed listings
@@ -80,12 +81,42 @@ export const load: PageServerLoad = async ({ locals }) => {
           .not('username', 'is', null)
           .order('total_sales', { ascending: false, nullsFirst: false })
           .order('seller_rating', { ascending: false, nullsFirst: false })
-          .limit(5)
+          .limit(20)
       ]);
 
+      // Temporary: Show multiple avatars for UI testing
+      const sellers = topSellersResult.data?.length ? topSellersResult.data : 
+        Array(15).fill(null).map((_, i) => ({ 
+          id: String(i), 
+          username: i === 0 ? 'w3bsuki' : `user${i}`,
+          avatar_url: `https://api.dicebear.com/7.x/avataaars/svg?seed=${i === 0 ? 'w3bsuki' : `user${i}`}`,
+          seller_rating: 5.0, 
+          total_sales: Math.floor(Math.random() * 1000),
+          buyer_rating_count: 100,
+          bio: 'Seller',
+          location: 'Sofia',
+          created_at: new Date().toISOString()
+        }));
+      
+      // PRODUCTION ONLY: show multiple 'w3bsuki' avatars to test UI/UX
+      const sellersForUI = !dev ? (() => {
+        const w3 = sellers.find((s: any) => s.username === 'w3bsuki') ?? {
+          id: 'w3bsuki',
+          username: 'w3bsuki',
+          avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=w3bsuki',
+          seller_rating: 5.0,
+          total_sales: 999,
+          buyer_rating_count: 100,
+          bio: 'Seller',
+          location: 'Sofia',
+          created_at: new Date().toISOString()
+        };
+        return Array.from({ length: 5 }, (_, i) => ({ ...w3, id: `${w3.id}-dup-${i}` }));
+      })() : sellers;
+      
       return {
         popularListings: popularResult.data || [],
-        topSellers: topSellersResult.data || []
+        topSellers: sellersForUI
       };
     },
     cacheTTL.homepage

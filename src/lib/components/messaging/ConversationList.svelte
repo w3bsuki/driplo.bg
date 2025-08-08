@@ -3,8 +3,9 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { formatDistanceToNow } from 'date-fns';
-    import type { Database } from '$lib/types/database.types';
+    import type { Database } from '$lib/database.types';
     import Spinner from '$lib/components/ui/Spinner.svelte';
+    import { logger } from '$lib/utils/logger';
     
     type Conversation = Database['public']['Tables']['conversations']['Row'] & {
         listing: {
@@ -32,8 +33,12 @@
         unread_count: number;
     };
 
-    export let userId: string;
-    export let showArchived = false;
+    interface Props {
+        userId: string;
+        showArchived?: boolean;
+    }
+    
+    let { userId, showArchived = false }: Props = $props();
     
     let conversations: Conversation[] = [];
     let loading = true;
@@ -53,7 +58,7 @@
                 offset += limit;
             }
         } catch (error) {
-            console.error('Error loading conversations:', error);
+            logger.error('Error loading conversations:', error);
         } finally {
             loading = false;
         }
@@ -70,7 +75,7 @@
                 conversations = conversations.filter(c => c.id !== conversationId);
             }
         } catch (error) {
-            console.error('Error archiving conversation:', error);
+            logger.error('Error archiving conversation:', error);
         }
     }
 
@@ -85,15 +90,17 @@
                 conversations = conversations.filter(c => c.id !== conversationId);
             }
         } catch (error) {
-            console.error('Error unarchiving conversation:', error);
+            logger.error('Error unarchiving conversation:', error);
         }
     }
 
     // Refresh when showArchived changes
-    $: if (showArchived !== undefined) {
-        offset = 0;
-        loadConversations();
-    }
+    $effect(() => {
+        if (showArchived !== undefined) {
+            offset = 0;
+            loadConversations();
+        }
+    });
 
     function getOtherUser(conversation: Conversation) {
         return userId === conversation.buyer_id ? conversation.seller : conversation.buyer;
@@ -226,7 +233,7 @@
         {#if hasMore}
             <button
                 class="btn btn-outline btn-sm w-full mt-4 flex items-center justify-center"
-                onclick={handleLoadConversations}
+                onclick={loadConversations}
                 disabled={loading}
             >
                 {#if loading}

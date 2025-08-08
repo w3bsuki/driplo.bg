@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { logger } from '$lib/utils/logger'
 
 export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 	const query = url.searchParams.get('q')?.trim()
@@ -67,7 +68,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
 
 		return json(suggestions.slice(0, 8))
 	} catch (error) {
-		console.error('Search suggestions error:', error)
+		logger.error('Search suggestions error', error)
 		return json([])
 	}
 }

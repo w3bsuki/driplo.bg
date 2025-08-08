@@ -3,9 +3,11 @@
 	import { cn } from '$lib/utils';
 	import { Badge } from '$lib/components/ui';
 	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
+	import EnhancedImage from '$lib/components/common/EnhancedImage.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	import { localizeHref } from '$lib/paraglide/runtime.js';
 	import { formatCurrency } from '$lib/utils/currency';
+	import { logger } from '$lib/utils/logger';
 	
 	interface Props {
 		id: string;
@@ -107,7 +109,7 @@
 			// Revert on error
 			liked = originalLiked;
 			likeCount = originalCount;
-			console.error('Error toggling like:', error);
+			logger.error('Error toggling like:', error);
 		} finally {
 			likeLoading = false;
 		}
@@ -136,13 +138,16 @@
 		<!-- Image Container - 75% of card height -->
 		<div class="relative aspect-[3/4] bg-gray-50 overflow-hidden">
 			{#if !imageError && primaryImageUrl()}
-				<img
+				<EnhancedImage
 					src={primaryImageUrl()}
 					alt={title}
-					class="absolute inset-0 h-full w-full object-cover"
+					className="absolute inset-0 h-full w-full object-cover"
 					loading={eagerLoading ? 'eager' : 'lazy'}
-					onerror={handleImageError}
+					priority={eagerLoading}
+					useProgressiveLoading={!eagerLoading}
 					sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+					srcsetSizes={[200, 400, 600, 800]}
+					onError={() => imageError = true}
 				/>
 			{:else}
 				<div class="h-full w-full flex items-center justify-center">

@@ -1,6 +1,6 @@
-import type { Database } from '$lib/types/database.types';
+import type { Database } from '$lib/database.types';
 import { truncateText } from '$lib/utils/format';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 // Environment variable import with fallback
 let RESEND_API_KEY = '';
@@ -11,6 +11,8 @@ if (typeof process !== 'undefined' && process.env['RESEND_API_KEY']) {
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type Listing = Database['public']['Tables']['listings']['Row'];
 type Transaction = Database['public']['Tables']['transactions']['Row'];
+type Order = Database['public']['Tables']['orders']['Row'];
+type RefundRequest = Database['public']['Tables']['refund_requests']['Row'];
 
 interface EmailOptions {
   to: string;
@@ -474,8 +476,8 @@ class EmailService {
   async sendRefundRequestNotification(
     seller: Profile,
     buyer: Profile,
-    order: any,
-    refundRequest: any
+    order: Order,
+    refundRequest: RefundRequest
   ): Promise<boolean> {
     const subject = `Refund Request - Order #${order.id}`;
     const html = `
@@ -503,10 +505,9 @@ class EmailService {
               
               <div class="refund-details">
                 <h3>Refund Details</h3>
-                <p><strong>Refund Amount:</strong> $${(refundRequest.amount / 100).toFixed(2)}</p>
-                <p><strong>Refund Type:</strong> ${refundRequest.refund_type}</p>
+                <p><strong>Refund Amount:</strong> $${(refundRequest.requested_amount / 100).toFixed(2)}</p>
                 <p><strong>Reason:</strong> ${refundRequest.reason}</p>
-                <p><strong>Requested On:</strong> ${new Date(refundRequest.created_at).toLocaleDateString()}</p>
+                <p><strong>Requested On:</strong> ${refundRequest.created_at ? new Date(refundRequest.created_at).toLocaleDateString() : 'Unknown'}</p>
               </div>
               
               <p>Please review the request and respond within 3 business days.</p>
@@ -533,8 +534,8 @@ class EmailService {
 
   async sendRefundApprovalNotification(
     buyer: Profile,
-    order: any,
-    refundRequest: any
+    order: Order,
+    refundRequest: RefundRequest
   ): Promise<boolean> {
     const subject = `Refund Approved - Order #${order.id}`;
     const html = `
@@ -587,8 +588,8 @@ class EmailService {
 
   async sendRefundRejectionNotification(
     buyer: Profile,
-    order: any,
-    refundRequest: any
+    order: Order,
+    refundRequest: RefundRequest
   ): Promise<boolean> {
     const subject = `Refund Request Update - Order #${order.id}`;
     const html = `

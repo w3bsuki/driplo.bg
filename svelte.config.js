@@ -43,16 +43,21 @@ const config = {
 		},
 		
 		// Security headers configuration
+		// SECURITY FIX: Removed 'unsafe-eval' to prevent eval() attacks
 		csp: {
 			directives: {
-				'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://www.google.com', 'https://www.gstatic.com', 'https://js.stripe.com', 'https://checkout.stripe.com'],
+				// Removed 'unsafe-eval' - no eval(), Function(), setTimeout(string) allowed
+				'script-src': ["'self'", "'unsafe-inline'", 'https://www.google.com', 'https://www.gstatic.com', 'https://js.stripe.com', 'https://checkout.stripe.com'],
 				'frame-src': ["'self'", 'https://www.google.com', 'https://js.stripe.com', 'https://checkout.stripe.com'],
 				'img-src': ["'self'", 'data:', 'https:', 'blob:'],
-				'connect-src': ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://api.stripe.com', 'https://www.google.com'],
+				'connect-src': ["'self'", 'https://*.supabase.co', 'wss://*.supabase.co', 'https://api.stripe.com', 'https://www.google.com', 'https://*.sentry.io'],
 				'font-src': ["'self'", 'https:', 'data:'],
+				// TODO: Replace 'unsafe-inline' with nonces for styles in future
 				'style-src': ["'self'", "'unsafe-inline'", 'https:'],
 				'base-uri': ["'self'"],
-				'form-action': ["'self'"]
+				'form-action': ["'self'"],
+				'frame-ancestors': ["'none'"],
+				'object-src': ["'none'"]
 			}
 		}
 	}

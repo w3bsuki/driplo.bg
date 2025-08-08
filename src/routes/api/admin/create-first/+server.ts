@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { json } from '@sveltejs/kit'
 import { createAdminClient } from '$lib/server/supabase-admin'
 import type { RequestHandler } from './$types'
@@ -25,7 +26,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		})
 		
 		if (authError) {
-			console.error('Error creating user:', authError)
+			logger.error('Error creating user:', authError)
 			return json({ error: authError.message }, { status: 500 })
 		}
 		
@@ -40,7 +41,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			.eq('id', authData.user.id)
 		
 		if (profileError) {
-			console.error('Error updating profile:', profileError)
+			logger.error('Error updating profile:', profileError)
 			return json({ error: 'User created but failed to set admin role' }, { status: 500 })
 		}
 		
@@ -52,7 +53,7 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		})
 	} catch (error) {
-		console.error('Error in create-first-admin:', error)
+		logger.error('Error in create-first-admin:', error)
 		return json({ error: 'Internal server error' }, { status: 500 })
 	}
 }

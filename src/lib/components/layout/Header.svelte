@@ -4,7 +4,7 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import { unreadCount, initializeUnreadCount, subscribeToUnreadUpdates, unsubscribeFromUnreadUpdates } from '$lib/stores/messages';
 	import type { SupabaseClient } from '@supabase/supabase-js';
-	import type { Database } from '$lib/types/database.types';
+	import type { Database } from '$lib/database.types';
 	import type { User } from '@supabase/supabase-js';
 	import * as m from '$lib/paraglide/messages.js';
 	import LanguageSwitcher from './LanguageSwitcher.svelte';

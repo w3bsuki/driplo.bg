@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { logger } from '$lib/utils/logger'
 
 export async function uploadListingImage(
 	supabase: SupabaseClient,
@@ -42,18 +43,23 @@ export async function deleteListingImage(
 	const pathParts = url.pathname.split('/storage/v1/object/public/listings/')
 	
 	if (pathParts.length < 2) {
-		console.error('Invalid image URL format')
+		logger.error('Invalid image URL format', { imageUrl })
 		return
 	}
 
 	const filePath = pathParts[1]
+	
+	if (!filePath) {
+		logger.error('No file path extracted from URL', { imageUrl })
+		return
+	}
 
 	const { error } = await supabase.storage
 		.from('listings')
 		.remove([filePath])
 
 	if (error) {
-		console.error('Error deleting image:', error)
+		logger.error('Error deleting image', { error, filePath })
 		throw error
 	}
 }

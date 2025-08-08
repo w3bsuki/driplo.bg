@@ -4,7 +4,7 @@
 	interface Props {
 		name?: string
 		class?: string
-		children?: any
+		children?: import('svelte').Snippet
 	}
 	
 	let { name, class: className = '', children }: Props = $props()

@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { STRIPE_SECRET_KEY } from '$env/static/private';
 import Stripe from 'stripe';
 import { emailService } from '$lib/server/email';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 const stripe = new Stripe(STRIPE_SECRET_KEY, {
   apiVersion: '2024-06-20'

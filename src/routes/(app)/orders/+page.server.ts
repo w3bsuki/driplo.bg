@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const { session } = await locals.safeGetSession();
@@ -36,7 +37,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.order('created_at', { ascending: false });
 
 	if (error) {
-		console.error('Error loading orders:', error);
+		logger.error('Error loading orders:', error);
 		return {
 			orders: []
 		};

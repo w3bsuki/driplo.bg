@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
     const supabase = locals.supabase;
@@ -57,7 +58,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
         .range(offset, offset + limit - 1);
 
     if (error) {
-        console.error('Error fetching conversations:', error);
+        logger.error('Error fetching conversations:', error);
         return json({ error: 'Failed to fetch conversations' }, { status: 500 });
     }
 
@@ -191,11 +192,11 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                     message,
                     conversation.id
                 ).catch(error => {
-                    console.error('Failed to send email notification:', error);
+                    logger.error('Failed to send email notification:', error);
                 });
             }
         } catch (error) {
-            console.error('Failed to load email service:', error);
+            logger.error('Failed to load email service:', error);
         }
 
         return json({
@@ -203,7 +204,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             message: newMessage
         }, { status: 201 });
     } catch (error) {
-        console.error('Error creating conversation:', error);
+        logger.error('Error creating conversation:', error);
         return json({ error: 'Failed to create conversation' }, { status: 500 });
     }
 };

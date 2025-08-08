@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad, Actions } from './$types'
 
@@ -19,7 +20,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.single()
 	
 	if (profileError) {
-		console.error('Error loading profile:', profileError)
+		logger.error('Error loading profile:', profileError)
 		// Fallback: try without join
 		const { data: profileSimple } = await locals.supabase
 			.from('profiles')

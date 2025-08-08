@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load = (async ({ locals }) => {
 	// Get comprehensive seller stats from the database
@@ -49,7 +50,7 @@ export const load = (async ({ locals }) => {
 	};
 
 	if (statsResult.error) {
-		console.log('RPC function not available, calculating stats manually');
+		logger.log('RPC function not available, calculating stats manually');
 		
 		// Calculate stats manually as fallback
 		const manualStatsResult = await locals.supabase.from('profiles')

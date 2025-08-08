@@ -31,7 +31,7 @@
 	import SetupComplete from './SetupComplete.svelte';
 	
 	import type { User, SupabaseClient } from '@supabase/supabase-js';
-	import type { Tables } from '$lib/types/database.types';
+	import type { Tables } from '$lib/database.types';
 
 	interface Props {
 		user: User;
@@ -302,7 +302,7 @@
 				.select('*', { count: 'exact', head: true });
 
 			if (updateError) {
-				console.error('Step update error:', updateError);
+				logger.error('Step update error:', updateError);
 				throw updateError;
 			}
 			
@@ -330,7 +330,7 @@
 					.insert(createData);
 					
 				if (insertError) {
-					console.error('Profile creation error:', insertError);
+					logger.error('Profile creation error:', insertError);
 					throw insertError;
 				}
 				
@@ -348,7 +348,7 @@
 			
 			toast.success('Progress saved!', { duration: 2000 });
 		} catch (error: any) {
-			console.error('Failed to save step progress:', error);
+			logger.error('Failed to save step progress:', error);
 			toast.error(error.message || 'Failed to save progress. Please try again.');
 		} finally {
 			loading = false;
@@ -382,7 +382,7 @@
 			await onComplete($form);
 			// Don't show toast here - let the parent handle it
 		} catch (error: any) {
-			console.error('ProfileSetupWizard: Completion error:', error);
+			logger.error('ProfileSetupWizard: Completion error:', error);
 			toast.error(error.message || 'Failed to complete setup');
 			loading = false;
 		}

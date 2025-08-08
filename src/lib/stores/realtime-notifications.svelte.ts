@@ -1,8 +1,9 @@
 import { browser } from '$app/environment';
 import { createBrowserClient } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
-import type { Database } from '$lib/types/database';
-import { logger } from '$lib/services/logger';
+import type { Database, Tables } from '$lib/database.types';
+import type { RealtimeChannel } from '@supabase/supabase-js';
+import { logger } from '$lib/utils/logger';
 
 export interface UserNotification {
 	id: string;
@@ -10,7 +11,7 @@ export interface UserNotification {
 	type: 'follow' | 'message' | 'listing_liked' | 'order_update' | 'system';
 	title: string;
 	message: string;
-	data?: any;
+	data?: Record<string, unknown>;
 	is_read: boolean;
 	created_at: string;
 }
@@ -20,7 +21,7 @@ class RealtimeNotificationStore {
 	private _unreadCount = $state(0);
 	private _isConnected = $state(false);
 	private supabase = browser ? createBrowserClient<Database>(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY) : null;
-	private channel: any = null;
+	private channel: RealtimeChannel | null = null;
 
 	constructor() {
 		if (browser) {

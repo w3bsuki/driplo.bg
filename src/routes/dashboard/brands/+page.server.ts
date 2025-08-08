@@ -1,5 +1,6 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ locals, parent }) => {
 	const { isAdmin } = await parent();
@@ -18,7 +19,7 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		.order('submitted_at', { ascending: false });
 	
 	if (requestsError) {
-		console.error('Error loading brand requests:', requestsError);
+		logger.error('Error loading brand requests:', requestsError);
 		error(500, 'Failed to load brand requests');
 	}
 	

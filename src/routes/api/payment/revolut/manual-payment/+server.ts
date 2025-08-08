@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 import { apiError, apiSuccess, ApiErrorType, requireAuth, validateRequest, ApiError } from '$lib/server/api-utils';
 import { z } from 'zod';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 const createPaymentSchema = z.object({
 	listing_id: z.string().uuid()

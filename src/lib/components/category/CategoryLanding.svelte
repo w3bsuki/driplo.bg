@@ -1,12 +1,11 @@
 <script lang="ts">
   import type { Category } from '$lib/types';
-  import HeroSearch from '$lib/components/home/HeroSearch.svelte';
   import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
   import ReusableFilters from '$lib/components/shared/ReusableFilters.svelte';
   import { cn } from '$lib/utils';
   import { ChevronRight } from 'lucide-svelte';
   import type { SupabaseClient } from '@supabase/supabase-js';
-  import type { Database } from '$lib/types/database.types';
+  import type { Database } from '$lib/database.types';
   import { getFiltersForCategory } from '$lib/config/categoryFilters';
   
   interface Props {

@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, params }) => {
     const supabase = locals.supabase;
@@ -141,7 +142,7 @@ export const PATCH: RequestHandler = async ({ locals, params, request }) => {
 
         return json({ order: updatedOrder });
     } catch (error) {
-        console.error('Error updating order:', error);
+        logger.error('Error updating order:', error);
         return json({ error: 'Failed to update order' }, { status: 500 });
     }
 };

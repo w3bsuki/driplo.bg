@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { emailService } from '$lib/server/email';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const supabase = locals.supabase;
@@ -50,7 +51,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.single();
 
 		if (updateError) {
-			console.error('Transaction update error:', updateError);
+			logger.error('Transaction update error', updateError);
 			return json({ error: 'Failed to update transaction' }, { status: 500 });
 		}
 
@@ -64,7 +65,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.eq('transaction_id', transaction_id);
 
 		if (payoutUpdateError) {
-			console.error('Payout update error:', payoutUpdateError);
+			logger.error('Payout update error', payoutUpdateError);
 			// Don't fail the request, just log the error
 		}
 
@@ -78,7 +79,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			.eq('id', transaction.listing_id);
 
 		if (listingError) {
-			console.error('Listing update error:', listingError);
+			logger.error('Listing update error', listingError);
 			// Don't fail the request, just log the error
 		}
 
@@ -108,7 +109,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		});
 
 	} catch (error) {
-		console.error('Mark shipped error:', error);
+		logger.error('Mark shipped error', error);
 		return json({ error: 'Internal server error' }, { status: 500 });
 	}
 };

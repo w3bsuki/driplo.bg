@@ -192,7 +192,7 @@ export const actions = {
 			httpOnly: true,
 			sameSite: 'lax',
 			maxAge: 600, // 10 minutes
-			secure: process.env.NODE_ENV === 'production'
+			secure: process.env['NODE_ENV'] === 'production'
 		})
 		
 		const { data, error } = await supabase.auth.signInWithOAuth({

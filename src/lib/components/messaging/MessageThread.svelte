@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import { formatDistanceToNow } from 'date-fns';
-    import type { Database } from '$lib/types/database.types';
+    import type { Database } from '$lib/database.types';
     import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
     import { decrementUnreadCount } from '$lib/stores/messages';
-    // import VirtualList from '$lib/components/ui/VirtualList.svelte';
+    import { logger } from '$lib/utils/logger';
     
     type Message = Database['public']['Tables']['messages']['Row'] & {
         sender: {
@@ -14,10 +14,14 @@
         };
     };
 
-    export let conversationId: string;
-    export let userId: string;
-    export let supabase: SupabaseClient<Database>;
-    export let useVirtualScrolling = false;
+    interface Props {
+        conversationId: string;
+        userId: string;
+        supabase: SupabaseClient<Database>;
+        useVirtualScrolling?: boolean;
+    }
+    
+    let { conversationId, userId, supabase, useVirtualScrolling = false }: Props = $props();
     
     let messages: Message[] = [];
     let newMessage = '';
@@ -29,10 +33,9 @@
     let attachments: { file: File; preview: string; type: string }[] = [];
     let uploading = false;
     let fileInput: HTMLInputElement;
-    // let virtualListRef: VirtualList;
     
     // Virtual scrolling configuration
-    $: shouldUseVirtualScrolling = useVirtualScrolling && messages.length > 100;
+    let shouldUseVirtualScrolling = $derived(useVirtualScrolling && messages.length > 100);
 
     async function loadMessages(before?: string) {
         try {
@@ -60,7 +63,7 @@
                 }
             }
         } catch (error) {
-            console.error('Error loading messages:', error);
+            logger.error('Error loading messages:', error);
         } finally {
             loading = false;
         }
@@ -107,12 +110,12 @@
                 // Restore message and attachments on error
                 newMessage = messageContent;
                 attachments = messageAttachments;
-                console.error('Error sending message:', data.error);
+                logger.error('Error sending message:', data.error);
             }
         } catch (error) {
             newMessage = messageContent;
             attachments = messageAttachments;
-            console.error('Error sending message:', error);
+            logger.error('Error sending message:', error);
         } finally {
             sending = false;
             uploading = false;
@@ -240,7 +243,7 @@
                 };
             }
         } catch (error) {
-            console.error('Error uploading attachment:', error);
+            logger.error('Error uploading attachment:', error);
         }
         return null;
     }

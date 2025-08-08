@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms'
-	// import { page } from '$app/stores' // unused
 	import { Eye, EyeOff, Github } from 'lucide-svelte'
 	import { toast } from 'svelte-sonner'
 	import type { PageData, ActionData } from './$types'
@@ -155,8 +154,8 @@
 					if (result.type === 'failure' && result.data?.['error']) {
 						toast.error(result.data['error'] as string)
 						// Reset CAPTCHA on error
-						if (captchaWrapper && 'reset' in captchaWrapper) {
-							(captchaWrapper as any).reset()
+						if (captchaWrapper && typeof captchaWrapper === 'object' && 'reset' in captchaWrapper && typeof captchaWrapper.reset === 'function') {
+							captchaWrapper.reset()
 							captchaToken = ''
 						}
 					}

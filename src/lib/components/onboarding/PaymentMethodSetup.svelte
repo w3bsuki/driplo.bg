@@ -102,7 +102,7 @@
 			// Note: Stripe will be set up later via their secure integration
 			toast.success('Payment methods saved successfully!');
 		} catch (error) {
-			console.error('Error saving payment methods:', error);
+			logger.error('Error saving payment methods:', error);
 			toast.error(`Failed to save payment methods: ${error.message || 'Unknown error'}`);
 		} finally {
 			loading = false;
@@ -133,7 +133,7 @@
 	$effect(() => {
 		if (selectedMethods.length > 0 && validatePaymentMethods()) {
 			savePaymentAccounts().catch(error => {
-				console.error('Payment save failed:', error);
+				logger.error('Payment save failed:', error);
 				toast.error(`Failed to save payment methods: ${error.message}`);
 			});
 		}

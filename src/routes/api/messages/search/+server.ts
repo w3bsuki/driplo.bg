@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ locals, url }) => {
     const supabase = locals.supabase;
@@ -45,7 +46,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
             .range(offset, offset + limit - 1);
 
         if (searchError) {
-            console.error('Search error:', searchError);
+            logger.error('Search error:', searchError);
             return json({ error: 'Search failed' }, { status: 500 });
         }
 
@@ -70,7 +71,7 @@ export const GET: RequestHandler = async ({ locals, url }) => {
             total: messages?.length || 0
         });
     } catch (error) {
-        console.error('Error searching messages:', error);
+        logger.error('Error searching messages:', error);
         return json({ error: 'Internal server error' }, { status: 500 });
     }
 };

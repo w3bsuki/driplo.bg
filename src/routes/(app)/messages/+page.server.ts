@@ -1,6 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { createSupabaseServerClient } from '$lib/utils/supabase/server';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const supabase = createSupabaseServerClient(cookies);
@@ -14,7 +15,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 
 	// Fetch user's conversations
 	try {
-		const baseUrl = process.env.PUBLIC_SITE_URL || url.origin;
+		const baseUrl = process.env['PUBLIC_SITE_URL'] || url.origin;
 		const response = await fetch(`${baseUrl}/api/conversations`, {
 			headers: {
 				Cookie: cookies.toString()
@@ -32,7 +33,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 			conversations
 		};
 	} catch (error) {
-		console.error('Error fetching conversations in server load:', error);
+		logger.error('Error fetching conversations in server load:', error);
 		return {
 			user,
 			conversations: []

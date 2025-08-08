@@ -1,6 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 import { AuthApiError } from '@supabase/supabase-js';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 	const token_hash = url.searchParams.get('token_hash');
@@ -17,7 +18,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 			// Email verified successfully, redirect to next page
 			redirect(303, next);
 		} else {
-			console.error('Email verification error:', error);
+			logger.error('Email verification error:', error);
 			// Handle different error cases
 			if (error instanceof AuthApiError) {
 				if (error.message.includes('expired')) {

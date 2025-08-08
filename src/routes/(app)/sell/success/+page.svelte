@@ -34,7 +34,7 @@
 		if (listingId && !listing) {
 			await loadListing()
 		} else if (!listingId) {
-			console.warn('No listing ID provided in URL')
+			logger.warn('No listing ID provided in URL')
 			loading = false
 		}
 	})
@@ -50,7 +50,7 @@
 			if (error) throw error
 			listing = data
 		} catch (error) {
-			console.error('Error loading listing:', error)
+			logger.error('Error loading listing:', error)
 		} finally {
 			loading = false
 		}

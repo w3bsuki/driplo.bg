@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ locals, params }) => {
     const supabase = locals.supabase;
@@ -38,13 +39,13 @@ export const POST: RequestHandler = async ({ locals, params }) => {
             .eq('id', conversationId);
 
         if (updateError) {
-            console.error('Error archiving conversation:', updateError);
+            logger.error('Error archiving conversation:', updateError);
             return json({ error: 'Failed to archive conversation' }, { status: 500 });
         }
 
         return json({ success: true });
     } catch (error) {
-        console.error('Error archiving conversation:', error);
+        logger.error('Error archiving conversation:', error);
         return json({ error: 'Internal server error' }, { status: 500 });
     }
 };
@@ -86,13 +87,13 @@ export const DELETE: RequestHandler = async ({ locals, params }) => {
             .eq('id', conversationId);
 
         if (updateError) {
-            console.error('Error unarchiving conversation:', updateError);
+            logger.error('Error unarchiving conversation:', updateError);
             return json({ error: 'Failed to unarchive conversation' }, { status: 500 });
         }
 
         return json({ success: true });
     } catch (error) {
-        console.error('Error unarchiving conversation:', error);
+        logger.error('Error unarchiving conversation:', error);
         return json({ error: 'Internal server error' }, { status: 500 });
     }
 };

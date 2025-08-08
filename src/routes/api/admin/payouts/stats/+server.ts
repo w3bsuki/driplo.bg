@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import { apiError, apiSuccess, requireAdmin } from '$lib/server/api-utils';
+import { logger } from '$lib/utils/logger';
 
 export const GET: RequestHandler = async ({ url, locals }) => {
   try {
@@ -54,7 +55,7 @@ export const GET: RequestHandler = async ({ url, locals }) => {
     });
 
   } catch (error) {
-    console.error('Payout stats error:', error);
+    logger.error('Payout stats error:', error);
     return apiError('Failed to fetch payout statistics', 500);
   }
 };

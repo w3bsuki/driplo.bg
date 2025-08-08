@@ -8,6 +8,7 @@ import {
   handleDatabaseError 
 } from '$lib/server/api-utils';
 import { logAdminAction, AdminActions, ResourceTypes } from '$lib/server/audit';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ request, locals }) => {
   try {
@@ -172,7 +173,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
     });
 
   } catch (error) {
-    console.error('Batch payout processing error:', error);
+    logger.error('Batch payout processing error:', error);
     return apiError('Failed to process batch payouts', 500);
   }
 };

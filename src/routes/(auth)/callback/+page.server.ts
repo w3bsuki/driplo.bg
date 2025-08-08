@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession } }) => {
 	const code = url.searchParams.get('code')

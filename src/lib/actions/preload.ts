@@ -3,6 +3,7 @@
  */
 
 import { preloadRoute, shouldSplitRoute } from '$lib/utils/route-splitting';
+import { logger } from '$lib/utils/logger';
 
 interface PreloadOptions {
 	// URL to preload
@@ -48,12 +49,12 @@ export function preload(node: HTMLElement, options: PreloadOptions = {}) {
 		if (loader) {
 			// Custom loader provided
 			loader().catch(err => {
-				console.error('Preload failed:', err);
+				logger.error('Preload failed:', err);
 			});
 		} else if (href && shouldSplitRoute(href)) {
 			// Route-based preloading
 			preloadRoute(href).catch(err => {
-				console.error('Route preload failed:', err);
+				logger.error('Route preload failed:', err);
 			});
 		}
 	};

@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit'
 import type { Actions, PageServerLoad } from './$types'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 export const load: PageServerLoad = async ({ url }) => {
 	// Don't check session - let users access login page
@@ -58,13 +58,13 @@ export const actions = {
 		}
 		
 		// Verify Turnstile CAPTCHA in production
-		if (captchaToken && process.env.TURNSTILE_SECRET_KEY) {
+		if (captchaToken && process.env['TURNSTILE_SECRET_KEY']) {
 			try {
 				const captchaResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
 					body: new URLSearchParams({
-						secret: process.env.TURNSTILE_SECRET_KEY,
+						secret: process.env['TURNSTILE_SECRET_KEY'],
 						response: captchaToken,
 						remoteip: clientIP
 					})

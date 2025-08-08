@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -116,7 +117,7 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
             refund_required: !!order.transaction
         });
     } catch (error) {
-        console.error('Error cancelling order:', error);
+        logger.error('Error cancelling order:', error);
         return json({ error: 'Failed to cancel order' }, { status: 500 });
     }
 };

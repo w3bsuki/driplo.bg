@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ locals, request }) => {
     const { session } = await locals.safeGetSession();
@@ -110,7 +111,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
             } catch (error) {
                 failureCount++;
                 results.push({ orderId, error: 'Processing failed' });
-                console.error(`Error processing order ${orderId}:`, error);
+                logger.error(`Error processing order ${orderId}:`, error);
             }
         }
 
@@ -123,7 +124,7 @@ export const POST: RequestHandler = async ({ locals, request }) => {
         });
 
     } catch (error) {
-        console.error('Bulk action error:', error);
+        logger.error('Bulk action error:', error);
         return json({ error: 'Bulk action failed' }, { status: 500 });
     }
 };

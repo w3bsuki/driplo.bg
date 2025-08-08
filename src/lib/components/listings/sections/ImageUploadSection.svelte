@@ -4,7 +4,7 @@
 	import { cn } from '$lib/utils'
 	import { Button } from '$lib/components/native'
 	import { createClient } from '@supabase/supabase-js'
-	import type { Database } from '$lib/types/database.types'
+	import type { Database } from '$lib/database.types'
 	
 	interface Props {
 		images?: string[]
@@ -53,7 +53,7 @@
 				})
 			
 			if (error) {
-				console.error('Upload error:', error)
+				logger.error('Upload error:', error)
 				toast.error(`Failed to upload ${file.name}`)
 				return null
 			}
@@ -65,7 +65,7 @@
 			
 			return publicUrl
 		} catch (error) {
-			console.error('Upload error:', error)
+			logger.error('Upload error:', error)
 			return null
 		}
 	}
@@ -129,7 +129,7 @@
 				toast.success(`${successfulUploads.length} image(s) uploaded`)
 			}
 		} catch (error) {
-			console.error('Upload error:', error)
+			logger.error('Upload error:', error)
 			toast.error('Failed to upload images')
 		} finally {
 			isUploading = false

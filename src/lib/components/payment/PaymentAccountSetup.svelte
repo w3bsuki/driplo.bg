@@ -85,7 +85,7 @@
 			toast.success(data.message || 'Payment account set up successfully!');
 			dispatch('success', data.payment_account);
 		} catch (error) {
-			console.error('Payment account setup error:', error);
+			logger.error('Payment account setup error:', error);
 			toast.error('Failed to set up payment account');
 		} finally {
 			isSubmitting = false;

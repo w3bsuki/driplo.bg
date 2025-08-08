@@ -1,6 +1,9 @@
 import { browser } from '$app/environment';
 import { goto } from '$app/navigation';
 import { toast } from 'svelte-sonner';
+import type { Tables } from '$lib/database.types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { logger } from '$lib/utils/logger';
 
 /**
  * Centralized Svelte 5 store for listing interactions
@@ -79,7 +82,7 @@ class ListingStore {
 	/**
 	 * Toggle like status with optimistic updates and error rollback
 	 */
-	async toggleLike(listingId: string, currentUser: any) {
+	async toggleLike(listingId: string, currentUser: Profile | null) {
 		if (!currentUser) {
 			goto('/login');
 			return false;
@@ -141,7 +144,7 @@ class ListingStore {
 	/**
 	 * Toggle follow status with optimistic updates and error rollback
 	 */
-	async toggleFollow(userId: string, currentUser: any, supabase: any) {
+	async toggleFollow(userId: string, currentUser: Profile | null, supabase: SupabaseClient) {
 		if (!currentUser) {
 			goto('/login');
 			return false;
@@ -198,7 +201,7 @@ class ListingStore {
 			} else {
 				this.#followedUsers.delete(userId);
 			}
-			console.error('Follow error:', error);
+			logger.error('Follow error:', error);
 			toast.error('Failed to update follow status');
 			return false;
 		} finally {
@@ -209,7 +212,7 @@ class ListingStore {
 	/**
 	 * Handle share action with native Web Share API fallback
 	 */
-	async share(listing: any) {
+	async share(listing: Listing) {
 		if (!listing) return false;
 		
 		const shareData = {
@@ -244,7 +247,7 @@ class ListingStore {
 				return true;
 			}
 		} catch (error) {
-			console.error('Share error:', error);
+			logger.error('Share error:', error);
 			// Silent fallback - don't show error for share failures
 			return false;
 		}
@@ -303,9 +306,16 @@ class ListingStore {
 // Export singleton instance
 export const listingStore = new ListingStore();
 
+// Type definitions
+type Profile = Tables<'profiles'>;
+type Listing = Tables<'listings'> & {
+	seller?: Profile;
+	user_id: string;
+};
+
 // Declare global gtag for TypeScript
 declare global {
 	interface Window {
-		gtag?: (...args: any[]) => void;
+		gtag?: (...args: unknown[]) => void;
 	}
 }

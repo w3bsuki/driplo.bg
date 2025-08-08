@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import type { RequestEvent } from '@sveltejs/kit';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ request, locals: { supabase, safeGetSession }, getClientAddress }: RequestEvent) => {
 	const { session } = await safeGetSession();
@@ -25,13 +26,13 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 		});
 		
 		if (error) {
-			console.error('Error tracking view:', error);
+			logger.error('Error tracking view', error);
 			return json({ error: 'Failed to track view' }, { status: 500 });
 		}
 		
 		return json({ success: true });
 	} catch (error) {
-		console.error('Error in view tracking:', error);
+		logger.error('Error in view tracking', error);
 		return json({ error: 'Invalid request' }, { status: 400 });
 	}
 };

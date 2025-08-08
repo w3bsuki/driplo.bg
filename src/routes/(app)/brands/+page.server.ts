@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// Fetch top brands
@@ -6,7 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.rpc('get_top_brands', { limit_count: 12 });
 	
 	if (error) {
-		console.error('Error fetching top brands:', error);
+		logger.error('Error fetching top brands:', error);
 	}
 	
 	return {

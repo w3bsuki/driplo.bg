@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
@@ -33,7 +34,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.order('created_at', { ascending: false })
 
 	if (favoritesError) {
-		console.error('Error fetching favorites:', favoritesError)
+		logger.error('Error fetching favorites:', favoritesError)
 		return {
 			favorites: []
 		}

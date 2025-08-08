@@ -4,7 +4,7 @@
 	import { Input, Label } from '$lib/components/native'
 	import Textarea from '$lib/components/ui/textarea.svelte'
 	import CategorySelector from '../CategorySelector.svelte'
-	import type { Database } from '$lib/types/database.types'
+	import type { Database } from '$lib/database.types'
 	
 	type Category = Database['public']['Tables']['categories']['Row']
 	

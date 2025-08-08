@@ -1,10 +1,10 @@
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import type { Session } from '@supabase/supabase-js';
-import type { Tables } from '$lib/types/database.types';
+import type { Tables } from '$lib/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 // Standard API response types
 export interface ApiResponse<T = unknown> {
@@ -380,7 +380,7 @@ const ALLOWED_ORIGINS = [
   'https://www.driplo.bg',
   'https://driplo.vercel.app',
   // Add development origins only in dev mode
-  ...(process.env.NODE_ENV === 'development' ? [
+  ...(process.env['NODE_ENV'] === 'development' ? [
     'http://localhost:5173',
     'http://localhost:4173',
     'http://127.0.0.1:5173'

@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types';
 import { apiError, apiSuccess, ApiErrorType, requireAuth, validateRequest } from '$lib/server/api-utils';
 import { z } from 'zod';
 import type { MessageSendResponse } from '$lib/types/api.types';
+import { logger } from '$lib/utils/logger';
 
 // Simple rate limiting - 30 messages per user per minute
 const rateLimiter = new Map<string, { count: number; resetTime: number }>();
@@ -133,10 +134,10 @@ export const POST: RequestHandler = async ({ locals, request }) => {
                 content,
                 conversation_id
             ).catch(error => {
-                console.error(`[${requestId}] Failed to send email notification:`, error);
+                logger.error(`[${requestId}] Failed to send email notification:`, error);
             });
         } catch (error) {
-            console.error(`[${requestId}] Failed to load email service:`, error);
+            logger.error(`[${requestId}] Failed to load email service:`, error);
         }
 
         const response: MessageSendResponse = {

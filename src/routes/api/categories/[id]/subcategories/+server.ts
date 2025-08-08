@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
+import { logger } from '$lib/utils/logger'
 
 export const GET: RequestHandler = async ({ params, locals }) => {
 	const { id } = params
@@ -13,13 +14,13 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 			.order('display_order')
 		
 		if (error) {
-			console.error('Failed to load subcategories:', error)
+			logger.error('Failed to load subcategories', error)
 			return json({ error: 'Failed to load subcategories' }, { status: 500 })
 		}
 		
 		return json(data || [])
 	} catch (error) {
-		console.error('Failed to load subcategories:', error)
+		logger.error('Failed to load subcategories', error)
 		return json({ error: 'Failed to load subcategories' }, { status: 500 })
 	}
 }

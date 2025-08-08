@@ -32,12 +32,12 @@ if (import.meta.env.PROD) {
 				const error = event.exception.values[0];
 				
 				// Skip ResizeObserver errors (common and harmless)
-				if (error.type === 'ResizeObserver loop limit exceeded') {
+				if (error && error.type === 'ResizeObserver loop limit exceeded') {
 					return null;
 				}
 				
 				// Skip network errors that are expected
-				if (error.type === 'NetworkError' && error.value?.includes('Failed to fetch')) {
+				if (error && error.type === 'NetworkError' && error.value?.includes('Failed to fetch')) {
 					return null;
 				}
 			}

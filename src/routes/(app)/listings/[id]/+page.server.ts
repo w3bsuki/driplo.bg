@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers'
@@ -56,8 +57,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		.single()
 
 	if (listingError || !listing) {
-		console.error('Listing query error:', listingError)
-		console.error('Listing ID:', params.id)
+		logger.error('Listing query error:', listingError)
+		logger.error('Listing ID:', params.id)
 		throw error(404, 'Listing not found')
 	}
 	

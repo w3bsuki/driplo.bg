@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/database.types';
+import type { Database } from '$lib/database.types';
 import { dev } from '$app/environment';
 
 // Validate service role key format (basic validation)

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { logger } from '$lib/utils/logger'
 
 /**
  * Utility for implementing streaming responses in SvelteKit
@@ -146,7 +147,7 @@ export function handleStreamedData<T>(
 	streamedData.promise
 		.then(onUpdate)
 		.catch(error => {
-			console.error('Streaming data error:', error)
+			logger.error('Streaming data error', error)
 			if (onError) {
 				onError(error)
 			}

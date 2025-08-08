@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avatar Generator</title>
+</head>
+<body>
+    <h1>Generate Avatar Placeholders</h1>
+    <p>Use this to generate avatar images with initials</p>
+    <canvas id="canvas" width="200" height="200"></canvas>
+    
+    <script>
+        // Generate 8 avatar placeholders
+        const avatars = [
+            { name: 'VV', color: '#6366f1' },
+            { name: 'SL', color: '#8b5cf6' },
+            { name: 'DD', color: '#ec4899' },
+            { name: 'RF', color: '#f97316' },
+            { name: 'LL', color: '#10b981' },
+            { name: 'TT', color: '#06b6d4' },
+            { name: 'CS', color: '#3b82f6' },
+            { name: 'FV', color: '#a855f7' }
+        ];
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        avatars.forEach((avatar, index) => {
+            // Clear canvas
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Draw circle background
+            ctx.fillStyle = avatar.color;
+            ctx.beginPath();
+            ctx.arc(100, 100, 100, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw initials
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 60px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(avatar.name, 100, 100);
+            
+            // Convert to image and download
+            canvas.toBlob(blob => {
+                const link = document.createElement('a');
+                link.download = `avatar${index + 1}.jpg`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            }, 'image/jpeg', 0.9);
+        });
+    </script>
+</body>
+</html>

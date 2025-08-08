@@ -1,6 +1,6 @@
 import { browser } from '$app/environment'
 import type { User, Session } from '@supabase/supabase-js'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 class AuthStore {
 	#user = $state<User | null>(null)

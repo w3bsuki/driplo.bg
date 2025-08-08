@@ -20,7 +20,12 @@
 	import { browser, dev } from '$app/environment';
 	import { initWebVitals } from '$lib/utils/web-vitals';
 	import { navigation } from '$lib/stores/navigation.svelte';
+	import { registerServiceWorker } from '$lib/utils/service-worker';
 	import * as m from '$lib/paraglide/messages.js';
+	
+	// Error boundaries
+	import { ErrorBoundary } from '$lib/components/shared';
+	import { AuthErrorBoundary } from '$lib/components/error-boundaries';
 
 	let { data } = $props();
 
@@ -81,7 +86,7 @@
 		// Set up auth listener for future changes
 		const unsubscribe = setupAuthListener(data.supabase);
 		
-		// Initialize Web Vitals monitoring
+		// Initialize Web Vitals monitoring and service worker
 		if (browser) {
 			initWebVitals({
 				sendToAnalytics: (metric) => {
@@ -101,6 +106,11 @@
 					environment: dev ? 'development' : 'production'
 				}
 			});
+
+			// Register service worker for caching (production only)
+			if (!dev) {
+				registerServiceWorker();
+			}
 		}
 		
 		// Set up intersection observer for hero section detection
@@ -144,54 +154,74 @@
 </script>
 
 <QueryClientProvider client={queryClient}>
-	<div class="min-h-screen bg-background">
-		{#if !isAuthPage}
-			{#if !data.user}
-				<PromotionalBanner 
-					message={m.banner_launch_message()} 
-					secondaryMessage={m.banner_launch_secondary()}
-					ctaText={m.banner_launch_cta()} 
-					ctaHref="/register"
-					variant="launch"
-					countdown={true}
-				/>
-			{:else}
-				<PromotionalBanner 
-					message={m.banner_welcome_message()} 
-					ctaText={m.banner_welcome_cta()} 
-					ctaHref="/sell"
-					variant="gradient"
-				/>
+	<!-- Global error boundary for the entire app -->
+	<ErrorBoundary variant="full" title="Application Error" showHome={true}>
+		<div class="min-h-screen bg-background">
+			{#if !isAuthPage}
+				<!-- Header with error boundary for authentication-related issues -->
+				<ErrorBoundary variant="minimal" showHome={false}>
+					{#if !data.user}
+						<PromotionalBanner 
+							message={m.banner_launch_message()} 
+							secondaryMessage={m.banner_launch_secondary()}
+							ctaText={m.banner_launch_cta()} 
+							ctaHref="/register"
+							variant="launch"
+							countdown={true}
+						/>
+					{:else}
+						<PromotionalBanner 
+							message={m.banner_welcome_message()} 
+							ctaText={m.banner_welcome_cta()} 
+							ctaHref="/sell"
+							variant="gradient"
+						/>
+					{/if}
+					
+					<AuthErrorBoundary>
+						<Header categories={data.categories} supabase={data.supabase} user={data.user} profile={data.profile} />
+					</AuthErrorBoundary>
+				</ErrorBoundary>
 			{/if}
-			<Header categories={data.categories} supabase={data.supabase} user={data.user} profile={data.profile} />
-		{/if}
-		<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-14 md:pb-0"}>
-			<slot />
-		</main>
-		{#if !shouldHideMobileNav}
-			<MobileNavBar />
-		{/if}
-		
-		<!-- Mobile Category Menu -->
-		<MobileCategoryMenu categories={data.categories} />
-	</div>
-
-	<!-- Sticky search below navbar -->
-	<StickySearchBelowNav />
-
-	<CookieConsent />
-	<Toaster richColors position="top-center" />
-	<NotificationPopup position="top-right" />
-	
-	
-	<!-- Page transition loading indicator -->
-	{#if $navigating}
-		<div class="fixed top-0 left-0 right-0 z-[100]">
-			<div class="h-1 bg-blue-200">
-				<div class="h-full bg-blue-400 animate-pulse" style="animation: loading-bar 1s ease-in-out infinite"></div>
-			</div>
+			
+			<!-- Main content with page-specific error boundary -->
+			<main class={shouldHideMobileNav ? "pb-0 md:pb-0" : "pb-14 md:pb-0"}>
+				<ErrorBoundary variant="inline" showHome={false} autoRetry={true} maxRetries={2}>
+					<slot />
+				</ErrorBoundary>
+			</main>
+			
+			<!-- Navigation with error boundary -->
+			{#if !shouldHideMobileNav}
+				<ErrorBoundary variant="minimal" showHome={false}>
+					<MobileNavBar />
+				</ErrorBoundary>
+			{/if}
+			
+			<!-- Mobile Category Menu with error boundary -->
+			<ErrorBoundary variant="minimal" showHome={false}>
+				<MobileCategoryMenu categories={data.categories} />
+			</ErrorBoundary>
 		</div>
-	{/if}
+
+		<!-- Sticky search with error boundary -->
+		<ErrorBoundary variant="minimal" showHome={false}>
+			<StickySearchBelowNav />
+		</ErrorBoundary>
+
+		<CookieConsent />
+		<Toaster richColors position="top-center" />
+		<NotificationPopup position="top-right" />
+		
+		<!-- Page transition loading indicator -->
+		{#if $navigating}
+			<div class="fixed top-0 left-0 right-0 z-[100]">
+				<div class="h-1 bg-blue-200">
+					<div class="h-full bg-blue-400 animate-pulse" style="animation: loading-bar 1s ease-in-out infinite"></div>
+				</div>
+			</div>
+		{/if}
+	</ErrorBoundary>
 </QueryClientProvider>
 
 <style>

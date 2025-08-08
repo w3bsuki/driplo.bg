@@ -2,6 +2,7 @@ import { json, error } from '@sveltejs/kit'
 import type { RequestHandler } from './$types'
 import { ImageOptimizer } from '$lib/server/image-optimizer'
 import { v4 as uuidv4 } from 'uuid'
+import { logger } from '$lib/utils/logger'
 
 export const POST: RequestHandler = async ({ request, locals: { supabase, safeGetSession } }) => {
 	const { session } = await safeGetSession()
@@ -98,7 +99,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 				.eq('id', session.user.id)
 
 			if (profileError) {
-				console.error('Profile update error:', profileError)
+				logger.error('Profile update error', profileError)
 			}
 		}
 		
@@ -117,7 +118,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 			height: result.original.height
 		})
 	} catch (err) {
-		console.error('Image upload error:', err)
+		logger.error('Image upload error', err)
 		if (err instanceof Error && 'status' in err) {
 			throw err
 		}

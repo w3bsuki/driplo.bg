@@ -1,7 +1,7 @@
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { createServerClient } from '@supabase/ssr'
 import type { Handle } from '@sveltejs/kit'
-import type { Database } from '$lib/types/database'
+import type { Database } from '$lib/database.types'
 import { sequence } from '@sveltejs/kit/hooks'
 import { setLocale } from '$lib/paraglide/runtime.js'
 import { paraglideMiddleware } from '$lib/paraglide/server.js'
@@ -27,9 +27,10 @@ if (!dev && import.meta.env['VITE_PUBLIC_SENTRY_DSN']) {
 				return null;
 			}
 			
-			// Add request context
+			// Add request context and filter cookies
 			if (event.request) {
-				event.request.cookies = '[Filtered]';
+				// Remove sensitive cookie data from Sentry events
+				delete (event.request as any).cookies;
 			}
 			
 			return event;
@@ -151,46 +152,6 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		Sentry.setUser(null);
 	}
 	
-	// TEMPORARILY DISABLED: Onboarding redirect causing issues
-	// TODO: Fix the redirect logic to prevent circular redirects
-	/*
-	if (user && user.email_confirmed_at && !event.url.pathname.startsWith('/onboarding') && !event.url.pathname.startsWith('/api')) {
-		// Get user profile to check onboarding completion
-		const { data: profile } = await event.locals.supabase
-			.from('profiles')
-			.select('onboarding_completed, account_type')
-			.eq('id', user.id)
-			.single()
-		
-		// Redirect to onboarding if:
-		// 1. User has verified email (email_confirmed_at exists)
-		// 2. Profile exists but onboarding not completed
-		const needsOnboarding = profile && !profile.onboarding_completed
-		
-		if (needsOnboarding) {
-			// Skip redirect for auth pages, API routes, onboarding page itself, and static assets
-			const skipPaths = ['/login', '/register', '/callback', '/auth', '/_app', '/api', '/sign-in', '/sign-up', '/onboarding']
-			const pathname = event.url.pathname.replace('/bg', '').replace('/en', '') // Remove locale prefix for comparison
-			const shouldRedirect = !skipPaths.some(path => pathname.startsWith(path)) && 
-								   !event.url.pathname.includes('.') &&
-								   // Don't redirect brand accounts from their own brand pages
-								   !(profile.account_type === 'brand' && event.url.pathname.startsWith('/brands/'))
-			
-			if (shouldRedirect) {
-				// Get current locale from event
-				const currentLocale = event.locals.locale || 'en'
-				const onboardingPath = currentLocale === 'bg' ? '/bg/onboarding' : '/onboarding'
-				
-				return new Response(null, {
-					status: 302,
-					headers: {
-						location: onboardingPath
-					}
-				})
-			}
-		}
-	}
-	*/
 
 	const response = await resolve(event, {
 		filterSerializedResponseHeaders(name) {
@@ -203,9 +164,13 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 	})
 
 	// Security headers for production hardening
+	// SECURITY FIX: Removed 'unsafe-eval' to prevent eval() attacks
+	// Note: 'unsafe-inline' is required for inline event handlers and Tailwind CSS
+	// Nonces would break inline onclick handlers, so we keep 'unsafe-inline' for now
 	const cspDirectives = [
 		"default-src 'self'",
-		"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live blob:",
+		// Removed 'unsafe-eval' but keeping 'unsafe-inline' for inline event handlers
+		"script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com https://js.stripe.com https://checkout.stripe.com https://vercel.live blob:",
 		"worker-src 'self' blob:",
 		"frame-src 'self' https://www.google.com https://checkout.stripe.com https://vercel.live",
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
@@ -214,7 +179,9 @@ const handleSupabase: Handle = async ({ event, resolve }) => {
 		"connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google.com https://api.stripe.com https://vercel.live https://*.ingest.de.sentry.io https://*.sentry.io",
 		"object-src 'none'",
 		"base-uri 'self'",
-		"form-action 'self'"
+		"form-action 'self'",
+		"frame-ancestors 'none'",
+		"upgrade-insecure-requests"
 	]
 	
 	// Set comprehensive security headers

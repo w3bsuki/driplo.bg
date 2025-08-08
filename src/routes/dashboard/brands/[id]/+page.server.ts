@@ -1,5 +1,6 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import type { BrandVerificationRequest, SocialMediaAccount, AdminApproval } from '$lib/types/brand-verification';
 
 export const load: PageServerLoad = async ({ params, locals, parent }) => {
 	const { isAdmin, user } = await parent();
@@ -10,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals, parent }) => {
 	
 	// Get the brand verification request
 	const { data: request, error: requestError } = await locals.supabase
-		.from('brand_verification_requests' as any)
+		.from('brand_verification_requests')
 		.select('*')
 		.eq('id', params.id)
 		.single();
@@ -69,7 +70,7 @@ export const actions: Actions = {
 
 		// Update brand verification request
 		const { error: updateError } = await locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('brand_verification_requests')
 			.update({
 				verification_status: 'approved',
 				admin_notes: adminNotes,
@@ -84,7 +85,7 @@ export const actions: Actions = {
 
 		// Get request data for profile update
 		const { data: requestData } = await locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('brand_verification_requests')
 			.select('user_id, brand_name, brand_category')
 			.eq('id', params.id)
 			.single();
@@ -107,7 +108,7 @@ export const actions: Actions = {
 
 		// Create admin approval record
 		await locals.supabase
-			.from('admin_approvals' as any)
+			.from('admin_approvals')
 			.insert({
 				request_type: 'brand_verification',
 				request_id: params.id,
@@ -134,7 +135,7 @@ export const actions: Actions = {
 
 		// Update brand verification request
 		const { error: updateError } = await locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('brand_verification_requests')
 			.update({
 				verification_status: 'rejected',
 				admin_notes: adminNotes,
@@ -149,7 +150,7 @@ export const actions: Actions = {
 
 		// Create admin approval record
 		await locals.supabase
-			.from('admin_approvals' as any)
+			.from('admin_approvals')
 			.insert({
 				request_type: 'brand_verification',
 				request_id: params.id,
@@ -176,7 +177,7 @@ export const actions: Actions = {
 
 		// Update status to more_info_needed
 		const { error: updateError } = await locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('brand_verification_requests')
 			.update({
 				verification_status: 'more_info_needed',
 				admin_notes: infoMessage,
@@ -191,7 +192,7 @@ export const actions: Actions = {
 
 		// Create admin approval record
 		await locals.supabase
-			.from('admin_approvals' as any)
+			.from('admin_approvals')
 			.insert({
 				request_type: 'brand_verification',
 				request_id: params.id,

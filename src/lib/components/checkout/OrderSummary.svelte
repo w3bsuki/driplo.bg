@@ -2,9 +2,13 @@
 	import { formatCurrency } from '$lib/utils/currency';
 	import * as m from '$lib/paraglide/messages.js';
 
+	import type { Database } from '$lib/database.types';
+	
+	type Listing = Database['public']['Tables']['listings']['Row'];
+	
 	interface Props {
-		listing: any;
-		manualPaymentData?: any;
+		listing: Listing;
+		manualPaymentData?: Record<string, unknown>;
 	}
 
 	let { listing, manualPaymentData }: Props = $props();

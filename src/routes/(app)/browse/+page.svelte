@@ -9,13 +9,18 @@
 	import { browser } from '$app/environment';
 	
 	// Import new components
-	import TopSellersSection from '$lib/components/browse/TopSellersSection.svelte';
+	import SimplifiedTopSellers from '$lib/components/home/SimplifiedTopSellers.svelte';
 	import BrowseHeader from '$lib/components/browse/BrowseHeader.svelte';
 	import FilterSidebar from '$lib/components/browse/FilterSidebar.svelte';
 	import ProductGrid from '$lib/components/browse/ProductGrid.svelte';
 	import ActiveFilters from '$lib/components/browse/ActiveFilters.svelte';
 	import NoResultsMessage from '$lib/components/browse/NoResultsMessage.svelte';
 	import LoadingState from '$lib/components/browse/LoadingState.svelte';
+	
+	// Error boundaries and UI components
+	import { DataErrorBoundary } from '$lib/components/error-boundaries';
+	import { ProductCardSkeleton } from '$lib/components/skeletons';
+	import { EmptyState } from '$lib/components/ui';
 
 	let { data }: { data: PageData } = $props();
 
@@ -240,11 +245,11 @@
 					hasMoreItems = false;
 				}
 			} else {
-				console.error('Failed to load more items');
+				logger.error('Failed to load more items');
 				hasMoreItems = false;
 			}
 		} catch (error) {
-			console.error('Error loading more items:', error);
+			logger.error('Error loading more items:', error);
 			hasMoreItems = false;
 		} finally {
 			loadingMore = false;
@@ -261,8 +266,17 @@
 	<section class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
 		<div class="container mx-auto px-4">
 			<div class="max-w-3xl mx-auto">
-				<!-- Top Sellers Section -->
-				<TopSellersSection {isNavigating} />
+				<!-- Top Sellers Section with error boundary -->
+				<DataErrorBoundary 
+					emptyState={{
+						title: "Unable to load top sellers",
+						description: "There was a problem loading the top sellers section.",
+						actionText: "Retry",
+						onAction: () => window.location.reload()
+					}}
+				>
+					<SimplifiedTopSellers sellers={data.topSellers || []} />
+				</DataErrorBoundary>
 				
 				<!-- Search Header -->
 				<BrowseHeader
@@ -324,25 +338,40 @@
 					onClearAllFilters={clearAllFilters}
 				/>
 
-				<!-- Product Grid or Empty State -->
-				{#if allListings.length > 0}
-					<ProductGrid
-						listings={allListings}
-						userFavorites={data.userFavorites}
-						hasMore={hasMoreItems}
-						onLoadMore={loadMoreItems}
-						totalCount={data.totalCount}
-						filters={data.filters}
-						categories={data.categories}
-						bind:sortBy
-						onSortUpdate={updateSort}
-					/>
-				{:else}
-					<NoResultsMessage
-						searchTerm={data.filters.search}
-						onClearFilters={clearAllFilters}
-					/>
-				{/if}
+				<!-- Product Grid or Empty State with error boundary -->
+				<DataErrorBoundary 
+					loading={loadingMore}
+					data={allListings}
+					emptyState={{
+						title: allListings.length === 0 ? "No products found" : "Unable to load products",
+						description: allListings.length === 0 ? 
+							(data.filters.search ? `No results for "${data.filters.search}"` : "Try adjusting your filters") :
+							"There was a problem loading the product listings.",
+						actionText: allListings.length === 0 ? "Clear Filters" : "Retry",
+						onAction: allListings.length === 0 ? clearAllFilters : () => window.location.reload()
+					}}
+					autoRetry={true}
+					maxRetries={2}
+				>
+					{#if allListings.length > 0}
+						<ProductGrid
+							listings={allListings}
+							userFavorites={data.userFavorites}
+							hasMore={hasMoreItems}
+							onLoadMore={loadMoreItems}
+							totalCount={data.totalCount}
+							filters={data.filters}
+							categories={data.categories}
+							bind:sortBy
+							onSortUpdate={updateSort}
+						/>
+					{:else}
+						<NoResultsMessage
+							searchTerm={data.filters.search}
+							onClearFilters={clearAllFilters}
+						/>
+					{/if}
+				</DataErrorBoundary>
 			</main>
 		</div>
 	</div>

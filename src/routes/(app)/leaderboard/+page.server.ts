@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	// For startup phase, we show ALL sellers, brands, etc.
@@ -44,13 +45,13 @@ export const load: PageServerLoad = async ({ locals }) => {
 	
 	// Handle any errors
 	if (sellersResult.error) {
-		console.error('Error fetching sellers:', sellersResult.error);
+		logger.error('Error fetching sellers:', sellersResult.error);
 	}
 	if (brandsResult.error) {
-		console.error('Error fetching brands:', brandsResult.error);
+		logger.error('Error fetching brands:', brandsResult.error);
 	}
 	if (brandProfilesResult.error) {
-		console.error('Error fetching brand profiles:', brandProfilesResult.error);
+		logger.error('Error fetching brand profiles:', brandProfilesResult.error);
 	}
 	
 	// Create a map of profile data by user_id

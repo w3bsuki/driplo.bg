@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '$lib/types/database.types';
+import type { Database } from '$lib/database.types';
+import { logger } from '$lib/utils/logger';
 
 interface AuditLogEntry {
   action: string;
@@ -21,11 +22,11 @@ export async function logAdminAction(
     });
 
     if (error) {
-      console.error('Failed to log admin action:', error);
+      logger.error('Failed to log admin action:', error);
       // Don't throw - we don't want audit logging failures to break the main operation
     }
   } catch (error) {
-    console.error('Audit logging error:', error);
+    logger.error('Audit logging error:', error);
   }
 }
 

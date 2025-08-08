@@ -8,7 +8,6 @@
 		TableHeader,
 		TableRow
 	} from '$lib/components/ui/table';
-	// import type { Snippet } from 'svelte'; // unused
 
 	interface Column<T> {
 		key: keyof T | string;

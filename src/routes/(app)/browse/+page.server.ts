@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { error } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 import { browseListings, getBrowseFilters } from '$lib/server/browse'
@@ -117,7 +118,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			filterOptions
 		}
 	} catch (err) {
-		console.error('Browse page error:', err)
+		logger.error('Browse page error:', err)
 		throw error(500, `Failed to load browse page: ${err instanceof Error ? err.message : 'Unknown error'}`)
 	}
 }

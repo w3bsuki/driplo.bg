@@ -6,20 +6,40 @@
 	import { toast } from 'svelte-sonner';
 	import { getStripe } from '$lib/stores/stripe';
 	import * as m from '$lib/paraglide/messages.js';
-	import { logger } from '$lib/services/logger';
+	import { logger } from '$lib/utils/logger';
 	import OrderSummary from './OrderSummary.svelte';
 	import ShippingAddress from './ShippingAddress.svelte';
 	import PaymentMethodSelector from './PaymentMethodSelector.svelte';
 	import PaymentForm from './PaymentForm.svelte';
+	
+	// Error boundaries for checkout flow
+	import { PaymentErrorBoundary, FormErrorBoundary } from '$lib/components/error-boundaries';
+	import { CheckoutSkeleton } from '$lib/components/skeletons';
+	import { LoadingSpinner } from '$lib/components/ui';
 
+	import type { Database } from '$lib/database.types';
+	
+	type Listing = Database['public']['Tables']['listings']['Row'];
+	
 	interface Props {
-		listing: any;
+		listing: Listing;
 		isOpen: boolean;
 		onClose: () => void;
+	}
+	
+	interface ShippingAddress {
+		name: string;
+		address_line1: string;
+		address_line2: string;
+		city: string;
+		state: string;
+		postal_code: string;
+		country: string;
 	}
 
 	let { listing, isOpen, onClose }: Props = $props();
 
+	// TODO: Add proper Stripe types once Stripe SDK is properly typed
 	let elements: any;
 	let cardElement: any;
 	let isProcessing = $state(false);
@@ -30,7 +50,7 @@
 	let revolutOrderId = $state('');
 	let manualPaymentData = $state(null);
 	let showPaymentInstructions = $state(false);
-	let shippingAddress = $state({
+	let shippingAddress = $state<ShippingAddress>({
 		name: '',
 		address_line1: '',
 		address_line2: '',
@@ -489,48 +509,78 @@
 
 			<!-- Content -->
 			<div class="p-6">
-				<OrderSummary {listing} {manualPaymentData} />
-				
-				<ShippingAddress bind:shippingAddress />
-				
-				<PaymentMethodSelector
-					{paymentProvider}
-					onProviderChange={handleProviderChange}
-				/>
-				
-				<PaymentForm
-					{paymentProvider}
-					{clientSecret}
-					{showPaymentInstructions}
-					{manualPaymentData}
-					{isProcessing}
-					onOpenRevolutPaymentLink={handleOpenRevolutPaymentLink}
-					onConfirmManualPayment={confirmManualPayment}
-				/>
-
-				<!-- Security Notice -->
-				<div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-					<div class="flex items-center gap-2 text-green-700">
-						<Lock class="w-5 h-5" />
-						<span class="text-sm font-medium">{m.checkout_payment_secure()}</span>
+				{#if isInitializing}
+					<div class="flex items-center justify-center py-8">
+						<LoadingSpinner size="lg" text="Initializing checkout..." textPosition="bottom" />
 					</div>
-				</div>
-
-				<!-- Submit Button -->
-				{#if !showPaymentInstructions}
-					<button
-						onclick={handleSubmit}
-						disabled={isProcessing}
-						class="w-full bg-blue-400 text-white py-4 rounded-xl font-semibold hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				{:else}
+					<!-- Order Summary with error boundary -->
+					<FormErrorBoundary>
+						<OrderSummary {listing} {manualPaymentData} />
+					</FormErrorBoundary>
+					
+					<!-- Shipping Address with form error handling -->
+					<FormErrorBoundary>
+						<ShippingAddress bind:shippingAddress />
+					</FormErrorBoundary>
+					
+					<!-- Payment Method Selection with error boundary -->
+					<FormErrorBoundary>
+						<PaymentMethodSelector
+							{paymentProvider}
+							onProviderChange={handleProviderChange}
+						/>
+					</FormErrorBoundary>
+					
+					<!-- Payment Form with specialized payment error handling -->
+					<PaymentErrorBoundary 
+						showAlternatives={true}
+						onRetry={() => paymentProvider === 'stripe' ? initializeStripePayment() : null}
+						onChangePaymentMethod={() => paymentProvider = 'revolut_manual'}
 					>
-						{#if isProcessing}
-							{m.checkout_processing()}
-						{:else if paymentProvider === 'stripe'}
-							{m.checkout_pay_now({ amount: formatCurrency(totalAmount) })}
-						{:else}
-							{m.checkout_get_revolut_instructions({ amount: formatCurrency(manualPaymentData?.total_amount || totalAmount) })}
-						{/if}
-					</button>
+						<PaymentForm
+							{paymentProvider}
+							{clientSecret}
+							{showPaymentInstructions}
+							{manualPaymentData}
+							{isProcessing}
+							onOpenRevolutPaymentLink={handleOpenRevolutPaymentLink}
+							onConfirmManualPayment={confirmManualPayment}
+						/>
+					</PaymentErrorBoundary>
+
+					<!-- Security Notice -->
+					<div class="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
+						<div class="flex items-center gap-2 text-green-700">
+							<Lock class="w-5 h-5" />
+							<span class="text-sm font-medium">{m.checkout_payment_secure()}</span>
+						</div>
+					</div>
+
+					<!-- Submit Button with payment error handling -->
+					{#if !showPaymentInstructions}
+						<PaymentErrorBoundary 
+							showAlternatives={false}
+							onRetry={handleSubmit}
+						>
+							<button
+								onclick={handleSubmit}
+								disabled={isProcessing}
+								class="w-full bg-blue-400 text-white py-4 rounded-xl font-semibold hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							>
+								{#if isProcessing}
+									<div class="flex items-center justify-center gap-2">
+										<LoadingSpinner size="sm" variant="white" />
+										{m.checkout_processing()}
+									</div>
+								{:else if paymentProvider === 'stripe'}
+									{m.checkout_pay_now({ amount: formatCurrency(totalAmount) })}
+								{:else}
+									{m.checkout_get_revolut_instructions({ amount: formatCurrency(manualPaymentData?.total_amount || totalAmount) })}
+								{/if}
+							</button>
+						</PaymentErrorBoundary>
+					{/if}
 				{/if}
 			</div>
 		</div>

@@ -6,7 +6,7 @@
 		paymentProvider: 'stripe' | 'revolut_manual';
 		clientSecret: string;
 		showPaymentInstructions: boolean;
-		manualPaymentData: any;
+		manualPaymentData: Record<string, unknown> | null;
 		isProcessing: boolean;
 		onOpenRevolutPaymentLink: () => void;
 		onConfirmManualPayment: () => void;

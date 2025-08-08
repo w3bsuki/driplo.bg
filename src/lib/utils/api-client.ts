@@ -1,4 +1,5 @@
 import { withRetry, AppError, getErrorMessage } from '$lib/utils/error-handling';
+import { logger } from '$lib/utils/logger';
 
 interface ApiOptions extends RequestInit {
   retry?: boolean;
@@ -60,7 +61,7 @@ export async function apiFetch(
       return await withRetry(doFetch, {
         maxAttempts: maxRetries,
         onRetry: (attempt, error) => {
-          console.warn(`API call failed, retrying (${attempt}/${maxRetries})...`, error);
+          logger.warn(`API call failed, retrying (${attempt}/${maxRetries})`, { error, attempt, maxRetries });
         }
       });
     } else {

@@ -2,13 +2,12 @@
 	import { cn } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 
-	type $$Props = HTMLAttributes<HTMLDivElement> & {
+	interface Props extends HTMLAttributes<HTMLDivElement> {
 		variant?: 'default' | 'destructive';
-	};
+		children?: any;
+	}
 
-	let className: $$Props['class'] = undefined;
-	export let variant: $$Props['variant'] = 'default';
-	export { className as class };
+	let { variant = 'default', class: className, children, ...restProps }: Props = $props();
 
 	const variantClasses = {
 		default: 'bg-background text-foreground',
@@ -23,7 +22,7 @@
 		className
 	)}
 	role="alert"
-	{...$$restProps}
+	{...restProps}
 >
-	<slot />
+	{@render children?.()}
 </div>

@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/environment'
 import type { User, Session } from '@supabase/supabase-js'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 // Simple reactive stores
 export const user = writable<User | null>(null)

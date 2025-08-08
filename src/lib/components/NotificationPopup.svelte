@@ -3,7 +3,11 @@
 	import { fly, fade } from 'svelte/transition';
 	import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-svelte';
 	
-	export let position: 'top-right' | 'top-center' | 'bottom-right' = 'top-right';
+	interface Props {
+		position?: 'top-right' | 'top-center' | 'bottom-right';
+	}
+	
+	let { position = 'top-right' }: Props = $props();
 	
 	const positionClasses = {
 		'top-right': 'top-4 right-4',
@@ -47,7 +51,7 @@
 						{/if}
 						{#if notification.action}
 							<button
-								onclick={handleNotification.action.callback}
+								onclick={notification.action.callback}
 								class="text-sm font-medium mt-2 hover:underline"
 							>
 								{notification.action.label}

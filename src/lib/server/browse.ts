@@ -1,5 +1,6 @@
+import { logger } from '$lib/utils/logger';
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '$lib/types/database.types'
+import type { Database } from '$lib/database.types'
 import { getCachedData, cacheTTL } from '$lib/server/cache'
 
 export interface BrowseFilters {
@@ -226,12 +227,12 @@ export async function browseListings(
 		])
 
 		if (listingsResult.error) {
-			console.error('Browse listings error:', listingsResult.error)
+			logger.error('Browse listings error:', listingsResult.error)
 			throw listingsResult.error
 		}
 
 		if (countResult.error) {
-			console.error('Browse count error:', countResult.error)
+			logger.error('Browse count error:', countResult.error)
 		}
 
 		const totalCount = countResult.count || 0
@@ -240,9 +241,11 @@ export async function browseListings(
 		// Process listings to extract seller data from joins
 		const processedListings = (listingsResult.data || []).map((listing) => {
 			// Extract seller data and attach to listing
-			listing.seller = listing.profiles
-			delete listing.profiles
-			return listing
+			const { profiles, ...listingWithoutProfiles } = listing as any
+			return {
+				...listingWithoutProfiles,
+				seller: profiles
+			}
 		})
 
 			return {
@@ -253,7 +256,7 @@ export async function browseListings(
 				limit
 			}
 		} catch (err) {
-			console.error('Browse listings error:', err)
+			logger.error('Browse listings error:', err)
 			throw err
 		}
 	}

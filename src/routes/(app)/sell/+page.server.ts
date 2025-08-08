@@ -6,6 +6,7 @@ import { createListingSchema, createListingDefaults } from '$lib/schemas/listing
 import { serverCache, cacheKeys } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
 import { localizeHref } from '$lib/paraglide/runtime.js'
+import { logger } from '$lib/utils/logger'
 
 export const load: PageServerLoad = async ({ locals }) => {
 	try {
@@ -85,7 +86,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	} catch (error: unknown) {
 		// If error is "no rows returned", that's fine
 		if (error?.code !== 'PGRST116') {
-			console.error('Failed to check payment account:', error)
+			logger.error('Failed to check payment account:', error)
 		}
 	}
 	
@@ -101,7 +102,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 			throw error
 		}
 		
-		console.error('Error in sell page load:', error)
+		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
 		return {
 			form: await superValidate(createListingDefaults, zod(createListingSchema)),
@@ -118,7 +119,7 @@ export const actions: Actions = {
 		// Get user from auth
 		const { data: { user }, error: authError } = await locals.supabase.auth.getUser()
 		if (authError || !user) {
-			console.error('Auth error:', authError)
+			logger.error('Auth error:', authError)
 			return fail(401, { error: 'Please log in to create a listing' })
 		}
 		
@@ -146,9 +147,9 @@ export const actions: Actions = {
 				const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
 				uploadedImageUrls.push(url)
 			} catch (error) {
-				console.error('Image upload failed - detailed error:', error)
-				console.error('User ID:', user.id)
-				console.error('File info:', { 
+				logger.error('Image upload failed - detailed error:', error)
+				logger.error('User ID:', user.id)
+				logger.error('File info:', { 
 					name: imageFiles[i].name, 
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
@@ -162,25 +163,25 @@ export const actions: Actions = {
 		const formDataForValidation = Object.fromEntries(formData.entries());
 		
 		// Convert types for validation
-		if (formDataForValidation.price) {
-			formDataForValidation.price = parseFloat(formDataForValidation.price as string);
+		if (formDataForValidation['price']) {
+			formDataForValidation['price'] = parseFloat(formDataForValidation['price'] as string);
 		}
-		if (formDataForValidation.shipping_price) {
-			formDataForValidation.shipping_price = parseFloat(formDataForValidation.shipping_price as string);
+		if (formDataForValidation['shipping_price']) {
+			formDataForValidation['shipping_price'] = parseFloat(formDataForValidation['shipping_price'] as string);
 		}
-		if (formDataForValidation.ships_worldwide) {
-			formDataForValidation.ships_worldwide = formDataForValidation.ships_worldwide === 'true';
+		if (formDataForValidation['ships_worldwide']) {
+			formDataForValidation['ships_worldwide'] = formDataForValidation['ships_worldwide'] === 'true';
 		}
 		
 		// Set uploaded image URLs as actual array
-		formDataForValidation.images = uploadedImageUrls;
+		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
 		const form = await superValidate(formDataForValidation, zod(createListingSchema))
 		
 		if (!form.valid) {
-			console.error('Form validation failed:', form.errors)
-			console.error('Form data received:', Object.fromEntries(formData.entries()));
+			logger.error('Form validation failed:', form.errors)
+			logger.error('Form data received:', Object.fromEntries(formData.entries()));
 			return fail(400, { form, error: 'Please check all required fields.' })
 		}
 		
@@ -250,11 +251,11 @@ export const actions: Actions = {
 
 			
 			if (error) {
-				console.error('Database error details:', error)
-				console.error('Error code:', error.code)
-				console.error('Error message:', error.message)
-				console.error('Error details:', error.details)
-				console.error('Error hint:', error.hint)
+				logger.error('Database error details:', error)
+				logger.error('Error code:', error.code)
+				logger.error('Error message:', error.message)
+				logger.error('Error details:', error.details)
+				logger.error('Error hint:', error.hint)
 				
 				// User-friendly error messages
 				let userError = 'Failed to create listing. '
@@ -295,7 +296,7 @@ export const actions: Actions = {
 				throw error
 			}
 			
-			console.error('Unexpected error:', error)
+			logger.error('Unexpected error:', error)
 			return fail(500, { 
 				form,
 				error: 'An unexpected error occurred. Please try again.' 

@@ -1,7 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createSupabaseServerClient } from '$lib/utils/supabase/server';
-import { logger } from '$lib/services/logger';
+import { logger } from '$lib/utils/logger';
 
 interface WebVitalMetric {
 	name: string;
@@ -12,7 +12,7 @@ interface WebVitalMetric {
 	metadata: {
 		url: string;
 		timestamp: string;
-		connection?: any;
+		connection?: NavigatorConnection;
 	};
 }
 
@@ -85,13 +85,13 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			const analyticsPromises = [];
 			
 			// Example: Send to Vercel Analytics
-			if (process.env.VERCEL_ANALYTICS_ID) {
+			if (process.env['VERCEL_ANALYTICS_ID']) {
 				analyticsPromises.push(
 					fetch('https://vitals.vercel-insights.com/v1/vitals', {
 						method: 'POST',
 						headers: { 
 							'Content-Type': 'application/json',
-							'Authorization': `Bearer ${process.env.VERCEL_ANALYTICS_TOKEN}`
+							'Authorization': `Bearer ${process.env['VERCEL_ANALYTICS_TOKEN']}`
 						},
 						body: JSON.stringify({ metrics })
 					}).catch(error => {
@@ -101,7 +101,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			}
 			
 			// Example: Send to Google Analytics 4 via Measurement Protocol
-			if (process.env.GA4_MEASUREMENT_ID && process.env.GA4_API_SECRET) {
+			if (process.env['GA4_MEASUREMENT_ID'] && process.env['GA4_API_SECRET']) {
 				const ga4Events = metrics.map(metric => ({
 					name: 'web_vital',
 					params: {
@@ -113,7 +113,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				}));
 
 				analyticsPromises.push(
-					fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${process.env.GA4_MEASUREMENT_ID}&api_secret=${process.env.GA4_API_SECRET}`, {
+					fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${process.env['GA4_MEASUREMENT_ID']}&api_secret=${process.env['GA4_API_SECRET']}`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({

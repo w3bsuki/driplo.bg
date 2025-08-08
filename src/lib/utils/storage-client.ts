@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '$lib/types/database.types'
+import type { Database } from '$lib/database.types'
 import { compressImages } from './image-compression'
-import { logger } from '$lib/services/logger'
+import { logger } from '$lib/utils/logger'
 
 export type UploadResult = {
 	url: string

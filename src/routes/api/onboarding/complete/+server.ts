@@ -1,5 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { logger } from '$lib/utils/logger';
 
 export const POST: RequestHandler = async ({ locals: { supabase, safeGetSession } }) => {
 	const { session, user } = await safeGetSession();
@@ -21,7 +22,7 @@ export const POST: RequestHandler = async ({ locals: { supabase, safeGetSession 
 			.eq('id', user.id);
 
 		if (updateError) {
-			console.error('Error updating profile:', updateError);
+			logger.error('Error updating profile', updateError);
 			throw error(500, 'Failed to complete onboarding');
 		}
 
@@ -37,7 +38,7 @@ export const POST: RequestHandler = async ({ locals: { supabase, safeGetSession 
 
 		return json({ success: true });
 	} catch (err) {
-		console.error('Onboarding completion error:', err);
+		logger.error('Onboarding completion error', err);
 		
 		// Log failed attempt
 		await supabase.rpc('log_auth_event', {

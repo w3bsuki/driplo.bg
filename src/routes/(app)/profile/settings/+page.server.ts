@@ -1,3 +1,4 @@
+import { logger } from '$lib/utils/logger';
 import { redirect } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
 
@@ -15,7 +16,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		.single()
 
 	if (error) {
-		console.error('Error loading profile:', error)
+		logger.error('Error loading profile:', error)
 	}
 
 	return {
