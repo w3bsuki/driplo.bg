@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tags: sellPageDefaults.tags || [],
 		materials: sellPageDefaults.materials || []
 	}
-	const form = await superValidate(formDefaults)
+	const form = await superValidate(formDefaults, sellPageSchema)
 	
 	// Fetch categories
 	const { data: categories } = await locals.supabase
@@ -104,7 +104,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
 		return {
-			form: await superValidate(sellPageDefaults),
+			form: await superValidate(sellPageDefaults, sellPageSchema),
 			user: null,
 			categories: [],
 			hasPaymentAccount: false
@@ -131,7 +131,7 @@ export const actions: Actions = {
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
-			const form = await superValidate(formData)
+			const form = await superValidate(formData, sellPageSchema)
 			return fail(400, { form, error: 'Please add at least one image.' })
 		}
 		
@@ -153,7 +153,7 @@ export const actions: Actions = {
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
 				})
-				const form = await superValidate(formData)
+				const form = await superValidate(formData, sellPageSchema)
 				return fail(500, { form, error: `Failed to upload images: ${error.message}` })
 			}
 		}
@@ -176,7 +176,7 @@ export const actions: Actions = {
 		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
-		const form = await superValidate(formDataForValidation)
+		const form = await superValidate(formDataForValidation, sellPageSchema)
 		
 		if (!form.valid) {
 			logger.error('Form validation failed:', form.errors)
