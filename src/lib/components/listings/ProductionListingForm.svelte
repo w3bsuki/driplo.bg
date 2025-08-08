@@ -3,10 +3,11 @@
 	import { enhance } from '$app/forms';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
-	import type { createListingSchema } from '$lib/schemas/listing';
+	import { logger } from '$lib/utils/logger';
+	import type { sellPageSchema } from '$lib/schemas/sell-isolated';
 	
 	interface Props {
-		form: SuperValidated<z.infer<typeof createListingSchema>>;
+		form: SuperValidated<z.infer<typeof sellPageSchema>>;
 		categories: any[];
 		hasPaymentAccount: boolean;
 	}
@@ -79,7 +80,7 @@
 	const conditions = [
 		{ value: 'new_with_tags', label: 'New with tags' },
 		{ value: 'new_without_tags', label: 'New without tags' },
-		{ value: 'very_good', label: 'Very good' },
+		{ value: 'excellent', label: 'Excellent' },
 		{ value: 'good', label: 'Good' },
 		{ value: 'fair', label: 'Fair' }
 	];
