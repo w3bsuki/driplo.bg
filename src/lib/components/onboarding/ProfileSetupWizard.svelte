@@ -2,8 +2,7 @@
 	import { user as authUser } from '$lib/stores/auth';
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
-	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { isolatedOnboardingSchema, isolatedOnboardingDefaults, calculateIsolatedProgress } from '$lib/schemas/onboarding-isolated';
+	import { isolatedOnboardingDefaults, calculateIsolatedProgress } from '$lib/schemas/onboarding-isolated';
 	import type { IsolatedOnboardingFormData } from '$lib/schemas/onboarding-isolated';
 	import { 
 		ChevronLeft, 
@@ -143,7 +142,6 @@
 		initialFormData,
 		{
 			SPA: true,
-			validators: zodClient(isolatedOnboardingSchema),
 			resetForm: false,
 			invalidateAll: false,
 			onError: ({ result }) => {
