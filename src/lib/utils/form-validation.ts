@@ -253,6 +253,51 @@ export const formSchemas = {
   })
 };
 
+// Legacy regex validators (merged from validation.ts)
+export const legacyValidators = {
+  isValidEmail: (email: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+  isValidUsername: (username: string): boolean => /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(username),
+  isValidPassword: (password: string): boolean => /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password),
+  isValidPhoneNumber: (phone: string): boolean => {
+    const cleaned = phone.replace(/\D/g, '');
+    return cleaned.length >= 10 && cleaned.length <= 15;
+  },
+  isValidURL: (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  isValidCreditCard: (cardNumber: string): boolean => {
+    const cleaned = cardNumber.replace(/\D/g, '');
+    
+    if (cleaned.length < 13 || cleaned.length > 19) {
+      return false;
+    }
+    
+    let sum = 0;
+    let isEven = false;
+    
+    for (let i = cleaned.length - 1; i >= 0; i--) {
+      let digit = parseInt(cleaned[i]);
+      
+      if (isEven) {
+        digit *= 2;
+        if (digit > 9) {
+          digit -= 9;
+        }
+      }
+      
+      sum += digit;
+      isEven = !isEven;
+    }
+    
+    return sum % 10 === 0;
+  }
+};
+
 // Custom validators for specific use cases
 export const customValidators = {
   // Check if username is available (would need API call)
@@ -292,7 +337,28 @@ export const customValidators = {
         return !blockedWords.some(word => lowerText.includes(word));
       },
       'This content contains inappropriate language'
-    )
+    ),
+
+  // Input sanitization (merged from validation.ts)
+  sanitizeInput: (input: string): string => {
+    // First escape special characters, then remove script tags
+    let sanitized = input
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+    
+    // Then remove script and other dangerous tags
+    sanitized = sanitized
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
+    
+    // Finally remove any remaining HTML tags
+    sanitized = sanitized.replace(/<[^>]+>/g, '');
+    
+    return sanitized;
+  }
 };
 
 // Form state management helper

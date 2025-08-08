@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
 	import { 
 		Building2, 
 		User, 
@@ -18,7 +17,6 @@
 	import { toast } from 'svelte-sonner';
 	import { enhance } from '$app/forms';
 	import type { PageData } from './$types';
-	import type { SocialMediaAccount, BrandVerificationRequest } from '$lib/types/brand-verification';
 
 	interface Props {
 		data: PageData
@@ -383,7 +381,7 @@
 			</div>
 			{#if data.request && 'reviewed_at' in data.request && data.request.reviewed_at}
 				<p class="text-sm text-gray-600 mb-2">
-					Reviewed on {formatDate(data.request.reviewed_at)}
+					Reviewed on {formatDate(data.request.reviewed_at as string)}
 				</p>
 			{/if}
 			{#if data.request && 'admin_notes' in data.request && data.request.admin_notes}

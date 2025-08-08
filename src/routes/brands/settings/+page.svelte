@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	import type { PageData } from './$types';
 	import { 
 		Store, Check, Clock
@@ -9,7 +8,6 @@
 	import { toast } from 'svelte-sonner';
 	import { cn } from '$lib/utils';
 	import Spinner from '$lib/components/ui/Spinner.svelte';
-	import * as m from '$lib/paraglide/messages.js';
 	
 	// Import sub-components
 	import BrandInfoTab from '$lib/components/brands/settings/BrandInfoTab.svelte';
@@ -28,7 +26,6 @@
 	// Form state
 	let loading = $state(false);
 	let activeTab = $state<'info' | 'verification' | 'social' | 'payment' | 'danger'>('info');
-	let uploadingLogo = $state(false);
 	
 	// Brand info
 	let brandName = $state(profile?.brand_name || '');
@@ -46,7 +43,7 @@
 	let brandTiktok = $state('');
 	
 	// Verification
-	let verificationRequest = $state<any>(null);
+	let verificationRequest = $state<Record<string, unknown> | null>(null);
 	let businessRegistrationNumber = $state('');
 	let taxId = $state('');
 	let verificationDocuments = $state<File[]>([]);
@@ -100,7 +97,7 @@
 		// Load existing verification request if any
 		if (isBrand) {
 			const { data } = await supabase
-				.from('brand_verification_requests' as any)
+				.from('brand_verification_requests')
 				.select('*')
 				.eq('user_id', user.id)
 				.order('created_at', { ascending: false })
@@ -174,8 +171,9 @@
 			toast.success('Successfully upgraded to brand account!');
 			// Redirect to brand welcome page
 			goto(`/brands/welcome?slug=${brandSlug}`);
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to upgrade account');
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Failed to upgrade account';
+			toast.error(message);
 		} finally {
 			loading = false;
 		}
@@ -225,8 +223,9 @@
 			}
 			
 			toast.success('Brand information updated successfully!');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to update brand info');
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Failed to update brand info';
+			toast.error(message);
 		} finally {
 			loading = false;
 		}
@@ -245,7 +244,7 @@
 			if (verificationDocuments.length > 0) {
 				for (const doc of verificationDocuments) {
 					const fileName = `brand-docs/${user.id}/${Date.now()}-${doc.name}`;
-					const { data: uploadData, error: uploadError } = await supabase.storage
+					const { error: uploadError } = await supabase.storage
 						.from('documents')
 						.upload(fileName, doc);
 					
@@ -265,7 +264,7 @@
 			
 			// Create verification request
 			const { data, error } = await supabase
-				.from('brand_verification_requests' as any)
+				.from('brand_verification_requests')
 				.insert({
 					user_id: user.id,
 					brand_name: brandName,
@@ -289,8 +288,9 @@
 			
 			verificationRequest = data;
 			toast.success('Verification request submitted successfully! We\'ll review it within 2-3 business days.');
-		} catch (error: any) {
-			toast.error(error.message || 'Failed to submit verification');
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Failed to submit verification';
+			toast.error(message);
 		} finally {
 			loading = false;
 		}

@@ -62,7 +62,7 @@
 				} else {
 					emailCheckResult = null;
 				}
-			} catch (error) {
+			} catch (_error) {
 				// Email check failed - handled by UI state
 				emailCheckResult = null;
 			} finally {

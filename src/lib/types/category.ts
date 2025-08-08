@@ -1,4 +1,4 @@
-import type { Database } from '$lib/database.types';
+import type { Database } from '../database.types';
 
 export type Category = Database['public']['Tables']['categories']['Row'];
 

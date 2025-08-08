@@ -9,12 +9,9 @@
 		FileText, 
 		Settings,
 		LogOut,
-		Shield,
-		TrendingUp,
-		AlertCircle
+		Shield
 	} from 'lucide-svelte';
 	import { Toaster } from 'svelte-sonner';
-	import Spinner from '$lib/components/ui/Spinner.svelte';
 	import type { LayoutData } from './$types';
 
 	let { data, children }: { data: LayoutData; children: import('svelte').Snippet } = $props();

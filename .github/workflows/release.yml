@@ -1,0 +1,211 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
+jobs:
+  # Pre-release validation
+  validate:
+    name: Pre-release Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run all quality checks
+        run: |
+          pnpm run check
+          pnpm run lint
+          pnpm run format:check
+
+      - name: Run tests
+        run: pnpm run test
+
+      - name: Build application
+        run: pnpm run build
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run E2E tests
+        run: |
+          pnpm exec playwright install --with-deps
+          pnpm run preview &
+          sleep 10
+          pnpm run test:e2e
+
+  # Production deployment validation
+  production-smoke-tests:
+    name: Production Smoke Tests
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run production smoke tests
+        run: |
+          pnpm exec playwright install --with-deps
+          pnpm exec playwright test tests/e2e/smoke/ --project=production
+        env:
+          TEST_URL: https://driplo.bg
+
+  # Create release notes
+  release-notes:
+    name: Generate Release Notes
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'workflow_dispatch'
+    
+    outputs:
+      version: ${{ steps.version.outputs.new_version }}
+      changelog: ${{ steps.changelog.outputs.changelog }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version
+        id: version
+        run: |
+          npm version ${{ github.event.inputs.version || 'patch' }} --no-git-tag-version
+          echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          git log --pretty=format:"- %s (%h)" --since="$(git describe --tags --abbrev=0)..HEAD" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Commit version bump
+        run: |
+          git add package.json
+          git commit -m "chore: bump version to v${{ steps.version.outputs.new_version }}"
+          git push
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.new_version }}
+          release_name: Release v${{ steps.version.outputs.new_version }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+
+  # Post-release tasks
+  post-release:
+    name: Post-release Tasks
+    runs-on: ubuntu-latest
+    needs: [validate, production-smoke-tests]
+    if: github.event_name == 'release'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Notify team
+        run: |
+          echo "🚀 Release ${{ github.event.release.tag_name }} has been deployed!"
+          echo "📝 Release notes: ${{ github.event.release.html_url }}"
+
+      - name: Update monitoring
+        run: |
+          # Here you would typically:
+          # - Update monitoring dashboards
+          # - Send metrics to analytics
+          # - Update status page
+          echo "📊 Monitoring updated for release ${{ github.event.release.tag_name }}"
+
+      - name: Archive artifacts
+        run: |
+          echo "📦 Archiving release artifacts"
+          # Archive important build artifacts, logs, etc.
+
+  # Rollback workflow (manual trigger only)
+  rollback:
+    name: Rollback Release
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.rollback == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Rollback deployment
+        run: |
+          echo "🔄 Initiating rollback procedure"
+          # This would typically involve:
+          # - Reverting to previous Vercel deployment
+          # - Rolling back database migrations if needed
+          # - Notifying team of rollback
+          
+      - name: Notify rollback
+        run: |
+          echo "⚠️ Rollback initiated for failed release"

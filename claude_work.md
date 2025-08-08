@@ -61,9 +61,6 @@ Based on the comprehensive audit in `gpt_audit.md`, we have identified several c
   - [x] Fixed remaining 8 errors
   - [x] TypeScript errors massively reduced
 
-- [x] **Investigate validation.js circular dependency** — identified issue with zodClient + schemas interaction
-- [ ] **Try targeted isolation** — temporarily simplify imports/schemas causing the cycle (keep superforms zod adapter enabled)
-
 ## 🎯 Execution Plan
 
 ### Phase 1: Critical Blockers (Priority 1)

@@ -26,7 +26,7 @@
 	)}
 	{...restProps}
 >
-	<slot></slot>
+	{@render children?.()}
 	{#if required}
 		<span class="text-red-500 ml-1">*</span>
 	{/if}

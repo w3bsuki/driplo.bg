@@ -88,7 +88,7 @@
 	</div>
 {/if}
 
-<style>
+<style lang="postcss">
 	.safe-area-pb {
 		padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
 	}

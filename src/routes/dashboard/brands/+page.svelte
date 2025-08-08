@@ -2,7 +2,6 @@
 	import { 
 		Building2, 
 		Search, 
-		Filter, 
 		CheckCircle, 
 		XCircle, 
 		Clock,
@@ -10,7 +9,6 @@
 		Calendar,
 		AlertCircle
 	} from 'lucide-svelte';
-	import { toast } from 'svelte-sonner';
 	import type { PageData } from './$types';
 
 	interface Props {
@@ -162,7 +160,7 @@
 						<input
 							type="checkbox"
 							checked={selectedRequests.size === filteredRequests.length && filteredRequests.length > 0}
-							onchange={handleToggleAll}
+							onchange={toggleAll}
 							class="rounded"
 						/>
 					</th>

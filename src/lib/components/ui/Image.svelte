@@ -12,6 +12,7 @@
 		type ImageTransformOptions 
 	} from '$lib/utils/supabase-images';
 	import { getResponsiveImageUrl } from '$lib/utils/responsive-image';
+	import { logger } from '$lib/utils/logger';
 
 	interface Props {
 		// Source can be string, Supabase URL, or object with size variants

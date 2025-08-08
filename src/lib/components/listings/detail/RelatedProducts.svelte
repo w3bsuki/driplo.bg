@@ -76,7 +76,7 @@
 	</div>
 {/if}
 
-<style>
+<style lang="postcss">
 	/* Hide scrollbar for Chrome, Safari and Opera */
 	.scrollbar-hide::-webkit-scrollbar {
 		display: none;

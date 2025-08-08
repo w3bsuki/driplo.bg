@@ -19,7 +19,7 @@
 		...restProps
 	}: Props & Record<string, any> = $props();
 	
-	let Component: ComponentType<SvelteComponent> | null = null;
+	let Component: ComponentType<SvelteComponent> | null = $state(null);
 	let loading = $state(false);
 	let error: Error | null = $state(null);
 	
@@ -96,6 +96,6 @@
 			</div>
 		</div>
 	{:else if Component}
-		<svelte:component this={Component} {...restProps} />
+		<Component {...restProps} />
 	{/if}
 {/if}

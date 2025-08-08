@@ -1,6 +1,5 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import type { BrandVerificationRequest, SocialMediaAccount, AdminApproval } from '$lib/types/brand-verification';
 
 export const load: PageServerLoad = async ({ params, locals, parent }) => {
 	const { isAdmin, user } = await parent();

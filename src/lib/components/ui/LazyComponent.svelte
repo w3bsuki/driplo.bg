@@ -192,7 +192,7 @@
 			</div>
 		{/if}
 	{:else if Component}
-		<svelte:component this={Component} {...componentProps} />
+		<Component {...componentProps} />
 	{:else if !useIntersectionObserver || priority || isVisible}
 		<!-- Show placeholder when component should be loading -->
 		{#if showLoading && !hasStartedLoading}

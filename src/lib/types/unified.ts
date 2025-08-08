@@ -3,7 +3,7 @@
  * Single source of truth matching database schema
  */
 
-import type { Database } from '$lib/database.types'
+import type { Database } from '../database.types'
 
 // Core database types
 export type Profile = Database['public']['Tables']['profiles']['Row']
@@ -49,6 +49,20 @@ export interface FilterParams {
   maxPrice?: number
   condition?: ListingCondition
   location?: string
+}
+
+// API Response types
+export interface ApiResponse<T> {
+  data: T | null
+  error: Error | null
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
 }
 
 // Extended types with relations
@@ -124,4 +138,4 @@ export interface AchievementDefinition {
 }
 
 // Re-export database types for backwards compatibility
-export type { Database } from '$lib/database.types'
+export type { Database } from '../database.types'

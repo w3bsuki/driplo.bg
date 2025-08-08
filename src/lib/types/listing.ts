@@ -1,3 +1,5 @@
+import type { Category } from './category';
+
 export interface Listing {
 	id: string;
 	sellerId: string;
@@ -19,7 +21,7 @@ export interface Listing {
 	updatedAt: Date;
 }
 
-export type Category = 
+export type CategorySlug = 
 	| 'women'
 	| 'men'
 	| 'kids'

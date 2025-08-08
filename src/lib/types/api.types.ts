@@ -1,8 +1,7 @@
 // API Response Types
 // This file defines TypeScript types for all API endpoints
 
-import type { Tables } from '$lib/database.types';
-import type { PaginatedResponse } from '$lib/server/api-utils';
+import type { Tables } from '../database.types';
 
 // Common response shapes
 export interface PaginationInfo {

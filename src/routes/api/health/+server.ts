@@ -1,7 +1,10 @@
 import { json } from '@sveltejs/kit';
+import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ setHeaders }) => {
+  // Health endpoints should never be cached
+  setCacheHeaders({ setHeaders }, cachePresets.noCache);
   const healthStatus = {
     status: 'ok',
     timestamp: new Date().toISOString(),

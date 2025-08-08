@@ -125,8 +125,7 @@
 >
 	{#if IconComponent}
 		<div class="flex justify-center mb-4">
-			<svelte:component 
-				this={IconComponent} 
+			<IconComponent 
 				class={cn(sizeClasses[size].icon, 'text-gray-400')} 
 			/>
 		</div>

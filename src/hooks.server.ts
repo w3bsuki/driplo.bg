@@ -1,9 +1,9 @@
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public'
 import { createServerClient } from '@supabase/ssr'
-import type { Handle } from '@sveltejs/kit'
+import type { Handle, Reroute } from '@sveltejs/kit'
 import type { Database } from '$lib/database.types'
 import { sequence } from '@sveltejs/kit/hooks'
-import { setLocale } from '$lib/paraglide/runtime.js'
+import { setLocale, deLocalizeUrl } from '$lib/paraglide/runtime.js'
 import { paraglideMiddleware } from '$lib/paraglide/server.js'
 import { dev } from '$app/environment'
 import { handleErrorWithSentry, sentryHandle } from '@sentry/sveltekit'
@@ -256,3 +256,8 @@ const sentryHandleWrapper = sentryHandle();
 export const handleError = handleErrorWithSentry();
 
 export const handle = sequence(handleParaglide, handleSupabase, sentryHandleWrapper, handleCaching)
+
+// Reroute function for internationalization (consolidated from hooks.js)
+export const reroute: Reroute = ({ url }) => {
+	return deLocalizeUrl(url).pathname
+}

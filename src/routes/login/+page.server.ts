@@ -128,7 +128,7 @@ export const actions = {
 		}
 		
 		// Check if session was actually set
-		const { data: { session: currentSession } } = await supabase.auth.getSession();
+		const { data: { session: _currentSession } } = await supabase.auth.getSession();
 		
 		// Check if user needs onboarding
 		if (data?.user) {

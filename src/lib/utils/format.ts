@@ -1,4 +1,5 @@
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import { getLocale } from '$lib/paraglide/runtime.js';
 
 /**
  * Formats a number with commas
@@ -7,17 +8,7 @@ export function formatNumber(num: number): string {
 	return new Intl.NumberFormat('en-US').format(num);
 }
 
-/**
- * Formats a date as relative time (e.g., "2 hours ago")
- */
-export function formatRelativeTime(date: string | Date): string {
-	try {
-		const dateObj = typeof date === 'string' ? parseISO(date) : date;
-		return formatDistanceToNow(dateObj, { addSuffix: true });
-	} catch (error) {
-		return 'Invalid date';
-	}
-}
+// Date utilities consolidated here to avoid duplication
 
 /**
  * Gets initials from a name
@@ -113,22 +104,6 @@ export function formatDuration(seconds: number): string {
 }
 
 /**
- * Formats date to local date string
- */
-export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
-	const dateObj = typeof date === 'string' ? new Date(date) : date;
-	
-	const defaultOptions: Intl.DateTimeFormatOptions = {
-		year: 'numeric',
-		month: 'long',
-		day: 'numeric',
-		...options
-	};
-	
-	return dateObj.toLocaleDateString('en-US', defaultOptions);
-}
-
-/**
  * Formats a username/handle (removes special chars, lowercases)
  */
 export function formatUsername(username: string): string {
@@ -136,4 +111,51 @@ export function formatUsername(username: string): string {
 		.toLowerCase()
 		.replace(/[^a-z0-9_]/g, '')
 		.slice(0, 20);
+}
+
+/**
+ * Formats a date as relative time using date-fns with locale support
+ */
+export function formatRelativeTime(date: string | Date): string {
+	try {
+		const dateObj = typeof date === 'string' ? parseISO(date) : date;
+		return formatDistanceToNow(dateObj, { addSuffix: true });
+	} catch (error) {
+		return 'Invalid date';
+	}
+}
+
+/**
+ * Formats date to local date string with locale support
+ */
+export function formatDate(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
+	const dateObj = typeof date === 'string' ? new Date(date) : date;
+	const locale = getLocale();
+	
+	const defaultOptions: Intl.DateTimeFormatOptions = {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+		timeZone: locale === 'bg' ? 'Europe/Sofia' : 'America/New_York',
+		...options
+	};
+	
+	return dateObj.toLocaleDateString(locale, defaultOptions);
+}
+
+/**
+ * Formats date and time with locale support
+ */
+export function formatDateTime(date: string | Date, options?: Intl.DateTimeFormatOptions): string {
+	const dateObj = typeof date === 'string' ? new Date(date) : date;
+	const locale = getLocale();
+	
+	const defaultOptions: Intl.DateTimeFormatOptions = {
+		dateStyle: 'medium',
+		timeStyle: 'short',
+		timeZone: locale === 'bg' ? 'Europe/Sofia' : 'America/New_York',
+		...options
+	};
+	
+	return dateObj.toLocaleDateString(locale, defaultOptions);
 }

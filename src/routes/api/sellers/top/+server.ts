@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import { apiError, apiSuccess, ApiErrorType } from '$lib/server/api-utils';
+import { setCacheHeaders, cachePresets } from '$lib/utils/cache-headers';
 import { z } from 'zod';
 import type { TopSellersResponse } from '$lib/types/api.types';
 
@@ -8,8 +9,11 @@ const querySchema = z.object({
   limit: z.number().int().min(1).max(50).default(12)
 });
 
-export const GET: RequestHandler = async ({ locals, url }) => {
+export const GET: RequestHandler = async ({ locals, url, setHeaders }) => {
   const requestId = crypto.randomUUID();
+  
+  // Set cache headers for top sellers API (stale-while-revalidate)
+  setCacheHeaders({ setHeaders }, cachePresets.apiStale);
   
   try {
     // Validate query parameters

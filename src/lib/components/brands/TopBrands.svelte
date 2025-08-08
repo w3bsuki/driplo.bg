@@ -168,7 +168,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
 	.line-clamp-2 {
 		display: -webkit-box;
 		-webkit-line-clamp: 2;

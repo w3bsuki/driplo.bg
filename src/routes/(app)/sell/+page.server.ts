@@ -2,7 +2,7 @@ import type { Actions, PageServerLoad } from './$types'
 import { fail, redirect } from '@sveltejs/kit'
 import { superValidate } from 'sveltekit-superforms'
 import { sellPageDefaults, sellPageSchema } from '$lib/schemas/sell-isolated'
-import { serverCache } from '$lib/server/cache'
+import { serverCache, cacheKeys } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
 import { localizeHref } from '$lib/paraglide/runtime.js'
 import { logger } from '$lib/utils/logger'
@@ -24,9 +24,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tags: sellPageDefaults.tags || [],
 		materials: sellPageDefaults.materials || []
 	}
-	// Dynamically import zod adapter to avoid SSR circular init
-	const { zod } = await import('sveltekit-superforms/adapters')
-	const form = await superValidate(formDefaults, zod(sellPageSchema))
+	const form = await superValidate(formDefaults, sellPageSchema)
 	
 	// Fetch categories
 	const { data: categories } = await locals.supabase
@@ -84,9 +82,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 				}
 			}
 		}
-	} catch (error) {
+	} catch (error: unknown) {
 		// If error is "no rows returned", that's fine
-		// @ts-expect-error Supabase error objects may include code
 		if (error?.code !== 'PGRST116') {
 			logger.error('Failed to check payment account:', error)
 		}
@@ -106,9 +103,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		
 		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
-		const { zod } = await import('sveltekit-superforms/adapters')
 		return {
-			form: await superValidate(sellPageDefaults, zod(sellPageSchema)),
+			form: await superValidate(sellPageDefaults, sellPageSchema),
 			user: null,
 			categories: [],
 			hasPaymentAccount: false
@@ -135,8 +131,7 @@ export const actions: Actions = {
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
-			const { zod } = await import('sveltekit-superforms/adapters')
-			const form = await superValidate(formData, zod(sellPageSchema))
+			const form = await superValidate(formData, sellPageSchema)
 			return fail(400, { form, error: 'Please add at least one image.' })
 		}
 		
@@ -150,17 +145,16 @@ export const actions: Actions = {
 			try {
 				const url = await uploadListingImage(locals.supabase, imageFiles[i], user.id, i)
 				uploadedImageUrls.push(url)
-			} catch (err) {
-				logger.error('Image upload failed - detailed error:', err)
+			} catch (error) {
+				logger.error('Image upload failed - detailed error:', error)
 				logger.error('User ID:', user.id)
 				logger.error('File info:', { 
 					name: imageFiles[i].name, 
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
 				})
-				const { zod } = await import('sveltekit-superforms/adapters')
-				const form = await superValidate(formData, zod(sellPageSchema))
-				return fail(500, { form, error: `Failed to upload images` })
+				const form = await superValidate(formData, sellPageSchema)
+				return fail(500, { form, error: `Failed to upload images: ${error.message}` })
 			}
 		}
 		
@@ -182,8 +176,7 @@ export const actions: Actions = {
 		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
-		const { zod } = await import('sveltekit-superforms/adapters')
-		const form = await superValidate(formDataForValidation, zod(sellPageSchema))
+		const form = await superValidate(formDataForValidation, sellPageSchema)
 		
 		if (!form.valid) {
 			logger.error('Form validation failed:', form.errors)
@@ -214,7 +207,7 @@ export const actions: Actions = {
 		try {
 			
 			// Create the listing
-			const { error } = await locals.supabase
+			const { data: listing, error } = await locals.supabase
 				.from('listings')
 				.insert({
 					seller_id: user.id,
@@ -296,9 +289,8 @@ export const actions: Actions = {
 			const localizedUrl = localizeHref('/', { locale: currentLocale as 'en' | 'bg' })
 			throw redirect(303, localizedUrl)
 			
-		} catch (error) {
+		} catch (error: unknown) {
 			// If it's a redirect, rethrow it
-			// @ts-expect-error status may exist on thrown object
 			if (error?.status === 303) {
 				throw error
 			}

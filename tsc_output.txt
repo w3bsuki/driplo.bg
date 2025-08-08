@@ -1,642 +1,99 @@
-src/hooks.client.ts(7,24): error TS4111: Property 'VITE_PUBLIC_SENTRY_DSN' comes from an index signature, so it must be accessed with ['VITE_PUBLIC_SENTRY_DSN'].
-src/hooks.client.ts(29,21): error TS6133: 'hint' is declared but its value is never read.
-src/hooks.client.ts(35,9): error TS18048: 'error' is possibly 'undefined'.
-src/hooks.client.ts(40,9): error TS18048: 'error' is possibly 'undefined'.
-src/hooks.client.ts(40,42): error TS18048: 'error' is possibly 'undefined'.
-src/hooks.js(3,27): error TS7031: Binding element 'url' implicitly has an 'any' type.
-src/hooks.server.ts(13,29): error TS4111: Property 'VITE_PUBLIC_SENTRY_DSN' comes from an index signature, so it must be accessed with ['VITE_PUBLIC_SENTRY_DSN'].
-src/hooks.server.ts(15,24): error TS4111: Property 'VITE_PUBLIC_SENTRY_DSN' comes from an index signature, so it must be accessed with ['VITE_PUBLIC_SENTRY_DSN'].
-src/hooks.server.ts(24,21): error TS6133: 'hint' is declared but its value is never read.
-src/hooks.server.ts(32,5): error TS2322: Type 'string' is not assignable to type 'Record<string, string>'.
-src/hooks.server.ts(125,11): error TS6133: 'sessionError' is declared but its value is never read.
-src/hooks.server.ts(281,50): error TS2345: Argument of type '(error: any, event: any) => void' is not assignable to parameter of type 'HandleClientError | HandleServerError | undefined'.
-  Type '(error: any, event: any) => void' is not assignable to type 'HandleClientError'.
-    Target signature provides too few arguments. Expected 2 or more, but got 1.
-src/hooks.server.ts(281,51): error TS7006: Parameter 'error' implicitly has an 'any' type.
-src/hooks.server.ts(281,58): error TS7006: Parameter 'event' implicitly has an 'any' type.
-src/lib/hooks/useImagePreload.ts(185,11): error TS7030: Not all code paths return a value.
-src/lib/schemas/onboarding.ts(187,3): error TS2322: Type 'null' is not assignable to type 'string | undefined'.
-src/lib/server/api-utils.test.ts(34,17): error TS2339: Property 'data' does not exist on type 'Response'.
-src/lib/server/api-utils.test.ts(35,17): error TS2339: Property 'data' does not exist on type 'Response'.
-src/lib/server/api-utils.test.ts(56,17): error TS2339: Property 'data' does not exist on type 'Response'.
-src/lib/server/api-utils.test.ts(57,17): error TS2339: Property 'init' does not exist on type 'Response'.
-src/lib/server/api-utils.ts(167,7): error TS2740: Type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, achievements, backup_codes, brand_bio, and 41 more.
-src/lib/server/api-utils.ts(184,20): error TS2339: Property 'role' does not exist on type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-src/lib/server/api-utils.ts(408,9): error TS2322: Type 'unknown' is not assignable to type 'T[keyof T] | undefined'.
-src/lib/server/api-utils.ts(524,25): error TS2322: Type 'T | undefined' is not assignable to type 'T'.
-  'T' could be instantiated with an arbitrary type which could be unrelated to 'T | undefined'.
-src/lib/server/api-utils.ts(525,35): error TS2345: Argument of type 'T | undefined' is not assignable to parameter of type 'T'.
-  'T' could be instantiated with an arbitrary type which could be unrelated to 'T | undefined'.
-src/lib/server/audit.ts(16,42): error TS2345: Argument of type '"log_admin_action"' is not assignable to parameter of type '"check_auth_rate_limit" | "log_auth_event" | "cleanup_auth_rate_limit" | "cleanup_expired_data" | "create_order_with_payment" | "generate_order_number" | "get_brand_statistics" | ... 17 more ... | "validate_coupon_code"'.
-src/lib/server/browse.ts(284,51): error TS2339: Property 'brand' does not exist on type 'SelectQueryError<"column 'brand' does not exist on 'listings'.">'.
-src/lib/server/browse.ts(285,50): error TS2339: Property 'size' does not exist on type 'SelectQueryError<"column 'brand' does not exist on 'listings'.">'.
-src/lib/server/browse.ts(286,55): error TS2339: Property 'condition' does not exist on type 'SelectQueryError<"column 'brand' does not exist on 'listings'.">'.
-src/lib/server/browse.ts(288,39): error TS2339: Property 'price' does not exist on type 'SelectQueryError<"column 'brand' does not exist on 'listings'.">'.
-src/lib/server/email.ts(13,49): error TS2339: Property 'transactions' does not exist on type '{ admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 28 more .....'.
-src/lib/server/email.ts(468,7): error TS2322: Type 'string | null' is not assignable to type 'string'.
-  Type 'null' is not assignable to type 'string'.
-src/lib/server/image-optimizer.ts(122,4): error TS2322: Type '{ url: string; path: string; width: number; height: number; }' is not assignable to type 'never'.
-src/lib/server/rate-limit.ts(33,33): error TS2339: Property 'session' does not exist on type 'Locals'.
-src/lib/stores/auth.ts(20,17): error TS7030: Not all code paths return a value.
-src/lib/stores/auth.ts(24,46): error TS6133: 'event' is declared but its value is never read.
-src/lib/types/api.types.ts(20,34): error TS2344: Type '"listing_images"' does not satisfy the constraint '"categories" | "listings" | "profiles" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "payment_accounts" | "messages" | "disputes" | "coupons" | ... 18 more ... | "user_stats_summary"'.
-src/lib/types/api.types.ts(82,20): error TS2344: Type '"payments"' does not satisfy the constraint '"categories" | "listings" | "profiles" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "payment_accounts" | "messages" | "disputes" | "coupons" | ... 18 more ... | "user_stats_summary"'.
-src/lib/types/api.types.ts(229,46): error TS2312: An interface can only extend an object type or intersection of object types with statically known members.
-src/lib/types/api.types.ts(229,53): error TS2344: Type '"transactions"' does not satisfy the constraint '"categories" | "listings" | "profiles" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "payment_accounts" | "messages" | "disputes" | "coupons" | ... 18 more ... | "user_stats_summary"'.
-src/lib/types/api.types.ts(286,72): error TS2304: Cannot find name 'PaginatedResponse'.
-src/lib/types/index.ts(7,1): error TS2308: Module './listing' has already exported a member named 'Category'. Consider explicitly re-exporting to resolve the ambiguity.
-src/lib/types/unified.ts(12,56): error TS2339: Property 'transactions' does not exist on type '{ admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 28 more .....'.
-src/lib/types/unified.ts(21,62): error TS2339: Property 'transactions' does not exist on type '{ admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 28 more .....'.
-src/lib/types/unified.ts(26,62): error TS2339: Property 'transactions' does not exist on type '{ admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 28 more .....'.
-src/lib/utils/error-handling.ts(72,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(79,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(85,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(90,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(94,5): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(98,3): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/error-handling.ts(98,25): error TS4111: Property 'unknown' comes from an index signature, so it must be accessed with ['unknown'].
-src/lib/utils/focus-trap.ts(8,11): error TS2564: Property '_onKeyDown' has no initializer and is not definitely assigned in the constructor.
-src/lib/utils/focus-trap.ts(8,11): error TS6133: '_onKeyDown' is declared but its value is never read.
-src/lib/utils/focus-trap.ts(48,10): error TS2339: Property 'handleKeyDown' does not exist on type 'FocusTrap'.
-src/lib/utils/focus-trap.ts(57,47): error TS2339: Property 'handleKeyDown' does not exist on type 'FocusTrap'.
-src/lib/utils/focus-trap.ts(97,50): error TS2339: Property 'handleKeyDown' does not exist on type 'FocusTrap'.
-src/lib/utils/focus-trap.ts(105,50): error TS2339: Property 'handleKeyDown' does not exist on type 'FocusTrap'.
-src/lib/utils/focus-trap.ts(109,47): error TS2339: Property 'handleKeyDown' does not exist on type 'FocusTrap'.
-src/lib/utils/focus-trap.ts(215,5): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/focus-trap.ts(216,5): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/focus-trap.ts(219,5): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/format.ts(31,10): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/format.ts(34,10): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/format.ts(34,10): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/format.ts(34,24): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/format.ts(34,24): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/image-compression.ts(202,15): error TS2532: Object is possibly 'undefined'.
-src/lib/utils/image-compression.ts(203,20): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(data: string): string', gave the following error.
-    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-  Overload 2 of 2, '(data: string): string', gave the following error.
-    Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-      Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/performance.ts(177,24): error TS7030: Not all code paths return a value.
-src/lib/utils/performance.ts(304,20): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/performance.ts(602,5): error TS7030: Not all code paths return a value.
-src/lib/utils/social-media.ts(112,7): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/storage-client.ts(72,7): error TS2353: Object literal may only specify known properties, and 'handleHEIC' does not exist in type 'CompressionOptions'.
-src/lib/utils/storage-client.ts(74,6): error TS2322: Type 'File | undefined' is not assignable to type 'File'.
-  Type 'undefined' is not assignable to type 'File'.
-src/lib/utils/storage-client.ts(120,83): error TS18047: 'lastError' is possibly 'null'.
-src/lib/utils/storage-client.ts(156,36): error TS2345: Argument of type 'File | undefined' is not assignable to parameter of type 'File'.
-  Type 'undefined' is not assignable to type 'File'.
-src/lib/utils/storage.ts(93,43): error TS2339: Property 'optimizeImage' does not exist on type 'ImageOptimizer'.
-src/lib/utils/storage.ts(103,45): error TS2339: Property 'uploadOptimizedImages' does not exist on type 'ImageOptimizer'.
-src/lib/utils/storage.ts(113,28): error TS2339: Property 'generateSrcSet' does not exist on type 'ImageOptimizer'.
-src/lib/utils/storage.ts(143,36): error TS2345: Argument of type 'File | undefined' is not assignable to parameter of type 'File'.
-  Type 'undefined' is not assignable to type 'File'.
-src/lib/utils/upload.ts(53,12): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/validation.ts(110,24): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/lib/utils/web-vitals.ts(196,17): error TS7030: Not all code paths return a value.
-src/routes/(app)/admin/+layout.server.ts(18,16): error TS2339: Property 'is_admin' does not exist on type 'SelectQueryError<"column 'is_admin' does not exist on 'profiles'.">'.
-src/routes/(app)/admin/+layout.server.ts(18,36): error TS2339: Property 'role' does not exist on type 'SelectQueryError<"column 'is_admin' does not exist on 'profiles'.">'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(5,20): error TS2339: Property 'user' does not exist on type 'Locals'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(13,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"admin_users"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"admin_users"' is not assignable to parameter of type 'never'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(18,31): error TS2339: Property 'can_verify_emails' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'can_verify_emails' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(24,8): error TS2345: Argument of type '"get_unverified_users_for_admin"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(40,21): error TS2339: Property 'user' does not exist on type 'Locals'.
-src/routes/(app)/admin/verify-emails/+page.server.ts(55,12): error TS6133: 'data' is declared but its value is never read.
-src/routes/(app)/admin/verify-emails/+page.server.ts(56,10): error TS2345: Argument of type '"admin_verify_user_email"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/brands/+page.server.ts(6,8): error TS2345: Argument of type '"get_top_brands"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/brands/+page.ts(9,10): error TS2345: Argument of type '"get_top_brands"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/brands/[slug]/+page.server.ts(9,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/[slug]/+page.server.ts(35,26): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/brands/[slug]/+page.server.ts(44,15): error TS2339: Property 'user' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/brands/[slug]/+page.server.ts(57,31): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/brands/[slug]/+page.server.ts(64,8): error TS2345: Argument of type '"get_user_stats"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/brands/[slug]/+page.server.ts(64,56): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/brands/[slug]/+page.server.ts(67,34): error TS2589: Type instantiation is excessively deep and possibly infinite.
-src/routes/(app)/brands/[slug]/+page.server.ts(68,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"reviews"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"reviews"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/[slug]/+page.server.ts(77,33): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/brands/analytics/+page.server.ts(24,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/analytics/+page.server.ts(61,8): error TS2345: Argument of type '"get_brand_sales_stats"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(app)/brands/analytics/+page.server.ts(76,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"reviews"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"reviews"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/analytics/+page.server.ts(81,44): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/analytics/+page.server.ts(85,33): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/analytics/+page.server.ts(86,33): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/analytics/+page.server.ts(87,33): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/analytics/+page.server.ts(88,33): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/analytics/+page.server.ts(89,33): error TS2339: Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'."> | SelectQueryError<"column 'rating' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'rating' does not exist on type 'SelectQueryError<"column 'rating' does not exist on 'categories'.">'.
-src/routes/(app)/brands/onboarding/+page.server.ts(27,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/onboarding/+page.server.ts(32,21): error TS2339: Property 'brand_slug' does not exist on type 'SelectQueryError<"column 'brand_slug' does not exist on 'categories'."> | SelectQueryError<"column 'brand_slug' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'brand_slug' does not exist on type 'SelectQueryError<"column 'brand_slug' does not exist on 'categories'.">'.
-src/routes/(app)/brands/onboarding/+page.server.ts(33,48): error TS2339: Property 'brand_slug' does not exist on type 'SelectQueryError<"column 'brand_slug' does not exist on 'categories'."> | SelectQueryError<"column 'brand_slug' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'brand_slug' does not exist on type 'SelectQueryError<"column 'brand_slug' does not exist on 'categories'.">'.
-src/routes/(app)/brands/onboarding/+page.server.ts(39,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/brands/welcome/+page.server.ts(19,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/browse/+page.server.ts(4,25): error TS6133: 'cacheKeys' is declared but its value is never read.
-src/routes/(app)/browse/+page.server.ts(4,46): error TS6133: 'clearCache' is declared but its value is never read.
-src/routes/(app)/browse/+page.server.ts(5,1): error TS6192: All imports in import declaration are unused.
-src/routes/(app)/browse/+page.server.ts(34,45): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(app)/browse/+page.server.ts(37,48): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(app)/leaderboard/+page.server.ts(33,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/leaderboard/+page.server.ts(37,53): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/leaderboard/+page.server.ts(52,26): error TS2339: Property 'error' does not exist on type 'PostgrestResponseFailure | PostgrestResponseSuccess<{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; ... 26 more ...; setup_completed: boolean | null; }[]> | { ...; }'.
-  Property 'error' does not exist on type '{ data: never[]; }'.
-src/routes/(app)/leaderboard/+page.server.ts(53,71): error TS2339: Property 'error' does not exist on type 'PostgrestResponseFailure | PostgrestResponseSuccess<{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; ... 26 more ...; setup_completed: boolean | null; }[]> | { ...; }'.
-  Property 'error' does not exist on type '{ data: never[]; }'.
-src/routes/(app)/leaderboard/+page.server.ts(64,40): error TS2339: Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'user_id' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/leaderboard/+page.server.ts(67,22): error TS2339: Property 'brand_name' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'brand_name' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/leaderboard/+page.server.ts(68,22): error TS2339: Property 'brand_slug' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'brand_slug' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/leaderboard/+page.server.ts(69,26): error TS2339: Property 'brand_logo_url' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'brand_logo_url' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/leaderboard/+page.server.ts(70,31): error TS2339: Property 'verification_status' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'verification_status' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/listings/[id]/+page.server.ts(2,15): error TS2305: Module '"./$types"' has no exported member 'PageServerLoad'.
-src/routes/(app)/listings/[id]/+page.server.ts(5,46): error TS7031: Binding element 'params' implicitly has an 'any' type.
-src/routes/(app)/listings/[id]/+page.server.ts(5,64): error TS7031: Binding element 'supabase' implicitly has an 'any' type.
-src/routes/(app)/listings/[id]/+page.server.ts(5,74): error TS7031: Binding element 'safeGetSession' implicitly has an 'any' type.
-src/routes/(app)/listings/[id]/+page.server.ts(5,92): error TS7031: Binding element 'setHeaders' implicitly has an 'any' type.
-src/routes/(app)/listings/[id]/+page.server.ts(145,49): error TS7006: Parameter 'item' implicitly has an 'any' type.
-src/routes/(app)/profile/[username]/+page.server.ts(23,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"brand_profiles"' is not assignable to parameter of type 'never'.
-src/routes/(app)/profile/[username]/+page.server.ts(55,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type 'never'.
-src/routes/(app)/profile/[username]/+page.server.ts(79,37): error TS2339: Property 'badges' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/(app)/profile/[username]/+page.server.ts(89,27): error TS2551: Property 'followers_count' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'. Did you mean 'follower_count'?
-src/routes/(app)/sell/+page.server.ts(6,23): error TS6133: 'cacheKeys' is declared but its value is never read.
-src/routes/(app)/sell/+page.server.ts(56,28): error TS2339: Property 'revolut_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(56,51): error TS2339: Property 'paypal_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(56,74): error TS2339: Property 'payment_methods' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(56,101): error TS2339: Property 'payment_methods' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(60,17): error TS2339: Property 'revolut_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(63,8): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; ... 7 more ...; preferred_currency?: string | ... 1 more ... | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'provider' does not exist in type '{ id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; updated_at?: string | undefined; ... 6 more ...; preferred_currency?: string | ... 1 more ... | undefined; }'.
-  Overload 2 of 2, '(values: { id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; ... 7 more ...; preferred_currency?: string | ... 1 more ... | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'user_id' does not exist in type '{ id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; updated_at?: string | undefined; ... 6 more ...; preferred_currency?: string | ... 1 more ... | undefined; }[]'.
-src/routes/(app)/sell/+page.server.ts(66,28): error TS2339: Property 'revolut_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(68,37): error TS2339: Property 'revolut_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(72,17): error TS2339: Property 'paypal_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(75,8): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; ... 7 more ...; preferred_currency?: string | ... 1 more ... | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'provider' does not exist in type '{ id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; updated_at?: string | undefined; ... 6 more ...; preferred_currency?: string | ... 1 more ... | undefined; }'.
-  Overload 2 of 2, '(values: { id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; ... 7 more ...; preferred_currency?: string | ... 1 more ... | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'user_id' does not exist in type '{ id?: string | undefined; user_id: string; revtag: string; verified?: boolean | null | undefined; verification_notes?: string | null | undefined; created_at?: string | undefined; updated_at?: string | undefined; ... 6 more ...; preferred_currency?: string | ... 1 more ... | undefined; }[]'.
-src/routes/(app)/sell/+page.server.ts(78,28): error TS2339: Property 'paypal_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(80,37): error TS2339: Property 'paypal_tag' does not exist on type 'SelectQueryError<"column 'revolut_tag' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(146,59): error TS2345: Argument of type 'File | undefined' is not assignable to parameter of type 'File'.
-  Type 'undefined' is not assignable to type 'File'.
-src/routes/(app)/sell/+page.server.ts(152,12): error TS2532: Object is possibly 'undefined'.
-src/routes/(app)/sell/+page.server.ts(153,12): error TS2532: Object is possibly 'undefined'.
-src/routes/(app)/sell/+page.server.ts(154,12): error TS2532: Object is possibly 'undefined'.
-src/routes/(app)/sell/+page.server.ts(157,65): error TS18046: 'error' is of type 'unknown'.
-src/routes/(app)/sell/+page.server.ts(165,29): error TS4111: Property 'price' comes from an index signature, so it must be accessed with ['price'].
-src/routes/(app)/sell/+page.server.ts(166,4): error TS2322: Type 'number' is not assignable to type 'FormDataEntryValue'.
-src/routes/(app)/sell/+page.server.ts(166,26): error TS4111: Property 'price' comes from an index signature, so it must be accessed with ['price'].
-src/routes/(app)/sell/+page.server.ts(166,67): error TS4111: Property 'price' comes from an index signature, so it must be accessed with ['price'].
-src/routes/(app)/sell/+page.server.ts(168,29): error TS4111: Property 'shipping_cost' comes from an index signature, so it must be accessed with ['shipping_cost'].
-src/routes/(app)/sell/+page.server.ts(169,4): error TS2322: Type 'number' is not assignable to type 'FormDataEntryValue'.
-src/routes/(app)/sell/+page.server.ts(169,26): error TS4111: Property 'shipping_cost' comes from an index signature, so it must be accessed with ['shipping_cost'].
-src/routes/(app)/sell/+page.server.ts(169,75): error TS4111: Property 'shipping_cost' comes from an index signature, so it must be accessed with ['shipping_cost'].
-src/routes/(app)/sell/+page.server.ts(171,29): error TS4111: Property 'ships_worldwide' comes from an index signature, so it must be accessed with ['ships_worldwide'].
-src/routes/(app)/sell/+page.server.ts(172,4): error TS2322: Type 'boolean' is not assignable to type 'FormDataEntryValue'.
-src/routes/(app)/sell/+page.server.ts(172,26): error TS4111: Property 'ships_worldwide' comes from an index signature, so it must be accessed with ['ships_worldwide'].
-src/routes/(app)/sell/+page.server.ts(172,66): error TS4111: Property 'ships_worldwide' comes from an index signature, so it must be accessed with ['ships_worldwide'].
-src/routes/(app)/sell/+page.server.ts(176,3): error TS2322: Type 'string[]' is not assignable to type 'FormDataEntryValue'.
-  Type 'string[]' is missing the following properties from type 'File': lastModified, name, webkitRelativePath, size, and 5 more.
-src/routes/(app)/sell/+page.server.ts(176,25): error TS4111: Property 'images' comes from an index signature, so it must be accessed with ['images'].
-src/routes/(app)/sell/+page.server.ts(195,44): error TS2339: Property 'onboarding_completed' does not exist on type 'SelectQueryError<"column 'onboarding_completed' does not exist on 'profiles'.">'.
-src/routes/(app)/sell/+page.server.ts(210,18): error TS6133: 'listing' is declared but its value is never read.
-src/routes/(app)/sell/+page.server.ts(213,6): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'user_id' does not exist in type '{ brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; }'.
-  Overload 2 of 2, '(values: { brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'user_id' does not exist in type '{ brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; }[]'.
-src/routes/(auth)/callback/+page.server.ts(35,23): error TS2345: Argument of type '"log_auth_event"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/(auth)/callback/+page.server.ts(39,7): error TS2551: Property 'catch' does not exist on type 'PostgrestFilterBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; id: string; is_active: boolean | null; ... 6 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relations...'. Did you mean 'match'?
-src/routes/(category)/+layout.server.ts(7,5): error TS2345: Argument of type '(locale?: string) => string' is not assignable to parameter of type 'string'.
-src/routes/(category)/bags/+page.server.ts(5,41): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/bags/[subcategory]/+page.server.ts(5,69): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/designer/+page.server.ts(5,45): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/designer/[subcategory]/+page.server.ts(5,73): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/kids/+page.server.ts(5,41): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/kids/[subcategory]/+page.server.ts(5,69): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/men/+page.server.ts(5,40): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/men/[subcategory]/+page.server.ts(5,68): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/shoes/+page.server.ts(5,42): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/shoes/[subcategory]/+page.server.ts(5,70): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/women/+page.server.ts(5,42): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/(category)/women/[subcategory]/+page.server.ts(49,15): error TS4111: Property 'min_price' comes from an index signature, so it must be accessed with ['min_price'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(49,72): error TS4111: Property 'min_price' comes from an index signature, so it must be accessed with ['min_price'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(50,15): error TS4111: Property 'max_price' comes from an index signature, so it must be accessed with ['max_price'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(50,72): error TS4111: Property 'max_price' comes from an index signature, so it must be accessed with ['max_price'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(51,15): error TS4111: Property 'brand' comes from an index signature, so it must be accessed with ['brand'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(51,56): error TS4111: Property 'brand' comes from an index signature, so it must be accessed with ['brand'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(52,15): error TS4111: Property 'condition' comes from an index signature, so it must be accessed with ['condition'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(52,64): error TS4111: Property 'condition' comes from an index signature, so it must be accessed with ['condition'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(53,15): error TS4111: Property 'size' comes from an index signature, so it must be accessed with ['size'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(53,54): error TS4111: Property 'size' comes from an index signature, so it must be accessed with ['size'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(54,15): error TS4111: Property 'color' comes from an index signature, so it must be accessed with ['color'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(54,56): error TS4111: Property 'color' comes from an index signature, so it must be accessed with ['color'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(57,26): error TS4111: Property 'sort' comes from an index signature, so it must be accessed with ['sort'].
-src/routes/(category)/women/[subcategory]/+page.server.ts(73,33): error TS4111: Property 'page' comes from an index signature, so it must be accessed with ['page'].
-src/routes/+page.server.ts(2,25): error TS6133: 'cacheKeys' is declared but its value is never read.
-src/routes/api/admin/payouts/+server.ts(9,3): error TS6133: 'paginatedResponse' is declared but its value is never read.
-src/routes/api/admin/payouts/+server.ts(99,14): error TS2322: Type '({ request, locals }: RequestEvent<RouteParams, "/api/admin/payouts">) => Promise<Response | undefined>' is not assignable to type 'RequestHandler'.
-  Type 'Promise<Response | undefined>' is not assignable to type 'MaybePromise<Response>'.
-    Type 'Promise<Response | undefined>' is not assignable to type 'Promise<Response>'.
-      Type 'Response | undefined' is not assignable to type 'Response'.
-        Type 'undefined' is not assignable to type 'Response'.
-src/routes/api/admin/payouts/+server.ts(99,37): error TS7030: Not all code paths return a value.
-src/routes/api/admin/payouts/+server.ts(156,25): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/admin/payouts/+server.ts(207,25): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/admin/payouts/batch/+server.ts(76,56): error TS18047: 'payoutError' is possibly 'null'.
-src/routes/api/admin/payouts/batch/+server.ts(91,32): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/admin/payouts/batch/+server.ts(124,56): error TS18047: 'payoutError' is possibly 'null'.
-src/routes/api/admin/payouts/batch/+server.ts(138,32): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/admin/payouts/export/+server.ts(96,24): error TS2339: Property 'email' does not exist on type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'seller_payouts' you need to hint the column with profiles!<columnName> ?">'.
-src/routes/api/admin/payouts/export/+server.ts(97,24): error TS2339: Property 'username' does not exist on type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'seller_payouts' you need to hint the column with profiles!<columnName> ?">'.
-src/routes/api/admin/payouts/export/+server.ts(99,29): error TS2339: Property 'buyer' does not exist on type 'SelectQueryError<"could not find the relation between seller_payouts and transactions">'.
-src/routes/api/admin/payouts/export/+server.ts(100,29): error TS2339: Property 'buyer' does not exist on type 'SelectQueryError<"could not find the relation between seller_payouts and transactions">'.
-src/routes/api/admin/payouts/export/+server.ts(101,29): error TS2339: Property 'listing' does not exist on type 'SelectQueryError<"could not find the relation between seller_payouts and transactions">'.
-src/routes/api/admin/payouts/export/+server.ts(102,29): error TS2339: Property 'amount' does not exist on type 'SelectQueryError<"could not find the relation between seller_payouts and transactions">'.
-src/routes/api/admin/payouts/export/+server.ts(103,29): error TS2339: Property 'platform_fee_amount' does not exist on type 'SelectQueryError<"could not find the relation between seller_payouts and transactions">'.
-src/routes/api/admin/payouts/stats/+server.ts(19,12): error TS2345: Argument of type '"get_payout_statistics"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/auth/resend-verification/+server.ts(49,92): error TS2345: Argument of type '{ type: "signup"; email: string; options: { redirectTo: string; }; }' is not assignable to parameter of type 'GenerateLinkParams'.
-  Property 'password' is missing in type '{ type: "signup"; email: string; options: { redirectTo: string; }; }' but required in type 'GenerateSignupLinkParams'.
-src/routes/api/auth/send-confirmation/+server.ts(18,77): error TS2345: Argument of type '{ type: "signup"; email: any; options: { redirectTo: string; }; }' is not assignable to parameter of type 'GenerateLinkParams'.
-  Property 'password' is missing in type '{ type: "signup"; email: any; options: { redirectTo: string; }; }' but required in type 'GenerateSignupLinkParams'.
-src/routes/api/browse/load-more/+server.ts(60,25): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/drafts/listing/+server.ts(17,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type 'never'.
-src/routes/api/drafts/listing/+server.ts(18,5): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'form_data' does not exist in type '{ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; }'.
-  Overload 2 of 2, '(values: ({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'user_id' does not exist in type '({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[]'.
-src/routes/api/drafts/listing/+server.ts(35,21): error TS2339: Property 'updated_at' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'updated_at' does not exist on type '{ created_at: string | null; id: string; listing_id: string; user_id: string; }'.
-src/routes/api/drafts/listing/+server.ts(54,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type 'never'.
-src/routes/api/drafts/listing/+server.ts(69,16): error TS2339: Property 'form_data' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'form_data' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }'.
-src/routes/api/drafts/listing/+server.ts(70,21): error TS2339: Property 'updated_at' does not exist on type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; } | ... 17 more ... | { ...; }'.
-  Property 'updated_at' does not exist on type '{ created_at: string | null; id: string; listing_id: string; user_id: string; }'.
-src/routes/api/drafts/listing/+server.ts(89,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"listing_drafts"' is not assignable to parameter of type 'never'.
-src/routes/api/health/+server.ts(9,26): error TS4111: Property 'npm_package_version' comes from an index signature, so it must be accessed with ['npm_package_version'].
-src/routes/api/health/db/+server.ts(8,13): error TS6133: 'data' is declared but its value is never read.
-src/routes/api/health/stripe/+server.ts(7,3): error TS2322: Type '"2024-06-20"' is not assignable to type '"2025-06-30.basil"'.
-src/routes/api/messages/conversations/+server.ts(188,21): error TS2345: Argument of type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ avatar_url: string | null; bio: string | null; buyer_rating: number | null; buyer_rating_count: number | null; completion_percentage: number | null; cover_url: string | null; ... 25 more ...; setup_completed: boolean | null; }' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, achievements, backup_codes, brand_bio, and 41 more.
-src/routes/api/messages/conversations/[id]/+server.ts(56,28): error TS2345: Argument of type '"mark_messages_as_read"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/messages/send/+server.ts(130,17): error TS2345: Argument of type '{ id: string; username: string; email: string | null; }' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ id: string; username: string; email: string | null; }' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 64 more.
-src/routes/api/messages/send/+server.ts(143,13): error TS2740: Type '{ id: string; conversation_id: string; sender_id: string; message_text: string; attachments: Json; is_read: boolean | null; read_at: string | null; created_at: string | null; updated_at: string | null; sender: { ...; }; }' is missing the following properties from type '{ attachments: string[] | null; content: string; conversation_id: string; created_at: string | null; deleted_at: string | null; edited_at: string | null; id: string; is_deleted: boolean | null; ... 5 more ...; updated_at: string | null; }': content, deleted_at, edited_at, is_deleted, and 2 more.
-src/routes/api/messages/unread-count/+server.ts(2,10): error TS6133: 'apiError' is declared but its value is never read.
-src/routes/api/messages/unread-count/+server.ts(2,32): error TS6133: 'ApiErrorType' is declared but its value is never read.
-src/routes/api/messages/unread-count/+server.ts(2,46): error TS6133: 'requireAuth' is declared but its value is never read.
-src/routes/api/metrics/+server.ts(21,9): error TS6133: 'metrics' is declared but its value is never read.
-src/routes/api/onboarding/complete/+server.ts(29,22): error TS2345: Argument of type '"log_auth_event"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/onboarding/complete/+server.ts(43,22): error TS2345: Argument of type '"log_auth_event"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/+server.ts(4,30): error TS6196: 'OrderCreateRequest' is declared but never used.
-src/routes/api/orders/+server.ts(77,40): error TS2345: Argument of type 'string' is not assignable to parameter of type 'NonNullable<"pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded" | "disputed">'.
-src/routes/api/orders/+server.ts(173,15): error TS6133: 'transaction' is declared but its value is never read.
-src/routes/api/orders/+server.ts(176,65): error TS2345: Argument of type '"generate_order_number"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/+server.ts(187,17): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { id?: string | undefined; order_number: string; buyer_id: string; seller_id: string; transaction_id?: string | null | undefined; status?: "pending" | "confirmed" | "processing" | "shipped" | ... 4 more ... | undefined; ... 17 more ...; updated_at?: string | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Type '{ user_id: string; username: string; avatar_url: string | null; total_sales: number; average_rating: number | null; }[] | null' is not assignable to type 'string'.
-      Type 'null' is not assignable to type 'string'.
-  Overload 2 of 2, '(values: { id?: string | undefined; order_number: string; buyer_id: string; seller_id: string; transaction_id?: string | null | undefined; status?: "pending" | "confirmed" | "processing" | "shipped" | ... 4 more ... | undefined; ... 17 more ...; updated_at?: string | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'order_number' does not exist in type '{ id?: string | undefined; order_number: string; buyer_id: string; seller_id: string; transaction_id?: string | null | undefined; status?: "pending" | "confirmed" | "processing" | "shipped" | ... 4 more ... | undefined; ... 17 more ...; updated_at?: string | undefined; }[]'.
-src/routes/api/orders/+server.ts(258,15): error TS2740: Type '{ id: string; order_number: string; buyer_id: string; seller_id: string; transaction_id: string | null; status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded" | "disputed"; ... 17 more ...; updated_at: string; }' is missing the following properties from type 'OrderResponse': amount, billing_address, carrier, currency, and 10 more.
-src/routes/api/orders/+server.ts(261,30): error TS2552: Cannot find name 'ApiError'. Did you mean 'apiError'?
-src/routes/api/orders/+server.ts(262,29): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/orders/+server.ts(262,44): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/orders/+server.ts(262,58): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/orders/+server.ts(262,70): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/orders/[id]/+server.ts(102,32): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/[id]/cancel/+server.ts(64,28): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/[id]/cancel/+server.ts(104,36): error TS2345: Argument of type '"increment_listing_quantity"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/[id]/complete/+server.ts(66,28): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/[id]/complete/+server.ts(102,52): error TS2339: Property 'seller_amount' does not exist on type 'SelectQueryError<"column 'platform_fee' does not exist on 'transactions'.">'.
-src/routes/api/orders/[id]/complete/+server.ts(103,52): error TS2339: Property 'seller_amount' does not exist on type 'SelectQueryError<"column 'platform_fee' does not exist on 'transactions'.">'.
-src/routes/api/orders/[id]/complete/+server.ts(107,23): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"payouts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"payouts"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/complete/+server.ts(108,18): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'scheduled_for' does not exist in type '{ brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; } | ... 4 more ... | { ...; }'.
-  Overload 2 of 2, '(values: ({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'seller_id' does not exist in type '({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[]'.
-src/routes/api/orders/[id]/complete/+server.ts(111,55): error TS2339: Property 'id' does not exist on type 'SelectQueryError<"column 'platform_fee' does not exist on 'transactions'.">'.
-src/routes/api/orders/[id]/complete/+server.ts(127,45): error TS2339: Property 'id' does not exist on type 'SelectQueryError<"column 'platform_fee' does not exist on 'transactions'.">'.
-src/routes/api/orders/[id]/refund/+server.ts(8,3): error TS2322: Type '"2024-06-20"' is not assignable to type '"2025-06-30.basil"'.
-src/routes/api/orders/[id]/refund/+server.ts(79,13): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(86,77): error TS2339: Property 'status' does not exist on type 'SelectQueryError<"column 'status' does not exist on 'categories'."> | SelectQueryError<"column 'status' does not exist on 'listings'."> | ... 16 more ... | SelectQueryError<...>'.
-  Property 'status' does not exist on type 'SelectQueryError<"column 'status' does not exist on 'categories'.">'.
-src/routes/api/orders/[id]/refund/+server.ts(92,13): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(93,8): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'refund_type' does not exist in type '{ brand?: string | null | undefined; category_id?: string | null | undefined; color?: string | null | undefined; condition?: string | null | undefined; created_at?: string | null | undefined; ... 24 more ...; view_count?: number | ... 1 more ... | undefined; } | ... 4 more ... | { ...; }'.
-  Overload 2 of 2, '(values: ({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'order_id' does not exist in type '({ created_at?: string | null | undefined; description?: string | null | undefined; display_order?: number | null | undefined; icon?: string | null | undefined; icon_url?: string | null | undefined; ... 8 more ...; updated_at?: string | ... 1 more ... | undefined; } | ... 17 more ... | { ...; })[]'.
-src/routes/api/orders/[id]/refund/+server.ts(116,9): error TS2345: Argument of type '{ id: string; username: string; email: string | null; }' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ id: string; username: string; email: string | null; }' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 64 more.
-src/routes/api/orders/[id]/refund/+server.ts(127,9): error TS2322: Type '"refund_requested"' is not assignable to type '"pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded" | "disputed" | undefined'.
-src/routes/api/orders/[id]/refund/+server.ts(162,63): error TS2589: Type instantiation is excessively deep and possibly infinite.
-src/routes/api/orders/[id]/refund/+server.ts(163,13): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(196,43): error TS2339: Property 'seller_id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(203,15): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(210,33): error TS2339: Property 'id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(213,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(216,43): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(217,35): error TS2339: Property 'refund_type' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(217,86): error TS2339: Property 'amount' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(221,48): error TS2339: Property 'id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(227,19): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(232,37): error TS2339: Property 'id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(247,19): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(250,30): error TS18046: 'stripeError' is of type 'unknown'.
-src/routes/api/orders/[id]/refund/+server.ts(253,37): error TS2339: Property 'id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(260,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(262,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(263,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(276,15): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"refund_requests"' is not assignable to parameter of type 'never'.
-src/routes/api/orders/[id]/refund/+server.ts(283,33): error TS2339: Property 'id' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(289,11): error TS2322: Type '"completed"' is not assignable to type '"pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded" | "disputed" | undefined'.
-src/routes/api/orders/[id]/refund/+server.ts(295,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(297,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/refund/+server.ts(298,25): error TS2339: Property 'order' does not exist on type 'NonNullable<ResultOne>'.
-src/routes/api/orders/[id]/ship/+server.ts(53,28): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/bulk/+server.ts(59,47): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/bulk/+server.ts(87,47): error TS2345: Argument of type '"update_order_status"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/orders/export/+server.ts(52,40): error TS2345: Argument of type 'string' is not assignable to parameter of type 'NonNullable<"pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded" | "disputed">'.
-src/routes/api/orders/mark-shipped/+server.ts(42,19): error TS2339: Property 'item_shipped_at' does not exist on type '{ amount: number; buyer_id: string; completed_at: string | null; created_at: string | null; currency: string | null; id: string; listing_id: string; payment_method: string | null; refund_amount: number | null; ... 5 more ...; updated_at: string | null; }'.
-src/routes/api/orders/mark-shipped/+server.ts(104,5): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'transactions' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/orders/stats/+server.ts(100,15): error TS2339: Property 'monthlyTrends' does not exist on type '{ totalOrders: number; ordersByStatus: any; totalRevenue: number; averageOrderValue: number; recentOrders: { id: string; order_number: string; status: "pending" | "confirmed" | "processing" | ... 4 more ... | "disputed"; total_amount: number; created_at: string; buyer: { ...; }; seller: { ...; }; }[]; }'.
-src/routes/api/payment/create-intent/+server.ts(6,3): error TS6133: 'apiError' is declared but its value is never read.
-src/routes/api/payment/create-intent/+server.ts(7,3): error TS6133: 'apiSuccess' is declared but its value is never read.
-src/routes/api/payment/create-intent/+server.ts(20,3): error TS2322: Type '"2024-06-20"' is not assignable to type '"2025-06-30.basil"'.
-src/routes/api/payment/create-intent/+server.ts(214,41): error TS2339: Property 'revtag' does not exist on type 'SelectQueryError<"column 'revtag' does not exist on 'profiles'.">'.
-src/routes/api/payment/revolut/manual-payment/+server.ts(45,46): error TS6133: 'paymentError' is declared but its value is never read.
-src/routes/api/search/suggestions/+server.ts(32,9): error TS7034: Variable 'suggestions' implicitly has type 'any[]' in some locations where its type cannot be determined.
-src/routes/api/search/suggestions/+server.ts(37,24): error TS7005: Variable 'suggestions' implicitly has an 'any[]' type.
-src/routes/api/search/suggestions/+server.ts(47,19): error TS7005: Variable 'suggestions' implicitly has an 'any[]' type.
-src/routes/api/search/suggestions/+server.ts(60,61): error TS7005: Variable 'suggestions' implicitly has an 'any[]' type.
-src/routes/api/search/suggestions/+server.ts(65,15): error TS7005: Variable 'suggestions' implicitly has an 'any[]' type.
-src/routes/api/sellers/top/+server.ts(35,12): error TS2345: Argument of type '"get_top_sellers"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/sellers/top/+server.ts(57,7): error TS2322: Type '{ rank: number; user_id: string; username: string; avatar_url: string | null; total_sales: number; average_rating: number | null; }[]' is not assignable to type '{ id: string; user_id: string; username: string; display_name: string; avatar_url: string | null; total_sales: number; revenue: number; average_rating: number | null; review_count: number; rank?: number | undefined; }[]'.
-  Type '{ rank: number; user_id: string; username: string; avatar_url: string | null; total_sales: number; average_rating: number | null; }' is missing the following properties from type '{ id: string; user_id: string; username: string; display_name: string; avatar_url: string | null; total_sales: number; revenue: number; average_rating: number | null; review_count: number; rank?: number | undefined; }': id, display_name, revenue, review_count
-src/routes/api/stripe/webhooks/+server.ts(1,16): error TS6133: 'text' is declared but its value is never read.
-src/routes/api/stripe/webhooks/+server.ts(9,3): error TS2322: Type '"2024-06-20"' is not assignable to type '"2025-06-30.basil"'.
-src/routes/api/stripe/webhooks/+server.ts(72,48): error TS4111: Property 'order_id' comes from an index signature, so it must be accessed with ['order_id'].
-src/routes/api/stripe/webhooks/+server.ts(101,21): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
-  Type 'undefined' is not assignable to type 'string'.
-src/routes/api/stripe/webhooks/+server.ts(101,44): error TS4111: Property 'listing_id' comes from an index signature, so it must be accessed with ['listing_id'].
-src/routes/api/stripe/webhooks/+server.ts(122,13): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'transactions' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/stripe/webhooks/+server.ts(128,13): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'transactions' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/stripe/webhooks/+server.ts(140,48): error TS4111: Property 'order_id' comes from an index signature, so it must be accessed with ['order_id'].
-src/routes/api/stripe/webhooks/+server.ts(201,15): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'transactions' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/stripe/webhooks/+server.ts(278,15): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'transactions' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/stripe/webhooks/+server.ts(291,45): error TS4111: Property 'payout_id' comes from an index signature, so it must be accessed with ['payout_id'].
-src/routes/api/stripe/webhooks/+server.ts(316,15): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'seller_payouts' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/stripe/webhooks/+server.ts(326,12): error TS2678: Type '"transfer.paid"' is not comparable to type '"account.application.authorized" | "account.application.deauthorized" | "account.external_account.created" | "account.external_account.deleted" | "account.external_account.updated" | ... 243 more ... | "treasury.received_debit.created"'.
-src/routes/api/stripe/webhooks/+server.ts(327,38): error TS2339: Property 'data' does not exist on type 'never'.
-src/routes/api/stripe/webhooks/+server.ts(328,45): error TS4111: Property 'payout_id' comes from an index signature, so it must be accessed with ['payout_id'].
-src/routes/api/stripe/webhooks/+server.ts(353,15): error TS2345: Argument of type 'SelectQueryError<"Could not embed because more than one relationship was found for 'profiles' and 'seller_payouts' you need to hint the column with profiles!<columnName> ?">' is not assignable to parameter of type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }'.
-  Type '{ error: true; } & String' is missing the following properties from type '{ account_status: string | null; account_type: string | null; achievements: Json; avatar_url: string | null; backup_codes: string[] | null; bio: string | null; brand_bio: string | null; ... 63 more ...; website: string | null; }': account_status, account_type, achievements, avatar_url, and 67 more.
-src/routes/api/upload/image/+server.ts(39,40): error TS2345: Argument of type 'SupabaseClient<Database, "public", { Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more...' is not assignable to parameter of type 'SupabaseClient<Database, "public", { Tables: { admin_audit_log: { Row: { action: string; admin_id: string; created_at: string | null; id: string; ip_address: unknown; new_values: Json; old_values: Json; target_id: string | null; target_type: string | null; user_agent: string | null; }; Insert: { ...; }; Update: { .....'.
-  Type 'import("K:/driplo.bg-1/src/lib/types/database").Database' is not assignable to type 'import("K:/driplo.bg-1/src/lib/types/database.types").Database'.
-    The types of '__InternalSupabase.PostgrestVersion' are incompatible between these types.
-      Type '"12.2.3 (519615d)"' is not assignable to type '"12.2.12 (cd3cf9e)"'.
-src/routes/api/upload/image/+server.ts(82,27): error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
-src/routes/api/upload/image/+server.ts(83,29): error TS7015: Element implicitly has an 'any' type because index expression is not of type 'number'.
-src/routes/api/upload/simple/+server.ts(61,7): error TS6133: 'data' is declared but its value is never read.
-src/routes/api/upload/simple/+server.ts(102,33): error TS2339: Property 'message' does not exist on type '{}'.
-src/routes/api/views/+server.ts(20,40): error TS2345: Argument of type '"track_listing_view"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/api/wishlist/+server.ts(120,24): error TS2552: Cannot find name 'ApiError'. Did you mean 'apiError'?
-src/routes/api/wishlist/+server.ts(121,20): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(121,35): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(121,49): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(121,61): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(167,24): error TS2552: Cannot find name 'ApiError'. Did you mean 'apiError'?
-src/routes/api/wishlist/+server.ts(168,20): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(168,35): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(168,49): error TS18046: 'error' is of type 'unknown'.
-src/routes/api/wishlist/+server.ts(168,61): error TS18046: 'error' is of type 'unknown'.
-src/routes/auth/callback/+server.ts(12,59): error TS2304: Cannot find name 'locals'.
-src/routes/auth/callback/+server.ts(48,7): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(values: { avatar_url?: string | null | undefined; bio?: string | null | undefined; buyer_rating?: number | null | undefined; buyer_rating_count?: number | null | undefined; completion_percentage?: number | ... 1 more ... | undefined; ... 26 more ...; setup_completed?: boolean | ... 1 more ... | undefined; }, options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Type 'string' is not assignable to type '"personal" | "brand" | null | undefined'.
-  Overload 2 of 2, '(values: { avatar_url?: string | null | undefined; bio?: string | null | undefined; buyer_rating?: number | null | undefined; buyer_rating_count?: number | null | undefined; completion_percentage?: number | ... 1 more ... | undefined; ... 26 more ...; setup_completed?: boolean | ... 1 more ... | undefined; }[], options?: { ...; } | undefined): PostgrestFilterBuilder<...>', gave the following error.
-    Object literal may only specify known properties, and 'id' does not exist in type '{ avatar_url?: string | null | undefined; bio?: string | null | undefined; buyer_rating?: number | null | undefined; buyer_rating_count?: number | null | undefined; completion_percentage?: number | ... 1 more ... | undefined; ... 26 more ...; setup_completed?: boolean | ... 1 more ... | undefined; }[]'.
-src/routes/auth/callback/+server.ts(51,43): error TS4111: Property 'full_name' comes from an index signature, so it must be accessed with ['full_name'].
-src/routes/auth/callback/+server.ts(51,81): error TS4111: Property 'name' comes from an index signature, so it must be accessed with ['name'].
-src/routes/auth/callback/+server.ts(52,44): error TS4111: Property 'avatar_url' comes from an index signature, so it must be accessed with ['avatar_url'].
-src/routes/brands/settings/+page.server.ts(31,10): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type 'never'.
-src/routes/dashboard/brands/+page.server.ts(47,3): error TS2698: Spread types may only be created from object types.
-src/routes/dashboard/brands/+page.server.ts(48,21): error TS2339: Property 'profiles' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'profiles' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(26,21): error TS2339: Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(35,9): error TS2769: No overload matches this call.
-  Overload 1 of 2, '(relation: "categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"): PostgrestQueryBuilder<...>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type '"categories" | "listings" | "profiles" | "transactions" | "conversations" | "orders" | "favorites" | "user_follows" | "user_ratings" | "stripe_webhook_events" | "seller_payouts" | ... 7 more ... | "admin_approvals"'.
-  Overload 2 of 2, '(relation: never): PostgrestQueryBuilder<{ Tables: { categories: { Row: { created_at: string | null; description: string | null; display_order: number | null; icon: string | null; icon_url: string | null; ... 8 more ...; updated_at: string | null; }; Insert: { ...; }; Update: { ...; }; Relationships: [...]; }; ... 17 more ...; admin_approvals: { ...; }; }; Views: {}; Functions: { ...; }; Enums: { ...; }; CompositeTypes: {}; }, never, never, never>', gave the following error.
-    Argument of type '"social_media_accounts"' is not assignable to parameter of type 'never'.
-src/routes/dashboard/brands/[id]/+page.server.ts(37,26): error TS2339: Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(41,14): error TS2339: Property 'reviewed_by' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'reviewed_by' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(45,22): error TS2339: Property 'reviewed_by' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'reviewed_by' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(64,25): error TS2339: Property 'user' does not exist on type 'Locals'.
-src/routes/dashboard/brands/[id]/+page.server.ts(98,30): error TS2339: Property 'brand_name' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'brand_name' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(99,34): error TS2339: Property 'brand_category' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'brand_category' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(101,27): error TS2339: Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type"> | SelectQueryError<"Invalid RelationName cannot infer result type">'.
-  Property 'user_id' does not exist on type 'SelectQueryError<"Invalid Relationships cannot infer result type">'.
-src/routes/dashboard/brands/[id]/+page.server.ts(125,25): error TS2339: Property 'user' does not exist on type 'Locals'.
-src/routes/dashboard/brands/[id]/+page.server.ts(167,25): error TS2339: Property 'user' does not exist on type 'Locals'.
-src/routes/login/+page.server.ts(38,47): error TS2345: Argument of type '"check_auth_rate_limit"' is not assignable to parameter of type '"get_top_category_sellers"'.
-src/routes/login/+page.server.ts(44,8): error TS2367: This comparison appears to be unintentional because the types '{ user_id: string; username: string; avatar_url: string | null; total_sales: number; average_rating: number | null; }[] | null' and 'boolean' have no overlap.
-src/routes/login/+page.server.ts(56,35): error TS4111: Property 'RECAPTCHA_SECRET_KEY' comes from an index signature, so it must be accessed with ['RECAPTCHA_SECRET_KEY'].
-src/routes/login/+page.server.ts(62,27): error TS4111: Property 'RECAPTCHA_SECRET_KEY' comes from an index signature, so it must be accessed with ['RECAPTCHA_SECRET_KEY'].
-src/routes/login/+page.server.ts(84,11): error TS6133: 'data' is declared but its value is never read.
-src/routes/login/+page.server.ts(87,4): error TS2322: Type '{ data?: { remember_me: true; } | undefined; }' is not assignable to type '{ captchaToken?: string | undefined; } | { captchaToken?: string | undefined; } | undefined'.
-src/routes/login/+page.server.ts(126,17): error TS6133: 'currentSession' is declared but its value is never read.
-src/routes/register/+page.server.ts(195,24): error TS4111: Property 'NODE_ENV' comes from an index signature, so it must be accessed with ['NODE_ENV'].
-vite.config.ts(16,22): error TS4111: Property 'SENTRY_ORG' comes from an index signature, so it must be accessed with ['SENTRY_ORG'].
-vite.config.ts(17,26): error TS4111: Property 'SENTRY_PROJECT' comes from an index signature, so it must be accessed with ['SENTRY_PROJECT'].
+
+> threadly-svelte@0.0.1 check K:\driplo.bg-1
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json "2"
+
+Loading svelte-check in workspace: k:\driplo.bg-1
+Getting Svelte diagnostics...
+
+k:\driplo.bg-1\[32msrc\lib\types\index.ts[39m:5:1
+[31mError[39m: Module './listing' has already exported a member named 'Category'. Consider explicitly re-exporting to resolve the ambiguity. 
+[36mexport * from '../database.types';
+[35mexport * from './category';[36m
+export * from './filter';[39m
+
+k:\driplo.bg-1\[32msrc\lib\components\category\CategoryData.ts[39m:3:1
+[31mError[39m: 'Category' is declared but its value is never read. 
+[36mimport { getLocale } from '$lib/paraglide/runtime.js';
+[35mimport type { Category } from '$lib/types';[36m[39m
+
+k:\driplo.bg-1\[32msrc\lib\components\cookie-consent\CookieConsent.svelte[39m:118:2
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m{#if cookieConsent.showBanner && !cookieConsent.showPreferences}
+	[35m<div
+		transition:fly={{ y: 100, duration: 400 }}
+		class="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6 bg-white border-t-2 border-blue-100 shadow-2xl pointer-events-auto"
+		onclick={(e) => e.stopPropagation()}
+	>
+		<div class="max-w-7xl mx-auto">
+			<div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+				<div class="flex items-start gap-3">
+					<Cookie class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+					<div class="space-y-2">
+						<h3 class="font-semibold text-base text-gray-900">Cookie Consent</h3>
+						<p class="text-sm text-gray-600">
+							We use cookies to enhance your browsing experience, personalize content, and analyze our traffic. 
+							By clicking "Accept All", you consent to our use of cookies.
+						</p>
+						<!-- Language Selection -->
+						<div class="flex items-center gap-2 mt-3">
+							<Globe class="w-4 h-4 text-gray-500" />
+							<span class="text-sm text-gray-600">Choose language:</span>
+							<div class="flex gap-2">
+								<button
+									onclick={() => selectedLanguage = 'en'}
+									class={cn(
+										"px-3 py-1 text-sm rounded-md transition-colors",
+										selectedLanguage === 'en' 
+											? "bg-blue-600 text-white" 
+											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									)}
+								>
+									English
+								</button>
+								<button
+									onclick={() => selectedLanguage = 'bg'}
+									class={cn(
+										"px-3 py-1 text-sm rounded-md transition-colors",
+										selectedLanguage === 'bg' 
+											? "bg-blue-600 text-white" 
+											: "bg-gray-100 text-gray-700 hover:bg-gray-200"
+									)}
+								>
+									Български
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="flex flex-col sm:flex-row gap-2">
+					<Button onclick={handleRejectAll} variant="outline" size="sm" class="border-gray-300 hover:bg-gray-50">
+						Reject All
+					</Button>
+					<Button onclick={handleOpenPreferences} variant="outline" size="sm" class="border-blue-600 text-blue-600 hover:bg-blue-50">
+						Manage Preferences
+					</Button>
+					<Button onclick={handleAcceptAll} size="sm" class="bg-blue-600 hover:bg-blue-700 text-white">
+						Accept All
+					</Button>
+				</div>
+			</div>
+		</div>
+	</div>[36m
+{/if}[39m
+
+k:\driplo.bg-1\[32msrc\lib\components\cookie-consent\CookieConsent.svelte[39m:118:2
+[33mWarn[39m: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+[36m{#if cookieConsent.showBanner && !cookieConsent.showPreferences}
+	[35m<div
+		transition:fly={{ y: 100, duration: 400 }}
+		class="fixed bottom-0 left-0 right-0 z-[9999] p-4 md:p-6 bg-white border-t-2 border-blue-100 shadow-2xl pointer-events-auto"
+		onclick={(e) => e.stopPropagation()}
+	>
+		<div class="max-w-7xl mx-auto">
+			<div class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
+				<div class="flex items-start gap-3">
+					<Cookie class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
+					<div class="space-y-2">
+						<h3 class="fon

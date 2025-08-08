@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '$lib/database.types'
-import { ImageOptimizer } from '$lib/server/image-optimizer'
+import { compressImages } from './image-optimization'
+import { logger } from '$lib/utils/logger'
 
 export type UploadResult = {
 	url: string
@@ -12,14 +13,18 @@ export type UploadResult = {
 }
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+export const MAX_UPLOAD_SIZE = 5 * 1024 * 1024 // 5MB for actual upload
+export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
 
 /**
  * Validates an image file
  */
 export function validateImageFile(file: File): string | null {
-	if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-		return 'Please upload a valid image file (JPEG, PNG, WebP, or GIF)'
+	// iOS might report HEIC files with empty type
+	const fileType = file.type || (file.name.toLowerCase().endsWith('.heic') ? 'image/heic' : '')
+	
+	if (fileType && !ACCEPTED_IMAGE_TYPES.includes(fileType)) {
+		return 'Please upload a valid image file (JPEG, PNG, WebP, GIF, or HEIC)'
 	}
 	
 	if (file.size > MAX_FILE_SIZE) {
@@ -30,97 +35,109 @@ export function validateImageFile(file: File): string | null {
 }
 
 /**
- * Uploads a single image to Supabase storage with optimization
- * Note: This function should only be used on the server side when ImageOptimizer is available
+ * Uploads a single image through the optimized API with retry logic
+ * This is the consolidated version that includes the best from both storage files
  */
 export async function uploadImage(
 	file: File,
 	bucket: 'avatars' | 'covers' | 'listings',
-	supabase: SupabaseClient<Database>,
-	userId?: string,
-	optimize: boolean = false
+	_supabase: SupabaseClient<Database>,
+	_userId?: string,
+	maxRetries: number = 3
 ): Promise<UploadResult> {
-	try {
-		// Validate file
-		const validationError = validateImageFile(file)
-		if (validationError) {
-			return { url: '', error: validationError }
-		}
+	// Validate file first
+	const validationError = validateImageFile(file)
+	if (validationError) {
+		return { url: '', error: validationError }
+	}
 
-		// For client-side uploads or when optimization is disabled
-		if (!optimize || typeof window !== 'undefined') {
-			// Generate unique filename
-			const fileExt = file.name.split('.').pop()
-			const fileName = `${uuidv4()}.${fileExt}`
+	// Attempt upload with retries
+	let lastError: Error | null = null
+	
+	for (let attempt = 1; attempt <= maxRetries; attempt++) {
+		try {
+			// Compress image if needed (important for mobile devices)
+			let processedFile = file
+			const needsCompression = file.size > MAX_UPLOAD_SIZE || 
+				file.type === 'image/jpeg' || 
+				file.type === 'image/jpg' ||
+				file.type === 'image/heic' ||
+				file.type === 'image/heif' ||
+				!file.type // iOS sometimes doesn't set type for HEIC
+				
+			if (needsCompression) {
+				try {
+					const compressed = await compressImages([file], {
+						maxWidth: 1920,
+						maxHeight: 1920,
+						quality: 0.85,
+						maxSizeMB: 4.5 // Leave some buffer under 5MB limit
+					})
+					processedFile = compressed[0]
+				} catch (compressionError) {
+					logger.warn('Image compression failed, using original', { error: compressionError })
+				}
+			}
+
+			// Use the simple upload API with timeout
+			const formData = new FormData();
+			formData.append('file', processedFile);
+			formData.append('bucket', bucket);
+
+			// Create AbortController for timeout (increase timeout for retries)
+			const controller = new AbortController();
+			const timeout = 30000 + (attempt - 1) * 10000; // 30s, 40s, 50s
+			const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+			try {
+				const response = await fetch('/api/upload/simple', {
+					method: 'POST',
+					body: formData,
+					signal: controller.signal
+				});
+
+				clearTimeout(timeoutId);
+
+				if (!response.ok) {
+					const error = await response.json();
+					throw new Error(error.message || 'Upload failed');
+				}
+
+				const data = await response.json();
+				return {
+					url: data.url,
+					path: data.path
+				};
+			} catch (fetchError: any) {
+				clearTimeout(timeoutId);
+				if (fetchError.name === 'AbortError') {
+					lastError = new Error(`Upload timed out after ${timeout/1000}s. Please try again with a smaller image.`);
+				} else {
+					lastError = fetchError;
+				}
+				
+				// If not the last attempt, wait before retrying
+				if (attempt < maxRetries) {
+					logger.debug(`Upload attempt ${attempt} failed, retrying in ${attempt}s`, { error: lastError.message });
+					await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+				}
+			}
+		} catch (error) {
+			lastError = error instanceof Error ? error : new Error('Unknown error');
 			
-			// Create folder structure based on bucket type
-			let filePath = fileName
-			if (bucket === 'listings' && userId) {
-				filePath = `${userId}/${fileName}`
-			} else if ((bucket === 'avatars' || bucket === 'covers') && userId) {
-				filePath = `${userId}/${fileName}`
-			}
-
-			// Upload to Supabase storage
-			const { data, error } = await supabase.storage
-				.from(bucket)
-				.upload(filePath, file, {
-					cacheControl: 'public, max-age=2592000', // 30 days cache
-					upsert: false
-				})
-
-			if (error) {
-				return { url: '', error: error.message }
-			}
-
-			// Get public URL
-			const { data: { publicUrl } } = supabase.storage
-				.from(bucket)
-				.getPublicUrl(data.path)
-
-			return {
-				url: publicUrl,
-				path: data.path
+			// If not the last attempt, wait before retrying
+			if (attempt < maxRetries) {
+				logger.debug(`Upload attempt ${attempt} failed, retrying in ${attempt}s`, { error: lastError.message });
+				await new Promise(resolve => setTimeout(resolve, attempt * 1000));
 			}
 		}
+	}
 
-		// Server-side optimized upload
-		const optimizer = new ImageOptimizer(supabase)
-		const type = bucket === 'avatars' ? 'avatar' : bucket === 'covers' ? 'cover' : 'listing'
-		
-		// Optimize images
-		const optimizedImages = await optimizer.optimizeImage(file, type)
-		
-		if (optimizedImages.length === 0) {
-			return { url: '', error: 'Failed to optimize image' }
-		}
-		
-		// Determine storage path
-		const basePath = userId ? `${bucket}/${userId}` : bucket
-		
-		// Upload optimized images
-		const { urls, mainUrl } = await optimizer.uploadOptimizedImages(
-			optimizedImages,
-			'images', // Using single bucket
-			basePath
-		)
-		
-		if (!mainUrl) {
-			return { url: '', error: 'Failed to upload images' }
-		}
-		
-		const srcSet = optimizer.generateSrcSet(urls)
-		
-		return {
-			url: mainUrl,
-			urls,
-			srcSet
-		}
-	} catch (error) {
-		return { 
-			url: '', 
-			error: error instanceof Error ? error.message : 'Failed to upload image' 
-		}
+	// All attempts failed
+	logger.error('All upload attempts failed', { error: lastError })
+	return { 
+		url: '', 
+		error: lastError?.message || 'Failed to upload image after multiple attempts' 
 	}
 }
 
@@ -132,13 +149,12 @@ export async function uploadMultipleImages(
 	bucket: 'listings',
 	supabase: SupabaseClient<Database>,
 	userId: string,
-	onProgress?: (progress: number) => void,
-	optimize: boolean = false
+	onProgress?: (progress: number) => void
 ): Promise<UploadResult[]> {
 	const results: UploadResult[] = []
 	
 	for (let i = 0; i < files.length; i++) {
-		const result = await uploadImage(files[i], bucket, supabase, userId, optimize)
+		const result = await uploadImage(files[i], bucket, supabase, userId)
 		results.push(result)
 		
 		if (onProgress) {
@@ -150,26 +166,38 @@ export async function uploadMultipleImages(
 }
 
 /**
- * Deletes an image from Supabase storage
+ * Gets a public URL for a storage path
+ */
+export function getPublicUrl(
+	supabase: SupabaseClient<Database>,
+	bucket: string,
+	path: string
+): string {
+	const { data: { publicUrl } } = supabase.storage
+		.from(bucket)
+		.getPublicUrl(path)
+	
+	return publicUrl
+}
+
+/**
+ * Deletes an image from storage
  */
 export async function deleteImage(
-	path: string,
-	bucket: 'avatars' | 'covers' | 'listings',
-	supabase: SupabaseClient<Database>
-): Promise<boolean> {
-	try {
-		const { error } = await supabase.storage
-			.from(bucket)
-			.remove([path])
-
-		if (error) {
-			return false
-		}
-
-		return true
-	} catch (error) {
-		return false
+	supabase: SupabaseClient<Database>,
+	bucket: string,
+	path: string
+): Promise<{ error?: string }> {
+	const { error } = await supabase.storage
+		.from(bucket)
+		.remove([path])
+	
+	if (error) {
+		logger.error('Delete error', { error })
+		return { error: error.message }
 	}
+	
+	return {}
 }
 
 /**

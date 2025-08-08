@@ -1,0 +1,1031 @@
+npm warn Unknown project config "frozen-lockfile". This will stop working in the next major version of npm.
+
+K:\driplo.bg-1\Kdriplo-blue-mainsrclibutilsresponsive-image.ts
+  0:0  error  Parsing error: ESLint was configured to run on `<tsconfigRootDir>/Kdriplo-blue-mainsrclibutilsresponsive-image.ts` using `parserOptions.project`: <tsconfigRootDir>/tsconfig.json
+However, that TSConfig does not include this file. Either:
+- Change ESLint's list of included files to not include this file
+- Change that TSConfig to include this file
+- Create a new TSConfig that includes this file and include it in your parserOptions.project
+See the typescript-eslint docs for more info: https://typescript-eslint.io/troubleshooting/typed-linting#i-get-errors-telling-me-eslint-was-configured-to-run--however-that-tsconfig-does-not--none-of-those-tsconfigs-include-this-file
+
+K:\driplo.bg-1\scripts\analyze-typescript-errors.js
+  20:22  error  'index' is defined but never used  no-unused-vars
+
+K:\driplo.bg-1\scripts\fix-event-handlers.js
+  2:8  error  'path' is defined but never used  no-unused-vars
+
+K:\driplo.bg-1\scripts\fix-unused-imports.js
+    2:10  error  'glob' is defined but never used   no-unused-vars
+  105:60  error  'match' is defined but never used  no-unused-vars
+
+K:\driplo.bg-1\scripts\performance-monitor.js
+   92:12  error  'error' is defined but never used  no-unused-vars
+  132:12  error  'error' is defined but never used  no-unused-vars
+
+K:\driplo.bg-1\scripts\standardize-directories.js
+  116:48  error  Unnecessary escape character: \s   no-useless-escape
+  119:48  error  Unnecessary escape character: \s   no-useless-escape
+  121:45  error  Unnecessary escape character: \s   no-useless-escape
+  203:14  error  'error' is defined but never used  no-unused-vars
+
+K:\driplo.bg-1\scripts\standardize-naming.js
+  137:21  error  'oldPath' is assigned a value but never used  no-unused-vars
+
+K:\driplo.bg-1\src\hooks.server.ts
+   33:30  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  122:11  error    '_sessionError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\actions\lazyLoad.ts
+  115:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\actions\preload.ts
+  12:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:17  error    'NodeJS' is not defined                   no-undef
+
+K:\driplo.bg-1\src\lib\components\NotificationPopup.svelte
+  3:16  error  'fade' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\auth\CaptchaWrapper.svelte
+  49:18  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  62:18  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\auth\TurnstileWrapper.svelte
+  63:18  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  76:18  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\badges\ConditionBadge.svelte
+  3:36  error  'ListingCondition' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\badges\SizeBadge.svelte
+  13:32  error  'variant' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\brands\BrandMedia.svelte
+  3:11  error  'toast' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\brands\BrandOnboardingWizard.svelte
+   14:13  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   15:12  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+   16:26  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  100:12  error    'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  114:12  error    'error' is defined but never used          @typescript-eslint/no-unused-vars
+  114:19  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  244:19  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\brands\settings\BrandInfoTab.svelte
+  3:16  error  'SupabaseClient' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\brands\settings\PaymentSettingsTab.svelte
+   3:9  error  'Spinner' is defined but never used                 @typescript-eslint/no-unused-vars
+   9:8  error  'loading' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  15:6  error  'routingNumber' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\browse\ActiveFilters.svelte
+  19:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\browse\FilterBar.svelte
+  12:9   error  'category' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  12:24  error  'subcategory' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\browse\FilterSidebar.svelte
+  20:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\browse\ProductGrid.svelte
+  16:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\category\CategoryData.ts
+  3:15  error  'Category' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\category\CategoryLanding.svelte
+    6:12  error    'ChevronRight' is defined but never used                               @typescript-eslint/no-unused-vars
+   14:16  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   15:18  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  156:51  error    'key' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\category\TopThreeSellers.svelte
+  57:48  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\checkout\CheckoutFlow.svelte
+    2:11  error    'onMount' is defined but never used         @typescript-eslint/no-unused-vars
+    3:11  error    'formatCurrency' is defined but never used  @typescript-eslint/no-unused-vars
+    7:14  error    'm' is defined but never used               @typescript-eslint/no-unused-vars
+   46:16  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   47:19  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  237:19  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  273:19  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\checkout\CheckoutModal.svelte
+   2:11  error    'onMount' is defined but never used                      @typescript-eslint/no-unused-vars
+   2:20  error    'tick' is defined but never used                         @typescript-eslint/no-unused-vars
+  17:11  error    'CheckoutSkeleton' is defined but never used             @typescript-eslint/no-unused-vars
+  43:16  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  44:19  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  49:6   error    'cardElementMounted' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\checkout\LazyCheckoutFlow.svelte
+   2:11  error    'onMount' is defined but never used       @typescript-eslint/no-unused-vars
+  16:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\conversion\ConversionOptimizedListingCard.svelte
+  2:18  error  'Eye' is defined but never used           @typescript-eslint/no-unused-vars
+  2:42  error  'Clock' is defined but never used         @typescript-eslint/no-unused-vars
+  6:9   error  'TrustSignals' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\conversion\TrustSignals.svelte
+  2:38  error  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+  2:45  error  'Clock' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\conversion\UrgencyIndicator.svelte
+  2:37  error  'Heart' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\dashboard\StreamedDashboard.svelte
+  17:6  error  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\error-boundaries\AuthErrorBoundary.svelte
+   5:14  error    'm' is defined but never used             @typescript-eslint/no-unused-vars
+  26:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:11  error    'handleError' is defined but never used   @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\error-boundaries\DataErrorBoundary.svelte
+    5:14  error    'm' is defined but never used             @typescript-eslint/no-unused-vars
+   61:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  147:11  error    'handleError' is defined but never used   @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\error-boundaries\FormErrorBoundary.svelte
+    5:14  error    'm' is defined but never used             @typescript-eslint/no-unused-vars
+   41:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  114:11  error    'handleError' is defined but never used   @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\error-boundaries\PaymentErrorBoundary.svelte
+    3:11  error    'ErrorMessage' is defined but never used  @typescript-eslint/no-unused-vars
+    5:14  error    'm' is defined but never used             @typescript-eslint/no-unused-vars
+   31:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  121:11  error    'handleError' is defined but never used   @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\forms\FormField.svelte
+   53:25  error  'NodeJS' is not defined                            no-undef
+  107:8   error  'inputVariant' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\forms\ModernProgressIndicator.svelte
+  4:11  error    'fly' is defined but never used           @typescript-eslint/no-unused-vars
+  4:16  error    'scale' is defined but never used         @typescript-eslint/no-unused-vars
+  9:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\home\LandingCategories.svelte
+  4:11  error    'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  5:16  error    'Category' is defined but never used      @typescript-eslint/no-unused-vars
+  8:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\home\ModularHeroSearch.svelte
+  10:16  warning  Unexpected any. Specify a different type                             @typescript-eslint/no-explicit-any
+  11:16  warning  Unexpected any. Specify a different type                             @typescript-eslint/no-explicit-any
+  14:8   error    'categories' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+  78:28  error    'e' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\home\QuickFilters.svelte
+  2:14  error  'Filter' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\home\SellerQuickView.svelte
+  96:29  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\home\TrustBanner.svelte
+  2:46  error  'Check' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\layout\Header.svelte
+   4:17  error    'invalidateAll' is defined but never used        @typescript-eslint/no-unused-vars
+  20:12  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  21:16  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  24:33  error    'categories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\layout\MobileFiltersDrawer.svelte
+    2:14  error  'ChevronRight' is defined but never used  @typescript-eslint/no-unused-vars
+  106:4   error  'logger' is not defined                   no-undef
+
+K:\driplo.bg-1\src\lib\components\layout\ProfileDropdownContent.svelte
+   3:11  error    'User' is defined but never used           @typescript-eslint/no-unused-vars
+   5:14  error    'm' is defined but never used              @typescript-eslint/no-unused-vars
+   7:25  error    'Button' is defined but never used         @typescript-eslint/no-unused-vars
+  11:13  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  17:52  error    'open' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\layout\PromotionalBanner.svelte
+  26:3  error  'countdown' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\ConversionListingCard.svelte
+    5:9   error  'BrandBadge' is defined but never used                       @typescript-eslint/no-unused-vars
+   56:6   error  'showQuickView' is assigned a value but never used           @typescript-eslint/no-unused-vars
+   59:8   error  'discountPercentage' is assigned a value but never used      @typescript-eslint/no-unused-vars
+   76:8   error  'formattedOriginalPrice' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  109:12  error  'error' is defined but never used                            @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\ListingCard.svelte
+  4:11  error  'Badge' is defined but never used       @typescript-eslint/no-unused-vars
+  5:9   error  'BrandBadge' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\ListingDetailSkeleton.svelte
+  23:27  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  86:26  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\ListingGrid.svelte
+   68:3   error    'virtualScrollHeight' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   72:3   error    'useConversionCard' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  100:15  error    '_' is assigned a value but never used                    @typescript-eslint/no-unused-vars
+  106:42  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  106:50  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\listings\ProductCard.svelte
+    4:11  error  'Badge' is defined but never used             @typescript-eslint/no-unused-vars
+  118:11  error  'handleImageError' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\ProductionListingForm.svelte
+   10:15  warning  Unexpected any. Specify a different type                                    @typescript-eslint/no-explicit-any
+   35:6   error    'uploadProgress' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+   38:6   error    'createdListingId' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+   69:11  error    'prepareFormData' is defined but never used                                 @typescript-eslint/no-unused-vars
+   71:25  error    'index' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+   92:18  error    'formData' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  134:6   error    'logger' is not defined                                                     no-undef
+  135:6   error    'logger' is not defined                                                     no-undef
+  139:8   error    'logger' is not defined                                                     no-undef
+  145:5   error    'logger' is not defined                                                     no-undef
+
+K:\driplo.bg-1\src\lib\components\listings\detail\ProductGallery.svelte
+    3:11  error  'cn' is defined but never used                           @typescript-eslint/no-unused-vars
+    5:20  error  'tick' is defined but never used                         @typescript-eslint/no-unused-vars
+    8:9   error  'ImageIndicators' is defined but never used              @typescript-eslint/no-unused-vars
+   45:8   error  'MIN_SWIPE_VELOCITY' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  157:9   error  'velocity' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  246:11  error  'startImageLoad' is defined but never used               @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\detail\sections\MobileBottomBar.svelte
+   2:31  error  'MessageCircle' is defined but never used             @typescript-eslint/no-unused-vars
+   6:11  error  'fade' is defined but never used                      @typescript-eslint/no-unused-vars
+  13:3   error  'onMessageSeller' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\detail\sections\ProductHeader.svelte
+  6:11  error  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  6:17  error  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\listings\sections\ImageUploadSection.svelte
+   48:12  error  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   56:5   error  'logger' is not defined                    no-undef
+   68:4   error  'logger' is not defined                    no-undef
+  132:4   error  'logger' is not defined                    no-undef
+
+K:\driplo.bg-1\src\lib\components\messaging\MessageSearch.svelte
+  38:27  error  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  48:24  error  'NodeJS' is not defined                      no-undef
+
+K:\driplo.bg-1\src\lib\components\messaging\MessageThread.svelte
+  38:9  error  'shouldUseVirtualScrolling' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\native\Button.svelte
+  21:3  error  'children' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\native\Card.svelte
+   8:14  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  15:3   error    'children' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\native\Label.svelte
+   8:14  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  15:3   error    'children' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\navigation\MobileCategoryMenu.svelte
+  14:8  error  'categories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\notifications\NotificationDropdown.svelte
+   3:17  error    'Check' is defined but never used         @typescript-eslint/no-unused-vars
+  49:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\onboarding\AvatarPicker.svelte
+  124:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  160:15  error    'handleGenerateNewSeed' is not defined    no-undef
+
+K:\driplo.bg-1\src\lib\components\onboarding\BrandInfoForm.svelte
+    2:53  error  'Instagram' is defined but never used    @typescript-eslint/no-unused-vars
+    2:64  error  'Globe' is defined but never used        @typescript-eslint/no-unused-vars
+  242:17  error  'handleAddSocialAccount' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\components\onboarding\PaymentMethodSetup.svelte
+    2:17  error  'profile' is defined but never used           @typescript-eslint/no-unused-vars
+   22:6   error  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:4   error  'logger' is not defined                       no-undef
+  136:5   error  'logger' is not defined                       no-undef
+
+K:\driplo.bg-1\src\lib\components\onboarding\ProfileSetupWizard.svelte
+    2:19  error    'authUser' is defined but never used                     @typescript-eslint/no-unused-vars
+    6:16  error    'IsolatedOnboardingFormData' is defined but never used   @typescript-eslint/no-unused-vars
+    8:3   error    'ChevronLeft' is defined but never used                  @typescript-eslint/no-unused-vars
+    9:3   error    'ChevronRight' is defined but never used                 @typescript-eslint/no-unused-vars
+   19:9   error    'FormCard' is defined but never used                     @typescript-eslint/no-unused-vars
+   20:9   error    'ModernProgressIndicator' is defined but never used      @typescript-eslint/no-unused-vars
+   21:9   error    'Button' is defined but never used                       @typescript-eslint/no-unused-vars
+   38:27  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+   43:35  error    'initialStep' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  141:16  error    'errors' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  141:24  error    'enhance' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  141:33  error    'submitting' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  141:45  error    'validate' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  204:8   error    'progressPercentage' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  245:22  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  303:5   error    'logger' is not defined                                  no-undef
+  331:6   error    'logger' is not defined                                  no-undef
+  335:11  error    Empty block statement                                    no-empty
+  348:19  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  349:4   error    'logger' is not defined                                  no-undef
+  382:19  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  383:4   error    'logger' is not defined                                  no-undef
+
+K:\driplo.bg-1\src\lib\components\onboarding\ProgressIndicator.svelte
+  5:14  error  'm' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\onboarding\UsernameSetup.svelte
+  20:34  error  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  25:23  error  'NodeJS' is not defined                    no-undef
+  60:12  error  'error' is defined but never used          @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\onboarding\WelcomeModal.svelte
+   2:11  error  'onMount' is defined but never used        @typescript-eslint/no-unused-vars
+   7:14  error  'm' is defined but never used              @typescript-eslint/no-unused-vars
+  14:8   error  'user' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\orders\OrderDetails.svelte
+   24:28  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   79:13  error    'logger' is not defined                        no-undef
+   83:20  error    'updateOrderStatus' is defined but never used  @typescript-eslint/no-unused-vars
+  100:13  error    'logger' is not defined                        no-undef
+  147:13  error    'logger' is not defined                        no-undef
+  170:13  error    'logger' is not defined                        no-undef
+
+K:\driplo.bg-1\src\lib\components\orders\OrderList.svelte
+  4:19  error  'Database' is defined but never used     @typescript-eslint/no-unused-vars
+  5:23  error  'ShoppingBag' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\orders\ShippingForm.svelte
+   4:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  53:18  error    'err' is defined but never used           @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\payment\PaymentAccountSetup.svelte
+   57:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:4   error    'logger' is not defined                   no-undef
+  137:19  error    'selectedPayoutMethod' is not defined     no-undef
+  157:19  error    'selectedPayoutMethod' is not defined     no-undef
+  177:19  error    'selectedPayoutMethod' is not defined     no-undef
+
+K:\driplo.bg-1\src\lib\components\profile\ProfileHeader.svelte
+    2:11  error    'Badge' is defined but never used                                              @typescript-eslint/no-unused-vars
+    5:37  error    'ExternalLink' is defined but never used                                       @typescript-eslint/no-unused-vars
+    7:11  error    'getAchievementIcon' is defined but never used                                 @typescript-eslint/no-unused-vars
+    7:31  error    'getAchievementColor' is defined but never used                                @typescript-eslint/no-unused-vars
+   58:41  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+  228:48  error    'achievement' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\profile\ProfileStats.svelte
+    3:36  error  'Package' is defined but never used     @typescript-eslint/no-unused-vars
+    3:45  error  'Award' is defined but never used       @typescript-eslint/no-unused-vars
+    3:57  error  'DollarSign' is defined but never used  @typescript-eslint/no-unused-vars
+  146:29  error  'metrics' is not defined                no-undef
+  155:44  error  'metrics' is not defined                no-undef
+  159:88  error  'metrics' is not defined                no-undef
+  160:23  error  'metrics' is not defined                no-undef
+  169:44  error  'metrics' is not defined                no-undef
+  173:88  error  'metrics' is not defined                no-undef
+  174:23  error  'metrics' is not defined                no-undef
+  183:9   error  'metrics' is not defined                no-undef
+  189:24  error  'metrics' is not defined                no-undef
+
+K:\driplo.bg-1\src\lib\components\profile\SocialMediaLinks.svelte
+  15:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\search\SearchBar.svelte
+  25:3  error  'isFocused' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\search\SearchDropdown.svelte
+  19:3  error  'isFocused' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  24:3  error  'onClose' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\search\StickySearchBar.svelte
+   2:11  error  'ChevronDown' is defined but never used              @typescript-eslint/no-unused-vars
+  27:3   error  'activeCategory' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  91:11  error  'handleCategoryClick' is defined but never used      @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\search\StickySearchBelowNav.svelte
+  6:14  error  'm' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\seller\SellerProfile.svelte
+  23:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\seo\CategorySEO.svelte
+  2:12  error  'page' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\shared\CategoryDropdown.svelte
+   4:11  error  'clickOutside' is defined but never used         @typescript-eslint/no-unused-vars
+  22:3   error  'categories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  24:3   error  'onToggle' is assigned a value but never used    @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\shared\ErrorBoundary.svelte
+  10:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  83:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\shared\FilterSection.svelte
+    4:14  error  'm' is defined but never used  @typescript-eslint/no-unused-vars
+  303:33  error  'option' is not defined        no-undef
+
+K:\driplo.bg-1\src\lib\components\shared\MobileCategorySheet.svelte
+   3:11  error  'cn' is defined but never used                   @typescript-eslint/no-unused-vars
+  17:3   error  'categories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\shared\ReusableFilters.svelte
+    2:14  error  'Sparkles' is defined but never used                                   @typescript-eslint/no-unused-vars
+   33:3   error  'onClearFilters' is assigned a value but never used                    @typescript-eslint/no-unused-vars
+   46:45  error  'key' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   57:11  error  'getFilterLabel' is defined but never used                             @typescript-eslint/no-unused-vars
+   87:11  error  'isFilterActive' is defined but never used                             @typescript-eslint/no-unused-vars
+  216:16  error  'handleOnClearFilters' is not defined                                  no-undef
+
+K:\driplo.bg-1\src\lib\components\skeletons\CategoryPageSkeleton.svelte
+  14:25  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  21:26  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\skeletons\ProductDetailSkeleton.svelte
+  77:67  error  'section' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\skeletons\ProfilePageSkeleton.svelte
+  54:26  error  'i' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\subcategory\SubcategoryBrowse.svelte
+  15:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\AccordionSection.svelte
+  12:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\Alert.svelte
+  7:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\EmptyState.svelte
+  24:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\Image.svelte
+  174:8  error  'placeholderUrl' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  198:3  error  'logger' is not defined                              no-undef
+
+K:\driplo.bg-1\src\lib\components\ui\InfiniteScroll.svelte
+  65:15  error  'handleOnLoadMore' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\components\ui\LazyComponent.svelte
+   2:11  error    'onMount' is defined but never used       @typescript-eslint/no-unused-vars
+  11:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  59:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  78:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  86:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\LazyModal.svelte
+  20:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:4   error    'logger' is not defined                   no-undef
+
+K:\driplo.bg-1\src\lib\components\ui\LazyRoute.svelte
+   2:11  error    'browser' is defined but never used             @typescript-eslint/no-unused-vars
+  11:25  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  15:31  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  23:13  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  27:11  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  48:30  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  51:6   error    'isVisible' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  55:37  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  80:4   error    'logger' is not defined                         no-undef
+
+K:\driplo.bg-1\src\lib\components\ui\RetryButton.svelte
+  80:4  error  'logger' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\components\ui\accordion.svelte
+  0:0  error  Parsing error: A component can have a single top-level `<script>` element and/or a single top-level `<script module>` element
+https://svelte.dev/e/script_duplicate
+
+K:\driplo.bg-1\src\lib\components\ui\data-table\DataTable.svelte
+  33:3   error  '_getRowKey' is assigned a value but never used                          @typescript-eslint/no-unused-vars
+  68:26  error  'index' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\ui\dialog\DialogContent.svelte
+  6:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\dialog\DialogDescription.svelte
+  5:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\dialog\DialogHeader.svelte
+  5:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\dialog\DialogTitle.svelte
+  5:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\dialog\dialog.svelte
+  7:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\form\form-context.svelte.ts
+  7:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\icon.svelte
+   3:16  error    'ComponentProps' is defined but never used  @typescript-eslint/no-unused-vars
+  10:18  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\input.svelte
+  25:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\radio-group\RadioGroup.svelte
+  7:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\radio-group\RadioGroupItem.svelte
+  3:11  error  'getContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\ui\select\SelectContent.svelte
+  19:18  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  25:3   error    'position' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\ui\select\SelectItem.svelte
+  13:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\select\SelectSeparator.svelte
+  6:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\select\SelectTrigger.svelte
+  10:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\sheet\SheetContent.svelte
+  11:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\sheet\SheetHeader.svelte
+  8:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\sheet\SheetTitle.svelte
+  9:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\sheet\SheetTrigger.svelte
+  8:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\sheet\sheet.svelte
+  17:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\textarea.svelte
+  4:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\components\ui\tooltip\TooltipContent.svelte
+  18:3  error  'sideOffset' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\components\upload\ImageUpload.svelte
+    2:39  error  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+    3:11  error  'Button' is defined but never used       @typescript-eslint/no-unused-vars
+  169:12  error  'handleDisabled' is not defined          no-undef
+
+K:\driplo.bg-1\src\lib\data\achievements.ts
+  229:29  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  253:7   error    Unexpected lexical declaration in case block  no-case-declarations
+
+K:\driplo.bg-1\src\lib\hooks\useImagePreload.ts
+  163:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\paraglide\messages\_index.js
+  27:21  error  Parsing error: Unexpected token "$schema"
+
+K:\driplo.bg-1\src\lib\server\api-utils.test.ts
+   77:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   93:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  122:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  133:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\server\api-utils.ts
+  316:28  error  'NodeJS' is not defined  no-undef
+  449:14  error  Empty block statement    no-empty
+  489:14  error  Empty block statement    no-empty
+
+K:\driplo.bg-1\src\lib\server\audit.ts
+  9:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\server\browse.ts
+  244:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\server\category.ts
+  42:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\server\image-optimizer.ts
+  55:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\stores\auth.svelte.ts
+  6:10  error  '$state' is not defined  no-undef
+  7:13  error  '$state' is not defined  no-undef
+  8:13  error  '$state' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\stores\cookie-consent.svelte.ts
+  21:21  error  '$state' is not defined  no-undef
+  32:24  error  '$state' is not defined  no-undef
+  33:29  error  '$state' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\stores\listing.svelte.ts
+   14:15  error  '$state' is not defined            no-undef
+   15:19  error  '$state' is not defined            no-undef
+   16:19  error  '$state' is not defined            no-undef
+  130:12  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\stores\navigation.svelte.ts
+   3:11  error  'NavigationState' is defined but never used  @typescript-eslint/no-unused-vars
+  11:21  error  '$state' is not defined                      no-undef
+  12:27  error  '$state' is not defined                      no-undef
+  13:20  error  '$state' is not defined                      no-undef
+  16:24  error  '$derived' is not defined                    no-undef
+
+K:\driplo.bg-1\src\lib\stores\notifications.svelte.ts
+  15:26  error  '$state' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\stores\onboarding.svelte.ts
+  24:18  error  '$state' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\stores\realtime-notifications.svelte.ts
+   4:25  error  'Tables' is defined but never used  @typescript-eslint/no-unused-vars
+  20:27  error  '$state' is not defined             no-undef
+  21:25  error  '$state' is not defined             no-undef
+  22:25  error  '$state' is not defined             no-undef
+
+K:\driplo.bg-1\src\lib\types\api.types.ts
+  286:72  error  'PaginatedResponse' is not defined  no-undef
+
+K:\driplo.bg-1\src\lib\utils\data-fetcher.ts
+   1:34  error    'Readable' is defined but never used             @typescript-eslint/no-unused-vars
+   3:10  error    'withRetry' is defined but never used            @typescript-eslint/no-unused-vars
+  33:21  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  33:29  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  53:3   error    'optimistic' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  67:22  error    'NodeJS' is not defined                          no-undef
+
+K:\driplo.bg-1\src\lib\utils\error-tracking.ts
+  131:76  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\utils\form-validation.ts
+  299:32  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  347:24  error    'removed' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  371:18  error    'NodeJS' is not defined                       no-undef
+
+K:\driplo.bg-1\src\lib\utils\format.ts
+  17:11  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\utils\image-optimization.ts
+  149:11  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\utils\lazy-loading.ts
+   58:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   59:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   60:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  218:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\utils\performance.ts
+   22:18  error  'NodeJS' is not defined                          no-undef
+   60:16  error  'NodeJS' is not defined                          no-undef
+   86:5   error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  115:16  error  'NodeJS' is not defined                          no-undef
+  152:16  error  'NodeJS' is not defined                          no-undef
+  153:19  error  'NodeJS' is not defined                          no-undef
+  227:5   error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  424:5   error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  550:19  error  'NodeJS' is not defined                          no-undef
+
+K:\driplo.bg-1\src\lib\utils\service-worker.ts
+  82:14  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\utils\storage.ts
+  170:11  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\lib\utils\supabase-images.ts
+  102:67  error  Unnecessary escape character: \/  no-useless-escape
+  132:66  error  Unnecessary escape character: \/  no-useless-escape
+
+K:\driplo.bg-1\src\lib\utils\swr-cache.ts
+   31:21  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   50:45  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   51:52  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   88:60  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  108:38  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  173:4   error    'cacheTime' is assigned a value but never used                         @typescript-eslint/no-unused-vars
+  245:3   error    'revalidateOnFocus' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+  246:3   error    'revalidateOnReconnect' is assigned a value but never used             @typescript-eslint/no-unused-vars
+  250:3   error    'persistKey' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+  262:6   error    'currentKey' is assigned a value but never used                        @typescript-eslint/no-unused-vars
+  263:18  error    'NodeJS' is not defined                                                no-undef
+  383:12  error    'error' is defined but never used                                      @typescript-eslint/no-unused-vars
+  456:58  error    'set' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  473:23  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\lib\utils\web-vitals.ts
+   56:29  error  Empty block statement          no-empty
+  191:30  error  Empty block statement          no-empty
+  209:42  error  Empty block statement          no-empty
+  213:11  error  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\admin\+page.server.ts
+  31:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\(app)\admin\brands\+page.server.ts
+   36:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   71:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\(app)\admin\brands\+page.svelte
+  12:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\(app)\admin\verify-emails\+page.server.ts
+  56:12  error  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\brands\[slug]\+page.svelte
+  6:14  error  'm' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\brands\analytics\+page.svelte
+  2:11  error  'page' is defined but never used       @typescript-eslint/no-unused-vars
+  5:15  error  'Calendar' is defined but never used   @typescript-eslint/no-unused-vars
+  5:34  error  'ArrowDown' is defined but never used  @typescript-eslint/no-unused-vars
+  6:13  error  'Filter' is defined but never used     @typescript-eslint/no-unused-vars
+  9:14  error  'm' is defined but never used          @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\brands\welcome\+page.svelte
+  3:11  error  'goto' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\browse\+page.server.ts
+  5:25  error  'cacheKeys' is defined but never used        @typescript-eslint/no-unused-vars
+  5:46  error  'clearCache' is defined but never used       @typescript-eslint/no-unused-vars
+  6:10  error  'setCacheHeaders' is defined but never used  @typescript-eslint/no-unused-vars
+  6:27  error  'cachePresets' is defined but never used     @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\browse\+page.svelte
+    4:11  error    'X' is defined but never used                    @typescript-eslint/no-unused-vars
+   18:9   error    'LoadingState' is defined but never used         @typescript-eslint/no-unused-vars
+   22:11  error    'ProductCardSkeleton' is defined but never used  @typescript-eslint/no-unused-vars
+   23:11  error    'EmptyState' is defined but never used           @typescript-eslint/no-unused-vars
+   54:50  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  106:11  error    'handleSearchInput' is defined but never used    @typescript-eslint/no-unused-vars
+  248:5   error    'logger' is not defined                          no-undef
+  252:4   error    'logger' is not defined                          no-undef
+
+K:\driplo.bg-1\src\routes\(app)\leaderboard\+page.svelte
+   6:3   error  'Star' is defined but never used                                         @typescript-eslint/no-unused-vars
+   7:3   error  'TrendingUp' is defined but never used                                   @typescript-eslint/no-unused-vars
+  13:3   error  'ShoppingBag' is defined but never used                                  @typescript-eslint/no-unused-vars
+  15:3   error  'Crown' is defined but never used                                        @typescript-eslint/no-unused-vars
+  16:3   error  'Flame' is defined but never used                                        @typescript-eslint/no-unused-vars
+  17:3   error  'Filter' is defined but never used                                       @typescript-eslint/no-unused-vars
+  97:13  error  'index' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\listings\[id]\+page.server.ts
+  11:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\(app)\listings\[id]\+page.svelte
+  26:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\(app)\messages\+page.server.ts
+  18:53  error  'url' is not defined  no-undef
+
+K:\driplo.bg-1\src\routes\(app)\messages\+page.svelte
+  2:14  error  'page' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\onboarding\+layout.svelte
+  2:8  error  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\onboarding\+page.svelte
+   16:16  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+   42:9   error    'isNewSignup' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   49:43  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+   54:25  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+   88:5   error    'logger' is not defined                              no-undef
+  105:6   error    'logger' is not defined                              no-undef
+  112:19  error    'functionResult' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  121:6   error    'logger' is not defined                              no-undef
+  122:6   error    'logger' is not defined                              no-undef
+  152:5   error    'logger' is not defined                              no-undef
+  162:20  error    'freshProfile' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  168:6   error    'logger' is not defined                              no-undef
+  189:4   error    'logger' is not defined                              no-undef
+
+K:\driplo.bg-1\src\routes\(app)\orders\+page.svelte
+   7:11  error    'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  49:13  error    'logger' is not defined                    no-undef
+  54:24  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  68:13  error    'logger' is not defined                    no-undef
+
+K:\driplo.bg-1\src\routes\(app)\orders\[id]\+page.svelte
+  2:14  error  'page' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\profile\+page.svelte
+  31:4  error  'logger' is not defined  no-undef
+
+K:\driplo.bg-1\src\routes\(app)\profile\[username]\+page.svelte
+    4:11  error  'user' is defined but never used               @typescript-eslint/no-unused-vars
+   11:26  error  'Calendar' is defined but never used           @typescript-eslint/no-unused-vars
+   24:8   error  'supabase' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   34:8   error  'username' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   73:4   error  'logger' is not defined                        no-undef
+  105:4   error  'logger' is not defined                        no-undef
+
+K:\driplo.bg-1\src\routes\(app)\profile\settings\+page.svelte
+    3:11  error    'user' is defined but never used          @typescript-eslint/no-unused-vars
+    3:28  error    'authProfile' is defined but never used   @typescript-eslint/no-unused-vars
+   60:5   error    'logger' is not defined                   no-undef
+   84:18  error    'm' is not defined                        no-undef
+   86:4   error    'logger' is not defined                   no-undef
+   87:16  error    'm' is not defined                        no-undef
+  112:18  error    'm' is not defined                        no-undef
+  114:4   error    'logger' is not defined                   no-undef
+  115:16  error    'm' is not defined                        no-undef
+  123:16  error    'm' is not defined                        no-undef
+  187:18  error    'm' is not defined                        no-undef
+  189:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  190:4   error    'logger' is not defined                   no-undef
+  192:17  error    'm' is not defined                        no-undef
+  194:17  error    'm' is not defined                        no-undef
+  239:10  error    'm' is not defined                        no-undef
+
+K:\driplo.bg-1\src\routes\(app)\sell\+page.server.ts
+    5:23  error  'cacheKeys' is defined but never used         @typescript-eslint/no-unused-vars
+  210:18  error  'listing' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\sell\success\+page.svelte
+   7:14  error    'm' is defined but never used             @typescript-eslint/no-unused-vars
+   9:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:12  error    'error' is defined but never used         @typescript-eslint/no-unused-vars
+  37:4   error    'logger' is not defined                   no-undef
+  53:4   error    'logger' is not defined                   no-undef
+
+K:\driplo.bg-1\src\routes\(app)\sellers\+page.svelte
+  2:11  error  'onMount' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(app)\wishlist\+page.svelte
+    7:3   error  'ChevronRight' is defined but never used      @typescript-eslint/no-unused-vars
+    9:3   error  'TrendingUp' is defined but never used        @typescript-eslint/no-unused-vars
+   11:3   error  'Filter' is defined but never used            @typescript-eslint/no-unused-vars
+   17:3   error  'Tag' is defined but never used               @typescript-eslint/no-unused-vars
+   18:3   error  'AlertCircle' is defined but never used       @typescript-eslint/no-unused-vars
+   22:11  error  'onMount' is defined but never used           @typescript-eslint/no-unused-vars
+   32:6   error  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   87:12  error  'error' is defined but never used             @typescript-eslint/no-unused-vars
+  104:11  error  'toggleAllItems' is defined but never used    @typescript-eslint/no-unused-vars
+  113:17  error  'bulkRemove' is defined but never used        @typescript-eslint/no-unused-vars
+  128:12  error  'error' is defined but never used             @typescript-eslint/no-unused-vars
+  293:19  error  'handleToggleAllItems' is not defined         no-undef
+  306:18  error  'handleBulkRemove' is not defined             no-undef
+
+K:\driplo.bg-1\src\routes\(auth)\forgot-password\+page.svelte
+  12:10  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  15:14  error    'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  48:12  error    'err' is defined but never used            @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\(auth)\reset-password\+page.svelte
+  13:9   warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  16:14  error    'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  78:12  error    'err' is defined but never used            @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\+layout.svelte
+  12:11  error  'invalidate' is defined but never used                                    @typescript-eslint/no-unused-vars
+  12:38  error  'goto' is defined but never used                                          @typescript-eslint/no-unused-vars
+  15:9   error  'Spinner' is defined but never used                                       @typescript-eslint/no-unused-vars
+  19:11  error  'onboarding' is defined but never used                                    @typescript-eslint/no-unused-vars
+  92:23  error  'metric' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\+page.server.ts
+    2:25  error    'cacheKeys' is defined but never used     @typescript-eslint/no-unused-vars
+  103:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\api\admin\payouts\+server.ts
+  9:3  error  'paginatedResponse' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\browse\load-more\+server.ts
+  91:11  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\health\all\+server.ts
+   6:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:16  error    'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\health\db\+server.ts
+   8:13  error  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  29:12  error  'error' is defined but never used          @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\health\storage\+server.ts
+  42:12  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\messages\send\+server.ts
+  149:14  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\messages\unread-count\+server.ts
+   2:10  error  'apiError' is defined but never used      @typescript-eslint/no-unused-vars
+   2:32  error  'ApiErrorType' is defined but never used  @typescript-eslint/no-unused-vars
+   2:46  error  'requireAuth' is defined but never used   @typescript-eslint/no-unused-vars
+  61:14  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\metrics\+server.ts
+  15:16  error  'NavigatorConnection' is not defined  no-undef
+
+K:\driplo.bg-1\src\routes\api\orders\+server.ts
+    4:30  error  'OrderCreateRequest' is defined but never used    @typescript-eslint/no-unused-vars
+  111:14  error  'error' is defined but never used                 @typescript-eslint/no-unused-vars
+  173:15  error  'transaction' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  261:30  error  'ApiError' is not defined                         no-undef
+
+K:\driplo.bg-1\src\routes\api\payment\create-intent\+server.ts
+   6:3   error  'apiError' is defined but never used                                       @typescript-eslint/no-unused-vars
+   7:3   error  'apiSuccess' is defined but never used                                     @typescript-eslint/no-unused-vars
+  40:38  error  'context' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\payment\revolut\manual-payment\+server.ts
+  46:46  error  'paymentError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\sellers\top\+server.ts
+  63:12  error  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\stripe\webhooks\+server.ts
+    1:16  error  'text' is defined but never used  @typescript-eslint/no-unused-vars
+   91:87  error  'order_id' is not defined         no-undef
+  105:99  error  'listing_id' is not defined       no-undef
+
+K:\driplo.bg-1\src\routes\api\upload\simple\+server.ts
+  88:6  error  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\users\[id]\follow\+server.ts
+  6:46  error  'request' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\api\wishlist\+server.ts
+   51:11  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  120:24  error  'ApiError' is not defined          no-undef
+  167:24  error  'ApiError' is not defined          no-undef
+
+K:\driplo.bg-1\src\routes\auth\callback\+server.ts
+  12:59  error  'locals' is not defined                            no-undef
+  43:20  error  'profileError' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\auth\confirm\+page.server.ts
+  13:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\brands\settings\+page.server.ts
+  46:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  94:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\brands\settings\+page.svelte
+    4:11  error    'page' is defined but never used                    @typescript-eslint/no-unused-vars
+   12:14  error    'm' is defined but never used                       @typescript-eslint/no-unused-vars
+   31:6   error    'uploadingLogo' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   49:35  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  103:44  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  177:19  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  228:19  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  248:20  error    'uploadData' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  268:44  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  292:19  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\dashboard\+layout.server.ts
+  25:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\dashboard\+layout.svelte
+  13:3  error  'TrendingUp' is defined but never used   @typescript-eslint/no-unused-vars
+  14:3  error  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+  17:9  error  'Spinner' is defined but never used      @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\dashboard\+page.server.ts
+  40:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\dashboard\brands\+page.server.ts
+  14:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\dashboard\brands\+page.svelte
+    5:3   error  'Filter' is defined but never used                                         @typescript-eslint/no-unused-vars
+   13:11  error  'toast' is defined but never used                                          @typescript-eslint/no-unused-vars
+   47:11  error  'toggleAll' is defined but never used                                      @typescript-eslint/no-unused-vars
+  165:18  error  'handleToggleAll' is not defined                                           no-undef
+  220:90  error  'account' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\dashboard\brands\[id]\+page.server.ts
+  3:15  error  'BrandVerificationRequest' is defined but never used  @typescript-eslint/no-unused-vars
+  3:41  error  'SocialMediaAccount' is defined but never used        @typescript-eslint/no-unused-vars
+  3:61  error  'AdminApproval' is defined but never used             @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\dashboard\brands\[id]\+page.svelte
+   2:11  error    'goto' is defined but never used                                               @typescript-eslint/no-unused-vars
+  21:16  error    'SocialMediaAccount' is defined but never used                                 @typescript-eslint/no-unused-vars
+  21:36  error    'BrandVerificationRequest' is defined but never used                           @typescript-eslint/no-unused-vars
+  45:19  error    'formElement' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  45:32  error    'cancel' is defined but never used. Allowed unused args must match /^_/u       @typescript-eslint/no-unused-vars
+  47:40  warning  Unexpected any. Specify a different type                                       @typescript-eslint/no-explicit-any
+
+K:\driplo.bg-1\src\routes\login\+page.server.ts
+  131:28  error  'currentSession' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\routes\register\+page.svelte
+  65:13  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+K:\driplo.bg-1\src\tests\setup.ts
+  25:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 591 problems (438 errors, 153 warnings)
+
