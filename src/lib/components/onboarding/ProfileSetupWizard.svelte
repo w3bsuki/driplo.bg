@@ -3,8 +3,8 @@
 	import { toast } from 'svelte-sonner';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { completeOnboardingSchema, defaultOnboardingValues, calculateProgress } from '$lib/schemas/onboarding';
-	import type { OnboardingFormData } from '$lib/schemas/onboarding';
+	import { isolatedOnboardingSchema, isolatedOnboardingDefaults, calculateIsolatedProgress } from '$lib/schemas/onboarding-isolated';
+	import type { IsolatedOnboardingFormData } from '$lib/schemas/onboarding-isolated';
 	import { 
 		ChevronLeft, 
 		ChevronRight, 
@@ -129,7 +129,7 @@
 
 	// Initialize form with superForm - safely merge profile data
 	const initialFormData = {
-		...defaultOnboardingValues,
+		...isolatedOnboardingDefaults,
 		...(profile ? {
 			fullName: profile.full_name || '',
 			bio: profile.bio || '',
@@ -143,7 +143,7 @@
 		initialFormData,
 		{
 			SPA: true,
-			validators: zodClient(completeOnboardingSchema),
+			validators: zodClient(isolatedOnboardingSchema),
 			resetForm: false,
 			invalidateAll: false,
 			onError: ({ result }) => {
@@ -204,7 +204,7 @@
 
 	// Progress calculation
 	const progressPercentage = $derived(
-		calculateProgress($form)
+		calculateIsolatedProgress($form)
 	);
 
 	// Generate brand slug helper

@@ -292,5 +292,4 @@ export function isPaginatedResponse<T>(response: unknown): response is Paginated
   );
 }
 
-// Re-export from api-utils for convenience
-export type { ApiResponse, PaginatedResponse } from '$lib/server/api-utils';
+// Removed re-export from api-utils to avoid potential circular dependency

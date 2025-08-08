@@ -1,13 +1,12 @@
 import { z } from 'zod'
-import { LISTING_CONDITIONS } from '$lib/config/conditions'
 
-// Re-export for backward compatibility
+// Hardcoded conditions to avoid circular dependency
 export const ListingCondition = {
-	NEW_WITH_TAGS: LISTING_CONDITIONS.NEW_WITH_TAGS,
-	NEW_WITHOUT_TAGS: LISTING_CONDITIONS.NEW_WITHOUT_TAGS,
-	EXCELLENT: LISTING_CONDITIONS.EXCELLENT,
-	GOOD: LISTING_CONDITIONS.GOOD,
-	FAIR: LISTING_CONDITIONS.FAIR
+	NEW_WITH_TAGS: 'new_with_tags',
+	NEW_WITHOUT_TAGS: 'new_without_tags',
+	EXCELLENT: 'excellent',
+	GOOD: 'good',
+	FAIR: 'fair'
 } as const
 
 // Shipping types enum
@@ -60,11 +59,11 @@ export const createListingSchema = z.object({
 		.positive('Price must be greater than 0')
 		.max(100000, 'Price must be less than 100,000'),
 	condition: z.enum([
-		LISTING_CONDITIONS.NEW_WITH_TAGS,
-		LISTING_CONDITIONS.NEW_WITHOUT_TAGS,
-		LISTING_CONDITIONS.EXCELLENT,
-		LISTING_CONDITIONS.GOOD,
-		LISTING_CONDITIONS.FAIR
+		ListingCondition.NEW_WITH_TAGS,
+		ListingCondition.NEW_WITHOUT_TAGS,
+		ListingCondition.EXCELLENT,
+		ListingCondition.GOOD,
+		ListingCondition.FAIR
 	] as [string, ...string[]], {
 		required_error: 'Please select the item condition'
 	}),
@@ -95,7 +94,7 @@ export const createListingDefaults: Partial<CreateListingFormData> = {
 	subcategory_id: null,
 	images: [],
 	price: 0, // Set to 0 for proper form initialization
-	condition: LISTING_CONDITIONS.NEW_WITH_TAGS,
+	condition: ListingCondition.NEW_WITH_TAGS,
 	brand: null,
 	size: null,
 	color: '', // Keep empty, but make it optional in schema
