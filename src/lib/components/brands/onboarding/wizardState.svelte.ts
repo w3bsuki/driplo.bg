@@ -31,7 +31,7 @@ export interface BrandFormState {
 }
 
 export function createBrandFormState(existingBrandProfile?: any): BrandFormState {
-	return $state({
+	return {
 		// Step 1: Brand Basics
 		brandName: existingBrandProfile?.brand_name || '',
 		brandCategory: existingBrandProfile?.brand_category || '',
@@ -59,7 +59,7 @@ export function createBrandFormState(existingBrandProfile?: any): BrandFormState
 		brandTwitter: existingBrandProfile?.twitter_url || '',
 		brandYoutube: existingBrandProfile?.youtube_url || '',
 		brandTiktok: existingBrandProfile?.tiktok_url || ''
-	});
+	};
 }
 
 export function canProceedToStep(step: number, formState: BrandFormState): boolean {
