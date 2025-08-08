@@ -135,6 +135,7 @@
 						searchBarRef?.focus(); 
 					}}
 					onSearch={handleSearch}
+					onCloseDropdown={handleCloseDropdown}
 				/>
 				
 				<SearchDropdown

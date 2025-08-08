@@ -16,6 +16,7 @@
 		onInput: () => void;
 		onClear: () => void;
 		onSearch: () => void;
+		onCloseDropdown?: () => void;
 	}
 	
 	let {
@@ -30,7 +31,8 @@
 		onKeydown,
 		onInput,
 		onClear,
-		onSearch
+		onSearch,
+		onCloseDropdown
 	}: Props = $props();
 	
 	let searchInputRef: HTMLInputElement;
@@ -45,7 +47,17 @@
 	showCategories ? "rounded-t-xl border border-gray-200 border-b-0 shadow-md" : "rounded-xl border border-gray-200 shadow-sm hover:shadow-md"
 )}>
 	<div class="flex items-center px-4 md:px-5 h-12 md:h-14">
-		<Search class="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
+		{#if showCategories && onCloseDropdown}
+			<button
+				onclick={onCloseDropdown}
+				class="p-1 hover:bg-gray-50 rounded-lg transition-colors mr-2"
+				aria-label="Close search dropdown"
+			>
+				<X class="h-4 w-4 text-gray-600" />
+			</button>
+		{:else}
+			<Search class="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
+		{/if}
 		
 		<input
 			bind:this={searchInputRef}

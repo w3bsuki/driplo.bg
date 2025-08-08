@@ -27,8 +27,9 @@
 </script>
 
 <!-- Simple horizontal scroll of seller avatars -->
-<div class="w-full overflow-x-auto py-1.5 scrollbar-hide">
-	<div class="flex gap-2.5 px-4 min-w-max justify-center">
+<div class="container px-4">
+	<div class="overflow-x-auto py-1.5 scrollbar-hide">
+		<div class="flex gap-2.5 min-w-max justify-center">
 		{#each sellers as seller}
 			<button 
 				onclick={(e) => handleSellerClick(e, seller)}
@@ -57,6 +58,7 @@
 				</div>
 			</button>
 		{/each}
+		</div>
 	</div>
 </div>
 
