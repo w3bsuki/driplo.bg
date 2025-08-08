@@ -110,7 +110,7 @@ export const actions = {
 					brand_website: accountType === 'brand' ? brandWebsite : undefined,
 					needs_onboarding: true // Clear flag for onboarding requirement
 				},
-				emailRedirectTo: `${url.origin}/auth/callback?type=signup`
+				emailRedirectTo: `${url.origin}/auth/confirm`
 			}
 		})
 		

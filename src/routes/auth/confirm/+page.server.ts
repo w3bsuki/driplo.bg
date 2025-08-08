@@ -23,8 +23,29 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, locale } }
 		});
 
 		if (!error) {
-			// Email verified successfully, redirect to next page
-			redirect(303, next);
+			// Email verified successfully
+			// Check if user needs onboarding
+			const { data: { user } } = await supabase.auth.getUser();
+			
+			if (user) {
+				// Check if profile exists and onboarding is completed
+				const { data: profile } = await supabase
+					.from('profiles')
+					.select('onboarding_completed, username')
+					.eq('id', user.id)
+					.single();
+				
+				// If no profile or onboarding not completed, send to onboarding
+				if (!profile || !profile.onboarding_completed || !profile.username) {
+					redirect(303, getLocalizedUrl('/onboarding?new=true'));
+				} else {
+					// Otherwise go to home or the intended destination
+					redirect(303, getLocalizedUrl(next === '/onboarding?new=true' ? '/' : next));
+				}
+			} else {
+				// No user session, go to login
+				redirect(303, getLocalizedUrl('/login'));
+			}
 		} else {
 			logger.error('Email verification error:', error);
 			// Handle different error cases

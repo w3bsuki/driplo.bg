@@ -93,10 +93,10 @@ export const actions: Actions = {
 				}
 			}
 
-			return { success: true };
+			return { success: true, type: 'success' };
 		} catch (error: any) {
 			logger.error('Failed to save step:', error);
-			return fail(500, { error: error.message });
+			return fail(500, { error: { message: error.message }, type: 'error' });
 		}
 	},
 

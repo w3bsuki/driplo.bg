@@ -4,6 +4,8 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { isolatedOnboardingDefaults, calculateIsolatedProgress } from '$lib/schemas/onboarding-isolated';
 	import type { IsolatedOnboardingFormData } from '$lib/schemas/onboarding-isolated';
+	import { page } from '$app/stores';
+	import { enhance } from '$app/forms';
 	import { 
 		ChevronLeft, 
 		ChevronRight, 
@@ -45,7 +47,8 @@
 	// Auth state available via stores
 
 	// Check if user needs username setup (no username at all) - make it reactive
-	const needsUsernameSetup = $derived(!profile?.username || profile.username === '');
+	// Always show username step for new users during onboarding
+	const needsUsernameSetup = $derived(!profile?.username || profile.username === '' || profile.username === null);
 	
 	// Define ALL steps properly - 5 steps when username is needed
 	const STEPS = needsUsernameSetup ? [
@@ -244,20 +247,30 @@
 					break;
 			}
 
-			// Save step using server action
+			// Save step using server action with proper URL
 			const formData = new FormData();
 			formData.append('stepData', JSON.stringify(stepFormData));
 			formData.append('stepNumber', stepData.runtimeId.toString());
 
-			const response = await fetch('?/saveStep', {
+			const response = await fetch(`${$page.url.pathname}?/saveStep`, {
 				method: 'POST',
-				body: formData
+				body: formData,
+				headers: {
+					'x-sveltekit-action': 'true'
+				}
 			});
 
-			const result = await response.json();
+			const text = await response.text();
+			let result;
+			try {
+				result = JSON.parse(text);
+			} catch {
+				// If not JSON, it might be a redirect or error
+				result = { success: false, error: 'Server error' };
+			}
 			
-			if (!result.success) {
-				throw new Error(result.error || 'Failed to save step');
+			if (!response.ok || (result.type === 'error')) {
+				throw new Error(result.error?.message || 'Failed to save step');
 			}
 
 			// Handle brand profile creation separately
@@ -269,15 +282,24 @@
 					socialMediaAccounts: $form.socialMediaAccounts
 				}));
 
-				const brandResponse = await fetch('?/createBrand', {
+				const brandResponse = await fetch(`${$page.url.pathname}?/createBrand`, {
 					method: 'POST',
-					body: brandFormData
+					body: brandFormData,
+					headers: {
+						'x-sveltekit-action': 'true'
+					}
 				});
 
-				const brandResult = await brandResponse.json();
+				const brandText = await brandResponse.text();
+				let brandResult;
+				try {
+					brandResult = JSON.parse(brandText);
+				} catch {
+					brandResult = { success: false, error: 'Server error' };
+				}
 				
-				if (!brandResult.success) {
-					throw new Error(brandResult.error || 'Failed to create brand profile');
+				if (!brandResponse.ok || (brandResult.type === 'error')) {
+					throw new Error(brandResult.error?.message || 'Failed to create brand profile');
 				}
 			}
 
@@ -324,15 +346,24 @@
 			const formData = new FormData();
 			formData.append('finalData', JSON.stringify($form));
 
-			const response = await fetch('?/complete', {
+			const response = await fetch(`${$page.url.pathname}?/complete`, {
 				method: 'POST',
-				body: formData
+				body: formData,
+				headers: {
+					'x-sveltekit-action': 'true'
+				}
 			});
 
-			const result = await response.json();
+			const text = await response.text();
+			let result;
+			try {
+				result = JSON.parse(text);
+			} catch {
+				result = { success: false, error: 'Server error' };
+			}
 			
-			if (!result.success) {
-				throw new Error(result.error || 'Failed to complete onboarding');
+			if (!response.ok || (result.type === 'error')) {
+				throw new Error(result.error?.message || 'Failed to complete onboarding');
 			}
 
 			// Call the parent completion handler
