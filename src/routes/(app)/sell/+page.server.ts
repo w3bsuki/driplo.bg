@@ -84,7 +84,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 		}
 	} catch (error: unknown) {
 		// If error is "no rows returned", that's fine
-		if (error?.code !== 'PGRST116') {
+		const errorObj = error as any
+		if (errorObj?.code !== 'PGRST116') {
 			logger.error('Failed to check payment account:', error)
 		}
 	}
@@ -154,7 +155,7 @@ export const actions: Actions = {
 					type: imageFiles[i].type 
 				})
 				const form = await superValidate(formData, sellPageSchema)
-				return fail(500, { form, error: `Failed to upload images: ${error.message}` })
+				return fail(500, { form, error: `Failed to upload images: ${(error as any).message || 'Unknown error'}` })
 			}
 		}
 		
@@ -291,7 +292,8 @@ export const actions: Actions = {
 			
 		} catch (error: unknown) {
 			// If it's a redirect, rethrow it
-			if (error?.status === 303) {
+			const errorObj = error as any
+			if (errorObj?.status === 303) {
 				throw error
 			}
 			
