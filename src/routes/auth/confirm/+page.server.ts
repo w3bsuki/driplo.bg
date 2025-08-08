@@ -37,7 +37,8 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, locale } }
 				
 				// If no profile or onboarding not completed, send to onboarding
 				if (!profile || !profile.onboarding_completed || !profile.username) {
-					redirect(303, getLocalizedUrl('/onboarding?new=true'));
+					// Always redirect to root onboarding path without locale prefix
+					redirect(303, '/onboarding?new=true');
 				} else {
 					// Otherwise go to home or the intended destination
 					redirect(303, getLocalizedUrl(next === '/onboarding?new=true' ? '/' : next));
