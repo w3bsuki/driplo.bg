@@ -35,12 +35,13 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 			.eq('account_type', 'brand')
 			.eq('is_verified', true),
 		
-		// Pending brand verification requests
+		// Pending brand verification requests (brands not yet verified)
 		locals.supabase
-			.from('brand_verification_requests' as any)
-			.select('*')
-			.eq('verification_status', 'pending')
-			.order('submitted_at', { ascending: false })
+			.from('profiles')
+			.select('id, username, full_name, brand_name, created_at, brand_verification_date')
+			.eq('account_type', 'brand')
+			.is('brand_verified', null)
+			.order('created_at', { ascending: false })
 			.limit(10),
 		
 		// Recent reports (placeholder - would need reports table)

@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ locals: { supabase }, cookies }) => {
+export const GET: RequestHandler = async ({ locals: { supabase, locale }, cookies }) => {
 	// Sign out on the server
 	await supabase.auth.signOut();
 	
@@ -9,6 +9,14 @@ export const GET: RequestHandler = async ({ locals: { supabase }, cookies }) => 
 	cookies.delete('sb-auth-token', { path: '/' });
 	cookies.delete('sb-refresh-token', { path: '/' });
 	
-	// Redirect to home with success message
-	throw redirect(303, '/login?message=logged_out');
+	// Helper to create localized URLs
+	const getLocalizedUrl = (path: string) => {
+		if (locale && locale !== 'en') {
+			return `/${locale}${path}`;
+		}
+		return path;
+	};
+	
+	// Redirect to login with success message
+	throw redirect(303, getLocalizedUrl('/login?message=logged_out'));
 };

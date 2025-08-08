@@ -31,16 +31,16 @@
 	
 	import type { User, SupabaseClient } from '@supabase/supabase-js';
 	import type { Tables } from '$lib/database.types';
+	import { logger } from '$lib/utils/logger';
 
 	interface Props {
 		user: User;
 		profile: Tables<'profiles'>;
 		onComplete: (formData?: any) => void | Promise<void>;
 		initialStep?: number;
-		supabase?: SupabaseClient;
 	}
 
-	let { user, profile, onComplete, initialStep = 1, supabase }: Props = $props();
+	let { user, profile, onComplete, initialStep = 1 }: Props = $props();
 	
 	// Auth state available via stores
 
@@ -150,8 +150,8 @@
 		}
 	);
 
-	// Current step state - start from 1 if needs username, otherwise from saved step
-	let currentStep = $state(profile?.onboarding_step && profile.onboarding_step > 0 && !profile.needs_username_setup ? profile.onboarding_step : 1);
+	// Current step state - use index-based navigation instead of ID-based
+	let currentStepIndex = $state(0);
 	let loading = $state(false);
 	let completedSteps = $state<number[]>([]);
 
@@ -165,12 +165,15 @@
 			steps.splice(-1, 0, brandStep); // Insert before Complete step
 		}
 		
-		return steps;
+		// Ensure unique IDs for each step in the final list
+		return steps.map((step, index) => ({
+			...step,
+			uid: index, // Unique identifier for this step position
+			runtimeId: index + 1 // For display purposes
+		}));
 	});
 
-	const currentStepIndex = $derived(
-		activeSteps.findIndex(step => step.id === currentStep)
-	);
+	const currentStep = $derived(activeSteps[currentStepIndex]);
 
 	const isLastStep = $derived(
 		currentStepIndex === activeSteps.length - 1
@@ -205,143 +208,85 @@
 		calculateIsolatedProgress($form)
 	);
 
-	// Generate brand slug helper
-	async function generateBrandSlug(brandName: string): Promise<string> {
-		const baseSlug = brandName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-		let slug = baseSlug;
-		let counter = 0;
-		
-		while (true) {
-			if (!supabase) {
-				throw new Error('Supabase client is not available');
-			}
-			const { data } = await supabase
-				.from('brand_profiles')
-				.select('id')
-				.eq('brand_slug', slug)
-				.single();
-			
-			if (!data) break;
-			
-			counter++;
-			slug = `${baseSlug}-${counter}`;
-		}
-		
-		return slug;
-	}
 
-	// Handle step navigation
+	// Handle step navigation using server actions
 	async function handleNext() {
 		if (!canProceed || loading) return;
 
 		loading = true;
 		try {
-			if (!supabase) {
-				throw new Error('Supabase client is not available');
-			}
 			const stepData = activeSteps[currentStepIndex];
 			
-			// Save current step data
-			const updateData: any = { onboarding_step: currentStep };
+			// Prepare step data to save
+			const stepFormData: any = { 
+				stepNumber: stepData.runtimeId,
+				stepName: stepData.name 
+			};
 			
+			// Add step-specific data
 			switch (stepData.name) {
 				case 'Username':
-					updateData.username = $form.username?.toLowerCase();
-					updateData.needs_username_setup = false; // Mark username as set up
+					stepFormData.username = $form.username;
 					break;
-					
 				case 'Account Type':
-					updateData.account_type = $form.accountType;
+					stepFormData.accountType = $form.accountType;
 					break;
-					
 				case 'Profile':
-					updateData.full_name = $form.fullName;
-					updateData.bio = $form.bio || '';
-					updateData.location = $form.location || '';
+					stepFormData.fullName = $form.fullName;
+					stepFormData.bio = $form.bio;
+					stepFormData.location = $form.location;
+					stepFormData.avatarUrl = $form.avatarUrl;
 					break;
-					
 				case 'Payment':
-					// Save payment data to profile
-					if ($form.paymentMethods && $form.paymentMethods.length > 0) {
-						updateData.payment_methods = $form.paymentMethods;
-					}
-					if ($form.revolut_tag) {
-						updateData.revolut_tag = $form.revolut_tag;
-					}
-					if ($form.paypal_tag) {
-						updateData.paypal_tag = $form.paypal_tag;
-					}
-					break;
-					
-				case 'Brand Info':
-					if ($form.accountType === 'brand') {
-						const brandSlug = await generateBrandSlug($form.brandName!);
-						await supabase.from('brand_profiles').insert({
-							user_id: user.id,
-							brand_name: $form.brandName,
-							brand_slug: brandSlug,
-							brand_description: $form.brandDescription,
-							instagram_url: $form.socialMediaAccounts?.find(a => a.platform === 'instagram')?.url,
-							facebook_url: $form.socialMediaAccounts?.find(a => a.platform === 'facebook')?.url,
-							twitter_url: $form.socialMediaAccounts?.find(a => a.platform === 'twitter')?.url,
-							tiktok_url: $form.socialMediaAccounts?.find(a => a.platform === 'tiktok')?.url
-						});
-					}
+					stepFormData.paymentMethods = $form.paymentMethods;
+					stepFormData.revolut_tag = $form.revolut_tag;
+					stepFormData.paypal_tag = $form.paypal_tag;
 					break;
 			}
 
-			// Update profile - create if doesn't exist, update if it does
-			
-			// First try to update
-			const { count, error: updateError } = await supabase
-				.from('profiles')
-				.update(updateData)
-				.eq('id', user.id)
-				.select('*', { count: 'exact', head: true });
+			// Save step using server action
+			const formData = new FormData();
+			formData.append('stepData', JSON.stringify(stepFormData));
+			formData.append('stepNumber', stepData.runtimeId.toString());
 
-			if (updateError) {
-				logger.error('Step update error:', updateError);
-				throw updateError;
-			}
+			const response = await fetch('?/saveStep', {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
 			
-			if (count === 0) {
-				// Profile doesn't exist, create it
-				const createData = {
-					id: user.id,
-					email: user.email,
-					username: updateData.username || null,
-					full_name: updateData.full_name || null,
-					bio: updateData.bio || null,
-					location: updateData.location || null,
-					account_type: updateData.account_type || 'personal',
-					onboarding_step: updateData.onboarding_step || 1,
-					needs_username_setup: updateData.needs_username_setup !== undefined ? updateData.needs_username_setup : true,
-					payment_methods: updateData.payment_methods || null,
-					revolut_tag: updateData.revolut_tag || null,
-					paypal_tag: updateData.paypal_tag || null,
-					created_at: new Date().toISOString(),
-					updated_at: new Date().toISOString()
-				};
+			if (!result.success) {
+				throw new Error(result.error || 'Failed to save step');
+			}
+
+			// Handle brand profile creation separately
+			if (stepData.name === 'Brand Info' && $form.accountType === 'brand') {
+				const brandFormData = new FormData();
+				brandFormData.append('brandData', JSON.stringify({
+					brandName: $form.brandName,
+					brandDescription: $form.brandDescription,
+					socialMediaAccounts: $form.socialMediaAccounts
+				}));
+
+				const brandResponse = await fetch('?/createBrand', {
+					method: 'POST',
+					body: brandFormData
+				});
+
+				const brandResult = await brandResponse.json();
 				
-				const { error: insertError } = await supabase
-					.from('profiles')
-					.insert(createData);
-					
-				if (insertError) {
-					logger.error('Profile creation error:', insertError);
-					throw insertError;
+				if (!brandResult.success) {
+					throw new Error(brandResult.error || 'Failed to create brand profile');
 				}
-				
-			} else {
 			}
-
 
 			// Mark step as completed
-			completedSteps = [...completedSteps, currentStep];
+			completedSteps = [...completedSteps, currentStepIndex];
 			
 			// Move to next step
 			if (!isLastStep) {
-				currentStep = activeSteps[currentStepIndex + 1].id;
+				currentStepIndex = currentStepIndex + 1;
 			}
 			
 			toast.success('Progress saved!', { duration: 2000 });
@@ -355,14 +300,13 @@
 
 	function handleBack() {
 		if (currentStepIndex > 0) {
-			currentStep = activeSteps[currentStepIndex - 1].id;
+			currentStepIndex = currentStepIndex - 1;
 		}
 	}
 
 	async function handleComplete() {
 		loading = true;
 		try {
-			
 			// Validate required fields before completion
 			if (!$form.username || $form.username.length < 3) {
 				toast.error('Username is required (minimum 3 characters)');
@@ -376,7 +320,22 @@
 				return;
 			}
 			
-			// Pass all form data to the completion handler
+			// Complete onboarding using server action
+			const formData = new FormData();
+			formData.append('finalData', JSON.stringify($form));
+
+			const response = await fetch('?/complete', {
+				method: 'POST',
+				body: formData
+			});
+
+			const result = await response.json();
+			
+			if (!result.success) {
+				throw new Error(result.error || 'Failed to complete onboarding');
+			}
+
+			// Call the parent completion handler
 			await onComplete($form);
 			// Don't show toast here - let the parent handle it
 		} catch (error: any) {
@@ -399,13 +358,14 @@
 			
 			// Don't resume from saved step if username is not set
 			if (profile.needs_username_setup || !profile.username) {
-				currentStep = 1;
+				currentStepIndex = 0;
 				completedSteps = [];
 			} else if (profile.onboarding_step && profile.onboarding_step > 0) {
 				// Resume from last step only if username is already set
-				currentStep = Math.min(profile.onboarding_step, activeSteps.length);
-				// Mark previous steps as completed
-				completedSteps = Array.from({ length: profile.onboarding_step - 1 }, (_, i) => i + 1);
+				// Convert database step number to index (step number - 1)
+				currentStepIndex = Math.min(profile.onboarding_step - 1, activeSteps.length - 1);
+				// Mark previous steps as completed by index
+				completedSteps = Array.from({ length: profile.onboarding_step - 1 }, (_, i) => i);
 			}
 		}
 	});
@@ -440,26 +400,25 @@
 
 		<!-- Step Content -->
 		<div>
-			{#key currentStep}
+			{#key currentStep?.uid}
 				<div class="bg-white rounded-lg border border-gray-200 p-5 mb-4">
 					<!-- Step Title -->
 					<h2 class="text-lg font-medium text-gray-900 mb-4">
-						{activeSteps[currentStepIndex]?.name}
+						{currentStep?.name}
 					</h2>
 
 					<!-- Step Content Area -->
 					<div class="relative">
-						{#if activeSteps[currentStepIndex]?.name === 'Username'}
+						{#if currentStep?.name === 'Username'}
 							<UsernameSetup 
 								bind:username={$form.username}
 								{user}
-								{supabase}
 							/>
-						{:else if activeSteps[currentStepIndex]?.name === 'Account Type'}
+						{:else if currentStep?.name === 'Account Type'}
 							<AccountTypeSelector 
 								bind:accountType={$form.accountType}
 							/>
-						{:else if activeSteps[currentStepIndex]?.name === 'Profile'}
+						{:else if currentStep?.name === 'Profile'}
 							<div class="space-y-8">
 								<!-- Avatar Picker -->
 								<AvatarPicker 
@@ -474,20 +433,19 @@
 									bind:location={$form.location}
 								/>
 							</div>
-						{:else if activeSteps[currentStepIndex]?.name === 'Payment'}
+						{:else if currentStep?.name === 'Payment'}
 							<PaymentMethodSetup 
 								bind:selectedMethods={$form.paymentMethods}
 								bind:revolut_tag={$form.revolut_tag}
 								bind:paypal_tag={$form.paypal_tag}
-								{supabase}
 							/>
-						{:else if activeSteps[currentStepIndex]?.name === 'Brand Info'}
+						{:else if currentStep?.name === 'Brand Info'}
 							<BrandInfoForm 
 								bind:brandName={$form.brandName}
 								bind:brandDescription={$form.brandDescription}
 								bind:socialMediaAccounts={$form.socialMediaAccounts}
 							/>
-						{:else if activeSteps[currentStepIndex]?.name === 'Complete'}
+						{:else if currentStep?.name === 'Complete'}
 							<SetupComplete 
 								accountType={$form.accountType || 'personal'}
 								fullName={$form.fullName || ''}

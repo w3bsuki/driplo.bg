@@ -9,18 +9,16 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		error(403, 'Unauthorized');
 	}
 	
-	// Get all brand verification requests with user info
-	const { data: requests, error: requestsError } = await locals.supabase
-		.from('brand_verification_requests' as any)
-		.select(`
-			*,
-			profiles!inner(username, full_name, avatar_url)
-		`)
-		.order('submitted_at', { ascending: false });
+	// Get all brand profiles (verification info is stored in profiles table)
+	const { data: brandProfiles, error: profilesError } = await locals.supabase
+		.from('profiles')
+		.select('id, username, full_name, avatar_url, brand_name, brand_verified, brand_verification_date, created_at')
+		.eq('account_type', 'brand')
+		.order('created_at', { ascending: false });
 	
-	if (requestsError) {
-		logger.error('Error loading brand requests:', requestsError);
-		error(500, 'Failed to load brand requests');
+	if (profilesError) {
+		logger.error('Error loading brand profiles:', profilesError);
+		error(500, 'Failed to load brand profiles');
 	}
 	
 	// Get statistics
@@ -32,21 +30,31 @@ export const load: PageServerLoad = async ({ locals, parent }) => {
 		{ count: approved }
 	] = await Promise.all([
 		locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('profiles')
 			.select('*', { count: 'exact', head: true })
-			.eq('verification_status', 'pending'),
+			.eq('account_type', 'brand')
+			.is('brand_verified', null),
 		
 		locals.supabase
-			.from('brand_verification_requests' as any)
+			.from('profiles')
 			.select('*', { count: 'exact', head: true })
-			.eq('verification_status', 'approved')
-			.gte('reviewed_at', thirtyDaysAgo.toISOString())
+			.eq('account_type', 'brand')
+			.eq('brand_verified', true)
+			.gte('brand_verification_date', thirtyDaysAgo.toISOString())
 	]);
 	
-	// Format requests with username
-	const formattedRequests = requests?.map(request => ({
-		...request,
-		username: request.profiles?.username || 'unknown'
+	// Format brand profiles into request-like structure for compatibility
+	const formattedRequests = brandProfiles?.map(profile => ({
+		id: profile.id,
+		user_id: profile.id,
+		brand_name: profile.brand_name,
+		verification_status: profile.brand_verified === true ? 'approved' : 
+							profile.brand_verified === false ? 'rejected' : 'pending',
+		submitted_at: profile.created_at,
+		reviewed_at: profile.brand_verification_date,
+		username: profile.username || 'unknown',
+		full_name: profile.full_name,
+		avatar_url: profile.avatar_url
 	})) || [];
 	
 	return {

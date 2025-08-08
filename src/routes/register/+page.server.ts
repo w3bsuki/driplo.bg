@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ url }) => {
 }
 
 export const actions = {
-	signup: async ({ request, locals: { supabase }, url }) => {
+	signup: async ({ request, locals: { supabase, locale }, url }) => {
 		const formData = await request.formData()
 		const email = formData.get('email') as string
 		const password = formData.get('password') as string
@@ -177,8 +177,16 @@ export const actions = {
 			}
 		}
 		
+		// Helper to create localized URLs
+		const getLocalizedUrl = (path: string) => {
+			if (locale && locale !== 'en') {
+				return `/${locale}${path}`;
+			}
+			return path;
+		};
+		
 		// Redirect to success page
-		throw redirect(303, '/register?success=true')
+		throw redirect(303, getLocalizedUrl('/register?success=true'))
 	},
 	
 	oauth: async ({ request, locals: { supabase }, url, cookies }) => {

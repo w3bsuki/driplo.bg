@@ -6,17 +6,8 @@
 	import type { PageData } from './$types';
 	import ProfileSetupWizard from '$lib/components/onboarding/ProfileSetupWizard.svelte';
 	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
-	import { createBrowserClient } from '@supabase/ssr';
-	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
-	import { browser } from '$app/environment';
 	
 	let { data }: { data: PageData } = $props();
-	
-	// Create supabase client for client-side operations
-	let supabase: any;
-	if (browser) {
-		supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY);
-	}
 	let showSetup = $state(false);
 	let loading = $state(true);
 	
@@ -27,14 +18,18 @@
 		
 		// Only show onboarding for authenticated users
 		if (!currentUser) {
-			goto('/login');
+			const currentLocale = getLocale();
+			const localizedLoginUrl = localizeHref('/login', { locale: currentLocale });
+			goto(localizedLoginUrl);
 			return;
 		}
 		
 		// Check if profile setup is already completed using server data
 		if (data.profile?.onboarding_completed) {
 			// Profile already set up, redirect to home
-			goto('/');
+			const currentLocale = getLocale();
+			const localizedHomeUrl = localizeHref('/', { locale: currentLocale });
+			goto(localizedHomeUrl);
 			return;
 		}
 		
@@ -49,127 +44,6 @@
 	async function handleComplete(formData?: any) {
 		loading = true;
 		try {
-			
-			// Prepare all profile data for final save
-			const profileUpdate: any = { 
-				onboarding_completed: true,
-				onboarding_step: 99, // Set to high number to indicate completion
-				setup_completed: true,
-				needs_username_setup: false // Ensure this is false
-			};
-			
-			// Add all form data if provided
-			if (formData) {
-				// Basic info
-				if (formData.username) profileUpdate.username = formData.username.toLowerCase();
-				if (formData.fullName) profileUpdate.full_name = formData.fullName;
-				if (formData.bio) profileUpdate.bio = formData.bio;
-				if (formData.location) profileUpdate.location = formData.location;
-				if (formData.accountType) profileUpdate.account_type = formData.accountType;
-				if (formData.avatarUrl) profileUpdate.avatar_url = formData.avatarUrl;
-				
-				// Payment info
-				if (formData.paymentMethods && formData.paymentMethods.length > 0) {
-					profileUpdate.payment_methods = formData.paymentMethods;
-				}
-				if (formData.revolut_tag) profileUpdate.revolut_tag = formData.revolut_tag;
-				if (formData.paypal_tag) profileUpdate.paypal_tag = formData.paypal_tag;
-			}
-			
-			
-			// First check if profile exists
-			const { data: existingProfile, error: profileCheckError } = await supabase
-				.from('profiles')
-				.select('id')
-				.eq('id', data.user!.id)
-				.single();
-			
-			if (profileCheckError || !existingProfile) {
-				logger.error('Profile does not exist, creating one...');
-				// Create profile if it doesn't exist
-				const { error: createError } = await supabase
-					.from('profiles')
-					.insert({
-						id: data.user!.id,
-						email: data.user!.email,
-						username: formData?.username || 'user' + Date.now(),
-						full_name: formData?.fullName || 'User',
-						account_type: formData?.accountType || 'personal',
-						onboarding_completed: true,
-						setup_completed: true,
-						onboarding_step: 99,
-						needs_username_setup: false
-					});
-				
-				if (createError) {
-					logger.error('Failed to create profile:', createError);
-					alert(`Failed to create profile: ${createError.message}`);
-					loading = false;
-					return;
-				}
-			} else {
-				// Use the database function to ensure it completes properly
-				const { data: functionResult, error: updateError } = await supabase
-					.rpc('complete_user_onboarding', {
-						p_user_id: data.user!.id,
-						p_username: formData?.username || 'user' + Date.now(),
-						p_full_name: formData?.fullName || 'User',
-						p_account_type: formData?.accountType || 'personal'
-					});
-
-				if (updateError) {
-					logger.error('Database error completing onboarding:', updateError);
-					logger.error('Update error details:', {
-						code: updateError.code,
-						message: updateError.message,
-						details: updateError.details,
-						hint: updateError.hint
-					});
-					
-					// Fallback: Try direct update
-					const { error: fallbackError } = await supabase
-						.from('profiles')
-						.update(profileUpdate)
-						.eq('id', data.user!.id);
-					
-					if (fallbackError) {
-						alert(`Failed to complete onboarding: ${fallbackError.message}`);
-						loading = false;
-						return;
-					}
-				}
-			}
-
-			
-			// Now fetch the updated profile separately
-			const { data: updatedProfile, error: fetchError } = await supabase
-				.from('profiles')
-				.select('*')
-				.eq('id', data.user!.id)
-				.single();
-			
-			if (fetchError || !updatedProfile) {
-				logger.error('Failed to fetch updated profile:', fetchError);
-				// Continue anyway, the update succeeded
-			} else {
-				// Update the auth context with new profile data
-				// Profile updated successfully;
-			}
-			
-			// Reload the profile to ensure all data is fresh
-			if (data.user) {
-				try {
-					const { data: freshProfile } = await supabase
-						.from('profiles')
-						.select('*')
-						.eq('id', data.user.id)
-						.single();
-				} catch (error) {
-					logger.error('Failed to reload profile:', error);
-				}
-			}
-			
-			
 			// Show success toast
 			const { toast } = await import('svelte-sonner');
 			toast.success('Welcome to Driplo! 🎉', { duration: 3000 });
@@ -186,6 +60,7 @@
 			const localizedHomeUrl = localizeHref('/', { locale: currentLocale });
 			await goto(localizedHomeUrl, { replaceState: true, invalidateAll: true });
 		} catch (err) {
+			const { logger } = await import('$lib/utils/logger');
 			logger.error('Onboarding completion error:', err);
 			alert(`An error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`);
 			loading = false;
@@ -214,7 +89,7 @@
 			</div>
 		</div>
 	</div>
-{:else if showSetup && data.user && supabase}
+{:else if showSetup && data.user}
 	<div class="min-h-[100dvh] bg-background relative">
 		{#if loading}
 			<!-- Overlay loading state -->
@@ -232,7 +107,6 @@
 			user={data.user} 
 			profile={data.profile}
 			onComplete={handleComplete}
-			{supabase}
 		/>
 	</div>
 {/if}
