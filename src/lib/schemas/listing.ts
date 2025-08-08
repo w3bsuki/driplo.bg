@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { LISTING_CONDITIONS, CONDITION_VALUES } from '$lib/config/conditions'
+import { LISTING_CONDITIONS } from '$lib/config/conditions'
 
 // Re-export for backward compatibility
 export const ListingCondition = {
@@ -59,7 +59,13 @@ export const createListingSchema = z.object({
 	price: z.number()
 		.positive('Price must be greater than 0')
 		.max(100000, 'Price must be less than 100,000'),
-	condition: z.enum(CONDITION_VALUES as [string, ...string[]], {
+	condition: z.enum([
+		LISTING_CONDITIONS.NEW_WITH_TAGS,
+		LISTING_CONDITIONS.NEW_WITHOUT_TAGS,
+		LISTING_CONDITIONS.EXCELLENT,
+		LISTING_CONDITIONS.GOOD,
+		LISTING_CONDITIONS.FAIR
+	] as [string, ...string[]], {
 		required_error: 'Please select the item condition'
 	}),
 	brand: z.string().max(50).optional().nullable(),
