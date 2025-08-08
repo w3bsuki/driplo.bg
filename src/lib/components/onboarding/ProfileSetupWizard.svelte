@@ -5,7 +5,6 @@
 	import { isolatedOnboardingDefaults, calculateIsolatedProgress } from '$lib/schemas/onboarding-isolated';
 	import type { IsolatedOnboardingFormData } from '$lib/schemas/onboarding-isolated';
 	import { page } from '$app/stores';
-	import { enhance } from '$app/forms';
 	import { 
 		ChevronLeft, 
 		ChevronRight, 
