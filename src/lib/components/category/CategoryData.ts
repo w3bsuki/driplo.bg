@@ -1,6 +1,5 @@
 import * as m from '$lib/paraglide/messages.js';
 import { getLocale } from '$lib/paraglide/runtime.js';
-import type { Category } from '$lib/types';
 
 // Popular brands
 export const popularBrands = [
