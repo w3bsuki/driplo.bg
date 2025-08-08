@@ -2,7 +2,28 @@ import type { Actions, PageServerLoad } from './$types'
 import { fail, redirect } from '@sveltejs/kit'
 import { superValidate } from 'sveltekit-superforms'
 import { zod } from 'sveltekit-superforms/adapters'
-import { createListingSchema, createListingDefaults } from '$lib/schemas/listing'
+import { /* createListingSchema, */ createListingDefaults } from '$lib/schemas/listing'
+import { z } from 'zod'
+
+// Simplified server-side schema to avoid circular dependency
+const serverListingSchema = z.object({
+	title: z.string().min(3).max(100),
+	description: z.string().min(3).max(2000),
+	price: z.number().positive(),
+	condition: z.enum(['new_with_tags', 'new_without_tags', 'excellent', 'good', 'fair']),
+	category_id: z.string().uuid(),
+	subcategory_id: z.string().uuid().optional().nullable(),
+	images: z.array(z.string().url()).min(1).max(10),
+	location_city: z.string().min(2).max(100),
+	shipping_type: z.enum(['standard', 'express', 'pickup']).default('standard'),
+	shipping_price: z.number().min(0).default(0),
+	ships_worldwide: z.boolean().default(false),
+	brand: z.string().max(50).optional().nullable(),
+	size: z.string().max(20).optional().nullable(),
+	color: z.string().max(30).optional().default(''),
+	tags: z.array(z.string()).max(5).optional().default([]),
+	materials: z.array(z.string()).optional().default([])
+})
 import { serverCache, cacheKeys } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
 import { localizeHref } from '$lib/paraglide/runtime.js'
@@ -25,7 +46,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tags: createListingDefaults.tags || [],
 		materials: createListingDefaults.materials || []
 	}
-	const form = await superValidate(formDefaults, zod(createListingSchema))
+	const form = await superValidate(formDefaults, zod(serverListingSchema))
 	
 	// Fetch categories
 	const { data: categories } = await locals.supabase
@@ -105,7 +126,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
 		return {
-			form: await superValidate(createListingDefaults, zod(createListingSchema)),
+			form: await superValidate(createListingDefaults, zod(serverListingSchema)),
 			user: null,
 			categories: [],
 			hasPaymentAccount: false
@@ -132,7 +153,7 @@ export const actions: Actions = {
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
-			const form = await superValidate(formData, zod(createListingSchema))
+			const form = await superValidate(formData, zod(serverListingSchema))
 			return fail(400, { form, error: 'Please add at least one image.' })
 		}
 		
@@ -154,7 +175,7 @@ export const actions: Actions = {
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
 				})
-				const form = await superValidate(formData, zod(createListingSchema))
+				const form = await superValidate(formData, zod(serverListingSchema))
 				return fail(500, { form, error: `Failed to upload images: ${error.message}` })
 			}
 		}
@@ -177,7 +198,7 @@ export const actions: Actions = {
 		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
-		const form = await superValidate(formDataForValidation, zod(createListingSchema))
+		const form = await superValidate(formDataForValidation, zod(serverListingSchema))
 		
 		if (!form.valid) {
 			logger.error('Form validation failed:', form.errors)

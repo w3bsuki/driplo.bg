@@ -95,7 +95,7 @@ export const validationRules = {
     ),
     
   // Enum validations
-  condition: z.enum(['new', 'likenew', 'verygood', 'good', 'fair'], {
+  condition: z.enum(['new_with_tags', 'new_without_tags', 'excellent', 'good', 'fair'], {
     errorMap: () => ({ message: 'Please select a valid condition' })
   }),
   

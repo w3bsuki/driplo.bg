@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { validationRules } from '$lib/utils/form-validation';
+
+// Username validation rule
+const usernameRule = z.string()
+  .min(3, 'Username must be at least 3 characters')
+  .max(20, 'Username must be less than 20 characters')
+  .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores');
 
 // Base validation rules for onboarding
 const onboardingRules = {
@@ -50,7 +55,7 @@ const onboardingRules = {
 export const onboardingSchemas = {
   // Step 1: Username (conditional)
   username: z.object({
-    username: validationRules.username
+    username: usernameRule
   }),
   
   // Step 2: Account Type
@@ -93,7 +98,7 @@ export const onboardingSchemas = {
 // Complete onboarding form schema
 export const completeOnboardingSchema = z.object({
   // Required fields
-  username: validationRules.username.optional(), // Only if needs_username_setup
+  username: usernameRule.optional(), // Only if needs_username_setup
   accountType: onboardingRules.accountType,
   fullName: onboardingRules.fullName,
   
@@ -132,7 +137,7 @@ export const completeOnboardingSchema = z.object({
 // Form field validators for real-time validation
 export const onboardingValidators = {
   username: (value: string) => {
-    const result = validationRules.username.safeParse(value);
+    const result = usernameRule.safeParse(value);
     return result.success ? null : result.error.issues[0]?.message || 'Invalid username';
   },
   
