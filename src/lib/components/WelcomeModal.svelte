@@ -92,22 +92,23 @@
 {#if showModal}
 	<!-- Backdrop -->
 	<div 
-		class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999]"
+		class="fixed inset-0 bg-black/50 z-[9999]"
 		transition:fade={{ duration: 200 }}
 	></div>
 	
 	<!-- Modal -->
 	<div 
-		class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-lg px-4"
+		class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-lg px-4 pointer-events-auto"
 		transition:fly={{ y: 20, duration: 300 }}
 		onclick={(e) => e.stopPropagation()}
 	>
-		<div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+		<div class="bg-white rounded-2xl shadow-2xl overflow-hidden relative">
 			<!-- Close button -->
 			<button
 				onclick={handleClose}
-				class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+				class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors z-10 pointer-events-auto"
 				aria-label="Close"
+				type="button"
 			>
 				<X class="w-5 h-5" />
 			</button>
@@ -137,14 +138,16 @@
 					<!-- CTA Buttons -->
 					<div class="flex gap-3 mb-6">
 						<button
+							type="button"
 							onclick={handleSignUp}
-							class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+							class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02] pointer-events-auto"
 						>
 							{getLocale() === 'bg' ? 'Регистрация' : 'Sign Up'}
 						</button>
 						<button
+							type="button"
 							onclick={handleSignIn}
-							class="flex-1 bg-white border-2 border-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200"
+							class="flex-1 bg-white border-2 border-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200 pointer-events-auto"
 						>
 							{getLocale() === 'bg' ? 'Вход' : 'Sign In'}
 						</button>
@@ -152,8 +155,9 @@
 					
 					<!-- Browse without account -->
 					<button
+						type="button"
 						onclick={handleBrowse}
-						class="w-full text-gray-500 hover:text-gray-700 text-sm transition-colors"
+						class="w-full text-gray-500 hover:text-gray-700 text-sm transition-colors pointer-events-auto"
 					>
 						{getLocale() === 'bg' 
 							? 'Продължете без акаунт →'
@@ -174,14 +178,16 @@
 						</p>
 						<div class="flex gap-3">
 							<button
+								type="button"
 								onclick={handleAcceptCookies}
-								class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+								class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors pointer-events-auto"
 							>
 								{getLocale() === 'bg' ? 'Приемам' : 'Accept'}
 							</button>
 							<button
+								type="button"
 								onclick={handleRejectCookies}
-								class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+								class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors pointer-events-auto"
 							>
 								{getLocale() === 'bg' ? 'Отказвам' : 'Reject'}
 							</button>
