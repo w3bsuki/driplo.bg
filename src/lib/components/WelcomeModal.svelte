@@ -117,12 +117,12 @@
 					<X class="w-5 h-5" />
 				</button>
 				
-				<!-- Header with gradient -->
-				<div class="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-6 text-white">
+				<!-- Header -->
+				<div class="bg-black px-8 py-6 text-white">
 					<h2 class="text-3xl font-bold mb-2">
 						{getLocale() === 'bg' ? 'Добре дошли в Driplo!' : 'Welcome to Driplo!'}
 					</h2>
-					<p class="text-white/90">
+					<p class="text-gray-200">
 						{getLocale() === 'bg' 
 							? 'Вашата дестинация за премиум мода'
 							: 'Your destination for premium fashion'}
@@ -143,7 +143,7 @@
 						<div class="flex gap-3 mb-6">
 							<button
 								onclick={handleSignUp}
-								class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
+								class="flex-1 bg-black text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-all duration-200"
 							>
 								{getLocale() === 'bg' ? 'Регистрация' : 'Sign Up'}
 							</button>
@@ -180,7 +180,7 @@
 							<div class="flex gap-3">
 								<button
 									onclick={handleAcceptCookies}
-									class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+									class="flex-1 bg-black text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
 								>
 									{getLocale() === 'bg' ? 'Приемам' : 'Accept'}
 								</button>
