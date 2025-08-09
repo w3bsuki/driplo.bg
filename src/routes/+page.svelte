@@ -8,7 +8,7 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
-<ModularHeroSearch categories={data.categories} topSellers={data.topSellers} />
+<ModularHeroSearch categories={data.categories} />
 <ListingGrid title={m.home_featured_title()} listings={data.featuredListings} />
 <RecentlySoldTicker />
 <ListingGrid title={m.home_most_viewed_title()} listings={data.popularListings} />

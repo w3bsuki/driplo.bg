@@ -3,15 +3,13 @@
 	import { onMount } from 'svelte';
 	import SearchBar from '$lib/components/search/SearchBar.svelte';
 	import SearchDropdown from '$lib/components/search/SearchDropdown.svelte';
-	import SimplifiedTopSellers from '$lib/components/home/SimplifiedTopSellers.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
 		categories?: any[];
-		topSellers?: any[];
 	}
 	
-	let { categories = [], topSellers = [] }: Props = $props();
+	let { categories = [] }: Props = $props();
 	
 	// State
 	let searchQuery = $state('');
@@ -111,9 +109,6 @@
 </script>
 
 <section data-hero-search class="relative bg-white">
-	<!-- Clean Top Sellers Section -->
-	<SimplifiedTopSellers sellers={topSellers} />
-	
 	<!-- Search Section -->
 	<div class="container px-4 py-3">
 		<div class="max-w-2xl mx-auto">
