@@ -63,6 +63,23 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			userFavorites = favorites?.map(f => f.listing_id) || []
 		}
 
+		// Get top sellers (cached for 1 hour)
+		const topSellers = await getCachedData(
+			'browse-top-sellers',
+			async () => {
+				const { data } = await supabase
+					.from('profiles')
+					.select('id, username, avatar_url, seller_rating, total_sales, created_at')
+					.not('seller_rating', 'is', null)
+					.gte('total_sales', 1)
+					.order('seller_rating', { ascending: false })
+					.order('total_sales', { ascending: false })
+					.limit(10)
+				return data || []
+			},
+			cacheTTL.leaderboard
+		)
+
 		// Calculate pagination info
 		const totalPages = Math.ceil(browseResult.totalCount / browseResult.limit)
 		const hasNextPage = browseResult.page < totalPages
@@ -97,6 +114,7 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			categories,
 			popularBrands: filterOptions.brands,
 			userFavorites,
+			topSellers,
 			pagination: {
 				currentPage: browseResult.page,
 				totalPages,

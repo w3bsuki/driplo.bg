@@ -187,7 +187,7 @@
 	<!-- Sticky Search Bar (Desktop & Mobile) -->
 	<StickySearchBar
 		bind:value={searchInput}
-		placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
+		placeholder={m.search_placeholder()}
 		onSearch={filterNavigation.handlers.updateSearch}
 		onCategorySelect={filterNavigation.handlers.updateCategory}
 		categories={data.categories}

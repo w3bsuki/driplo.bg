@@ -1,4 +1,6 @@
 <script lang="ts">
+	import * as m from '$lib/paraglide/messages.js';
+
 	let {
 		searchInput = $bindable(''),
 		searchFocused = $bindable(false),
@@ -38,7 +40,7 @@
 			
 			<input
 				type="search"
-				placeholder="Search for vintage 🕰️, designer 💎, streetwear 🛹..."
+				placeholder={m.search_placeholder()}
 				bind:value={searchInput}
 				onfocus={() => { searchFocused = true; showQuickSearch = true; }}
 				onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}

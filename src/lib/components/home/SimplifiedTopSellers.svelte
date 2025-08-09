@@ -16,21 +16,37 @@
 		showQuickView = true;
 	}
 	
-	// Temporary: Show w3bsuki 15 times to see UI
-	const w3bsuki = {
-		username: 'w3bsuki',
-		avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=w3bsuki',
-		seller_rating: 5.0,
-		total_sales: 999
-	};
-	sellers = Array(15).fill(null).map((_, i) => ({ ...w3bsuki, id: `temp-${i}` }));
+	// Use real sellers or show fallback sellers if empty
+	const displaySellers = sellers.length > 0 ? sellers : [
+		{
+			id: 'fallback-1',
+			username: 'w3bsuki',
+			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=w3bsuki',
+			seller_rating: 5.0,
+			total_sales: 999
+		},
+		{
+			id: 'fallback-2', 
+			username: 'topSeller',
+			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=topSeller',
+			seller_rating: 4.9,
+			total_sales: 850
+		},
+		{
+			id: 'fallback-3',
+			username: 'fashionista',
+			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fashionista', 
+			seller_rating: 4.8,
+			total_sales: 720
+		}
+	];
 </script>
 
 <!-- Simple horizontal scroll of seller avatars -->
 <div class="container px-4">
 	<div class="overflow-x-auto py-1.5 scrollbar-hide">
 		<div class="flex gap-2.5 min-w-max justify-center">
-		{#each sellers as seller}
+		{#each displaySellers as seller}
 			<button 
 				onclick={(e) => handleSellerClick(e, seller)}
 				class="flex flex-col items-center gap-1.5 hover:opacity-80 transition-opacity cursor-pointer">
