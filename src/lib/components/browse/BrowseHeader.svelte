@@ -40,7 +40,7 @@
 			
 			<input
 				type="search"
-				placeholder={m.search_placeholder()}
+				placeholder={m.header_search_placeholder()}
 				bind:value={searchInput}
 				onfocus={() => { searchFocused = true; showQuickSearch = true; }}
 				onblur={() => { searchFocused = false; setTimeout(() => showQuickSearch = false, 200); }}
