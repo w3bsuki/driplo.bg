@@ -112,7 +112,7 @@
 		<div class="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
 			<div class="flex items-center gap-2">
 				<span class="text-2xl">👕</span>
-				<h2 class="text-lg font-semibold">{m.header_categories()}</h2>
+				<h2 class="text-lg font-semibold">Driplo</h2>
 			</div>
 			<button
 				onclick={() => navigation.closeMobileMenu()}
