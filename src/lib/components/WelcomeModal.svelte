@@ -29,14 +29,10 @@
 		// Show modal if user hasn't seen it
 		if (!hasSeenWelcome) {
 			showModal = true;
-			console.log('Welcome modal: Showing for new visitor');
-		} else {
-			console.log('Welcome modal: Already seen, not showing');
 		}
 	});
 	
 	function handleSignUp() {
-		console.log('Sign up clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 		const signUpUrl = localizeHref('/register');
@@ -44,7 +40,6 @@
 	}
 	
 	function handleSignIn() {
-		console.log('Sign in clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 		const signInUrl = localizeHref('/login');
@@ -52,7 +47,6 @@
 	}
 	
 	function handleAcceptCookies() {
-		console.log('Accept cookies clicked');
 		cookiesAccepted = true;
 		localStorage.setItem('driplo_cookie_consent', 'accepted');
 		
@@ -66,7 +60,6 @@
 	}
 	
 	function handleRejectCookies() {
-		console.log('Reject cookies clicked');
 		cookiesAccepted = false;
 		localStorage.setItem('driplo_cookie_consent', 'rejected');
 		
@@ -80,13 +73,11 @@
 	}
 	
 	function handleClose() {
-		console.log('Close clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 	}
 	
 	function handleBrowse() {
-		console.log('Browse clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 	}

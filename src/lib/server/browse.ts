@@ -76,16 +76,7 @@ export async function browseListings(
 			categoryId = categoryData?.id || null
 		}
 
-		// Get brand IDs once for reuse
-		let brandIds: string[] = []
-		if (brands.length > 0) {
-			const { data: brandData } = await supabase
-				.from('brands')
-				.select('id')
-				.in('name', brands)
-			
-			brandIds = brandData?.map(b => b.id) || []
-		}
+		// Brand filtering will use direct text matching
 
 		// Build the optimized query with joins to reduce N+1
 		let query = supabase
@@ -100,23 +91,17 @@ export async function browseListings(
 				size,
 				condition,
 				images,
-				location,
 				view_count,
 				like_count,
-				shipping_price,
 				created_at,
-				user_id,
+				seller_id,
 				category_id,
-				profiles:user_id (
+				profiles!seller_id (
 					username,
-					avatar_url,
-					account_type,
-					is_verified
+					avatar_url
 				)
 			`)
-			.eq('is_sold', false)
-			.eq('is_archived', false)
-			.eq('is_draft', false)
+			.eq('status', 'active')
 
 		// Apply filters using pre-fetched IDs
 		if (categoryId) {
@@ -145,8 +130,8 @@ export async function browseListings(
 			query = query.in('size', sizes)
 		}
 
-		if (brandIds.length > 0) {
-			query = query.in('brand_id', brandIds)
+		if (brands.length > 0) {
+			query = query.in('brand', brands)
 		}
 
 		if (conditions.length > 0) {
@@ -182,9 +167,7 @@ export async function browseListings(
 		let countQuery = supabase
 			.from('listings')
 			.select('id', { count: 'exact', head: true })
-			.eq('is_sold', false)
-			.eq('is_archived', false)
-			.eq('is_draft', false)
+			.eq('status', 'active')
 
 		// Apply same filters to count query using pre-fetched IDs
 		if (categoryId) {
@@ -211,8 +194,8 @@ export async function browseListings(
 			countQuery.in('size', sizes)
 		}
 
-		if (brandIds.length > 0) {
-			countQuery = countQuery.in('brand_id', brandIds)
+		if (brands.length > 0) {
+			countQuery = countQuery.in('brand', brands)
 		}
 
 		if (conditions.length > 0) {
@@ -278,10 +261,8 @@ export async function getBrowseFilters(
 	return getCachedData(cacheKey, async () => {
 		let query = supabase
 			.from('listings')
-			.select('brand_id, size, condition, price, brands!brand_id(name)')
-			.eq('is_sold', false)
-			.eq('is_archived', false)
-			.eq('is_draft', false)
+			.select('brand, size, condition, price')
+			.eq('status', 'active')
 
 	if (category) {
 		if (category.includes('-')) {
@@ -321,7 +302,7 @@ export async function getBrowseFilters(
 	}
 
 	// Extract unique values
-	const brands = [...new Set(data.map(item => item.brands?.name).filter(Boolean) as string[])].sort()
+	const brands = [...new Set(data.map(item => item.brand).filter(Boolean) as string[])].sort()
 	const sizes = [...new Set(data.map(item => item.size).filter(Boolean) as string[])].sort()
 	const conditions = [...new Set(data.map(item => item.condition).filter(Boolean) as string[])].sort()
 	

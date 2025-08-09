@@ -4,6 +4,7 @@
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import type { z } from 'zod';
 	import type { createListingSchema } from '$lib/schemas/listing';
+	import { logger } from '$lib/utils/logger';
 	
 	interface Props {
 		form: SuperValidated<z.infer<typeof createListingSchema>>;
@@ -124,11 +125,11 @@
 			} else if (result.type === 'failure') {
 				// Check if it's an onboarding issue
 				if (result.data?.needsOnboarding) {
-					uploadError = '';
-					// Show alert and redirect to onboarding
-					if (confirm('You need to complete your profile setup first. Click OK to go to profile setup.')) {
+					uploadError = 'You need to complete your profile setup before creating listings.';
+					// Auto-redirect to onboarding after 2 seconds
+					setTimeout(() => {
 						window.location.href = '/onboarding';
-					}
+					}, 2000);
 				} else {
 					uploadError = result.data?.error || 'Failed to create listing';
 					logger.error('Listing creation failed:', result.data);
@@ -180,6 +181,26 @@
 		</div>
 		
 		<div class="p-4 space-y-6">
+			<!-- Error Alert -->
+			{#if uploadError}
+				<div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+					<div class="flex">
+						<div class="flex-shrink-0">
+							<svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+								<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+							</svg>
+						</div>
+						<div class="ml-3">
+							<h3 class="text-sm font-medium text-red-800">Error</h3>
+							<p class="text-sm text-red-700 mt-1">{uploadError}</p>
+							{#if uploadError.includes('profile setup')}
+								<p class="text-xs text-red-600 mt-2">Redirecting to profile setup...</p>
+							{/if}
+						</div>
+					</div>
+				</div>
+			{/if}
+			
 			<!-- Payment Warning -->
 			{#if !hasPaymentAccount}
 				<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">

@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { createAccount, cleanupTestUser } from '../setup';
+import { cleanupTestUser } from '../setup';
 
 test.describe('Onboarding Flow', () => {
 	let testUserEmail: string;
 
-	test.beforeEach(async ({ page }) => {
+	test.beforeEach(async () => {
 		// Generate unique test user email
 		testUserEmail = `test-onboarding-${Date.now()}@example.com`;
 	});

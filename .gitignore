@@ -68,3 +68,23 @@ dist
 
 *storybook.log
 storybook-static
+
+# Build artifacts
+playwright-report/
+test-results/
+*.backup
+
+# Cache
+project.inlang/cache/
+
+# Generated files
+supabase/extracted_schema.sql
+tsc_output.txt
+eslint_output.txt
+
+# Temporary trash
+tmp/_trash/
+nul
+
+# Documentation cleanup
+docs/archive/README.md.backup

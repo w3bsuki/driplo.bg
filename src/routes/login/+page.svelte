@@ -6,6 +6,7 @@
 	import Spinner from '$lib/components/ui/Spinner.svelte'
 	import TurnstileWrapper from '$lib/components/auth/TurnstileWrapper.svelte'
 	import { onMount } from 'svelte'
+	import * as m from '$lib/paraglide/messages.js'
 
 	let { data, form }: { data: PageData, form: ActionData } = $props()
 	
@@ -79,7 +80,7 @@
 			<!-- Logo -->
 			<div class="text-center mb-6">
 				<h1 class="text-3xl font-bold text-blue-400">Driplo</h1>
-				<p class="text-gray-600 text-sm mt-1">Welcome back</p>
+				<p class="text-gray-600 text-sm mt-1">{m.auth_welcome_back()}</p>
 			</div>
 			
 			<!-- OAuth Buttons -->
@@ -103,7 +104,7 @@
 							<path class="google-yellow" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
 							<path class="google-red" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
 						</svg>
-						Continue with Google
+{m.auth_continue_google()}
 					</button>
 				</form>
 				
@@ -121,7 +122,7 @@
 						disabled={loading || oauthLoading}
 					>
 						<Github class="w-5 h-5" />
-						Continue with GitHub
+{m.auth_continue_github()}
 					</button>
 				</form>
 			</div>
@@ -132,7 +133,7 @@
 					<div class="w-full border-t border-gray-200"></div>
 				</div>
 				<div class="relative flex justify-center text-xs">
-					<span class="px-3 bg-white text-gray-500">Or sign in with email</span>
+					<span class="px-3 bg-white text-gray-500">{m.auth_continue_email()}</span>
 				</div>
 			</div>
 
@@ -165,14 +166,14 @@
 				
 				<div>
 					<label for="email" class="block text-sm font-medium text-gray-700 mb-1">
-						Email
+						{m.auth_email_address()}
 					</label>
 					<input
 						id="email"
 						name="email"
 						type="email"
 						bind:value={email}
-						placeholder="your@email.com"
+						placeholder="{m.auth_email_placeholder()}"
 						required
 						disabled={loading}
 						autocomplete="email"
@@ -182,7 +183,7 @@
 
 				<div>
 					<label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-						Password
+						{m.auth_password()}
 					</label>
 					<div class="relative">
 						<input
@@ -190,7 +191,7 @@
 							name="password"
 							type={showPassword ? 'text' : 'password'}
 							bind:value={password}
-							placeholder="Enter your password"
+							placeholder="{m.auth_password_placeholder()}"
 							required
 							disabled={loading}
 							autocomplete="current-password"
@@ -243,16 +244,16 @@
 					{#if loading}
 						<Spinner size="sm" color="white" />
 					{:else}
-						Sign in
+{m.auth_sign_in()}
 					{/if}
 				</button>
 			</form>
 
 			<!-- Sign up link -->
 			<p class="text-center text-sm text-gray-600 mt-6">
-				Don't have an account?
+{m.auth_no_account()}
 				<a href="/register" class="text-blue-400 hover:text-blue-500 font-medium">
-					Sign up
+					{m.auth_sign_up()}
 				</a>
 			</p>
 

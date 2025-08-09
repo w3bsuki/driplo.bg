@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto, invalidateAll } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { user } from '$lib/stores/auth';
 	import type { PageData } from './$types';
 	import ProfileSetupWizard from '$lib/components/onboarding/ProfileSetupWizard.svelte';
@@ -34,7 +34,7 @@
 		}
 		
 		// Check if coming from email verification
-		const isNewSignup = $page.url.searchParams.get('new') === 'true';
+		const isNewSignup = page.url.searchParams.get('new') === 'true';
 		
 		// Show profile setup wizard
 		loading = false;

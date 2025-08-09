@@ -219,110 +219,122 @@
             </div>
         {/if}
 
+{#snippet orderCard(transaction, config, role, selectedOrders, toggleOrder)}
+  <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
+    <div class="p-4">
+      <!-- Order header -->
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="flex items-start gap-3">
+          {#if role === 'seller'}
+            <input 
+              type="checkbox" 
+              class="mt-1 w-5 h-5 sm:w-4 sm:h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2 flex-shrink-0"
+              checked={selectedOrders.has(transaction.id)}
+              onchange={() => toggleOrder(transaction.id)}
+            />
+          {/if}
+          <div class="flex items-start gap-3 flex-1">
+            {@render orderImage(transaction.listing)}
+            <div class="flex-1 min-w-0">
+              <h3 class="font-medium text-gray-900 line-clamp-1 sm:line-clamp-2 break-words">
+                {transaction.listing?.title || 'Unknown Item'}
+              </h3>
+              <p class="text-sm text-gray-500 mt-1 truncate">
+                Order #{transaction.id.slice(0, 13)}
+              </p>
+              <p class="text-xs text-gray-400 mt-1 truncate">
+                {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
+              </p>
+              <!-- Mobile price & status -->
+              <div class="flex items-center gap-3 mt-2 sm:hidden">
+                <span class="text-base font-semibold text-gray-900">
+                  {formatPrice(transaction.amount)}
+                </span>
+                {@render statusBadge(config, transaction.status)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Desktop price & status -->
+        <div class="hidden sm:flex flex-col items-end gap-2">
+          {@render statusBadge(config, transaction.status)}
+          <span class="text-lg font-semibold text-gray-900">
+            {formatPrice(transaction.amount)}
+          </span>
+        </div>
+      </div>
+      
+      <!-- Order footer -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 mt-3 border-t border-gray-100">
+        {@render userInfo(role, transaction)}
+        <div class="flex items-center gap-2 self-end sm:self-auto">
+          <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors min-w-11 min-h-11 flex items-center justify-center">
+            <MoreVertical class="w-4 h-4" />
+          </button>
+          <a href="/orders/{transaction.id}" class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors min-h-11">
+            <span class="hidden sm:inline">View Details</span>
+            <span class="sm:hidden">View</span>
+            <ChevronRight class="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet orderImage(listing)}
+  {#if listing?.images?.[0]}
+    <img 
+      src={listing.images[0]} 
+      alt={listing.title}
+      width="80"
+      height="80"
+      class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
+    />
+  {:else}
+    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+      <Package class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet statusBadge(config, status)}
+  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full {config.color}">
+    <svelte:component this={config.icon} class="w-3 h-3" />
+    {status}
+  </span>
+{/snippet}
+
+{#snippet userInfo(role, transaction)}
+  <div class="flex items-center gap-3 min-w-0">
+    {#if role === 'buyer' && transaction.seller}
+      <img 
+        src={transaction.seller.avatar_url || `https://ui-avatars.com/api/?name=${transaction.seller.username}&background=87CEEB&color=fff`}
+        alt={transaction.seller.username}
+        class="w-8 h-8 rounded-full flex-shrink-0"
+      />
+      <div class="min-w-0">
+        <p class="text-xs text-gray-500">Seller</p>
+        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.seller.username}</p>
+      </div>
+    {:else if role === 'seller' && transaction.buyer}
+      <img 
+        src={transaction.buyer.avatar_url || `https://ui-avatars.com/api/?name=${transaction.buyer.username}&background=87CEEB&color=fff`}
+        alt={transaction.buyer.username}
+        class="w-8 h-8 rounded-full flex-shrink-0"
+      />
+      <div class="min-w-0">
+        <p class="text-xs text-gray-500">Buyer</p>
+        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.buyer.username}</p>
+      </div>
+    {/if}
+  </div>
+{/snippet}
+
         <div class="space-y-3">
             {#each transactions as transaction (transaction.id)}
                 {@const config = statusConfig[transaction.status] || statusConfig.pending}
-                <div class="bg-white rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200 overflow-hidden">
-                    <div class="p-4">
-                        <!-- Order header -->
-                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div class="flex items-start gap-3">
-                                {#if role === 'seller'}
-                                    <input 
-                                        type="checkbox" 
-                                        class="mt-1 w-5 h-5 sm:w-4 sm:h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2 flex-shrink-0"
-                                        checked={selectedOrders.has(transaction.id)}
-                                        onchange={() => toggleOrder(transaction.id)}
-                                    />
-                                {/if}
-                                <div class="flex items-start gap-3 flex-1">
-                                    {#if transaction.listing?.images?.[0]}
-                                        <img 
-                                            src={transaction.listing.images[0]} 
-                                            alt={transaction.listing.title}
-                                            width="80"
-                                            height="80"
-                                            class="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
-                                        />
-                                    {:else}
-                                        <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <Package class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400" />
-                                        </div>
-                                    {/if}
-                                    <div class="flex-1 min-w-0">
-                                        <h3 class="font-medium text-gray-900 line-clamp-1 sm:line-clamp-2 break-words">
-                                            {transaction.listing?.title || 'Unknown Item'}
-                                        </h3>
-                                        <p class="text-sm text-gray-500 mt-1 truncate">
-                                            Order #{transaction.id.slice(0, 13)}
-                                        </p>
-                                        <p class="text-xs text-gray-400 mt-1 truncate">
-                                            {formatDistanceToNow(new Date(transaction.created_at), { addSuffix: true })}
-                                        </p>
-                                        <!-- Mobile price & status -->
-                                        <div class="flex items-center gap-3 mt-2 sm:hidden">
-                                            <span class="text-base font-semibold text-gray-900">
-                                                {formatPrice(transaction.amount)}
-                                            </span>
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full {config.color}">
-                                                <svelte:component this={config.icon} class="w-3 h-3" />
-                                                <span class="truncate">{transaction.status}</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Desktop price & status -->
-                            <div class="hidden sm:flex flex-col items-end gap-2">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full {config.color}">
-                                    <svelte:component this={config.icon} class="w-3 h-3" />
-                                    {transaction.status}
-                                </span>
-                                <span class="text-lg font-semibold text-gray-900">
-                                    {formatPrice(transaction.amount)}
-                                </span>
-                            </div>
-                        </div>
-                        
-                        
-                        <!-- Order footer -->
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-3 mt-3 border-t border-gray-100">
-                            <div class="flex items-center gap-3 min-w-0">
-                                {#if role === 'buyer' && transaction.seller}
-                                    <img 
-                                        src={transaction.seller.avatar_url || `https://ui-avatars.com/api/?name=${transaction.seller.username}&background=87CEEB&color=fff`}
-                                        alt={transaction.seller.username}
-                                        class="w-8 h-8 rounded-full flex-shrink-0"
-                                    />
-                                    <div class="min-w-0">
-                                        <p class="text-xs text-gray-500">Seller</p>
-                                        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.seller.username}</p>
-                                    </div>
-                                {:else if role === 'seller' && transaction.buyer}
-                                    <img 
-                                        src={transaction.buyer.avatar_url || `https://ui-avatars.com/api/?name=${transaction.buyer.username}&background=87CEEB&color=fff`}
-                                        alt={transaction.buyer.username}
-                                        class="w-8 h-8 rounded-full flex-shrink-0"
-                                    />
-                                    <div class="min-w-0">
-                                        <p class="text-xs text-gray-500">Buyer</p>
-                                        <p class="text-sm font-medium text-gray-900 truncate">@{transaction.buyer.username}</p>
-                                    </div>
-                                {/if}
-                            </div>
-                            <div class="flex items-center gap-2 self-end sm:self-auto">
-                                <button class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors min-w-11 min-h-11 flex items-center justify-center">
-                                    <MoreVertical class="w-4 h-4" />
-                                </button>
-                                <a href="/orders/{transaction.id}" class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-primary bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors min-h-11">
-                                    <span class="hidden sm:inline">View Details</span>
-                                    <span class="sm:hidden">View</span>
-                                    <ChevronRight class="w-4 h-4" />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {@render orderCard(transaction, config, role, selectedOrders, toggleOrder)}
             {/each}
         </div>
         

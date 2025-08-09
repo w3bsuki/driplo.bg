@@ -2,16 +2,10 @@
 	import { cn } from '$lib/utils';
 	import { onMount } from 'svelte';
 	import { 
-		parseStorageUrl, 
-		generatePictureSources,
-		getTransformedImageUrl
-	} from '$lib/utils/supabase-image-transform';
-	import { 
-		getOptimizedImageUrl, 
+		ImageService,
 		imageSizes,
-		type ImageTransformOptions 
-	} from '$lib/utils/supabase-images';
-	import { getResponsiveImageUrl } from '$lib/utils/responsive-image';
+		type TransformOptions 
+	} from '$lib/services/images';
 	import { logger } from '$lib/utils/logger';
 
 	interface Props {
@@ -43,7 +37,7 @@
 		widths?: number[];
 		formats?: Array<'avif' | 'webp' | 'jpg'>;
 		preferredSize?: 'thumb' | 'small' | 'medium' | 'large' | 'full';
-		customOptions?: ImageTransformOptions;
+		customOptions?: TransformOptions;
 		
 		// Fallback and error handling
 		fallbackSrc?: string;
@@ -99,12 +93,12 @@
 		
 		// Handle object with size variants
 		if (typeof src === 'object') {
-			return getResponsiveImageUrl(src, preferredSize);
+			return ImageService.getResponsiveVariant(src, preferredSize);
 		}
 		
 		// Handle Supabase URLs with optimization
 		if (isSupabaseUrl() && size) {
-			return getOptimizedImageUrl(src, size, customOptions);
+			return ImageService.optimize(src, size, customOptions);
 		}
 		
 		return src;
@@ -113,14 +107,14 @@
 	// Parse storage info for Supabase images
 	const storageInfo = $derived(() => {
 		if (!isSupabaseUrl() || typeof src !== 'string') return null;
-		return parseStorageUrl(src);
+		return ImageService.parseStorageUrl(src);
 	});
 
 	// Generate picture sources for modern formats (Supabase only)
 	const pictureSources = $derived(() => {
 		if (!storageInfo() || hasError || !isSupabaseUrl()) return [];
 		
-		return generatePictureSources(storageInfo()!.bucket, storageInfo()!.path, {
+		return ImageService.generatePictureSources(storageInfo()!.bucket, storageInfo()!.path, {
 			widths,
 			formats,
 			quality
@@ -154,18 +148,10 @@
 		
 		// For Supabase URLs
 		if (storageInfo() && isSupabaseUrl()) {
-			return widths
-				.map(w => {
-					const url = getTransformedImageUrl({
-						bucket: storageInfo()!.bucket,
-						path: storageInfo()!.path,
-						width: w,
-						quality,
-						format: 'jpg'
-					});
-					return `${url} ${w}w`;
-				})
-				.join(', ');
+			return ImageService.responsive(storageInfo()!.bucket, storageInfo()!.path, widths, { 
+				quality, 
+				format: 'jpg' 
+			});
 		}
 		
 		return undefined;
@@ -177,9 +163,7 @@
 		
 		// Generate a small blurred placeholder for Supabase images
 		if (storageInfo() && isSupabaseUrl()) {
-			return getTransformedImageUrl({
-				bucket: storageInfo()!.bucket,
-				path: storageInfo()!.path,
+			return ImageService.transform(storageInfo()!.bucket, storageInfo()!.path, {
 				width: 40,
 				quality: 20,
 				format: 'jpg'
@@ -231,9 +215,7 @@
 			const link = document.createElement('link');
 			link.rel = 'preload';
 			link.as = 'image';
-			link.href = getTransformedImageUrl({
-				bucket: storageInfo()!.bucket,
-				path: storageInfo()!.path,
+			link.href = ImageService.transform(storageInfo()!.bucket, storageInfo()!.path, {
 				width: widths[widths.length - 1],
 				quality,
 				format: 'webp'

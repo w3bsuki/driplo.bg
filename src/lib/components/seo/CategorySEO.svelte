@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
+  import { PUBLIC_APP_URL } from '$env/static/public';
   import type { Category } from '$lib/types';
   
   interface Props {
@@ -10,7 +11,7 @@
   let { category, subcategory }: Props = $props();
   
   $effect(() => {
-    const baseUrl = 'https://driplo.com'; // Update with actual domain
+    const baseUrl = PUBLIC_APP_URL;
     const url = subcategory 
       ? `${baseUrl}/${category.slug}/${subcategory.slug}`
       : `${baseUrl}/${category.slug}`;
@@ -70,8 +71,8 @@
       "name": subcategory ? `${subcategory?.name || ''} - ${category.name}` : category.name,
       "description": subcategory?.description || category.description,
       "url": subcategory 
-        ? `https://driplo.com/${category.slug}/${subcategory.slug}`
-        : `https://driplo.com/${category.slug}`,
+        ? `${PUBLIC_APP_URL}/${category.slug}/${subcategory.slug}`
+        : `${PUBLIC_APP_URL}/${category.slug}`,
       "breadcrumb": {
         "@type": "BreadcrumbList",
         "itemListElement": [
@@ -79,19 +80,19 @@
             "@type": "ListItem",
             "position": 1,
             "name": "Home",
-            "item": "https://driplo.com"
+            "item": PUBLIC_APP_URL
           },
           {
             "@type": "ListItem",
             "position": 2,
             "name": category.name,
-            "item": `https://driplo.com/${category.slug}`
+            "item": `${PUBLIC_APP_URL}/${category.slug}`
           },
           ...(subcategory ? [{
             "@type": "ListItem",
             "position": 3,
             "name": subcategory?.name,
-            "item": `https://driplo.com/${category.slug}/${subcategory.slug}`
+            "item": `${PUBLIC_APP_URL}/${category.slug}/${subcategory.slug}`
           }] : [])
         ]
       }

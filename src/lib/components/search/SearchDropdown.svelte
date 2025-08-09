@@ -2,6 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import CategoryAccordion from './CategoryAccordion.svelte';
 	import TrendingSearches from './TrendingSearches.svelte';
+	import PopularSuggestions from './PopularSuggestions.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {

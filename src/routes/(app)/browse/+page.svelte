@@ -45,7 +45,7 @@
 	const filterNavigation = useFilterNavigation({
 		data,
 		currentUrl: $page.url,
-		isNavigating,
+		isNavigating: () => isNavigating,
 		setNavigating: (value: boolean) => { isNavigating = value; }
 	});
 
@@ -168,8 +168,11 @@
 					bind:searchInput
 					bind:searchFocused
 					bind:showQuickSearch
+					categories={data.categories}
+					activeCategory={data.filters.category}
 					onSearch={filterNavigation.handlers.updateSearch}
 					onQuickSearch={handleQuickSearch}
+					onCategorySelect={filterNavigation.handlers.updateCategory}
 				/>
 			</div>
 		</div>
@@ -249,6 +252,14 @@
 							categories={data.categories}
 							bind:sortBy
 							onSortUpdate={updateSort}
+							onConditionUpdate={(conditions) => {
+								selectedConditions = new Set(conditions);
+								filterNavigation.handlers.updateConditions(selectedConditions);
+							}}
+							onBrandUpdate={(brands) => {
+								selectedBrands = new Set(brands);
+								filterNavigation.handlers.updateBrands(selectedBrands);
+							}}
 						/>
 					{:else}
 						<NoResultsMessage

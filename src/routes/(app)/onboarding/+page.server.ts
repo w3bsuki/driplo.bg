@@ -170,25 +170,48 @@ export const actions: Actions = {
 
 			logger.info('Completing onboarding', { userId: user.id });
 
-			// Validate with schema
-			const validatedData = isolatedOnboardingSchema.parse(finalData);
+			// Check if user has a payment account before allowing completion
+			const { data: paymentAccount } = await supabase
+				.from('payment_accounts')
+				.select('id, payout_method, verified')
+				.eq('user_id', user.id)
+				.single();
 
-			// Final update to mark onboarding complete
+			if (!paymentAccount) {
+				logger.warn('User trying to complete onboarding without payment account', { userId: user.id });
+				return fail(400, { 
+					error: 'Please set up a payment method before completing onboarding',
+					needsPaymentSetup: true 
+				});
+			}
+
+			// Update profile with complete onboarding status and payment info
 			const { error } = await supabase
 				.from('profiles')
 				.update({
 					onboarding_completed: true,
 					onboarding_step: null,
 					needs_username_setup: false,
+					has_payment_account: true,
+					payment_account_id: paymentAccount.id,
+					payment_type: paymentAccount.payout_method,
 					updated_at: new Date().toISOString()
 				})
 				.eq('id', user.id);
 
 			if (error) {
 				logger.error('Onboarding completion error:', error);
-				return fail(500, { error: error.message });
+				
+				// Try the RPC function as fallback
+				const { error: rpcError } = await supabase
+					.rpc('complete_user_onboarding', { p_user_id: user.id });
+				
+				if (rpcError) {
+					return fail(500, { error: 'Failed to complete onboarding' });
+				}
 			}
 
+			logger.info('Onboarding completed successfully', { userId: user.id });
 			return { success: true };
 		} catch (error: any) {
 			if (error instanceof z.ZodError) {

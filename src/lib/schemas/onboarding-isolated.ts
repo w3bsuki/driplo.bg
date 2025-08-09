@@ -102,7 +102,7 @@ export const isolatedOnboardingDefaults: Partial<IsolatedOnboardingFormData> = {
   fullName: '',
   bio: '',
   location: '',
-  avatarUrl: null,
+  avatarUrl: undefined,
   paymentMethods: [],
   revolut_tag: '',
   paypal_tag: '',

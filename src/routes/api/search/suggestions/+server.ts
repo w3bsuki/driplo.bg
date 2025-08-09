@@ -1,74 +1,74 @@
-import { json } from '@sveltejs/kit'
-import type { RequestHandler } from './$types'
-import { logger } from '$lib/utils/logger'
+import { json } from '@sveltejs/kit';
+import type { RequestHandler } from './$types';
 
-export const GET: RequestHandler = async ({ url, locals: { supabase } }) => {
-	const query = url.searchParams.get('q')?.trim()
-	
-	if (!query || query.length < 2) {
-		return json([])
-	}
-
+export const GET: RequestHandler = async ({ url, locals }) => {
+	const query = url.searchParams.get('q')?.trim();
 	try {
-		// Get suggestions from titles and brands
-		const [titleSuggestions, brandSuggestions] = await Promise.all([
-			// Get matching titles
-			supabase
+		const { supabase } = locals;
+
+		// If no query, return popular items
+		if (!query || query.length < 2) {
+			const { data: popularListings, error } = await supabase
 				.from('listings')
-				.select('title')
-				.eq('is_sold', false)
-				.eq('is_archived', false)
-				.eq('is_draft', false)
-				.ilike('title', `%${query}%`)
-				.limit(5),
-			
-			// Get matching brands via join
-			supabase
-				.from('listings')
-				.select('brands!brand_id(name)')
-				.eq('is_sold', false)
-				.eq('is_archived', false)
-				.eq('is_draft', false)
-				.not('brand_id', 'is', null)
-				.limit(5)
-		])
+				.select('title, brand, view_count')
+				.eq('status', 'active')
+				.not('brand', 'is', null)
+				.order('view_count', { ascending: false })
+				.order('created_at', { ascending: false })
+				.limit(20);
 
-		const suggestions = []
-
-		// Add title suggestions
-		if (titleSuggestions.data) {
-			titleSuggestions.data.forEach(item => {
-				if (item.title && !suggestions.includes(item.title)) {
-					suggestions.push(item.title)
-				}
-			})
-		}
-
-		// Add brand suggestions
-		if (brandSuggestions.data) {
-			const uniqueBrands = [...new Set(brandSuggestions.data.map(item => item.brands?.name).filter(Boolean))]
-			uniqueBrands.forEach(brand => {
-				if (brand && brand.toLowerCase().includes(query.toLowerCase()) && !suggestions.includes(brand)) {
-					suggestions.push(brand)
-				}
-			})
-		}
-
-		// Add popular search terms (could be enhanced with analytics)
-		const popularTerms = [
-			'nike sneakers', 'vintage dress', 'designer bag', 'winter coat', 
-			'summer dress', 'running shoes', 'denim jacket', 'gold jewelry'
-		]
-		
-		popularTerms.forEach(term => {
-			if (term.toLowerCase().includes(query.toLowerCase()) && !suggestions.includes(term)) {
-				suggestions.push(term)
+			if (error) {
+				return json({ suggestions: [] });
 			}
-		})
 
-		return json(suggestions.slice(0, 8))
+			const suggestions = new Set<string>();
+			popularListings?.forEach(listing => {
+				if (listing.brand && listing.brand.trim().length > 2) {
+					suggestions.add(listing.brand.trim());
+				}
+			});
+
+			return json({
+				suggestions: Array.from(suggestions).slice(0, 6)
+			});
+		}
+
+		// Search matching listings
+		const { data: matchingListings, error } = await supabase
+			.from('listings')
+			.select('title, brand')
+			.eq('status', 'active')
+			.or(`title.ilike.%${query}%,brand.ilike.%${query}%`)
+			.limit(10);
+
+		if (error) {
+			return json({ suggestions: [] });
+		}
+
+		// Extract suggestions from matching listings
+		const suggestions = new Set<string>();
+		
+		matchingListings?.forEach(listing => {
+			// Add exact brand matches
+			if (listing.brand && listing.brand.toLowerCase().includes(query.toLowerCase())) {
+				suggestions.add(listing.brand.trim());
+			}
+			
+			// Add title matches
+			if (listing.title && listing.title.toLowerCase().includes(query.toLowerCase())) {
+				suggestions.add(listing.title.trim());
+			}
+		});
+
+		return json({
+			suggestions: Array.from(suggestions).slice(0, 6)
+		});
+
 	} catch (error) {
-		logger.error('Search suggestions error', error)
-		return json([])
+		console.error('Search suggestions API error:', error);
+		return json({ 
+			suggestions: [],
+			error: 'Failed to load suggestions'
+		}, { status: 500 });
 	}
-}
+};

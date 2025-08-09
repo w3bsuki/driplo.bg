@@ -8,8 +8,8 @@
 	
 	// Constants
 	const RESPONSIVE_BREAKPOINTS = {
-		'2xl': { width: 1536, columns: 6 }, // Reduced from 8 for better readability
-		xl: { width: 1280, columns: 5 },
+		'2xl': { width: 1536, columns: 5 },
+		xl: { width: 1280, columns: 4 },
 		lg: { width: 1024, columns: 4 },
 		md: { width: 768, columns: 3 },
 		sm: { width: 640, columns: 2 },
@@ -54,6 +54,7 @@
 		isLoading?: boolean;
 		error?: string | null;
 		useConversionCard?: boolean;
+		useContainer?: boolean;
 	}
 	
 	let { 
@@ -69,7 +70,8 @@
 		showEmptyState = true,
 		isLoading = false,
 		error = null,
-		useConversionCard = true
+		useConversionCard = true,
+		useContainer = true
 	}: Props = $props();
 	
 	// State
@@ -139,7 +141,7 @@
 </script>
 
 <section class="py-2 md:py-3" aria-labelledby={title ? 'listing-grid-title' : undefined}>
-	<div class="container px-4">
+	<div class={useContainer ? "container px-4" : ""}>
 		{#if title}
 			<h2 id="listing-grid-title" class="mb-2 text-sm font-semibold text-foreground">
 				{title}
@@ -160,19 +162,19 @@
 		{:else if loading}
 			<!-- Skeleton loader with proper grid -->
 			<div 
-				class="grid gap-2"
+				class="grid gap-4 md:gap-5"
 				style="grid-template-columns: repeat({columns}, minmax(0, 1fr));"
 				aria-busy="true"
 				aria-label={m.listing_loading()}
 			>
 				{#each Array(SKELETON_COUNT) as _, i (i)}
 					<div class="animate-pulse">
-						<div class="aspect-[3/4] bg-muted rounded-t-sm"></div>
-						<div class="p-2 bg-background rounded-b-sm space-y-1">
+						<div class="aspect-[3/4] bg-muted rounded-t-xl"></div>
+						<div class="p-2 bg-background rounded-b-xl space-y-1">
 							<div class="h-4 bg-muted rounded w-3/4"></div>
 							<div class="h-3 bg-muted rounded w-1/2"></div>
 							<div class="flex items-center gap-1 mt-2">
-								<div class="h-5 w-5 bg-muted rounded-sm"></div>
+								<div class="h-5 w-5 bg-muted rounded-xl"></div>
 								<div class="h-3 bg-muted rounded w-16"></div>
 							</div>
 						</div>
@@ -185,7 +187,7 @@
 			{:else}
 				<!-- Regular responsive grid -->
 				<div 
-					class="grid gap-2"
+					class="grid gap-4 md:gap-5"
 					style="grid-template-columns: repeat({columns}, minmax(0, 1fr));"
 					role="list"
 				>

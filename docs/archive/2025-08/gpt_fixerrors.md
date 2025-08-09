@@ -6,33 +6,40 @@ Scope: Identify the dominant sources of the ~1400 TypeScript/Svelte-check errors
 
 ## Primary Root Causes (ranked by likely impact)
 
-1) Conflicting type barrels and duplicate symbol exports
+1. Conflicting type barrels and duplicate symbol exports
+
 - Files: `src/lib/types/index.ts`, `src/lib/types/category.ts`, `src/lib/types/unified.ts`, `src/lib/types/listing.ts`
 - Symptom: Duplicate re-export of symbols (e.g., `Category`) across multiple barrels/modules triggers cascade errors.
 - Evidence: `tsc_output.txt` top error: "Module './listing' has already exported a member named 'Category'." plus multiple type files exporting overlapping names.
 
-2) Unsafe "unknown" usage in error utilities
+2. Unsafe "unknown" usage in error utilities
+
 - File: `src/lib/utils/error-handling.ts`
 - Symptom: Accessing properties on `unknown` (`error?.status`, `error?.code`, `error?.message`) under `strict` mode emits many errors; imported widely, compounding count.
 - Impact: Propagates errors wherever helpers are used.
 
-3) Supabase typing gaps and ad-hoc any-casts
+3. Supabase typing gaps and ad-hoc any-casts
+
 - Files: various `+page.server.ts` referencing `brand_verification_requests` via `as any`.
 - Symptom: Missing table in `database.types.ts` forces `any` and weak inference; mismatches with row/insert/update types elsewhere.
 
-4) UI component prop types and generics
+4. UI component prop types and generics
+
 - Files: multiple under `src/lib/components/**`
 - Symptom: Components missing/loose prop typings and generics create structural type mismatches; also runes-era patterns without explicit types.
 
-5) Test config and types leakage
+5. Test config and types leakage
+
 - Files: `vitest.config.ts`, Playwright tests
 - Symptom: Type mismatches in tests and fixture options; some assertions (e.g., `toHaveCount`) mis-typed; test env types bleed into app when not isolated.
 
-6) Svelte a11y rules counted by svelte-check
+6. Svelte a11y rules counted by svelte-check
+
 - File: `src/lib/components/cookie-consent/CookieConsent.svelte` (and others)
 - Symptom: a11y warnings (click handlers on non-interactive elements, missing roles) inflate check output; address but treat separately from TS.
 
-7) Stray corrupted file path
+7. Stray corrupted file path
+
 - File at repo root: `Kdriplo-blue-mainsrclibutilsresponsive-image.ts`
 - Symptom: May confuse tooling/include patterns; should be removed or moved to `src/lib/utils/responsive-image.ts` if used.
 
@@ -69,32 +76,39 @@ Scope: Identify the dominant sources of the ~1400 TypeScript/Svelte-check errors
 
 ## Step-by-Step Remediation Plan
 
-1) Types barrel cleanup (cuts noisy duplicates)
+1. Types barrel cleanup (cuts noisy duplicates)
+
 - [ ] Replace wildcard exports with explicit symbols in `src/lib/types/index.ts`.
 - [ ] Remove duplicate `Category` definition; keep it only once (prefer `Database['public']['Tables']['categories']['Row']`).
 - [ ] Ensure `listing.ts` does not re-export `Category`; keep it import-only.
 
-2) Error utility refactor (unblock strict mode)
+2. Error utility refactor (unblock strict mode)
+
 - [ ] Introduce guard: `isWithStatus(x: unknown): x is { status?: number; code?: string; message?: string }`.
 - [ ] Rewrite `getErrorMessage`, `withRetry`, `createErrorResponse` to rely on guards before access.
 - [ ] Add unit tests for error helper behavior.
 
-3) Supabase types regeneration
+3. Supabase types regeneration
+
 - [ ] Run types generation and commit updated `database.types.ts`.
 - [ ] Replace all `as any` casts for `brand_verification_requests` and related with proper `Tables<...>` types.
 
-4) Component typing pass
+4. Component typing pass
+
 - [ ] Add minimal prop interfaces to high-use components (Image, Card, Chip, etc.) to satisfy consumers.
 - [ ] Remove dead props; add defaults for optional props.
 
-5) Tests and config
+5. Tests and config
+
 - [ ] Verify `vitest.config.ts` isolate and `tsconfig` includes exclude tests from app TS where needed.
 - [ ] Fix top failing test type errors; convert a few to runtime assertions if typing is not critical.
 
-6) A11y fixes (batch)
+6. A11y fixes (batch)
+
 - [ ] Fix the top 5 a11y warnings (CookieConsent etc.).
 
-7) Hygiene & verify
+7. Hygiene & verify
+
 - [ ] Remove/move corrupted path file.
 - [ ] Run: `pnpm check` → capture counts in `tsc_output.txt`.
 - [ ] Run: `pnpm lint` → capture counts in `eslint_output.txt`.
@@ -121,4 +135,5 @@ Scope: Identify the dominant sources of the ~1400 TypeScript/Svelte-check errors
 ---
 
 ## Next Action (suggested)
+
 - Start with types barrel cleanup and error utility guards; re-run check to quantify drop. Then regenerate Supabase types and remove `as any`, followed by component prop typing fixes.

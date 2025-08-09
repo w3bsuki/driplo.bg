@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import SearchBar from '$lib/components/search/SearchBar.svelte';
 	import SearchDropdown from '$lib/components/search/SearchDropdown.svelte';
+	import SearchSuggestions from '$lib/components/search/SearchSuggestions.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	interface Props {
@@ -16,6 +17,7 @@
 	let isFocused = $state(false);
 	let isSearching = $state(false);
 	let showCategories = $state(false);
+	let showSuggestions = $state(false);
 	let expandedCategories = $state<Set<string>>(new Set());
 	let searchBarRef: SearchBar;
 	
@@ -65,7 +67,10 @@
 	
 	function handleSearchFocus() {
 		isFocused = true;
-		showCategories = true;
+		showSuggestions = true;
+		if (searchQuery.trim().length < 2) {
+			showCategories = true;
+		}
 	}
 	
 	function handleSearchClick(e: MouseEvent) {
@@ -76,6 +81,7 @@
 	function handleSearchBlur(e: FocusEvent) {
 		setTimeout(() => {
 			isFocused = false;
+			showSuggestions = false;
 		}, 200);
 	}
 	
@@ -124,7 +130,10 @@
 					onClick={handleSearchClick}
 					onBlur={handleSearchBlur}
 					onKeydown={handleKeydown}
-					onInput={() => {}}
+					onInput={() => {
+						showSuggestions = searchQuery.trim().length >= 2;
+						showCategories = searchQuery.trim().length < 2;
+					}}
 					onClear={() => { 
 						searchQuery = ''; 
 						searchBarRef?.focus(); 
@@ -133,6 +142,14 @@
 					onCloseDropdown={handleCloseDropdown}
 				/>
 				
+				<!-- Search Suggestions -->
+				<SearchSuggestions
+					{searchQuery}
+					isVisible={showSuggestions && !showCategories}
+					onSuggestionClick={handleTrendingClick}
+				/>
+				
+				<!-- Category Dropdown -->
 				<SearchDropdown
 					isOpen={showCategories}
 					{isFocused}

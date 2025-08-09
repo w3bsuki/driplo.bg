@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { logger } from '$lib/utils/logger';
+import { emailService } from '$lib/server/email';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -109,7 +110,34 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
             }
         }
 
-        // TODO: Send email notifications when email service is configured
+        // Send cancellation email notifications
+        try {
+            const cancelledBy = session.user.id === order.buyer_id ? 'buyer' : 'seller';
+            const recipientEmail = cancelledBy === 'buyer' ? order.seller?.email : order.buyer?.email;
+            const recipientName = cancelledBy === 'buyer' ? order.seller?.username : order.buyer?.username;
+            
+            if (recipientEmail) {
+                const listing = order.order_items?.[0]?.listing;
+                if (listing) {
+                    await emailService.send({
+                        to: recipientEmail,
+                        subject: `Order Cancelled - ${listing.title}`,
+                        html: `
+                            <h2>Order Cancelled</h2>
+                            <p>Hi ${recipientName},</p>
+                            <p>Order #${order.order_number} has been cancelled by the ${cancelledBy}.</p>
+                            <p><strong>Item:</strong> ${listing.title}</p>
+                            ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}
+                            ${order.transaction ? '<p>Your refund will be processed within 5-10 business days.</p>' : ''}
+                            <p>Thank you for using Driplo.</p>
+                        `
+                    });
+                }
+            }
+        } catch (emailError) {
+            logger.error('Failed to send cancellation email:', emailError);
+            // Don't fail the request if email fails
+        }
 
         return json({ 
             success: true,

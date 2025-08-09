@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ params, cookies }) => {
 		// Check if listing exists
 		const { data: listing, error: listingError } = await supabase
 			.from('listings')
-			.select('id, title, user_id, seller_id, like_count')
+			.select('id, title, seller_id, like_count')
 			.eq('id', listingId)
 			.single();
 

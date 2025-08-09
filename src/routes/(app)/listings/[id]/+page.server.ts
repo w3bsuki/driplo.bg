@@ -14,52 +14,29 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	const { data: listing, error: listingError } = await supabase
 		.from('listings')
 		.select(`
-			id,
-			title,
-			description,
-			price,
-			currency,
-			images,
-			size,
-			brand,
-			condition,
-			location,
-			view_count,
-			like_count,
-			shipping_price,
-			created_at,
-			user_id,
-			category_id,
-			status,
-			profiles:user_id (
-				id,
-				username,
-				avatar_url,
-				account_type,
-				is_verified,
-				follower_count,
-				seller_rating,
-				buyer_rating_count,
-				total_sales,
-				bio,
-				last_active
+			*,
+			profiles!listings_seller_id_fkey (
+				*
 			),
-			categories:category_id (
-				id,
-				name,
-				slug,
-				icon
+			categories!listings_category_id_fkey (
+				*
 			)
-			// Fixed: using icon instead of icon_url
 		`)
 		.eq('id', params.id)
 		.eq('status', 'active')
 		.single()
 
 	if (listingError || !listing) {
-		logger.error('Listing query error:', listingError)
-		logger.error('Listing ID:', params.id)
-		throw error(404, 'Listing not found')
+		// Only log actual errors, not 404s from preloading
+		if (listingError && listingError.code !== 'PGRST116') {
+			logger.error('Listing query error:', listingError)
+			logger.error('Listing ID:', params.id)
+		}
+		// Return 404 with a more informative message
+		error(404, {
+			message: 'Listing not found',
+			details: 'The listing you are looking for does not exist or has been removed.'
+		})
 	}
 	
 	// Rename joined data for compatibility
@@ -67,6 +44,16 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 	listing.category = listing.categories
 	delete listing.profiles
 	delete listing.categories
+	
+	// Map profile fields to expected names for backward compatibility
+	if (listing.seller) {
+		listing.seller.account_type = listing.seller.is_seller ? 'seller' : 'buyer'
+		listing.seller.is_verified = listing.seller.average_rating >= 4.0 // Mock verification based on rating
+		listing.seller.seller_rating = listing.seller.average_rating || 0
+		listing.seller.buyer_rating_count = listing.seller.total_reviews || 0
+		listing.seller.last_active = listing.seller.last_seen_at
+		listing.seller.follower_count = 0 // Will be updated below
+	}
 
 	// Optimized: 6 queries → 4 queries (simplified but effective optimization)
 	const [
@@ -85,7 +72,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 				images,
 				created_at
 			`)
-			.eq('user_id', listing.user_id)
+			.eq('seller_id', listing.seller_id)
 			.eq('status', 'active')
 			.neq('id', params.id)
 			.limit(6),
@@ -94,19 +81,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		supabase
 			.from('listings')
 			.select(`
-				id,
-				title,
-				price,
-				images,
-				size,
-				brand,
-				condition,
-				user_id,
-				profiles:user_id (
-					username,
-					avatar_url,
-					account_type,
-					is_verified
+				*,
+				profiles!listings_seller_id_fkey (
+					*
 				)
 			`)
 			.eq('category_id', listing.category_id)
@@ -130,7 +107,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 					.from('user_follows')
 					.select('id')
 					.eq('follower_id', session.user.id)
-					.eq('following_id', listing.user_id)
+					.eq('following_id', listing.seller_id)
 					.maybeSingle(),
 				// Check if favorited listing
 				supabase
@@ -154,6 +131,14 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 		// Rename joined data for compatibility
 		item.seller = item.profiles
 		delete item.profiles
+		
+		// Map profile fields for compatibility
+		if (item.seller) {
+			item.seller.account_type = item.seller.is_seller ? 'seller' : 'buyer'
+			item.seller.is_verified = item.seller.average_rating >= 4.0
+			item.seller.seller_rating = item.seller.average_rating || 0
+		}
+		
 		return item
 	})
 

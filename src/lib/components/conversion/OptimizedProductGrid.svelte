@@ -141,7 +141,7 @@
 		<div 
 			bind:this={gridContainer}
 			class={cn(
-				"grid gap-4 md:gap-6",
+				"grid gap-3 md:gap-4",
 				gridClass
 			)}
 		>
@@ -158,13 +158,13 @@
 		<!-- List View for Dense Information -->
 		<div class="space-y-3">
 			{#each visibleProducts as product, index}
-				<div class="flex gap-4 p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-all duration-200 hover:shadow-md">
+				<div class="flex gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-gray-200 transition-all duration-200 hover:shadow-md">
 					<!-- Image -->
 					<div class="w-20 h-20 flex-shrink-0">
 						<img 
 							src={Array.isArray(product.image) ? product.image[0] : product.image}
 							alt={product.title}
-							class="w-full h-full object-cover rounded-md"
+							class="w-full h-full object-cover rounded-xl"
 							loading={index < 5 ? 'eager' : 'lazy'}
 						/>
 					</div>

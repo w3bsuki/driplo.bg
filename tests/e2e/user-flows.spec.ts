@@ -7,7 +7,7 @@ test.describe('Critical User Flows', () => {
       
       // Wait for products to load
       await expect(page.getByTestId('product-grid')).toBeVisible();
-      await expect(page.getByTestId('product-card')).toHaveCount({ min: 1 });
+      await expect(page.getByTestId('product-card')).toHaveCount(1);
       
       // Test category filter
       await page.getByRole('button', { name: /category/i }).click();
@@ -37,7 +37,7 @@ test.describe('Critical User Flows', () => {
       await page.goto('/browse');
       
       // Click on first product
-      await expect(page.getByTestId('product-card')).toHaveCount({ min: 1 });
+      await expect(page.getByTestId('product-card')).toHaveCount(1);
       await page.getByTestId('product-card').first().click();
       
       // Should be on product detail page
@@ -152,10 +152,7 @@ test.describe('Critical User Flows', () => {
       const browsePromise = page.waitForURL('**/browse');
       await page.getByRole('link', { name: /browse/i }).click();
       
-      // Look for loading indicators
-      const hasLoadingSpinner = await page.getByTestId('loading-spinner').isVisible();
-      const hasLoadingBar = await page.locator('.animate-pulse').isVisible();
-      
+      // Wait for browsing to complete
       await browsePromise;
       
       // Loading should be done

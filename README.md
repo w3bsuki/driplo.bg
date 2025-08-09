@@ -1,183 +1,175 @@
-# Supabase CLI
+# 👗 Driplo - Sustainable Fashion Marketplace
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+> A modern, production-ready SvelteKit marketplace for pre-loved fashion items built with Supabase, TypeScript, and Tailwind CSS.
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+[![Production Ready](https://img.shields.io/badge/Production-Ready-brightgreen.svg)](https://driplo.bg)
+[![Svelte 5](https://img.shields.io/badge/Svelte-5-orange.svg)](https://svelte.dev)
+[![SvelteKit 2](https://img.shields.io/badge/SvelteKit-2-orange.svg)](https://kit.svelte.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Database-green.svg)](https://supabase.com)
 
-This repository contains all the functionality for Supabase CLI.
+## 🚀 Quick Start
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+### Prerequisites
+- **Node.js** 20+
+- **pnpm** 9+ (package manager)
+- **Supabase** account
 
-## Getting started
-
-### Install the CLI
-
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
-
+### Installation
 ```bash
-npm i supabase --save-dev
+# Clone and install dependencies
+git clone https://github.com/w3bsuki/driplo.bg.git
+cd driplo.bg
+pnpm install
+
+# Setup environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
+
+# Setup database
+pnpm run db:setup  # Run migrations and setup RLS
+
+# Start development server
+pnpm dev
 ```
 
-To install the beta release channel:
+## 📚 Documentation
 
+### Essential Setup Guides
+- **[Database Setup](FRESH_DB_SETUP.md)** - Complete Supabase database setup with migrations and RLS
+- **[Email Configuration](SUPABASE_EMAIL_SETUP.md)** - Configure email notifications and authentication
+- **[Development Guidelines](CLAUDE.md)** - Code standards, patterns, and development practices
+- **[GitHub Actions Setup](docs/GITHUB_ACTIONS_SETUP.md)** - CI/CD pipeline configuration and secrets
+
+### Current Project Status
+- **[Refactor Execution Plan](PHASED_REFACTOR_EXECUTION_PLAN.md)** - Production readiness roadmap and progress ⭐
+- **[Archive](docs/archive/)** - Historical documentation and reports
+
+## 🏗️ Architecture
+
+### Tech Stack
+- **Frontend**: SvelteKit 2 + Svelte 5 (with runes)
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Realtime)
+- **Styling**: Tailwind CSS v4 + shadcn/ui components
+- **Language**: TypeScript 5
+- **Package Manager**: pnpm
+- **Deployment**: Vercel
+- **CI/CD**: GitHub Actions
+
+### Key Features
+- 🔐 **Authentication** - Supabase Auth with email verification
+- 👤 **User Profiles** - Comprehensive buyer and seller profiles  
+- 🛍️ **Listings** - Product listing creation and management
+- 💳 **Payments** - Stripe integration for secure transactions
+- 📧 **Email Notifications** - Order updates and communication
+- 🔍 **Search & Filters** - Advanced product discovery
+- 📱 **Mobile-First** - Fully responsive design
+- 🌐 **Internationalization** - English and Bulgarian support
+
+### Project Structure
+```
+src/
+├── lib/
+│   ├── components/     # Reusable Svelte components
+│   ├── stores/         # Svelte 5 stores (.svelte.ts files)
+│   ├── server/         # Server-side utilities and APIs
+│   ├── utils/          # Shared utility functions
+│   └── types/          # TypeScript type definitions
+├── routes/             # SvelteKit file-based routing
+│   ├── (app)/         # Main application routes
+│   ├── (auth)/        # Authentication routes
+│   ├── api/           # API endpoints
+│   └── (category)/    # Category-specific routes
+supabase/
+├── migrations/        # Database migrations
+└── config.toml       # Supabase configuration
+```
+
+## 🛠️ Development
+
+### Available Scripts
 ```bash
-npm i supabase@beta --save-dev
+pnpm dev              # Start development server
+pnpm build            # Build for production
+pnpm preview          # Preview production build
+pnpm check            # TypeScript type checking
+pnpm lint             # ESLint code quality check
+pnpm test             # Run unit tests
+pnpm test:e2e         # Run E2E tests with Playwright
+pnpm format           # Format code with Prettier
 ```
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+### Code Quality Standards
+- **TypeScript**: Strict mode enabled with comprehensive type coverage
+- **ESLint**: Extended configuration with Svelte-specific rules  
+- **Prettier**: Consistent code formatting
+- **Svelte 5**: Modern runes-based reactivity (no legacy syntax)
+- **Testing**: Unit tests with Vitest + E2E tests with Playwright
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+### Key Development Rules
+- ✅ Use **Svelte 5** event syntax (`onclick`, `oninput`) - never old syntax (`on:click`)
+- ✅ Use **$lib/*** imports - never relative imports
+- ✅ Use **environment variables** - never hardcoded URLs
+- ✅ Follow **mobile-first** responsive design
+- ✅ Implement proper **error handling** and loading states
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+## 🌍 Environment Configuration
 
-<details>
-  <summary><b>macOS</b></summary>
-
-  Available via [Homebrew](https://brew.sh). To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Windows</b></summary>
-
-  Available via [Scoop](https://scoop.sh). To install:
-
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
-
-  To upgrade:
-
-  ```powershell
-  scoop update supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Linux</b></summary>
-
-  Available via [Homebrew](https://brew.sh) and Linux packages.
-
-  #### via Homebrew
-
-  To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
-
+### Required Environment Variables
 ```bash
-supabase bootstrap
+# Supabase
+PUBLIC_SUPABASE_URL=your_supabase_project_url
+PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# Application
+PUBLIC_APP_URL=https://driplo.bg
+PUBLIC_SUPPORT_EMAIL=support@driplo.bg
+
+# Email Service (Resend)
+RESEND_API_KEY=your_resend_api_key
+
+# Payments (Stripe)
+STRIPE_SECRET_KEY=your_stripe_secret_key
+PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```
 
-Or using npx:
+## 🚢 Deployment
 
-```bash
-npx supabase bootstrap
-```
+### Production Checklist
+- [x] All 4 refactor phases completed (see execution plan)
+- [x] Database migrations applied and RLS enabled
+- [x] Environment variables configured
+- [x] Email notifications implemented  
+- [x] TypeScript errors resolved
+- [x] Production build tested
+- [x] E2E tests passing
+- [x] Security audit completed
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+### Deployment Platforms
+- **Primary**: [Vercel](https://vercel.com) (recommended)
+- **Database**: [Supabase](https://supabase.com)
+- **Email**: [Resend](https://resend.com)
+- **Payments**: [Stripe](https://stripe.com)
 
-## Docs
+## 🤝 Contributing
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Follow the development guidelines in `CLAUDE.md`
+4. Ensure all tests pass: `pnpm test && pnpm test:e2e`
+5. Submit a pull request
 
-## Breaking changes
+## 📄 License
 
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+## 🙋‍♂️ Support
 
-## Developing
+- **Documentation**: Check the guides linked above
+- **Issues**: [GitHub Issues](https://github.com/w3bsuki/driplo.bg/issues)
+- **Email**: support@driplo.bg
 
-To run from source:
+---
 
-```sh
-# Go >= 1.22
-go run . help
-```
+Made with ❤️ for sustainable fashion by the Driplo team

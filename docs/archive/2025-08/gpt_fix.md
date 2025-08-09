@@ -18,16 +18,20 @@ Goal: Fix the onboarding "stuck on brand/personal" issue without changing UX/vis
 
 ## Secondary Issues Discovered
 
-1) Client-side writes in onboarding flow
+1. Client-side writes in onboarding flow
+
 - Multiple inserts/updates (profiles, brand_profiles, RPC) are executed from the browser, risking RLS failures, race conditions, and inconsistent state on refresh.
 
-2) Inconsistent redirection/i18n usage
+2. Inconsistent redirection/i18n usage
+
 - Most redirects use `localizeHref`, but consistency across onboarding/login/logout/completion should be enforced to preserve `/bg` URLs.
 
-3) Supabase types and any-casts
+3. Supabase types and any-casts
+
 - `brand_verification_requests` accessed with `as any` in several server loads. Types should be generated/added to `database.types.ts` to regain type safety.
 
-4) Stray corrupted filename
+4. Stray corrupted filename
+
 - File `Kdriplo-blue-mainsrclibutilsresponsive-image.ts` at repo root can confuse tooling and lint/type discovery.
 
 ---
@@ -35,6 +39,7 @@ Goal: Fix the onboarding "stuck on brand/personal" issue without changing UX/vis
 ## Fix Plan (Parity-Preserving)
 
 ### A) Onboarding step engine (Primary fix)
+
 - [ ] Switch from id-based navigation to index-based navigation, or guarantee unique IDs after the dynamic step list is built.
   - Option 1 (preferred): Track `currentStepIndex` state, derive `currentStep = activeSteps[currentStepIndex]`, advance by `currentStepIndex++`.
   - Option 2: After computing `activeSteps`, map to inject a unique runtime key (e.g., `uid = i+1`) and use `uid` for navigation and `<#key>` blocks.
@@ -43,6 +48,7 @@ Goal: Fix the onboarding "stuck on brand/personal" issue without changing UX/vis
 - [ ] Keep the UI/layout identical (headings, progress, buttons, copy).
 
 ### B) Server actions for persistence
+
 - [ ] Move all data writes out of the wizard (client) into `+page.server.ts` actions:
   - `saveStep` action: Upsert profile partials at each step (username/accountType/profile/payment).
   - `createBrand` action: Insert into `brand_profiles` with validated payload.
@@ -51,15 +57,18 @@ Goal: Fix the onboarding "stuck on brand/personal" issue without changing UX/vis
 - [ ] Return minimal data to the client to keep state in sync; continue to use same UI.
 
 ### C) i18n and redirects
+
 - [ ] Standardize final navigation with `getLocale()` + `localizeHref()` after completion.
 - [ ] Verify auth callback/login/logout/onboarding routes use localized redirects.
 - [ ] Keep `PARAGLIDE_LOCALE` cookie logic in `hooks.server.ts` intact.
 
 ### D) Supabase types and RLS
+
 - [ ] Regenerate `src/lib/database.types.ts` from Supabase to include `brand_verification_requests` (remove `as any`).
 - [ ] Confirm RLS policies support onboarding writes via server actions.
 
 ### E) Repo hygiene
+
 - [ ] Remove or move `Kdriplo-blue-mainsrclibutilsresponsive-image.ts` to `src/lib/utils/responsive-image.ts` (if used). Update imports.
 - [ ] Run `svelte-check` and ESLint; fix any newly surfaced issues.
 
@@ -121,5 +130,6 @@ Goal: Fix the onboarding "stuck on brand/personal" issue without changing UX/vis
 ---
 
 ## Notes & References
+
 - Primary evidence: `src/lib/components/onboarding/ProfileSetupWizard.svelte` — conflicting IDs between Brand Info and Complete steps cause a stuck state when advancing.
 - Keep UI/UX and copy unchanged. This refactor only fixes control flow and hardens persistence.

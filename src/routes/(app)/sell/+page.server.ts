@@ -1,6 +1,7 @@
 import type { Actions, PageServerLoad } from './$types'
 import { fail, redirect } from '@sveltejs/kit'
 import { superValidate } from 'sveltekit-superforms'
+import { zod } from 'sveltekit-superforms/adapters'
 import { sellPageDefaults, sellPageSchema } from '$lib/schemas/sell-isolated'
 import { serverCache, cacheKeys } from '$lib/server/cache'
 import { uploadListingImage } from '$lib/utils/upload'
@@ -24,7 +25,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		tags: sellPageDefaults.tags || [],
 		materials: sellPageDefaults.materials || []
 	}
-	const form = await superValidate(formDefaults, sellPageSchema)
+	const form = await superValidate(formDefaults, zod(sellPageSchema))
 	
 	// Fetch categories
 	const { data: categories } = await locals.supabase
@@ -105,7 +106,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 		logger.error('Error in sell page load:', error)
 		// Return minimal data to prevent complete failure
 		return {
-			form: await superValidate(sellPageDefaults, sellPageSchema),
+			form: await superValidate(sellPageDefaults, zod(sellPageSchema)),
 			user: null,
 			categories: [],
 			hasPaymentAccount: false
@@ -132,7 +133,7 @@ export const actions: Actions = {
 		
 		// Check if we have images first
 		if (imageFiles.length === 0) {
-			const form = await superValidate(formData, sellPageSchema)
+			const form = await superValidate(formData, zod(sellPageSchema))
 			return fail(400, { form, error: 'Please add at least one image.' })
 		}
 		
@@ -154,7 +155,7 @@ export const actions: Actions = {
 					size: imageFiles[i].size, 
 					type: imageFiles[i].type 
 				})
-				const form = await superValidate(formData, sellPageSchema)
+				const form = await superValidate(formData, zod(sellPageSchema))
 				return fail(500, { form, error: `Failed to upload images: ${(error as any).message || 'Unknown error'}` })
 			}
 		}
@@ -177,7 +178,7 @@ export const actions: Actions = {
 		formDataForValidation['images'] = uploadedImageUrls;
 		
 		// Validate form data
-		const form = await superValidate(formDataForValidation, sellPageSchema)
+		const form = await superValidate(formDataForValidation, zod(sellPageSchema))
 		
 		if (!form.valid) {
 			logger.error('Form validation failed:', form.errors)
@@ -186,19 +187,54 @@ export const actions: Actions = {
 		}
 		
 		
-		// Check if user profile exists and onboarding is completed
+		// Check if user profile exists, onboarding is completed, and payment account is set up
 		const { data: profile, error: profileError } = await locals.supabase
 			.from('profiles')
-			.select('id, username, onboarding_completed')
+			.select('id, username, onboarding_completed, has_payment_account')
 			.eq('id', user.id)
 			.single()
 		
-		if (profileError || !profile || !profile.onboarding_completed) {
+		if (profileError || !profile) {
+			logger.error('Profile fetch error:', profileError);
+			return fail(400, { 
+				form, 
+				error: 'Profile not found. Please complete your profile setup first',
+				needsOnboarding: true 
+			})
+		}
+
+		if (!profile.onboarding_completed) {
 			return fail(400, { 
 				form, 
 				error: 'Please complete your profile setup first',
 				needsOnboarding: true 
 			})
+		}
+
+		if (!profile.has_payment_account) {
+			// Check if payment account exists in payment_accounts table
+			const { data: paymentAccount } = await locals.supabase
+				.from('payment_accounts')
+				.select('id')
+				.eq('user_id', user.id)
+				.single();
+
+			if (!paymentAccount) {
+				return fail(400, { 
+					form, 
+					error: 'Please set up a payment method before creating listings. You can do this in your profile settings.',
+					needsPaymentSetup: true 
+				})
+			}
+
+			// Update profile to reflect payment account exists
+			await locals.supabase
+				.from('profiles')
+				.update({ 
+					has_payment_account: true,
+					payment_account_id: paymentAccount.id
+				})
+				.eq('id', user.id);
 		}
 		
 		// Images are now uploaded before validation - use the URLs we already have
@@ -212,39 +248,21 @@ export const actions: Actions = {
 				.from('listings')
 				.insert({
 					seller_id: user.id,
-					user_id: user.id,
 					title,
 					description,
 					price,
+					currency: 'BGN', // Default currency for Bulgarian marketplace
 					category_id,
-					subcategory_id,
+					subcategory_id: subcategory_id || null,
 					condition,
+					size: size || 'One Size', // Required field - provide default
 					images: uploadedImageUrls,
-					thumbnail_url: uploadedImageUrls[0] || null,
-					color,
-					location: location_city,
-					country: 'Bulgaria',
-					shipping_price: shipping_price || 0,
-					shipping_options: { 
-						standard: shipping_type === 'standard',
-						express: shipping_type === 'express',
-						pickup: shipping_type === 'pickup',
-						worldwide: ships_worldwide || false
-					},
+					primary_image: uploadedImageUrls[0] || null,
+					color: color || null,
 					brand: brand || null,
-					size: size || null,
+					material: materials?.join(', ') || null, // Convert array to string
 					tags: tags || [],
-					materials: materials || [],
-					is_sold: false,
-					is_archived: false,
-					is_draft: false,
-					is_featured: false,
-					status: 'active', // Ensure status is set to active for visibility
-					quantity: 1,
-					view_count: 0,
-					like_count: 0,
-					save_count: 0,
-					currency: 'EUR'
+					status: 'active' // Set as active listing
 				})
 				.select()
 				.single()

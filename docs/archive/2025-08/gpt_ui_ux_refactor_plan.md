@@ -5,6 +5,7 @@ Goal: Elevate the entire product’s UI/UX (mobile-first) for a modern, clean, c
 Non-goals: No new business features. No disruptive redesigns; incremental, measured upgrades.
 
 Guiding principles
+
 - Mobile-first; progressive enhancement
 - Consistency via a lightweight design system (tokens + primitives)
 - Accessibility AA+; keyboard-first interactions
@@ -13,6 +14,7 @@ Guiding principles
 - Svelte 5 idioms ($state/$derived), server-first where possible
 
 Deliverables
+
 - Design tokens in Tailwind theme (color, spacing, radius, shadows, typography)
 - shadcn-svelte style UI primitives (Button, Input, Select, Dialog, Sheet, DropdownMenu, Tabs, Tooltip, Skeleton, Badge, Card, Pagination)
 - Page-by-page refactor with checklists and acceptance criteria
@@ -21,6 +23,7 @@ Deliverables
 ---
 
 Design System & Foundations
+
 - Tailwind config
   - [ ] Define semantic color palette (bg, fg, muted, primary, destructive, ring)
   - [ ] Typography scale (12–18 base, 1.125 modular), line-heights, tracking
@@ -40,12 +43,14 @@ Design System & Foundations
   - [ ] Media aspect-ratio utilities for product images (1:1, 4:5)
 
 Acceptance criteria
+
 - [ ] One source of truth for tokens; no inline magic numbers
 - [ ] All primitives documented in `src/lib/components/ui` with Story-like sandboxes
 
 ---
 
 Global Layout & Navigation
+
 - Header
   - [ ] Compact mobile header with search trigger; sticky with shadow on scroll
   - [ ] Clear primary CTA (Sell / Register) state-aware
@@ -60,13 +65,16 @@ Global Layout & Navigation
   - [ ] Slim, trust signals, policies, contact
 
 Acceptance criteria
+
 - [ ] Sticky header doesn’t shift layout; no CLS
 - [ ] Locale preserved through all nav/refresh
 
 ---
 
 Page-by-Page Plan (mobile-first)
-1) Home (/)
+
+1. Home (/)
+
 - Improvements
   - [ ] Hero with concise value prop; single primary CTA
   - [ ] Featured categories grid (2 cols mobile → 4/6 desktop)
@@ -78,7 +86,8 @@ Page-by-Page Plan (mobile-first)
 - Acceptance
   - [ ] TTI < 2.5s p75; CLS < 0.05; Lighthouse ≥ 90
 
-2) Browse (/browse, /category/[slug])
+2. Browse (/browse, /category/[slug])
+
 - Improvements
   - [ ] Filters in mobile Sheet; sticky sort + filter bar
   - [ ] Product card v2: bigger imagery, price/discount badge, quick-add
@@ -87,14 +96,16 @@ Page-by-Page Plan (mobile-first)
 - Acceptance
   - [ ] Filter interactions < 150ms; no page jank
 
-3) Search results (/search)
+3. Search results (/search)
+
 - Improvements
   - [ ] Query pill, filters as facets, recent searches, suggestions
   - [ ] Empty state with helpful next actions
 - Acceptance
   - [ ] Keyboard-friendly: focus trap in mobile search sheet
 
-4) Product detail (/listings/[id])
+4. Product detail (/listings/[id])
+
 - Improvements
   - [ ] Gallery with pinch/zoom, thumbnail rail (carousel on mobile)
   - [ ] Sticky add-to-cart on mobile bottom; visible price + size selector
@@ -105,7 +116,8 @@ Page-by-Page Plan (mobile-first)
 - Acceptance
   - [ ] Add-to-cart < 100ms UI response; no layout shifts on variant change
 
-5) Cart & Checkout
+5. Cart & Checkout
+
 - Improvements
   - [ ] Drawer cart on desktop; full page on mobile
   - [ ] Progress indicator (Cart → Address → Payment → Review)
@@ -116,14 +128,16 @@ Page-by-Page Plan (mobile-first)
 - Acceptance
   - [ ] Abandonment instrumentation; payment errors readable
 
-6) Auth (login/register/reset)
+6. Auth (login/register/reset)
+
 - Improvements
   - [ ] One-column forms; social logins; passwordless option
   - [ ] Clear error/success states; disable during submit; progressive disclosure
 - Acceptance
   - [ ] All redirects locale-aware; visual parity maintained
 
-7) Onboarding (personal/brand)
+7. Onboarding (personal/brand)
+
 - Improvements
   - [ ] Fix step logic (unique keys, no duplicate IDs)
   - [ ] Wizard with clear progress, optional payment step, brand info gated
@@ -131,51 +145,59 @@ Page-by-Page Plan (mobile-first)
 - Acceptance
   - [ ] Cannot get stuck; completion redirects to localized home
 
-8) Profile (user) and Settings
+8. Profile (user) and Settings
+
 - Improvements
   - [ ] Tabbed sections (Profile, Orders, Saved, Settings)
   - [ ] Avatar upload with crop; inline validations
 - Acceptance
   - [ ] Forms resilient on mobile; keyboard-safe (avoid covered inputs)
 
-9) Brand pages
+9. Brand pages
+
 - Improvements
   - [ ] Hero with brand avatar, cover, follow; product grid
   - [ ] Contact/social links; verified badge
 - Acceptance
   - [ ] Fast grid LCP; consistent slugs; 404 fallback
 
-10) Sell flow
+10. Sell flow
+
 - Improvements
   - [ ] Multi-step form in Tabs (Details, Media, Pricing, Publish)
   - [ ] Drag-drop, client-side image compression, reordering
 - Acceptance
   - [ ] Draft auto-save; image upload progress + retry
 
-11) Dashboard (seller)
+11. Dashboard (seller)
+
 - Improvements
   - [ ] Cards for KPIs; tables for orders/listings (responsive)
   - [ ] Filters by status/date; empty states
 - Acceptance
   - [ ] No horizontal scroll on mobile; accessible tables
 
-12) Wishlist, Orders, Messages
+12. Wishlist, Orders, Messages
+
 - Improvements
   - [ ] Card lists with actions; skeletons; empty states with CTAs
 - Acceptance
   - [ ] 60fps while scrolling lists; virtualization if needed
 
-13) Static pages (Privacy, Terms, Help)
+13. Static pages (Privacy, Terms, Help)
+
 - Improvements
   - [ ] Prose styling; TOC; last updated; i18n
 
-14) Error pages (404/500)
+14. Error pages (404/500)
+
 - Improvements
   - [ ] Friendly copy; CTA back to browse; report issue link
 
 ---
 
 Components to Refactor (priority)
+
 - ProductCard
   - [ ] Image ratio, hover elevation, wishlist, quick-add
   - [ ] Price with discount badge, rating stars
@@ -193,6 +215,7 @@ Components to Refactor (priority)
 ---
 
 Accessibility & Internationalization
+
 - [ ] ARIA roles for nav, search, breadcrumbs, carousels
 - [ ] Focus management in Dialog/Sheet/Popovers; focus-visible only
 - [ ] Keyboard navigation for all interactive elements
@@ -202,6 +225,7 @@ Accessibility & Internationalization
 ---
 
 Performance
+
 - [ ] Image optimization: responsive sizes, lazy below fold, preload hero
 - [ ] Defer non-critical JS; islands for heavy widgets
 - [ ] TanStack Query caching windows; skeletons vs spinners
@@ -209,11 +233,13 @@ Performance
 - [ ] Measure with Lighthouse and Web Vitals; set budgets
 
 Budgets (per page)
+
 - [ ] LCP < 2.5s p75, CLS < 0.05, JS ≤ 170KB gz per route (initial)
 
 ---
 
 Analytics & Experimentation
+
 - [ ] Define events: view_item, add_to_cart, begin_checkout, purchase
 - [ ] Track filter usage, search refinement, scroll depth
 - [ ] A/B test: product card variants, sticky CTAs, review placement
@@ -222,30 +248,38 @@ Analytics & Experimentation
 
 Execution Plan
 Wave 0 – Foundations (tokens, primitives) [2–3 days]
+
 - Tailwind theme, primitives in ui/
 - Replace ad-hoc buttons/inputs incrementally
 
 Wave 1 – Nav, Header, Search [2–3 days]
+
 - Sticky header, mobile search sheet, locale switch retention
 
 Wave 2 – Product surfacing [4–6 days]
+
 - ProductCard v2, Browse filters sheet/side, grid performance
 
 Wave 3 – PDP & Cart/Checkout [5–7 days]
+
 - PDP gallery/sticky CTA, Cart drawer, streamlined checkout
 
 Wave 4 – Auth & Onboarding [3–4 days]
+
 - Unified forms, wizard fix, server actions
 
 Wave 5 – Profile/Brand/Dashboard [4–6 days]
+
 - Tabs, tables, KPI cards; brand hero/grid
 
 Wave 6 – Polish, A11y, Perf [ongoing]
+
 - Audits, budgets, experiments
 
 ---
 
 Checklists to Start
+
 - [ ] Create `src/lib/components/ui/` with primitives
 - [ ] Tailwind theme tokens updated; document in README
 - [ ] Replace Button/Input across top 5 pages
@@ -256,6 +290,7 @@ Checklists to Start
 - [ ] Add Lighthouse and Axe checks to CI
 
 Definition of Done (overall)
+
 - [ ] Visual parity or better clarity; no regressions
 - [ ] Mobile-first layouts validated on iOS/Android viewports
 - [ ] Axe score ≥ 95; Lighthouse ≥ 90 across key pages

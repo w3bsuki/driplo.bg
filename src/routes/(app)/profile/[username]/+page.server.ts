@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 						verification_status,
 						established_year
 					`)
-					.eq('user_id', profileData.id)
+					.eq('seller_id', profileData.id)
 					.maybeSingle()
 			: Promise.resolve({ data: null }),
 
@@ -53,7 +53,7 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				created_at,
 				like_count
 			`)
-			.eq('user_id', profileData.id)
+			.eq('seller_id', profileData.id)
 			.eq('status', 'active')
 			.order('created_at', { ascending: false })
 			.limit(12),
@@ -76,13 +76,13 @@ export const load: PageServerLoad = async ({ params, locals }) => {
 				username,
 				url
 			`)
-			.eq('user_id', profileData.id),
+			.eq('seller_id', profileData.id),
 
 		// Total listings count (optimized with just id count)
 		locals.supabase
 			.from('listings')
 			.select('id', { count: 'exact', head: true })
-			.eq('user_id', profileData.id)
+			.eq('seller_id', profileData.id)
 	])
 
 	// Calculate likes from listing data (like_count already included)

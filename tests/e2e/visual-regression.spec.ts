@@ -3,9 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Visual Regression Tests', () => {
   // Configure for consistent screenshots
   test.use({ 
-    viewport: { width: 1280, height: 720 },
-    // Disable animations for consistent screenshots
-    reducedMotion: 'reduce'
+    viewport: { width: 1280, height: 720 }
   });
 
   test('homepage should match visual baseline', async ({ page }) => {

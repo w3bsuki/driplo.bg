@@ -70,7 +70,7 @@
 					{/each}
 				{/if}
 			</div>
-			<p class="text-xs text-gray-500">View profile</p>
+			<p class="text-xs text-gray-500">{m.nav_profile()}</p>
 		</div>
 	</DropdownMenu.Item>
 
@@ -97,7 +97,7 @@
 			class="flex flex-col items-center gap-1 p-2 rounded-sm bg-gray-50 hover:bg-gray-100 text-center"
 		>
 			<span class="text-lg">⚙️</span>
-			<span class="text-xs">Settings</span>
+			<span class="text-xs">{m.header_settings()}</span>
 		</DropdownMenu.Item>
 		
 		<DropdownMenu.Item
@@ -105,7 +105,7 @@
 			class="flex flex-col items-center gap-1 p-2 rounded-sm bg-gray-50 hover:bg-gray-100 text-center"
 		>
 			<span class="text-lg">❤️</span>
-			<span class="text-xs">Wishlist</span>
+			<span class="text-xs">{m.header_favorites()}</span>
 		</DropdownMenu.Item>
 		
 		{#if profile?.account_type === 'brand' && brandSlug}
@@ -157,28 +157,28 @@
 			class="flex items-center justify-center gap-2 py-1.5 rounded-sm hover:bg-red-50 text-red-600"
 		>
 			<span>🚪</span>
-			<span class="text-sm">Sign out</span>
+			<span class="text-sm">{m.profile_sign_out()}</span>
 		</DropdownMenu.Item>
 	</div>
 {:else}
 	<!-- Not logged in -->
 	<div class="p-4 text-center">
 		<span class="text-3xl mb-3 block">👋</span>
-		<p class="text-sm font-medium mb-1">Welcome!</p>
-		<p class="text-xs text-gray-500 mb-4">Sign in to start shopping</p>
+		<p class="text-sm font-medium mb-1">{m.auth_welcome_back()}</p>
+		<p class="text-xs text-gray-500 mb-4">{m.auth_sign_in_account()}</p>
 		
 		<div class="space-y-2">
 			<button
 				onclick={() => goto('/login')}
 				class="flex items-center justify-center py-1.5 bg-gray-900 hover:bg-gray-800 text-white rounded-sm text-sm font-medium cursor-pointer w-full"
 			>
-				Sign in
+{m.auth_sign_in()}
 			</button>
 			<button
 				onclick={() => goto('/register')}
 				class="flex items-center justify-center py-1.5 border border-gray-300 hover:bg-gray-50 rounded-sm text-sm cursor-pointer w-full"
 			>
-				Create account
+{m.auth_create_account()}
 			</button>
 		</div>
 	</div>

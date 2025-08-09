@@ -47,7 +47,9 @@ export default [js.configs.recommended, {
     },
     rules: {
         ...svelte.configs.recommended.rules,
-        'svelte/no-at-html-tags': 'off'
+        'svelte/no-at-html-tags': 'off',
+        // Bloat prevention rules
+        'no-console': ['error', { allow: ['warn', 'error'] }]
     }
 }, {
     ignores: [

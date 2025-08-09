@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { logger } from '$lib/utils/logger';
+import { emailService } from '$lib/server/email';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -91,7 +92,22 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
                 }
             });
 
-        // TODO: Send email notification to buyer when email service is configured
+        // Send email notification to buyer
+        try {
+            if (order.buyer?.email) {
+                const listing = order.order_items?.[0]?.listing;
+                if (listing) {
+                    await emailService.sendShippingUpdate(
+                        order.buyer,
+                        listing,
+                        tracking_number
+                    );
+                }
+            }
+        } catch (emailError) {
+            logger.error('Failed to send shipping email:', emailError);
+            // Don't fail the request if email fails
+        }
 
         return json({ 
             success: true,

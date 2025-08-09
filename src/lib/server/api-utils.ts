@@ -4,6 +4,7 @@ import type { Session } from '@supabase/supabase-js';
 import type { Tables } from '$lib/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
+import { PUBLIC_APP_URL, PUBLIC_ALLOWED_ORIGINS } from '$env/static/public';
 import { logger } from '$lib/utils/logger';
 
 // Standard API response types
@@ -376,11 +377,10 @@ export function checkRateLimit(
 
 // CORS utility with secure origin validation
 const ALLOWED_ORIGINS = [
-  'https://driplo.bg',
-  'https://www.driplo.bg',
-  'https://driplo.vercel.app',
+  // Production origins from environment variable
+  ...PUBLIC_ALLOWED_ORIGINS.split(',').map(origin => origin.trim()),
   // Add development origins only in dev mode
-  ...(process.env['NODE_ENV'] === 'development' ? [
+  ...(dev ? [
     'http://localhost:5173',
     'http://localhost:4173',
     'http://127.0.0.1:5173'
@@ -391,7 +391,7 @@ export function corsHeaders(origin?: string): HeadersInit {
   // Validate origin against whitelist
   const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) 
     ? origin 
-    : ALLOWED_ORIGINS[0]; // Default to primary domain if origin not in whitelist
+    : PUBLIC_APP_URL; // Default to primary domain if origin not in whitelist
     
   return {
     'Access-Control-Allow-Origin': allowedOrigin,

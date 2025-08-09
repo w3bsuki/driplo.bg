@@ -99,6 +99,27 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				return json({ error: 'Failed to update payment account' }, { status: 500 });
 			}
 
+			// Update profile to reflect current payment account status
+			const { error: profileUpdateError } = await supabase
+				.from('profiles')
+				.update({
+					has_payment_account: true,
+					payment_account_id: updatedAccount.id,
+					payment_type: payout_method,
+					payment_details: {
+						method: payout_method,
+						verified: updatedAccount.verified || false,
+						updated_at: new Date().toISOString()
+					},
+					updated_at: new Date().toISOString()
+				})
+				.eq('id', userId);
+
+			if (profileUpdateError) {
+				logger.error('Profile update error after payment account update', profileUpdateError);
+				// Don't fail the request since payment account was updated
+			}
+
 			return json({
 				success: true,
 				payment_account: updatedAccount,
@@ -135,6 +156,27 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 			if (createError) {
 				logger.error('Payment account creation error', createError);
 				return json({ error: 'Failed to create payment account' }, { status: 500 });
+			}
+
+			// Update profile to indicate payment account is set up
+			const { error: profileUpdateError } = await supabase
+				.from('profiles')
+				.update({
+					has_payment_account: true,
+					payment_account_id: newAccount.id,
+					payment_type: payout_method,
+					payment_details: {
+						method: payout_method,
+						verified: false,
+						created_at: new Date().toISOString()
+					},
+					updated_at: new Date().toISOString()
+				})
+				.eq('id', userId);
+
+			if (profileUpdateError) {
+				logger.error('Profile update error after payment account creation', profileUpdateError);
+				// Don't fail the request since payment account was created
 			}
 
 			return json({

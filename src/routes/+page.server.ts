@@ -29,13 +29,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 					.select(
 						`
             *,
-            seller:profiles!user_id(username, avatar_url),
+            seller:profiles!seller_id(username, avatar_url),
             condition
           `
 					)
-					.eq('is_sold', false)
-					.eq('is_archived', false)
-					.eq('is_draft', false)
+					.eq('status', 'active')
 					.order('created_at', { ascending: false })
 					.limit(8) // Reduced for faster initial load
 			]);
@@ -59,13 +57,11 @@ export const load: PageServerLoad = async ({ locals }) => {
 					.select(
 						`
             *,
-            seller:profiles!user_id(username, avatar_url),
+            seller:profiles!seller_id(username, avatar_url),
             condition
           `
 					)
-					.eq('is_sold', false)
-					.eq('is_archived', false)
-					.eq('is_draft', false)
+					.eq('status', 'active')
 					.order('view_count', { ascending: false })
 					.limit(16),
 

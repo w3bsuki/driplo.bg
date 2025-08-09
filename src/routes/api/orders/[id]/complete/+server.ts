@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { logger } from '$lib/utils/logger';
+import { emailService } from '$lib/server/email';
 
 export const POST: RequestHandler = async ({ locals, params, request }) => {
     const supabase = locals.supabase;
@@ -128,7 +129,28 @@ export const POST: RequestHandler = async ({ locals, params, request }) => {
                 .eq('id', order.transaction.id);
         }
 
-        // TODO: Send email notifications when email service is configured
+        // Send completion email notifications
+        try {
+            if (order.seller?.email) {
+                const listing = order.order_items?.[0]?.listing;
+                if (listing) {
+                    await emailService.send({
+                        to: order.seller.email,
+                        subject: 'Order Completed - Payout Scheduled',
+                        html: `
+                            <h2>Order Completed!</h2>
+                            <p>Great news! Order #${order.order_number} has been marked as delivered by the buyer.</p>
+                            <p><strong>Item:</strong> ${listing.title}</p>
+                            <p>Your payout will be processed in 2 business days.</p>
+                            <p>Thank you for selling on Driplo!</p>
+                        `
+                    });
+                }
+            }
+        } catch (emailError) {
+            logger.error('Failed to send completion email:', emailError);
+            // Don't fail the request if email fails
+        }
 
         return json({ 
             success: true,

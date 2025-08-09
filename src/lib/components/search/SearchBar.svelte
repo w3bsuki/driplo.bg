@@ -56,7 +56,9 @@
 				<X class="h-4 w-4 text-gray-600" />
 			</button>
 		{:else}
-			<Search class="h-4 w-4 text-gray-400 mr-3 flex-shrink-0" />
+			<div class="mr-3 flex-shrink-0">
+				<Search class="h-4 w-4 text-gray-400" />
+			</div>
 		{/if}
 		
 		<input
@@ -90,14 +92,14 @@
 			onclick={onSearch}
 			disabled={isSearching || (!value.trim())}
 			class={cn(
-				"px-4 md:px-5 py-2 md:py-2.5 rounded-lg text-sm font-medium transition-all",
-				"bg-gray-900 text-white hover:bg-gray-800",
+				"p-2 rounded-lg transition-all",
+				"bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800",
 				"disabled:opacity-40 disabled:cursor-not-allowed",
-				"focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+				"focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1"
 			)}
 			aria-label="Search"
 		>
-			{isSearching ? '...' : m.quick_filter_search_button()}
+			<Search class="h-4 w-4" />
 		</button>
 	</div>
 </div>

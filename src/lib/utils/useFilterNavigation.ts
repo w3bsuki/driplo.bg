@@ -57,7 +57,7 @@ export function useFilterNavigation({ data, currentUrl, isNavigating, setNavigat
 
 	// Throttled navigation to prevent double calls
 	const throttledNavigate = throttle((url: string) => {
-		if (!isNavigating) {
+		if (!isNavigating()) {
 			setNavigating(true);
 			goto(url).finally(() => {
 				// Reset flag after navigation completes

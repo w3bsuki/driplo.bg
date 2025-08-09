@@ -281,96 +281,107 @@
                 </button>
             {/if}
             
+{#snippet messageBubble(message, isOwnMessage)}
+  <div class="flex {isOwnMessage ? 'justify-end' : 'justify-start'}">
+    <div class="max-w-[70%] {isOwnMessage ? 'order-2' : 'order-1'}">
+      {#if !isOwnMessage}
+        <div class="flex items-center gap-2 mb-1">
+          <div class="avatar">
+            <div class="w-6 h-6 rounded-full bg-gray-200">
+              {#if message.sender.avatar_url}
+                <img src={message.sender.avatar_url} alt={message.sender.username} width="24" height="24" class="w-full h-full rounded-full object-cover" />
+              {:else}
+                <div class="flex items-center justify-center h-full text-xs">
+                  {message.sender.username[0].toUpperCase()}
+                </div>
+              {/if}
+            </div>
+          </div>
+          <span class="text-sm font-medium">{message.sender.username}</span>
+        </div>
+      {/if}
+      
+      <div class="flex items-end gap-2">
+        <div class="px-4 py-2 rounded-2xl {isOwnMessage ? 'bg-primary text-primary-content' : 'bg-gray-100 text-gray-900'}">
+          <p class="whitespace-pre-wrap break-words">{message.message_text}</p>
+          
+          <!-- Display attachments -->
+          {#if message.attachments && Array.isArray(message.attachments) && message.attachments.length > 0}
+            <div class="mt-2 space-y-2">
+              {#each message.attachments as attachment (attachment.url)}
+                {@render messageAttachment(attachment)}
+              {/each}
+            </div>
+          {/if}
+        </div>
+        {@render messageTimestamp(message, isOwnMessage)}
+      </div>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet messageAttachment(attachment)}
+  {#if attachment.type === 'image'}
+    <div class="rounded-lg overflow-hidden max-w-xs">
+      <img 
+        src={attachment.url} 
+        alt={attachment.name || 'Image attachment'}
+        class="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
+        onclick={() => window.open(attachment.url, '_blank')}
+      />
+    </div>
+  {:else}
+    <div class="flex items-center gap-2 p-2 bg-opacity-20 bg-white rounded-lg">
+      <div class="flex-shrink-0">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h12v12H4V4zm2 2v8h8V6H6z"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-sm font-medium truncate">{attachment.name || 'File'}</p>
+        {#if attachment.size}
+          <p class="text-xs opacity-75">{Math.round(attachment.size / 1024)} KB</p>
+        {/if}
+      </div>
+      <button
+        class="btn btn-xs btn-ghost"
+        onclick={() => window.open(attachment.url, '_blank')}
+      >
+        Download
+      </button>
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet messageTimestamp(message, isOwnMessage)}
+  <div class="flex items-center gap-1">
+    <span class="text-xs text-gray-500">
+      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
+    </span>
+    {#if isOwnMessage}
+      <div class="flex items-center" title={message.is_read ? 'Read' : 'Sent'}>
+        {#if message.is_read}
+          <!-- Double checkmark for read -->
+          <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+          </svg>
+          <svg class="w-3 h-3 text-blue-500 -ml-1" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+          </svg>
+        {:else}
+          <!-- Single checkmark for sent -->
+          <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+          </svg>
+        {/if}
+      </div>
+    {/if}
+  </div>
+{/snippet}
+
             {#each messages as message (message.id)}
                 {@const isOwnMessage = message.sender_id === userId}
-                
-                <div class="flex {isOwnMessage ? 'justify-end' : 'justify-start'}">
-                    <div class="max-w-[70%] {isOwnMessage ? 'order-2' : 'order-1'}">
-                        {#if !isOwnMessage}
-                            <div class="flex items-center gap-2 mb-1">
-                                <div class="avatar">
-                                    <div class="w-6 h-6 rounded-full bg-gray-200">
-                                        {#if message.sender.avatar_url}
-                                            <img src={message.sender.avatar_url} alt={message.sender.username} width="24" height="24" class="w-full h-full rounded-full object-cover" />
-                                        {:else}
-                                            <div class="flex items-center justify-center h-full text-xs">
-                                                {message.sender.username[0].toUpperCase()}
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                                <span class="text-sm font-medium">{message.sender.username}</span>
-                            </div>
-                        {/if}
-                        
-                        <div class="flex items-end gap-2">
-                            <div class="px-4 py-2 rounded-2xl {isOwnMessage ? 'bg-primary text-primary-content' : 'bg-gray-100 text-gray-900'}">
-                                <p class="whitespace-pre-wrap break-words">{message.message_text}</p>
-                                
-                                <!-- Display attachments -->
-                                {#if message.attachments && Array.isArray(message.attachments) && message.attachments.length > 0}
-                                    <div class="mt-2 space-y-2">
-                                        {#each message.attachments as attachment (attachment.url)}
-                                            {#if attachment.type === 'image'}
-                                                <div class="rounded-lg overflow-hidden max-w-xs">
-                                                    <img 
-                                                        src={attachment.url} 
-                                                        alt={attachment.name || 'Image attachment'}
-                                                        class="w-full h-auto cursor-pointer hover:opacity-90 transition-opacity"
-                                                        onclick={() => window.open(attachment.url, '_blank')}
-                                                    />
-                                                </div>
-                                            {:else}
-                                                <div class="flex items-center gap-2 p-2 bg-opacity-20 bg-white rounded-lg">
-                                                    <div class="flex-shrink-0">
-                                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h12v12H4V4zm2 2v8h8V6H6z"/>
-                                                        </svg>
-                                                    </div>
-                                                    <div class="flex-1 min-w-0">
-                                                        <p class="text-sm font-medium truncate">{attachment.name || 'File'}</p>
-                                                        {#if attachment.size}
-                                                            <p class="text-xs opacity-75">{Math.round(attachment.size / 1024)} KB</p>
-                                                        {/if}
-                                                    </div>
-                                                    <button
-                                                        class="btn btn-xs btn-ghost"
-                                                        onclick={() => window.open(attachment.url, '_blank')}
-                                                    >
-                                                        Download
-                                                    </button>
-                                                </div>
-                                            {/if}
-                                        {/each}
-                                    </div>
-                                {/if}
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <span class="text-xs text-gray-500">
-                                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true })}
-                                </span>
-                                {#if isOwnMessage}
-                                    <div class="flex items-center" title={message.is_read ? 'Read' : 'Sent'}>
-                                        {#if message.is_read}
-                                            <!-- Double checkmark for read -->
-                                            <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                                            </svg>
-                                            <svg class="w-3 h-3 text-blue-500 -ml-1" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                                            </svg>
-                                        {:else}
-                                            <!-- Single checkmark for sent -->
-                                            <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
-                                            </svg>
-                                        {/if}
-                                    </div>
-                                {/if}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {@render messageBubble(message, isOwnMessage)}
             {/each}
         </div>
     {/if}

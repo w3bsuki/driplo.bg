@@ -7,6 +7,7 @@
   import type { SupabaseClient } from '@supabase/supabase-js';
   import type { Database } from '$lib/database.types';
   import { getFiltersForCategory } from '$lib/config/categoryFilters';
+  import * as m from '$lib/paraglide/messages.js';
   
   interface Props {
     category: Category;
@@ -32,11 +33,11 @@
   
   // Sort options
   const sortOptions = [
-    { value: 'newest', label: 'Newest First', field: 'created_at', order: 'desc' as const },
-    { value: 'price-low', label: 'Price: Low to High', field: 'price', order: 'asc' as const },
-    { value: 'price-high', label: 'Price: High to Low', field: 'price', order: 'desc' as const },
-    { value: 'popular', label: 'Most Popular', field: 'favorites_count', order: 'desc' as const },
-    { value: 'rating', label: 'Best Rated', field: 'seller_rating', order: 'desc' as const }
+    { value: 'newest', label: m.sort_recent(), field: 'created_at', order: 'desc' as const },
+    { value: 'price-low', label: m.sort_price_low(), field: 'price', order: 'asc' as const },
+    { value: 'price-high', label: m.sort_price_high(), field: 'price', order: 'desc' as const },
+    { value: 'popular', label: m.sort_popular(), field: 'favorites_count', order: 'desc' as const },
+    { value: 'rating', label: m.sort_liked(), field: 'seller_rating', order: 'desc' as const }
   ];
   
   // Filtered products
@@ -169,51 +170,55 @@
   <div class="container px-4">
     <div class="max-w-3xl mx-auto">
       
+{#snippet topSellerAvatar(seller, index, theme)}
+  <a href="/profile/{seller.username}" class="group relative">
+    <div class="relative">
+      {#if index === 0}
+        <div class="absolute -top-1 -right-1 text-sm z-10">👑</div>
+      {/if}
+      <div class={cn(
+        "relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-white transition-all duration-100",
+        "group-hover:scale-105",
+        theme === 'pink' ? "group-hover:ring-pink-300" : "group-hover:ring-blue-300"
+      )}>
+        <img 
+          src={seller.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${seller.username}`} 
+          alt={seller.username || seller.full_name}
+          class="w-full h-full object-cover bg-gray-100"
+        />
+      </div>
+      {#if seller.is_verified}
+        <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white w-4 h-4 rounded-sm flex items-center justify-center">
+          <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </div>
+      {/if}
+    </div>
+    <!-- Tooltip on hover -->
+    <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-20">
+      <div class="bg-gray-900 text-white text-xs rounded-sm px-3 py-2 whitespace-nowrap shadow-md">
+        <p class="font-medium">{seller.full_name || seller.username}</p>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="flex items-center gap-0.5">
+            ⭐ {seller.category_rating?.toFixed(1) || '4.5'}
+          </span>
+          <span class="text-gray-300">•</span>
+          <span>{seller.category_sales || 0} sales</span>
+        </div>
+      </div>
+      <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+    </div>
+  </a>
+{/snippet}
+
       <!-- Top Sellers Section - Compact -->
       {#if topSellers.length > 0}
         <div class="mb-4">
           <p class="text-sm text-gray-600 mb-2 text-center">Top sellers in {category.name}</p>
           <div class="flex justify-center gap-3">
             {#each topSellers.slice(0, 3) as seller, index}
-              <a href="/profile/{seller.username}" class="group relative">
-                <div class="relative">
-                  {#if index === 0}
-                    <div class="absolute -top-1 -right-1 text-sm z-10">👑</div>
-                  {/if}
-                  <div class={cn(
-                    "relative w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-white transition-all duration-100",
-                    "group-hover:scale-105",
-                    theme === 'pink' ? "group-hover:ring-pink-300" : "group-hover:ring-blue-300"
-                  )}>
-                    <img 
-                      src={seller.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${seller.username}`} 
-                      alt={seller.username || seller.full_name}
-                      class="w-full h-full object-cover bg-gray-100"
-                    />
-                  </div>
-                  {#if seller.is_verified}
-                    <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white w-4 h-4 rounded-sm flex items-center justify-center">
-                      <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  {/if}
-                </div>
-                <!-- Tooltip on hover -->
-                <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-20">
-                  <div class="bg-gray-900 text-white text-xs rounded-sm px-3 py-2 whitespace-nowrap shadow-md">
-                    <p class="font-medium">{seller.full_name || seller.username}</p>
-                    <div class="flex items-center gap-2 mt-0.5">
-                      <span class="flex items-center gap-0.5">
-                        ⭐ {seller.category_rating?.toFixed(1) || '4.5'}
-                      </span>
-                      <span class="text-gray-300">•</span>
-                      <span>{seller.category_sales || 0} sales</span>
-                    </div>
-                  </div>
-                  <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
-                </div>
-              </a>
+              {@render topSellerAvatar(seller, index, theme)}
             {/each}
           </div>
         </div>
@@ -222,11 +227,11 @@
       <!-- Search Bar -->
       <div class="relative group">
         <div class={cn(
-          "absolute inset-0 rounded-sm blur-xl opacity-20 transition-all duration-100 group-focus-within:opacity-30 group-focus-within:blur-2xl",
+          "absolute inset-0 rounded-xl blur-xl opacity-20 transition-all duration-100 group-focus-within:opacity-30 group-focus-within:blur-2xl",
           theme === 'pink' ? "bg-gradient-to-r from-pink-400 to-pink-600" : "bg-gradient-to-r from-blue-400 to-blue-600"
         )}></div>
         
-        <div class="relative bg-white rounded-sm border border-gray-100 transition-all duration-100">
+        <div class="relative bg-white rounded-xl border border-gray-200 transition-all duration-100 group-focus-within:border-blue-400">
           <div class="flex items-center">
             <div class="pl-6 pr-3">
               <span class="text-lg">🔍</span>
@@ -236,19 +241,17 @@
               type="search"
               placeholder="Search {category.name.toLowerCase()} fashion..."
               bind:value={searchQuery}
-              class="flex-1 py-3 md:py-3.5 pr-4 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
+              class="flex-1 py-3 md:py-3.5 pr-10 text-sm placeholder:text-gray-400 focus:outline-none bg-transparent"
             />
             
+            <!-- Search Icon Button -->
             <button
               onclick={() => {}}
-              class={cn(
-                "mr-2 px-4 md:px-5 py-2 text-white font-medium rounded-sm text-sm transition-all duration-100 active:scale-95",
-                theme === 'pink' 
-                  ? "bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700" 
-                  : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-              )}
+              type="button"
+              class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-1 focus:ring-blue-500"
+              aria-label="Search"
             >
-              Search
+              <span class="text-lg">🔍</span>
             </button>
           </div>
         </div>
@@ -258,49 +261,36 @@
   </div>
 </section>
 
+{#snippet subcategoryButton(id, icon, name, isSelected, onSelect, theme)}
+  <button
+    onclick={() => onSelect(id)}
+    class={cn(
+      "flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 whitespace-nowrap font-medium text-xs transition-all duration-200 flex-shrink-0 min-w-[70px]",
+      isSelected
+        ? theme === 'pink' 
+          ? "bg-pink-500 text-white border-pink-500 shadow-md" 
+          : "bg-blue-500 text-white border-blue-500 shadow-md"
+        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:shadow-sm"
+    )}
+  >
+    <div class={cn(
+      "w-8 h-8 flex items-center justify-center rounded-md text-lg",
+      isSelected ? "bg-white/20" : "bg-gray-50"
+    )}>
+      {icon}
+    </div>
+    <span>{name}</span>
+  </button>
+{/snippet}
+
 <!-- Subcategory Quick Pills -->
 {#if subcategories.length > 0}
   <section class="bg-white border-b">
     <div class="container mx-auto px-4 py-4">
       <div class="flex items-center gap-3 overflow-x-auto scrollbar-hide">
-        <button
-          onclick={() => handleSubcategoryChange('all')}
-          class={cn(
-            "flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 whitespace-nowrap font-medium text-xs transition-all duration-200 flex-shrink-0 min-w-[70px]",
-            selectedSubcategory === 'all'
-              ? theme === 'pink' 
-                ? "bg-pink-500 text-white border-pink-500 shadow-md" 
-                : "bg-blue-500 text-white border-blue-500 shadow-md"
-              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:shadow-sm"
-          )}
-        >
-          <div class="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-md text-lg">
-            🏷️
-          </div>
-          <span>All</span>
-        </button>
+        {@render subcategoryButton('all', '🏷️', 'All', selectedSubcategory === 'all', handleSubcategoryChange, theme)}
         {#each subcategories as subcategory}
-          <button
-            onclick={() => handleSubcategoryChange(subcategory.id)}
-            class={cn(
-              "flex flex-col items-center gap-2 px-3 py-3 rounded-lg border-2 whitespace-nowrap font-medium text-xs transition-all duration-200 flex-shrink-0 min-w-[70px]",
-              selectedSubcategory === subcategory.id
-                ? theme === 'pink' 
-                  ? "bg-pink-500 text-white border-pink-500 shadow-md" 
-                  : "bg-blue-500 text-white border-blue-500 shadow-md"
-                : "bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:shadow-sm"
-            )}
-          >
-            <div class={cn(
-              "w-8 h-8 flex items-center justify-center rounded-md text-lg",
-              selectedSubcategory === subcategory.id 
-                ? "bg-white/20" 
-                : "bg-gray-50"
-            )}>
-              {subcategory.icon_url || '📦'}
-            </div>
-            <span>{subcategory.name}</span>
-          </button>
+          {@render subcategoryButton(subcategory.id, subcategory.icon_url || '📦', subcategory.name, selectedSubcategory === subcategory.id, handleSubcategoryChange, theme)}
         {/each}
       </div>
     </div>
@@ -361,13 +351,13 @@
     />
   {:else}
     <div class="text-center py-12">
-      <p class="text-gray-500 text-sm mb-4">No items found</p>
+      <p class="text-gray-500 text-sm mb-4">{m.listing_empty_title()}</p>
       {#if hasActiveFilters}
         <button
           onclick={handleClearFilters}
           class="text-primary hover:text-primary/80 font-medium"
         >
-          Clear filters and show all
+          {m.filter_clear_all()}
         </button>
       {/if}
     </div>

@@ -126,7 +126,7 @@
 
 <article 
 	class={cn(
-		"relative bg-white rounded-sm overflow-hidden border border-gray-100 hover:border-gray-200 transition-colors duration-100 group",
+		"relative bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200 group",
 		className
 	)}
 >
@@ -152,7 +152,7 @@
 			{:else}
 				<div class="h-full w-full flex items-center justify-center">
 					<div class="text-center p-4">
-						<div class="w-10 h-10 mx-auto mb-2 bg-gray-100 rounded-sm flex items-center justify-center">
+						<div class="w-10 h-10 mx-auto mb-2 bg-gray-100 rounded-xl flex items-center justify-center">
 							<span class="text-lg text-gray-400">📷</span>
 						</div>
 						<p class="text-xs text-gray-400">No image</p>
@@ -170,7 +170,7 @@
 			<!-- Discount Badge - Below Condition -->
 			{#if discountPercentage > 0}
 				<div class="absolute top-9 left-2">
-					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-sm text-[10px] font-bold">
+					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-xl text-[10px] font-bold shadow-sm">
 						-{discountPercentage}%
 					</div>
 				</div>
@@ -180,8 +180,8 @@
 			<button
 				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-2 right-2 w-7 h-7 rounded-sm bg-white/90 backdrop-blur-sm flex items-center justify-center transition-colors duration-100",
-					"hover:bg-white",
+					"absolute top-2 right-2 w-7 h-7 rounded-xl bg-white/90 backdrop-blur-sm flex items-center justify-center transition-all duration-200 shadow-sm",
+					"hover:bg-white hover:scale-105",
 					likeLoading && "opacity-50 cursor-not-allowed"
 				)}
 				aria-label={liked ? m.listing_unlike() : m.listing_like()}

@@ -1,6 +1,5 @@
 <script lang="ts">
     import { formatDistanceToNow } from 'date-fns';
-    import { createEventDispatcher } from 'svelte';
     import type { Database } from '$lib/database.types';
     import { logger } from '$lib/utils/logger';
     
@@ -33,14 +32,11 @@
     interface Props {
         isOpen?: boolean;
         userId: string;
+        onclose?: () => void;
+        onselectconversation?: (data: { conversationId: string }) => void;
     }
     
-    let { isOpen = false, userId }: Props = $props();
-
-    const dispatch = createEventDispatcher<{
-        close: void;
-        selectConversation: { conversationId: string };
-    }>();
+    let { isOpen = false, userId, onclose, onselectconversation }: Props = $props();
 
     let searchQuery = '';
     let searchResults: SearchResult[] = [];
@@ -100,13 +96,13 @@
     }
 
     function selectConversation(conversationId: string) {
-        dispatch('selectConversation', { conversationId });
-        dispatch('close');
+        onselectconversation?.({ conversationId });
+        onclose?.();
     }
 
     function handleKeydown(event: KeyboardEvent) {
         if (event.key === 'Escape') {
-            dispatch('close');
+            onclose?.();
         }
     }
 </script>
@@ -123,7 +119,7 @@
                     <h2 class="text-lg font-semibold">Search Messages</h2>
                     <button
                         class="btn btn-sm btn-ghost btn-circle"
-                        onclick={() => dispatch('close')}
+                        onclick={() => onclose?.()}
                     >
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>

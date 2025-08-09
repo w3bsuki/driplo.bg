@@ -1,6 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { emailService } from '$lib/server/email';
 import { createAdminClient } from '$lib/server/supabase-admin';
+import { PUBLIC_APP_URL, PUBLIC_SUPPORT_EMAIL } from '$env/static/public';
 import type { RequestHandler } from './$types';
 import { logger } from '$lib/utils/logger';
 
@@ -20,7 +21,7 @@ export const POST: RequestHandler = async ({ request }) => {
             type: 'signup',
             email,
             options: {
-                redirectTo: `${process.env['PUBLIC_APP_URL'] || 'https://driplo.com'}/auth/confirm`
+                redirectTo: `${PUBLIC_APP_URL}/auth/confirm`
             }
         });
         
@@ -99,7 +100,7 @@ export const POST: RequestHandler = async ({ request }) => {
                         </div>
                         <div class="footer">
                             <p>If you didn't create an account on Driplo, you can safely ignore this email.</p>
-                            <p>Need help? Contact us at support@driplo.com</p>
+                            <p>Need help? Contact us at ${PUBLIC_SUPPORT_EMAIL}</p>
                             <p style="margin-top: 20px; color: #999;">
                                 © ${new Date().getFullYear()} Driplo. All rights reserved.
                             </p>
