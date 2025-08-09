@@ -6,6 +6,7 @@
 	import PromotionalBanner from '$lib/components/layout/PromotionalBanner.svelte';
 	import StickySearchBelowNav from '$lib/components/search/StickySearchBelowNav.svelte';
 	import CookieConsent from '$lib/components/cookie-consent/CookieConsent.svelte';
+	import WelcomeModal from '$lib/components/WelcomeModal.svelte';
 	import { Toaster } from 'svelte-sonner';
 	import { initializeAuth, setupAuthListener } from '$lib/stores/auth';
 	import { onMount } from 'svelte';
@@ -209,7 +210,13 @@
 			<StickySearchBelowNav />
 		</ErrorBoundary>
 
-		<CookieConsent />
+		<!-- Welcome modal with cookie consent for new visitors -->
+		{#if !data.user}
+			<WelcomeModal />
+		{:else}
+			<!-- Cookie consent for logged in users -->
+			<CookieConsent />
+		{/if}
 		<Toaster richColors position="top-center" />
 		<NotificationPopup position="top-right" />
 		

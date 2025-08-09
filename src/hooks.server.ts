@@ -56,13 +56,16 @@ const handleParaglide: Handle = async ({ event, resolve }) => {
 		event.locals.locale = locale
 		
 		// Set the runtime locale for server-side operations
-		setLocale(locale as 'en' | 'bg', { reload: false })
+		// Default to Bulgarian if no locale is set
+		const finalLocale = locale || 'bg';
+		setLocale(finalLocale as 'en' | 'bg', { reload: false })
+		event.locals.locale = finalLocale
 		
 		// Continue with the resolve chain
 		const response = await resolve(event, {
 			transformPageChunk: ({ html }) => {
 				// Replace html lang attribute
-				return html.replace('<html lang="en">', `<html lang="${locale}">`)
+				return html.replace('<html lang="bg">', `<html lang="${locale}">`)
 			}
 		})
 		

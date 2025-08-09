@@ -1,6 +1,6 @@
 {
 	"$schema": "https://inlang.com/schema/project-settings",
-	"baseLocale": "en",
+	"baseLocale": "bg",
 	"locales": ["en", "bg"],
 	"modules": [
 		"https://cdn.jsdelivr.net/npm/@inlang/plugin-json@latest/dist/index.js"
