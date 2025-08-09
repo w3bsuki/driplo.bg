@@ -196,4 +196,3 @@
 		overflow: hidden;
 	}
 </style>
-</script>
