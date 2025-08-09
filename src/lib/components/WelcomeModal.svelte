@@ -19,9 +19,19 @@
 			cookiesAccepted = cookieConsent === 'accepted';
 		}
 		
+		// For debugging: check URL param to force show
+		const urlParams = new URLSearchParams(window.location.search);
+		if (urlParams.get('welcome') === 'true') {
+			localStorage.removeItem('driplo_welcome_seen');
+			hasSeenWelcome = false;
+		}
+		
 		// Show modal if user hasn't seen it
 		if (!hasSeenWelcome) {
 			showModal = true;
+			console.log('Welcome modal: Showing for new visitor');
+		} else {
+			console.log('Welcome modal: Already seen, not showing');
 		}
 	});
 	
