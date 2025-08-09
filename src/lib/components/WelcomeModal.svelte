@@ -208,3 +208,10 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	/* Ensure modal is always on top and prevent body scroll */
+	:global(body:has([style*="z-index: 99999"])) {
+		overflow: hidden;
+	}
+</style>
