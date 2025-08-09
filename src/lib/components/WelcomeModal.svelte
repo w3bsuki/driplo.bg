@@ -36,6 +36,7 @@
 	});
 	
 	function handleSignUp() {
+		console.log('Sign up clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 		const signUpUrl = localizeHref('/register');
@@ -43,6 +44,7 @@
 	}
 	
 	function handleSignIn() {
+		console.log('Sign in clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 		const signInUrl = localizeHref('/login');
@@ -50,6 +52,7 @@
 	}
 	
 	function handleAcceptCookies() {
+		console.log('Accept cookies clicked');
 		cookiesAccepted = true;
 		localStorage.setItem('driplo_cookie_consent', 'accepted');
 		
@@ -63,6 +66,7 @@
 	}
 	
 	function handleRejectCookies() {
+		console.log('Reject cookies clicked');
 		cookiesAccepted = false;
 		localStorage.setItem('driplo_cookie_consent', 'rejected');
 		
@@ -76,138 +80,131 @@
 	}
 	
 	function handleClose() {
+		console.log('Close clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 	}
 	
 	function handleBrowse() {
+		console.log('Browse clicked');
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 	}
 </script>
 
 {#if showModal}
-	<!-- Backdrop - removed click handler to prevent closing -->
-	<div 
-		class="fixed inset-0 bg-black/50 z-[9999] pointer-events-auto"
-		transition:fade={{ duration: 200 }}
-	></div>
-	
-	<!-- Modal -->
-	<div 
-		class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-lg px-4"
-		transition:fly={{ y: 20, duration: 300 }}
-	>
-		<div class="bg-white rounded-2xl shadow-2xl overflow-hidden relative">
-			<!-- Close button -->
-			<button
-				onclick={handleClose}
-				class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
-				aria-label="Close"
-				type="button"
-			>
-				<X class="w-5 h-5" />
-			</button>
-			
-			<!-- Header with gradient -->
-			<div class="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-6 text-white">
-				<h2 class="text-3xl font-bold mb-2">
-					{getLocale() === 'bg' ? 'Добре дошли в Driplo!' : 'Welcome to Driplo!'}
-				</h2>
-				<p class="text-white/90">
-					{getLocale() === 'bg' 
-						? 'Вашата дестинация за премиум мода'
-						: 'Your destination for premium fashion'}
-				</p>
-			</div>
-			
-			<!-- Content -->
-			<div class="px-8 py-6">
-				<!-- Welcome message -->
-				<div class="mb-6">
-					<p class="text-gray-600 mb-4">
-						{getLocale() === 'bg'
-							? 'Присъединете се към нашата общност и започнете да продавате или пазарувате луксозни дрехи и аксесоари днес!'
-							: 'Join our community and start selling or shopping luxury clothing and accessories today!'}
-					</p>
-					
-					<!-- CTA Buttons -->
-					<div class="flex gap-3 mb-6">
-						<button
-							type="button"
-							onclick={handleSignUp}
-							class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
-						>
-							{getLocale() === 'bg' ? 'Регистрация' : 'Sign Up'}
-						</button>
-						<button
-							type="button"
-							onclick={handleSignIn}
-							class="flex-1 bg-white border-2 border-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200"
-						>
-							{getLocale() === 'bg' ? 'Вход' : 'Sign In'}
-						</button>
-					</div>
-					
-					<!-- Browse without account -->
-					<button
-						type="button"
-						onclick={handleBrowse}
-						class="w-full text-gray-500 hover:text-gray-700 text-sm transition-colors"
-					>
+	<!-- Complete modal wrapper with highest z-index -->
+	<div class="fixed inset-0" style="z-index: 99999;">
+		<!-- Backdrop -->
+		<div 
+			class="absolute inset-0 bg-black/50"
+			transition:fade={{ duration: 200 }}
+		></div>
+		
+		<!-- Modal container -->
+		<div 
+			class="absolute inset-0 flex items-center justify-center p-4"
+			transition:fly={{ y: 20, duration: 300 }}
+		>
+			<div class="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-lg relative">
+				<!-- Close button -->
+				<button
+					onclick={handleClose}
+					class="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+					style="z-index: 10;"
+					aria-label="Close"
+				>
+					<X class="w-5 h-5" />
+				</button>
+				
+				<!-- Header with gradient -->
+				<div class="bg-gradient-to-r from-blue-500 to-purple-600 px-8 py-6 text-white">
+					<h2 class="text-3xl font-bold mb-2">
+						{getLocale() === 'bg' ? 'Добре дошли в Driplo!' : 'Welcome to Driplo!'}
+					</h2>
+					<p class="text-white/90">
 						{getLocale() === 'bg' 
-							? 'Продължете без акаунт →'
-							: 'Continue without account →'}
-					</button>
+							? 'Вашата дестинация за премиум мода'
+							: 'Your destination for premium fashion'}
+					</p>
 				</div>
 				
-				<!-- Cookie consent section -->
-				{#if cookiesAccepted === null}
-					<div class="border-t pt-6">
-						<h3 class="font-semibold text-gray-900 mb-2">
-							🍪 {getLocale() === 'bg' ? 'Бисквитки' : 'Cookies'}
-						</h3>
-						<p class="text-sm text-gray-600 mb-4">
+				<!-- Content -->
+				<div class="px-8 py-6">
+					<!-- Welcome message -->
+					<div class="mb-6">
+						<p class="text-gray-600 mb-4">
 							{getLocale() === 'bg'
-								? 'Използваме бисквитки, за да подобрим вашето изживяване и да анализираме трафика на сайта.'
-								: 'We use cookies to improve your experience and analyze site traffic.'}
+								? 'Присъединете се към нашата общност и започнете да продавате или пазарувате луксозни дрехи и аксесоари днес!'
+								: 'Join our community and start selling or shopping luxury clothing and accessories today!'}
 						</p>
-						<div class="flex gap-3">
+						
+						<!-- CTA Buttons -->
+						<div class="flex gap-3 mb-6">
 							<button
-								type="button"
-								onclick={handleAcceptCookies}
-								class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+								onclick={handleSignUp}
+								class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:shadow-lg transition-all duration-200 hover:scale-[1.02]"
 							>
-								{getLocale() === 'bg' ? 'Приемам' : 'Accept'}
+								{getLocale() === 'bg' ? 'Регистрация' : 'Sign Up'}
 							</button>
 							<button
-								type="button"
-								onclick={handleRejectCookies}
-								class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+								onclick={handleSignIn}
+								class="flex-1 bg-white border-2 border-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold hover:bg-gray-50 transition-all duration-200"
 							>
-								{getLocale() === 'bg' ? 'Отказвам' : 'Reject'}
+								{getLocale() === 'bg' ? 'Вход' : 'Sign In'}
 							</button>
 						</div>
+						
+						<!-- Browse without account -->
+						<button
+							onclick={handleBrowse}
+							class="w-full text-gray-500 hover:text-gray-700 text-sm transition-colors"
+						>
+							{getLocale() === 'bg' 
+								? 'Продължете без акаунт →'
+								: 'Continue without account →'}
+						</button>
 					</div>
-				{:else}
-					<div class="border-t pt-4">
-						<p class="text-xs text-gray-500 text-center">
-							{#if cookiesAccepted}
-								✓ {getLocale() === 'bg' ? 'Бисквитките са приети' : 'Cookies accepted'}
-							{:else}
-								✓ {getLocale() === 'bg' ? 'Бисквитките са отказани' : 'Cookies rejected'}
-							{/if}
-						</p>
-					</div>
-				{/if}
+					
+					<!-- Cookie consent section -->
+					{#if cookiesAccepted === null}
+						<div class="border-t pt-6">
+							<h3 class="font-semibold text-gray-900 mb-2">
+								🍪 {getLocale() === 'bg' ? 'Бисквитки' : 'Cookies'}
+							</h3>
+							<p class="text-sm text-gray-600 mb-4">
+								{getLocale() === 'bg'
+									? 'Използваме бисквитки, за да подобрим вашето изживяване и да анализираме трафика на сайта.'
+									: 'We use cookies to improve your experience and analyze site traffic.'}
+							</p>
+							<div class="flex gap-3">
+								<button
+									onclick={handleAcceptCookies}
+									class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+								>
+									{getLocale() === 'bg' ? 'Приемам' : 'Accept'}
+								</button>
+								<button
+									onclick={handleRejectCookies}
+									class="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
+								>
+									{getLocale() === 'bg' ? 'Отказвам' : 'Reject'}
+								</button>
+							</div>
+						</div>
+					{:else}
+						<div class="border-t pt-4">
+							<p class="text-xs text-gray-500 text-center">
+								{#if cookiesAccepted}
+									✓ {getLocale() === 'bg' ? 'Бисквитките са приети' : 'Cookies accepted'}
+								{:else}
+									✓ {getLocale() === 'bg' ? 'Бисквитките са отказани' : 'Cookies rejected'}
+								{/if}
+							</p>
+						</div>
+					{/if}
+				</div>
 			</div>
 		</div>
 	</div>
 {/if}
-
-<style>
-	/* Ensure modal is always on top */
-	:global(body:has(.fixed[class*="z-[9999]"])) {
-		overflow: hidden;
-	}
-</style>
