@@ -160,17 +160,8 @@
 	<section class="relative bg-gradient-to-b from-blue-50 to-white py-3 md:py-4">
 		<div class="container mx-auto px-4">
 			<div class="max-w-3xl mx-auto">
-				<!-- Top Sellers Section with error boundary -->
-				<DataErrorBoundary 
-					emptyState={{
-						title: "Unable to load top sellers",
-						description: "There was a problem loading the top sellers section.",
-						actionText: "Retry",
-						onAction: () => window.location.reload()
-					}}
-				>
-					<SimplifiedTopSellers sellers={data.topSellers || []} />
-				</DataErrorBoundary>
+				<!-- Top Sellers Section -->
+				<SimplifiedTopSellers sellers={data.topSellers || []} />
 				
 				<!-- Search Header -->
 				<BrowseHeader

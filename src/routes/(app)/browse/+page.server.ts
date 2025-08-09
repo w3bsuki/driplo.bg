@@ -63,21 +63,32 @@ export const load: PageServerLoad = async ({ url, locals }) => {
 			userFavorites = favorites?.map(f => f.listing_id) || []
 		}
 
-		// Get top sellers (cached for 1 hour)
+		// Get top sellers - prioritize specific users
 		const topSellers = await getCachedData(
 			'browse-top-sellers',
 			async () => {
-				const { data } = await supabase
+				// First try to get specific sellers we want to show
+				const { data: specificSellers } = await supabase
 					.from('profiles')
 					.select('id, username, avatar_url, seller_rating, total_sales, created_at')
+					.in('username', ['w3bsuki', 'jonko'])
+				
+				// Then get other top sellers
+				const { data: otherSellers } = await supabase
+					.from('profiles')
+					.select('id, username, avatar_url, seller_rating, total_sales, created_at')
+					.not('username', 'in', '("w3bsuki","jonko")')
 					.not('seller_rating', 'is', null)
 					.gte('total_sales', 1)
 					.order('seller_rating', { ascending: false })
 					.order('total_sales', { ascending: false })
-					.limit(10)
-				return data || []
+					.limit(8)
+				
+				// Combine and return, prioritizing specific sellers
+				const combined = [...(specificSellers || []), ...(otherSellers || [])]
+				return combined.slice(0, 10)
 			},
-			cacheTTL.leaderboard
+			300 // 5 minutes cache instead of 1 hour for debugging
 		)
 
 		// Calculate pagination info
