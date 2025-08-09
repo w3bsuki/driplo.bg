@@ -25,16 +25,18 @@
 		}
 	});
 	
-	function handleSignUp() {
+	function handleSignUp(e?: Event) {
+		if (e) e.stopPropagation();
 		localStorage.setItem('driplo_welcome_seen', 'true');
-		const locale = getLocale();
+		showModal = false;
 		const signUpUrl = localizeHref('/register');
 		goto(signUpUrl);
 	}
 	
-	function handleSignIn() {
+	function handleSignIn(e?: Event) {
+		if (e) e.stopPropagation();
 		localStorage.setItem('driplo_welcome_seen', 'true');
-		const locale = getLocale();
+		showModal = false;
 		const signInUrl = localizeHref('/login');
 		goto(signInUrl);
 	}
@@ -70,7 +72,8 @@
 		showModal = false;
 	}
 	
-	function handleBrowse() {
+	function handleBrowse(e?: Event) {
+		if (e) e.stopPropagation();
 		localStorage.setItem('driplo_welcome_seen', 'true');
 		showModal = false;
 	}
@@ -81,13 +84,13 @@
 	<div 
 		class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999]"
 		transition:fade={{ duration: 200 }}
-		onclick={handleClose}
 	></div>
 	
 	<!-- Modal -->
 	<div 
 		class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-lg px-4"
 		transition:fly={{ y: 20, duration: 300 }}
+		onclick={(e) => e.stopPropagation()}
 	>
 		<div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
 			<!-- Close button -->
