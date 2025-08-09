@@ -16,33 +16,12 @@
 		showQuickView = true;
 	}
 	
-	// Use real sellers or show fallback sellers if empty
-	const displaySellers = sellers.length > 0 ? sellers : [
-		{
-			id: 'fallback-1',
-			username: 'w3bsuki',
-			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=w3bsuki',
-			seller_rating: 5.0,
-			total_sales: 999
-		},
-		{
-			id: 'fallback-2', 
-			username: 'topSeller',
-			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=topSeller',
-			seller_rating: 4.9,
-			total_sales: 850
-		},
-		{
-			id: 'fallback-3',
-			username: 'fashionista',
-			avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=fashionista', 
-			seller_rating: 4.8,
-			total_sales: 720
-		}
-	];
+	// Use the actual sellers data from Supabase
+	const displaySellers = sellers;
 </script>
 
 <!-- Simple horizontal scroll of seller avatars -->
+{#if displaySellers.length > 0}
 <div class="container px-4">
 	<div class="overflow-x-auto py-1.5 scrollbar-hide">
 		<div class="flex gap-2.5 min-w-max justify-center">
@@ -77,6 +56,7 @@
 		</div>
 	</div>
 </div>
+{/if}
 
 <style>
 	/* Hide scrollbar but keep functionality */
