@@ -79,9 +79,9 @@
 	</div>
 	
 	<!-- Mobile Filters Row -->
-	<div class="px-3 py-3 flex gap-2.5 overflow-x-auto scrollbar-hide sm:hidden bg-white border-t border-gray-100">
+	<div class="px-3 py-2 flex gap-2 sm:hidden bg-white border-t border-gray-100">
 		<!-- Sort Filter -->
-		<div class="relative flex-shrink-0">
+		<div class="relative flex-1">
 			<select
 				bind:value={sortBy}
 				onchange={(e) => onSortUpdate(e.currentTarget.value)}
@@ -91,11 +91,11 @@
 					<option value={option.value}>{option.mobileLabel || option.label}</option>
 				{/each}
 			</select>
-			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-600 pointer-events-none" />
+			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500 pointer-events-none" />
 		</div>
 		
 		<!-- Condition Filter -->
-		<div class="relative flex-shrink-0">
+		<div class="relative flex-1">
 			<select
 				value={filters.conditions?.[0] || ''}
 				onchange={(e) => onConditionUpdate(e.currentTarget.value ? [e.currentTarget.value] : [])}
@@ -106,11 +106,11 @@
 					<option value={option.value}>{option.label}</option>
 				{/each}
 			</select>
-			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-600 pointer-events-none" />
+			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500 pointer-events-none" />
 		</div>
 		
 		<!-- Brand Filter -->
-		<div class="relative flex-shrink-0">
+		<div class="relative flex-1">
 			<select
 				value={filters.brands?.[0] || ''}
 				onchange={(e) => onBrandUpdate(e.currentTarget.value ? [e.currentTarget.value] : [])}
@@ -121,7 +121,7 @@
 					<option value={brand}>{brand}</option>
 				{/each}
 			</select>
-			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-600 pointer-events-none" />
+			<ChevronDown class="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-500 pointer-events-none" />
 		</div>
 	</div>
 	
@@ -172,18 +172,16 @@
 	}
 	
 	.mobile-filter-btn {
-		/* Clean minimal design */
+		/* Full width clean design */
 		appearance: none;
-		width: max-content;
-		min-width: 70px;
-		max-width: 90px;
-		padding: 5px 18px 5px 8px;
-		font-size: 11px;
+		width: 100%;
+		padding: 7px 24px 7px 10px;
+		font-size: 12px;
 		font-weight: 500;
 		color: rgb(55 65 81);
 		background: rgb(255 255 255);
 		border: 1px solid rgb(229 231 235);
-		border-radius: 4px;
+		border-radius: 6px;
 		cursor: pointer;
 		transition: all 0.1s ease;
 		text-overflow: ellipsis;
