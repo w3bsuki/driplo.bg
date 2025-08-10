@@ -3,14 +3,14 @@
 	import ListingGrid from '$lib/components/listings/ListingGrid.svelte';
 	import ModularHeroSearch from '$lib/components/home/ModularHeroSearch.svelte';
 	import RecentlySoldTicker from '$lib/components/home/RecentlySoldTicker.svelte';
-	import TopSellersMarquee from '$lib/components/home/TopSellersMarquee.svelte';
+	import TopSellersCarousel from '$lib/components/home/TopSellersCarousel.svelte';
 	import * as m from '$lib/paraglide/messages.js';
 	
 	let { data }: { data: PageData } = $props();
 </script>
 
-<TopSellersMarquee sellers={data.topSellers || []} />
 <ModularHeroSearch categories={data.categories} />
+<TopSellersCarousel sellers={data.topSellers || []} />
 <ListingGrid title={m.home_featured_title()} listings={data.featuredListings} />
 <RecentlySoldTicker />
 <ListingGrid title={m.home_most_viewed_title()} listings={data.popularListings} />
