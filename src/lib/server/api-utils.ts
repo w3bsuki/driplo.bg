@@ -4,7 +4,8 @@ import type { Session } from '@supabase/supabase-js';
 import type { Tables } from '$lib/database.types';
 import { z } from 'zod';
 import { dev } from '$app/environment';
-import { PUBLIC_APP_URL, PUBLIC_ALLOWED_ORIGINS } from '$env/static/public';
+import { PUBLIC_APP_URL } from '$env/static/public';
+import { browser } from '$app/environment';
 import { logger } from '$lib/utils/logger';
 
 // Standard API response types
@@ -376,9 +377,24 @@ export function checkRateLimit(
 }
 
 // CORS utility with secure origin validation
+const getProductionOrigins = () => {
+  try {
+    // Try to get PUBLIC_ALLOWED_ORIGINS from process.env since static imports might not be available
+    const allowedOrigins = typeof process !== 'undefined' && process.env?.PUBLIC_ALLOWED_ORIGINS;
+    if (allowedOrigins) {
+      return allowedOrigins.split(',').map(origin => origin.trim());
+    }
+    // Fallback to default public app URL
+    return [PUBLIC_APP_URL];
+  } catch (error) {
+    // Fallback if any error occurs
+    return [PUBLIC_APP_URL];
+  }
+};
+
 const ALLOWED_ORIGINS = [
   // Production origins from environment variable
-  ...PUBLIC_ALLOWED_ORIGINS.split(',').map(origin => origin.trim()),
+  ...getProductionOrigins(),
   // Add development origins only in dev mode
   ...(dev ? [
     'http://localhost:5173',
