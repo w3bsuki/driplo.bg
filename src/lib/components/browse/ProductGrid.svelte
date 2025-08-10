@@ -79,7 +79,7 @@
 	</div>
 	
 	<!-- Mobile Filters Row -->
-	<div class="px-3 py-2.5 flex gap-2 overflow-x-auto scrollbar-hide sm:hidden bg-white border-t border-gray-100">
+	<div class="px-3 py-3 flex gap-2.5 overflow-x-auto scrollbar-hide sm:hidden bg-white border-t border-gray-100">
 		<!-- Sort Filter -->
 		<div class="relative flex-shrink-0">
 			<select
@@ -172,36 +172,33 @@
 	}
 	
 	.mobile-filter-btn {
-		/* Clean compact design */
+		/* Clean minimal design */
 		appearance: none;
 		width: max-content;
-		min-width: 80px;
-		max-width: 105px;
-		padding: 8px 26px 8px 10px;
-		font-size: 12px;
-		font-weight: 600;
-		color: rgb(31 41 55);
-		background: linear-gradient(to bottom, rgb(255 255 255), rgb(249 250 251));
-		border: 1.5px solid rgb(209 213 219);
-		border-radius: 8px;
+		min-width: 70px;
+		max-width: 90px;
+		padding: 5px 18px 5px 8px;
+		font-size: 11px;
+		font-weight: 500;
+		color: rgb(55 65 81);
+		background: rgb(255 255 255);
+		border: 1px solid rgb(229 231 235);
+		border-radius: 4px;
 		cursor: pointer;
-		transition: all 0.15s ease;
-		/* Text handling */
+		transition: all 0.1s ease;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		overflow: hidden;
-		/* Shadow for depth */
-		box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 	}
 	
 	.mobile-filter-btn:hover {
-		background: linear-gradient(to bottom, rgb(249 250 251), rgb(243 244 246));
-		border-color: rgb(156 163 175);
+		background: rgb(249 250 251);
+		border-color: rgb(209 213 219);
 	}
 	
 	.mobile-filter-btn:focus {
 		outline: none;
 		border-color: rgb(59 130 246);
-		box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+		box-shadow: 0 0 0 2px rgb(59 130 246 / 0.1);
 	}
 </style>

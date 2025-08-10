@@ -126,10 +126,10 @@
 				
 				<button
 					onclick={() => handleNavigation('/register')}
-					class="flex items-center justify-center gap-1 px-2 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm"
+					class="flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-sm whitespace-nowrap"
 				>
-					<User class="h-3.5 w-3.5" />
-					<span class="text-[13px] font-medium">{m.auth_sign_up()}</span>
+					<User class="h-3.5 w-3.5 flex-shrink-0" />
+					<span class="text-xs font-medium">{m.auth_sign_up()}</span>
 				</button>
 			</div>
 		</div>
