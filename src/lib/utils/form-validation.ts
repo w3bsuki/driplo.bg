@@ -295,6 +295,16 @@ export const legacyValidators = {
     }
     
     return sum % 10 === 0;
+  },
+  
+  // File validation functions
+  validateFileSize: (file: File, maxSizeMB: number): boolean => {
+    return file.size <= maxSizeMB * 1024 * 1024;
+  },
+  
+  validateImageFile: (file: File, maxSizeMB: number = 10): boolean => {
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    return validTypes.includes(file.type) && file.size <= maxSizeMB * 1024 * 1024;
   }
 };
 
@@ -445,17 +455,5 @@ export function createDebouncedValidator(
   };
 }
 
-// Export all schemas and validators
-export default {
-  rules: validationRules,
-  schemas: formSchemas,
-  custom: customValidators,
-  validateForm,
-  safeValidateForm,
-  validateField,
-  formatZodErrors,
-  createFormState,
-  updateFormField,
-  createFieldValidator,
-  createDebouncedValidator
-};
+// Export individual functions and objects instead of default export
+// This prevents potential circular dependency issues during compilation

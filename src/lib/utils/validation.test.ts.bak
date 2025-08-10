@@ -1,0 +1,119 @@
+import { describe, it, expect } from 'vitest';
+import { 
+	legacyValidators,
+	customValidators
+} from './form-validation';
+
+describe('isValidEmail', () => {
+	it('should validate correct emails', () => {
+		expect(legacyValidators.isValidEmail('user@example.com')).toBe(true);
+		expect(legacyValidators.isValidEmail('test.user@domain.co.uk')).toBe(true);
+		expect(legacyValidators.isValidEmail('user+tag@example.com')).toBe(true);
+		expect(legacyValidators.isValidEmail('user_123@example-domain.com')).toBe(true);
+	});
+
+	it('should reject invalid emails', () => {
+		expect(legacyValidators.isValidEmail('invalid')).toBe(false);
+		expect(legacyValidators.isValidEmail('@example.com')).toBe(false);
+		expect(legacyValidators.isValidEmail('user@')).toBe(false);
+		expect(legacyValidators.isValidEmail('user @example.com')).toBe(false);
+		expect(legacyValidators.isValidEmail('')).toBe(false);
+	});
+});
+
+describe('isValidUsername', () => {
+	it('should validate correct usernames', () => {
+		expect(legacyValidators.isValidUsername('john_doe')).toBe(true);
+		expect(legacyValidators.isValidUsername('user123')).toBe(true);
+		expect(legacyValidators.isValidUsername('test_user_123')).toBe(true);
+	});
+
+	it('should reject invalid usernames', () => {
+		expect(legacyValidators.isValidUsername('ab')).toBe(false); // too short
+		expect(legacyValidators.isValidUsername('a'.repeat(21))).toBe(false); // too long
+		expect(legacyValidators.isValidUsername('user name')).toBe(false); // contains space
+		expect(legacyValidators.isValidUsername('user@name')).toBe(false); // contains @
+		expect(legacyValidators.isValidUsername('123user')).toBe(false); // starts with number
+		expect(legacyValidators.isValidUsername('')).toBe(false);
+	});
+});
+
+describe('isValidPassword', () => {
+	it('should validate strong passwords', () => {
+		expect(legacyValidators.isValidPassword('Password123!')).toBe(true);
+		expect(legacyValidators.isValidPassword('StrongP@ss1')).toBe(true);
+		expect(legacyValidators.isValidPassword('MyP@ssw0rd')).toBe(true);
+	});
+
+	it('should reject weak passwords', () => {
+		expect(legacyValidators.isValidPassword('short')).toBe(false); // too short
+		expect(legacyValidators.isValidPassword('password123')).toBe(false); // no uppercase
+		expect(legacyValidators.isValidPassword('PASSWORD123')).toBe(false); // no lowercase
+		expect(legacyValidators.isValidPassword('Password')).toBe(false); // no number
+		expect(legacyValidators.isValidPassword('')).toBe(false);
+	});
+});
+
+describe('sanitizeInput', () => {
+	it('should escape and remove HTML tags', () => {
+		// The function escapes first, so <script> becomes &lt;script&gt;
+		expect(customValidators.sanitizeInput('<script>alert("xss")</script>')).toBe('alert(&quot;xss&quot;)');
+		expect(customValidators.sanitizeInput('Hello <b>World</b>')).toBe('Hello World');
+		expect(customValidators.sanitizeInput('<p>Test</p>')).toBe('Test');
+	});
+
+	it('should escape special characters', () => {
+		expect(customValidators.sanitizeInput('Test & Co')).toBe('Test &amp; Co');
+		expect(customValidators.sanitizeInput('"Quote"')).toBe('&quot;Quote&quot;');
+		expect(customValidators.sanitizeInput('<Test>')).toBe('Test');
+	});
+
+	it('should handle normal text', () => {
+		expect(customValidators.sanitizeInput('Normal text')).toBe('Normal text');
+		expect(customValidators.sanitizeInput('123')).toBe('123');
+	});
+
+	it('should handle empty input', () => {
+		expect(customValidators.sanitizeInput('')).toBe('');
+	});
+});
+
+describe('validateFileSize', () => {
+	it('should validate file sizes within limits', () => {
+		const smallFile = new File(['content'], 'test.txt', { type: 'text/plain' });
+		Object.defineProperty(smallFile, 'size', { value: 1024 * 1024 }); // 1MB
+		expect(legacyValidators.validateFileSize(smallFile, 5)).toBe(true);
+	});
+
+	it('should reject files exceeding size limit', () => {
+		const largeFile = new File(['content'], 'test.txt', { type: 'text/plain' });
+		Object.defineProperty(largeFile, 'size', { value: 10 * 1024 * 1024 }); // 10MB
+		expect(legacyValidators.validateFileSize(largeFile, 5)).toBe(false);
+	});
+});
+
+describe('validateImageFile', () => {
+	it('should validate image files with correct types', () => {
+		const jpegFile = new File([''], 'image.jpg', { type: 'image/jpeg' });
+		const pngFile = new File([''], 'image.png', { type: 'image/png' });
+		const webpFile = new File([''], 'image.webp', { type: 'image/webp' });
+
+		expect(legacyValidators.validateImageFile(jpegFile)).toBe(true);
+		expect(legacyValidators.validateImageFile(pngFile)).toBe(true);
+		expect(legacyValidators.validateImageFile(webpFile)).toBe(true);
+	});
+
+	it('should reject non-image files', () => {
+		const textFile = new File([''], 'file.txt', { type: 'text/plain' });
+		const pdfFile = new File([''], 'file.pdf', { type: 'application/pdf' });
+
+		expect(legacyValidators.validateImageFile(textFile)).toBe(false);
+		expect(legacyValidators.validateImageFile(pdfFile)).toBe(false);
+	});
+
+	it('should reject oversized images', () => {
+		const largeImage = new File([''], 'large.jpg', { type: 'image/jpeg' });
+		Object.defineProperty(largeImage, 'size', { value: 20 * 1024 * 1024 }); // 20MB
+		expect(legacyValidators.validateImageFile(largeImage)).toBe(false);
+	});
+});
