@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Heart } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
-	import { Badge } from '$lib/components/ui';
 	import ConditionBadge from '$lib/components/badges/ConditionBadge.svelte';
 	import EnhancedImage from '$lib/components/common/EnhancedImage.svelte';
 	import * as m from '$lib/paraglide/messages.js';
@@ -74,8 +73,7 @@
 			: 0
 	);
 	
-	
-	async function handleToggleLike(e: MouseEvent) {
+	const handleToggleLike = async (e: MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 		if (likeLoading) return;
@@ -96,17 +94,14 @@
 
 			if (response.ok) {
 				const data = await response.json();
-				// Update like count with server response
 				if (data.likeCount !== undefined) {
 					likeCount = data.likeCount;
 				}
 			} else {
-				// Revert on error
 				liked = originalLiked;
 				likeCount = originalCount;
 			}
 		} catch (error) {
-			// Revert on error
 			liked = originalLiked;
 			likeCount = originalCount;
 			logger.error('Error toggling like:', error);
@@ -115,33 +110,30 @@
 		}
 	}
 	
-	function handleImageError() {
-		imageError = true;
-	}
-	
-	// Get seller avatar (handle both avatar and avatar_url)
+	// Get seller avatar
 	const sellerAvatar = $derived(seller?.avatar || seller?.avatar_url);
-	const sellerRating = $derived(seller?.rating || seller?.seller_rating);
 </script>
 
 <article 
 	class={cn(
-		"relative bg-white rounded-xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-md transition-all duration-200 group",
+		"group relative bg-white rounded-lg overflow-hidden",
+		"border border-gray-200 hover:border-gray-300",
+		"transition-all duration-200",
 		className
 	)}
 >
 	<a 
 		href={localizeHref(`/listings/${id}`)} 
-		class="block focus:outline-none focus-visible:ring-1 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+		class="block"
 		aria-label={m.listing_view_details({ title })}
 	>
-		<!-- Image Container - 75% of card height -->
-		<div class="relative aspect-[3/4] bg-gray-50 overflow-hidden">
+		<!-- Image Container - Square aspect ratio -->
+		<div class="relative aspect-square bg-gray-50 overflow-hidden">
 			{#if !imageError && primaryImageUrl()}
 				<EnhancedImage
 					src={primaryImageUrl()}
 					alt={title}
-					className="absolute inset-0 h-full w-full object-cover"
+					className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
 					loading={eagerLoading ? 'eager' : 'lazy'}
 					priority={eagerLoading}
 					useProgressiveLoading={!eagerLoading}
@@ -150,29 +142,19 @@
 					onError={() => imageError = true}
 				/>
 			{:else}
-				<div class="h-full w-full flex items-center justify-center">
-					<div class="text-center p-4">
-						<div class="w-10 h-10 mx-auto mb-2 bg-gray-100 rounded-xl flex items-center justify-center">
-							<span class="text-lg text-gray-400">📷</span>
-						</div>
-						<p class="text-xs text-gray-400">No image</p>
-					</div>
+				<div class="h-full w-full flex items-center justify-center bg-gray-100">
+					<span class="text-2xl text-gray-400">📷</span>
 				</div>
 			{/if}
 			
 			<!-- Condition Badge - Top Left -->
 			{#if condition}
 				<div class="absolute top-2 left-2">
-					<ConditionBadge condition={condition} size="sm" class="text-[10px] font-bold px-1.5 py-0.5 h-5" />
-				</div>
-			{/if}
-			
-			<!-- Discount Badge - Below Condition -->
-			{#if discountPercentage > 0}
-				<div class="absolute top-9 left-2">
-					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded-xl text-[10px] font-bold shadow-sm">
-						-{discountPercentage}%
-					</div>
+					<ConditionBadge 
+						condition={condition} 
+						size="sm" 
+						class="text-[10px] font-semibold px-1.5 py-0.5 shadow-sm" 
+					/>
 				</div>
 			{/if}
 			
@@ -180,9 +162,13 @@
 			<button
 				onclick={handleToggleLike}
 				class={cn(
-					"absolute top-2 right-2 w-7 h-7 rounded-xl bg-white/90 backdrop-blur-sm flex items-center justify-center transition-all duration-200 shadow-sm",
-					"hover:bg-white hover:scale-105",
-					likeLoading && "opacity-50 cursor-not-allowed"
+					"absolute top-2 right-2",
+					"w-8 h-8 rounded-full",
+					"bg-white/90 backdrop-blur-sm shadow-sm",
+					"flex items-center justify-center",
+					"transition-all duration-200",
+					"hover:bg-white hover:shadow-md",
+					likeLoading && "opacity-50"
 				)}
 				aria-label={liked ? m.listing_unlike() : m.listing_like()}
 				aria-pressed={liked}
@@ -190,60 +176,71 @@
 				type="button"
 			>
 				<Heart 
-					class={cn("h-3.5 w-3.5", liked ? "fill-red-500 text-red-500" : "text-gray-600")} 
-					aria-hidden="true"
+					class={cn(
+						"w-4 h-4",
+						liked ? "fill-red-500 text-red-500" : "text-gray-600"
+					)} 
 				/>
 			</button>
+			
+			<!-- Discount Badge - Bottom Left if significant -->
+			{#if discountPercentage >= 15}
+				<div class="absolute bottom-2 left-2">
+					<div class="bg-red-500 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">
+						-{discountPercentage}%
+					</div>
+				</div>
+			{/if}
 		</div>
 		
-		<!-- Text Container - 25% of card height -->
-		<div class="p-2 space-y-0.5">
-			<!-- Price - Most prominent -->
-			<p class="text-sm font-bold text-gray-900">{formattedPrice}</p>
+		<!-- Content - Super minimal -->
+		<div class="p-2">
+			<!-- Seller -->
+			<div class="flex items-center gap-1 mb-1">
+				{#if sellerAvatar}
+					<img 
+						src={sellerAvatar} 
+						alt="" 
+						class="w-4 h-4 rounded-full" 
+					/>
+				{:else}
+					<div class="w-4 h-4 rounded-full bg-gray-300"></div>
+				{/if}
+				<span class="text-xs text-gray-600 truncate">
+					{seller?.username || 'Anonymous'}
+				</span>
+			</div>
 			
-			<!-- Brand and Size - Very small -->
+			<!-- Title -->
+			<p class="text-xs text-gray-900 line-clamp-1 mb-1">
+				{title}
+			</p>
+			
+			<!-- Brand & Size in same row -->
 			{#if brand || size}
-				<p class="text-[11px] text-gray-500 truncate">
+				<div class="flex items-center gap-1.5 text-[10px] text-gray-600 mb-1">
 					{#if brand}
-						<span>{brand}</span>
+						<span class="font-medium">{brand}</span>
 					{/if}
 					{#if brand && size}
-						<span class="mx-0.5">•</span>
+						<span class="text-gray-400">•</span>
 					{/if}
 					{#if size}
-						<span>{size}</span>
-					{/if}
-				</p>
-			{/if}
-			
-			<!-- Seller and Likes Row -->
-			<div class="flex items-center justify-between pt-0.5">
-				<div class="flex items-center gap-1 min-w-0 flex-1">
-					{#if sellerAvatar}
-						<img 
-							src={sellerAvatar} 
-							alt="" 
-							class="h-3.5 w-3.5 rounded-full object-cover flex-shrink-0" 
-						/>
-					{:else}
-						<div class="h-3.5 w-3.5 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center flex-shrink-0">
-							<span class="text-[8px] text-white font-semibold">
-								{seller?.username?.charAt(0).toUpperCase() || 'A'}
-							</span>
-						</div>
-					{/if}
-					<span class="text-[11px] text-gray-600 truncate">
-						{seller?.username || 'Anonymous'}
-					</span>
-					{#if sellerRating}
-						<span class="text-[10px] text-yellow-500">★{sellerRating.toFixed(1)}</span>
+						<span>Size {size}</span>
 					{/if}
 				</div>
+			{/if}
+			
+			<!-- Price with like count -->
+			<div class="flex items-center justify-between">
+				<span class="text-sm font-bold text-gray-900">
+					{formattedPrice}
+				</span>
 				{#if likeCount > 0}
-					<div class="flex items-center gap-0.5 text-gray-500 flex-shrink-0">
-						<Heart class="h-3 w-3 fill-current" />
-						<span class="text-[10px] font-medium">{likeCount}</span>
-					</div>
+					<span class="text-[10px] text-gray-500 flex items-center gap-0.5">
+						<Heart class="w-2.5 h-2.5 fill-current" />
+						{likeCount}
+					</span>
 				{/if}
 			</div>
 		</div>
