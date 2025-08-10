@@ -70,6 +70,11 @@
     "vite-bundle-visualizer": "^1.2.1",
     "vitest": "^3.2.4"
   },
+  "pnpm": {
+    "overrides": {
+      "zod-to-json-schema": "3.23.5"
+    }
+  },
   "engines": {
     "node": ">=20.0.0"
   },
@@ -94,7 +99,7 @@
     "sharp": "^0.34.3",
     "stripe": "^18.3.0",
     "svelte-sonner": "^1.0.5",
-    "sveltekit-superforms": "^2.27.1",
+    "sveltekit-superforms": "^2.19.1",
     "tailwind-merge": "^3.3.1",
     "uuid": "^11.1.0",
     "web-vitals": "^5.0.3",
