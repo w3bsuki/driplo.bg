@@ -7,6 +7,7 @@
 	import { localizeHref, getLocale } from '$lib/paraglide/runtime.js';
 	import { formatCurrency } from '$lib/utils/currency';
 	import { logger } from '$lib/utils/logger';
+	import { getOptimizedImageUrl, getImageSrcSet } from '$lib/utils/image-url';
 	const AVATAR_GRADIENT_COLORS = [
 		'from-blue-500 to-purple-500',
 		'from-green-500 to-blue-500', 
@@ -142,7 +143,8 @@
 		<div class="relative aspect-[3/4] overflow-hidden rounded-t-md bg-gray-100">
 			{#if !imageError && primaryImageUrl()}
 				<img
-					src={primaryImageUrl()}
+					src={getOptimizedImageUrl(primaryImageUrl(), { width: 400, quality: 80 })}
+					srcset={getImageSrcSet(primaryImageUrl(), [200, 400, 600])}
 					alt={title}
 					class="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
 					loading={eagerLoading ? 'eager' : 'lazy'}
@@ -226,7 +228,7 @@
 			<div class="flex items-center justify-between text-xs">
 				<div class="flex items-center gap-1 text-gray-600">
 					{#if seller?.avatar_url}
-						<img src={seller.avatar_url} alt="" class="h-4 w-4 rounded-full" />
+						<img src={getOptimizedImageUrl(seller.avatar_url, { width: 50, height: 50, quality: 75 })} alt="" class="h-4 w-4 rounded-full" />
 					{:else}
 						<div class="h-4 w-4 rounded-full bg-gradient-to-br {avatarGradient} flex items-center justify-center">
 							<span class="text-[10px] text-white font-medium">
